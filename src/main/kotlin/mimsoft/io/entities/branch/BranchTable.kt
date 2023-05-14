@@ -13,5 +13,6 @@ data class BranchTable(
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null,
+    val a: Boolean? = null
 )
 
