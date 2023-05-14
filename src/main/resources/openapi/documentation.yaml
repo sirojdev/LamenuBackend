@@ -100,14 +100,24 @@ paths:
     post:
       description: "Adds a new branch"
       requestBody:
-        $ref: "#/components/schemas/BranchDto"
+        description: "A JSON object containing updated branch information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchDto"
       responses:
         "200":
           description: "OK"
     put:
       description: "Updates an existing branch"
       requestBody:
-        $ref: "#/components/schemas/BranchDto"
+        description: "A JSON object containing updated branch information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchDto"
       responses:
         "200":
           description: "OK"
@@ -165,14 +175,24 @@ paths:
     post:
       description: "Adds a new category"
       requestBody:
-        $ref: "#/components/schemas/CategoryDto"
+        description: "A JSON object containing updated category information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryDto"
       responses:
         "200":
           description: "OK"
     put:
-      description: "Updates an existing category"
+      description: "Adds a new category"
       requestBody:
-        $ref: "#/components/schemas/CategoryDto"
+        description: "A JSON object containing updated category information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryDto"
       responses:
         "200":
           description: "OK"
@@ -230,14 +250,24 @@ paths:
     post:
       description: "Adds a new extra"
       requestBody:
-        $ref: "#/components/schemas/ExtraDto"
+        description: "A JSON object containing updated extra information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtraDto"
       responses:
         "200":
           description: "OK"
     put:
-      description: "Updates an existing extra"
+      description: "Adds a new extra"
       requestBody:
-        $ref: "#/components/schemas/ExtraDto"
+        description: "A JSON object containing updated extra information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtraDto"
       responses:
         "200":
           description: "OK"
@@ -295,14 +325,24 @@ paths:
     post:
       description: "Adds a new lable"
       requestBody:
-        $ref: "#/components/schemas/LabelDto"
+        description: "A JSON object containing updated lable information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabelDto"
       responses:
         "200":
           description: "OK"
     put:
-      description: "Updates an existing lable"
+      description: "Adds a new lable"
       requestBody:
-        $ref: "#/components/schemas/LabelDto"
+        description: "A JSON object containing updated lable information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabelDto"
       responses:
         "200":
           description: "OK"
@@ -360,14 +400,24 @@ paths:
     post:
       description: "Adds a new menu"
       requestBody:
-        $ref: "#/components/schemas/MenuDto"
+        description: "A JSON object containing updated menu information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuDto"
       responses:
         "200":
           description: "OK"
     put:
-      description: "Updates an existing menu"
+      description: "Adds a new menu"
       requestBody:
-        $ref: "#/components/schemas/MenuDto"
+        description: "A JSON object containing updated menu information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuDto"
       responses:
         "200":
           description: "OK"
@@ -425,14 +475,24 @@ paths:
     post:
       description: "Adds a new option"
       requestBody:
-        $ref: "#/components/schemas/OptionDto"
+        description: "A JSON object containing updated option information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptionDto"
       responses:
         "200":
           description: "OK"
     put:
-      description: "Updates an existing option"
+      description: "Adds a new option"
       requestBody:
-        $ref: "#/components/schemas/OptionDto"
+        description: "A JSON object containing updated option information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptionDto"
       responses:
         "200":
           description: "OK"
@@ -490,14 +550,24 @@ paths:
     post:
       description: "Adds a new product"
       requestBody:
-        $ref: "#/components/schemas/ProductDto"
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductDto"
       responses:
         "200":
           description: "OK"
     put:
-      description: "Updates an existing product"
+      description: "Adds a new product"
       requestBody:
-        $ref: "#/components/schemas/ProductDto"
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductDto"
       responses:
         "200":
           description: "OK"
@@ -555,6 +625,7 @@ components:
           type: "string"
         birthDay:
           type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
     BranchDto:
       type: "object"
       properties:

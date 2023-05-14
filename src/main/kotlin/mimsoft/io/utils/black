@@ -1,0 +1,184 @@
+/* suspend fun <T : Any> getAll(dataClass: KClass<T>, id: Long = 0L): List<T?> =
+        withContext(Dispatchers.IO) {
+            val tableName = dataClass.simpleName?.toLowerCase() ?: throw Exception("Table name not found")
+            val selectAll = if (id == 0L) {
+                """SELECT * FROM $tableName WHERE NOT deleted"""
+            } else {
+                """SELECT * FROM $tableName WHERE id = $id AND NOT deleted"""
+            }
+
+            val statement = DBManager.connection().prepareStatement(selectAll)
+            val resultSet = statement.executeQuery()
+            val objects = mutableListOf<T?>()
+
+            while (resultSet.next()) {
+                val constructor = dataClass.constructors.firstOrNull()
+                val parameters = constructor?.parameters?.associateBy({ it.name }, { it.type.javaType })
+
+                val values = hashMapOf<String, Any?>()
+                parameters?.forEach { (name, type) ->
+                    val value = when (type) {
+                        Long::class.java -> resultSet.getLong(name)
+                        String::class.java -> resultSet.getString(name)
+                        Double::class.java -> resultSet.getDouble(name)
+                        java.sql.Timestamp::class.java -> resultSet.getTimestamp(name)
+                        Boolean::class.java -> resultSet.getBoolean(name)
+                        else -> throw IllegalArgumentException("Unsupported property type $type")
+                    }
+                    values[name] = value
+                }
+
+                val obj = constructor?.callBy(values)
+                objects.add(obj)
+            }
+            return@withContext objects
+        }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    suspend fun <T : Any> getAll(dataClass: KClass<T>, id: Long = 0L): List<T?> =
+        withContext(Dispatchers.IO) {
+            val tableName = dataClass.simpleName?.toLowerCase() ?: throw Exception("Table name not found")
+            val selectAll = if (id == 0L) {
+                """SELECT * FROM $tableName WHERE NOT deleted"""
+            } else {
+                """SELECT * FROM $tableName WHERE id = $id AND NOT deleted"""
+            }
+
+            val statement = DBManager.connection().prepareStatement(selectAll)
+            val resultSet = statement.executeQuery()
+            val objects = mutableListOf<T?>()
+
+            while (resultSet.next()) {
+                val constructor = dataClass.constructors.firstOrNull()
+                val parameters = constructor?.parameters?.associateBy({ it.name }, { it.type.javaType })
+
+                val values = hashMapOf<String, Any?>()
+                parameters?.forEach { (name, type) ->
+                    val value = when (val classifier = (type as java.lang.reflect.ParameterizedType).rawType as Class<*>) {
+                        Long::class.java -> resultSet.getLong(name)
+                        String::class.java -> resultSet.getString(name)
+                        Double::class.java -> resultSet.getDouble(name)
+                        java.sql.Timestamp::class.java -> resultSet.getTimestamp(name)
+                        Boolean::class.java -> resultSet.getBoolean(name)
+                        else -> throw IllegalArgumentException("Unsupported property type $classifier")
+                    }
+                    values[name] = value
+                }
+
+                val obj = constructor?.callBy(values)
+                objects.add(obj)
+            }
+            return@withContext objects
+        }
+*/
+    /*@OptIn(ExperimentalStdlibApi::class)
+    suspend fun <T : Any> getAll(dataClass: KClass<T>, id: Long = 0L, tName: String? = null): List<T?> =
+    withContext(Dispatchers.IO) {
+        val tableName = tName ?: (dataClass.simpleName?.toLowerCase() ?: throw Exception("Table name not found"))
+        val selectAll = if (id == 0L) {
+            """SELECT * FROM $tableName WHERE NOT deleted"""
+        } else {
+            """SELECT * FROM $tableName WHERE id = $id AND NOT deleted"""
+        }
+
+        val statement = connection().prepareStatement(selectAll)
+        val resultSet = statement.executeQuery()
+        val objects = mutableListOf<T?>()
+
+        while (resultSet.next()) {
+            val constructor = dataClass.constructors.firstOrNull()
+            val parameters = constructor?.parameters
+
+            val values = mutableMapOf<KParameter, Any?>()
+            parameters?.forEach { parameter ->
+                val name = parameter.name ?: throw IllegalArgumentException("Parameter name is missing")
+                val type = parameter.type.javaType
+
+                val value = when (val classifier = (type as java.lang.reflect.ParameterizedType).rawType as Class<*>) {
+                    Long::class.java -> resultSet.getLong(name)
+                    String::class.java -> resultSet.getString(name)
+                    Double::class.java -> resultSet.getDouble(name)
+                    java.sql.Timestamp::class.java -> resultSet.getTimestamp(name)
+                    Boolean::class.java -> resultSet.getBoolean(name)
+                    else -> throw IllegalArgumentException("Unsupported property type $classifier")
+                }
+                values[parameter] = value
+            }
+
+            val obj = constructor?.callBy(values)
+            objects.add(obj)
+        }
+        return@withContext objects
+    }
+*/
+
+//
+    suspend fun <T : Any> getAll(dataClass: KClass<T>, id: Long = 0L, tName: String? = null): List<T> =
+    withContext(Dispatchers.IO) {
+        val columnMap = getColumnMap(dataClass.java.javaClass)
+        val tableName = tName ?: (dataClass.simpleName?.toLowerCase() ?: throw Exception("Table name not found"))
+        val selectAll = if (id == 0L) {
+            """SELECT * FROM $tableName WHERE NOT deleted"""
+        } else {
+            """SELECT * FROM $tableName WHERE id = $id AND NOT deleted"""
+        }
+
+        val statement = connection().prepareStatement(selectAll)
+        val resultSet = statement.executeQuery()
+        val items = mutableListOf<T>()
+
+
+        while (resultSet.next()) {
+            val constructor = dataClass.primaryConstructor
+                ?: throw IllegalArgumentException("No primary constructor found")
+
+            val parameters = constructor.parameters.map { param ->
+                val columnName = param.name?.toLowerCase() ?: throw IllegalArgumentException("Column name not found")
+                resultSet.getObject(columnName, columnMap)
+            }.toTypedArray()
+
+            val item = constructor.call(*parameters)
+            items.add(item)
+        }
+
+        return@withContext items
+    }
+
+   /* fun getColumnMap(): Map<String, Class<*>> {
+        return ProductTable::class.memberProperties.associate { prop ->
+            prop.name to when (prop.returnType) {
+                Long::class.starProjectedType.nullable -> Long::class.javaObjectType
+                String::class.starProjectedType.nullable -> String::class.java
+                Double::class.starProjectedType.nullable -> Double::class.javaObjectType
+                Boolean::class.starProjectedType.nullable -> Boolean::class.javaObjectType
+                Timestamp::class.starProjectedType.nullable -> Timestamp::class.java
+                else -> throw IllegalArgumentException("Unsupported type: ${prop.returnType}")
+            }
+        }
+    }*/
+
+    /*fun getColumnMap(): Map<String, Class<*>> {
+        return ProductTable::class.memberProperties.associate { prop ->
+            prop.name to when {
+                prop.returnType.isSubtypeOf(Long::class.starProjectedType) && prop.returnType.isMarkedNullable -> Long::class.javaObjectType
+                prop.returnType.isSubtypeOf(String::class.starProjectedType) && prop.returnType.isMarkedNullable -> String::class.java
+                prop.returnType.isSubtypeOf(Double::class.starProjectedType) && prop.returnType.isMarkedNullable -> Double::class.javaObjectType
+                prop.returnType.isSubtypeOf(Boolean::class.starProjectedType) && prop.returnType.isMarkedNullable -> Boolean::class.javaObjectType
+                prop.returnType.isSubtypeOf(Timestamp::class.starProjectedType) && prop.returnType.isMarkedNullable -> Timestamp::class.java
+                else -> throw IllegalArgumentException("Unsupported type: ${prop.returnType}")
+            }
+        }
+    }*/
+
+    inline fun <reified T : Any> getColumnMap(clazz: Class<T>): Map<String, Class<*>> {
+        return clazz.kotlin.memberProperties.associate { prop ->
+            prop.name to when (prop.returnType) {
+                Long::class.java -> Long::class.javaObjectType
+                String::class.java -> String::class.java
+                Double::class.java -> Double::class.javaObjectType
+                Boolean::class.java -> Boolean::class.javaObjectType
+                Timestamp::class.java -> Timestamp::class.java
+                else -> throw IllegalArgumentException("Unsupported type: ${prop.returnType}")
+            }
+        }
+    }
