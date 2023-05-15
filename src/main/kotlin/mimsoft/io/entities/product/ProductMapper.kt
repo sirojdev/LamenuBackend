@@ -14,7 +14,7 @@ object ProductMapper {
             descriptionRu = productDto.description?.ru,
             descriptionEng = productDto.description?.eng,
             image = productDto.image,
-            price = productDto.costPrice
+            costPrice = productDto.costPrice
         )
     }
 
@@ -34,7 +34,7 @@ object ProductMapper {
                 eng = productTable.descriptionEng
             ),
             image = productTable.image,
-            costPrice = productTable.price
+            costPrice = productTable.costPrice
         )
     }
 }

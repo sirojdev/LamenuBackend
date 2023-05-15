@@ -6,9 +6,40 @@ info:
 servers:
   - url: 'http://0.0.0.0:8181/api/v1/'
   - url: 'http://188.166.167.80:8181/api/v1/'
+
+tags:
+  - name: Users
+    description: Endpoints related to user
+
+  - name: Branches
+    description: Endpoints related to branch
+
+  - name: Categories
+    description: Endpoints related to category
+
+  - name: Extras
+    description: Endpoints related to extra
+
+  - name: Labels
+    description: Endpoints related to label
+
+  - name: Menus
+    description: Endpoints related to menu
+
+  - name: Options
+    description: Endpoints related to option
+
+  - name: Products
+    description: Endpoints related to product
+
+  - name: Restaurants
+    description: Endpoints related to restaurant
+
 paths:
   /users:
     get:
+      tags:
+        - Users
       description: "Returns a list of all users"
       responses:
         "200":
@@ -24,6 +55,8 @@ paths:
 
   /user:
     post:
+      tags:
+        - Users
       description: "Creates a new user"
       requestBody:
         description: "A JSON object containing user information"
@@ -36,6 +69,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Users
       description: "Updates an existing user"
       requestBody:
         description: "A JSON object containing updated user information"
@@ -50,6 +85,8 @@ paths:
 
   /user/{id}:
     get:
+      tags:
+        - Users
       description: "Returns a user by its ID"
       parameters:
         - name: "id"
@@ -69,6 +106,8 @@ paths:
         "400":
           description: "Bad request"
     delete:
+      tags:
+        - Users
       description: "Deletes a user by its ID"
       parameters:
         - name: "id"
@@ -84,6 +123,8 @@ paths:
 
   /branches:
     get:
+      tags:
+        - Branches
       description: "Returns a list of all branches"
       responses:
         "200":
@@ -98,6 +139,8 @@ paths:
           description: "No Content"
   /branch:
     post:
+      tags:
+        - Branches
       description: "Adds a new branch"
       requestBody:
         description: "A JSON object containing updated branch information"
@@ -110,6 +153,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Branches
       description: "Updates an existing branch"
       requestBody:
         description: "A JSON object containing updated branch information"
@@ -123,6 +168,8 @@ paths:
           description: "OK"
   /branch/{id}:
     get:
+      tags:
+        - Branches
       description: "Returns a branch by its ID"
       parameters:
         - name: "id"
@@ -143,6 +190,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Branches
       description: "Deletes a branch by its ID"
       parameters:
         - name: "id"
@@ -159,6 +208,8 @@ paths:
 
   /categories:
     get:
+      tags:
+        - Categories
       description: "Returns a list of all catecories"
       responses:
         "200":
@@ -173,6 +224,8 @@ paths:
           description: "No Content"
   /category:
     post:
+      tags:
+        - Categories
       description: "Adds a new category"
       requestBody:
         description: "A JSON object containing updated category information"
@@ -185,6 +238,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Categories
       description: "Adds a new category"
       requestBody:
         description: "A JSON object containing updated category information"
@@ -198,6 +253,8 @@ paths:
           description: "OK"
   /category/{id}:
     get:
+      tags:
+        - Categories
       description: "Returns a category by its ID"
       parameters:
         - name: "id"
@@ -218,6 +275,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Categories
       description: "Deletes a category by its ID"
       parameters:
         - name: "id"
@@ -234,6 +293,8 @@ paths:
 
   /extras:
     get:
+      tags:
+        - Extras
       description: "Returns a list of all extras"
       responses:
         "200":
@@ -248,6 +309,8 @@ paths:
           description: "No Content"
   /extra:
     post:
+      tags:
+        - Extras
       description: "Adds a new extra"
       requestBody:
         description: "A JSON object containing updated extra information"
@@ -260,6 +323,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Extras
       description: "Adds a new extra"
       requestBody:
         description: "A JSON object containing updated extra information"
@@ -273,6 +338,8 @@ paths:
           description: "OK"
   /extra/{id}:
     get:
+      tags:
+        - Extras
       description: "Returns a extra by its ID"
       parameters:
         - name: "id"
@@ -293,6 +360,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Extras
       description: "Deletes a extra by its ID"
       parameters:
         - name: "id"
@@ -309,6 +378,8 @@ paths:
 
   /lables:
     get:
+      tags:
+        - Labels
       description: "Returns a list of all lables"
       responses:
         "200":
@@ -323,6 +394,8 @@ paths:
           description: "No Content"
   /lable:
     post:
+      tags:
+        - Labels
       description: "Adds a new lable"
       requestBody:
         description: "A JSON object containing updated lable information"
@@ -335,6 +408,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Labels
       description: "Adds a new lable"
       requestBody:
         description: "A JSON object containing updated lable information"
@@ -348,6 +423,8 @@ paths:
           description: "OK"
   /lable/{id}:
     get:
+      tags:
+        - Labels
       description: "Returns a lable by its ID"
       parameters:
         - name: "id"
@@ -368,6 +445,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Labels
       description: "Deletes a lable by its ID"
       parameters:
         - name: "id"
@@ -384,6 +463,8 @@ paths:
 
   /menus:
     get:
+      tags:
+        - Menus
       description: "Returns a list of all menus"
       responses:
         "200":
@@ -398,6 +479,8 @@ paths:
           description: "No Content"
   /menu:
     post:
+      tags:
+        - Menus
       description: "Adds a new menu"
       requestBody:
         description: "A JSON object containing updated menu information"
@@ -410,6 +493,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Menus
       description: "Adds a new menu"
       requestBody:
         description: "A JSON object containing updated menu information"
@@ -423,6 +508,8 @@ paths:
           description: "OK"
   /menu/{id}:
     get:
+      tags:
+        - Menus
       description: "Returns a menu by its ID"
       parameters:
         - name: "id"
@@ -443,6 +530,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Menus
       description: "Deletes a menu by its ID"
       parameters:
         - name: "id"
@@ -459,6 +548,8 @@ paths:
 
   /options:
     get:
+      tags:
+        - Options
       description: "Returns a list of all option"
       responses:
         "200":
@@ -473,6 +564,8 @@ paths:
           description: "No Content"
   /option:
     post:
+      tags:
+        - Options
       description: "Adds a new option"
       requestBody:
         description: "A JSON object containing updated option information"
@@ -485,6 +578,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Options
       description: "Adds a new option"
       requestBody:
         description: "A JSON object containing updated option information"
@@ -498,6 +593,8 @@ paths:
           description: "OK"
   /option/{id}:
     get:
+      tags:
+        - Options
       description: "Returns a option by its ID"
       parameters:
         - name: "id"
@@ -518,6 +615,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Options
       description: "Deletes a option by its ID"
       parameters:
         - name: "id"
@@ -534,6 +633,8 @@ paths:
 
   /products:
     get:
+      tags:
+        - Products
       description: "Returns a list of all products"
       responses:
         "200":
@@ -548,6 +649,8 @@ paths:
           description: "No Content"
   /product:
     post:
+      tags:
+        - Products
       description: "Adds a new product"
       requestBody:
         description: "A JSON object containing updated product information"
@@ -560,6 +663,8 @@ paths:
         "200":
           description: "OK"
     put:
+      tags:
+        - Products
       description: "Adds a new product"
       requestBody:
         description: "A JSON object containing updated product information"
@@ -573,6 +678,8 @@ paths:
           description: "OK"
   /product/{id}:
     get:
+      tags:
+        - Products
       description: "Returns a product by its ID"
       parameters:
         - name: "id"
@@ -593,6 +700,8 @@ paths:
         "400":
           description: "Bad Request"
     delete:
+      tags:
+        - Products
       description: "Deletes a product by its ID"
       parameters:
         - name: "id"
@@ -606,6 +715,94 @@ paths:
           description: "OK"
         "400":
           description: "Bad Request"
+
+  /restaurants:
+    get:
+      tags:
+        - Restaurants
+      description: "Returns a list of all Restaurants"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RestaurantDto"
+        "204":
+          description: "No Content"
+  /restaurant:
+    post:
+      tags:
+        - Restaurants
+      description: "Adds a new restaurant"
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RestaurantDto"
+      responses:
+        "200":
+          description: "OK"
+
+    put:
+      tags:
+        - Restaurants
+      description: "Update the restaurant"
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RestaurantDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /restaurant/{id}:
+    get:
+      tags:
+        - Restaurants
+      description: "Returns a restaurant by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RestaurantDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Restaurants
+      description: "Deletes a restaurant by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
 
 components:
   schemas:

@@ -12,7 +12,7 @@ data class ProductTable(
     var descriptionRu: String? = null,
     var descriptionEng: String? = null,
     var image: String? = null,
-    var price: Double? = null,
+    var costPrice: Double? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,
     var updated: Timestamp? = null
