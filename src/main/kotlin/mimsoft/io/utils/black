@@ -182,3 +182,5 @@
             }
         }
     }
+
+scp ./build/libs/lamenu-all.jar root@188.166.167.80:/root

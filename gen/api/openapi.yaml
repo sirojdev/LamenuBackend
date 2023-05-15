@@ -1,0 +1,1104 @@
+openapi: 3.0.3
+info:
+  description: Lamenu documentation allows to you view the schema of Lamenu project
+  title: Lamenu documentation
+  version: 1.0.0
+servers:
+- url: http://0.0.0.0:8181/api/v1/
+- url: http://188.166.167.80:8181/api/v1/
+tags:
+- description: Endpoints related to user
+  name: Users
+- description: Endpoints related to branch
+  name: Branches
+- description: Endpoints related to category
+  name: Categories
+- description: Endpoints related to extra
+  name: Extras
+- description: Endpoints related to label
+  name: Labels
+- description: Endpoints related to menu
+  name: Menus
+- description: Endpoints related to option
+  name: Options
+- description: Endpoints related to product
+  name: Products
+- description: Endpoints related to restaurant
+  name: Restaurants
+paths:
+  /users:
+    get:
+      description: Returns a list of all users
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserDto'
+                type: array
+          description: OK
+        "204":
+          description: No content
+      tags:
+      - Users
+      x-accepts: application/json
+  /user:
+    post:
+      description: Creates a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+        description: A JSON object containing user information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Users
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Updates an existing user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+        description: A JSON object containing updated user information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Users
+      x-contentType: application/json
+      x-accepts: application/json
+  /user/{id}:
+    delete:
+      description: Deletes a user by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+      tags:
+      - Users
+      x-accepts: application/json
+    get:
+      description: Returns a user by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+          description: OK
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+      tags:
+      - Users
+      x-accepts: application/json
+  /branches:
+    get:
+      description: Returns a list of all branches
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BranchDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Branches
+      x-accepts: application/json
+  /branch:
+    post:
+      description: Adds a new branch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchDto'
+        description: A JSON object containing updated branch information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Branches
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Updates an existing branch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchDto'
+        description: A JSON object containing updated branch information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Branches
+      x-contentType: application/json
+      x-accepts: application/json
+  /branch/{id}:
+    delete:
+      description: Deletes a branch by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Branches
+      x-accepts: application/json
+    get:
+      description: Returns a branch by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Branches
+      x-accepts: application/json
+  /categories:
+    get:
+      description: Returns a list of all catecories
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Categories
+      x-accepts: application/json
+  /category:
+    post:
+      description: Adds a new category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDto'
+        description: A JSON object containing updated category information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Categories
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDto'
+        description: A JSON object containing updated category information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Categories
+      x-contentType: application/json
+      x-accepts: application/json
+  /category/{id}:
+    delete:
+      description: Deletes a category by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Categories
+      x-accepts: application/json
+    get:
+      description: Returns a category by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Categories
+      x-accepts: application/json
+  /extras:
+    get:
+      description: Returns a list of all extras
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExtraDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Extras
+      x-accepts: application/json
+  /extra:
+    post:
+      description: Adds a new extra
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtraDto'
+        description: A JSON object containing updated extra information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Extras
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new extra
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtraDto'
+        description: A JSON object containing updated extra information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Extras
+      x-contentType: application/json
+      x-accepts: application/json
+  /extra/{id}:
+    delete:
+      description: Deletes a extra by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Extras
+      x-accepts: application/json
+    get:
+      description: Returns a extra by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtraDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Extras
+      x-accepts: application/json
+  /lables:
+    get:
+      description: Returns a list of all lables
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LabelDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Labels
+      x-accepts: application/json
+  /lable:
+    post:
+      description: Adds a new lable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabelDto'
+        description: A JSON object containing updated lable information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Labels
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new lable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabelDto'
+        description: A JSON object containing updated lable information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Labels
+      x-contentType: application/json
+      x-accepts: application/json
+  /lable/{id}:
+    delete:
+      description: Deletes a lable by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Labels
+      x-accepts: application/json
+    get:
+      description: Returns a lable by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabelDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Labels
+      x-accepts: application/json
+  /menus:
+    get:
+      description: Returns a list of all menus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MenuDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Menus
+      x-accepts: application/json
+  /menu:
+    post:
+      description: Adds a new menu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuDto'
+        description: A JSON object containing updated menu information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Menus
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new menu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuDto'
+        description: A JSON object containing updated menu information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Menus
+      x-contentType: application/json
+      x-accepts: application/json
+  /menu/{id}:
+    delete:
+      description: Deletes a menu by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Menus
+      x-accepts: application/json
+    get:
+      description: Returns a menu by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Menus
+      x-accepts: application/json
+  /options:
+    get:
+      description: Returns a list of all option
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OptionDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Options
+      x-accepts: application/json
+  /option:
+    post:
+      description: Adds a new option
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptionDto'
+        description: A JSON object containing updated option information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Options
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new option
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptionDto'
+        description: A JSON object containing updated option information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Options
+      x-contentType: application/json
+      x-accepts: application/json
+  /option/{id}:
+    delete:
+      description: Deletes a option by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Options
+      x-accepts: application/json
+    get:
+      description: Returns a option by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Options
+      x-accepts: application/json
+  /products:
+    get:
+      description: Returns a list of all products
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Products
+      x-accepts: application/json
+  /product:
+    post:
+      description: Adds a new product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+        description: A JSON object containing updated product information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Products
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+        description: A JSON object containing updated product information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Products
+      x-contentType: application/json
+      x-accepts: application/json
+  /product/{id}:
+    delete:
+      description: Deletes a product by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Products
+      x-accepts: application/json
+    get:
+      description: Returns a product by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Products
+      x-accepts: application/json
+  /restaurants:
+    get:
+      description: Returns a list of all Restaurants
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RestaurantDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Restaurants
+      x-accepts: application/json
+  /restaurant:
+    post:
+      description: Adds a new restaurant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantDto'
+        description: A JSON object containing updated product information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Restaurants
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Update the restaurant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantDto'
+        description: A JSON object containing updated product information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Restaurants
+      x-contentType: application/json
+      x-accepts: application/json
+  /restaurant/{id}:
+    delete:
+      description: Deletes a restaurant by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Restaurants
+      x-accepts: application/json
+    get:
+      description: Returns a restaurant by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Restaurants
+      x-accepts: application/json
+components:
+  schemas:
+    UserDto:
+      example:
+        firstName: firstName
+        lastName: lastName
+        image: image
+        birthDay: birthDay
+        phone: phone
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        phone:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+        birthDay:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+      type: object
+    BranchDto:
+      example:
+        address: address
+        latitude: 1.4658129805029452
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+        longitude: 6.027456183070403
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        longitude:
+          type: number
+        latitude:
+          type: number
+        address:
+          type: string
+      type: object
+    CategoryDto:
+      example:
+        image: image
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        image:
+          type: string
+      type: object
+    ExtraDto:
+      example:
+        price: 6
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        description:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        price:
+          format: double
+          type: integer
+        description:
+          $ref: '#/components/schemas/TextModel'
+      type: object
+    LabelDto:
+      example:
+        bgColor: bgColor
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        icon: icon
+        menuId: 6
+        id: 0
+        textColor: textColor
+      properties:
+        id:
+          format: long
+          type: integer
+        menuId:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        textColor:
+          type: string
+        bgColor:
+          type: string
+        icon:
+          type: string
+      type: object
+    MenuDto:
+      example:
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+      type: object
+    OptionDto:
+      example:
+        image: image
+        price: 6
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        description:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        description:
+          $ref: '#/components/schemas/TextModel'
+        image:
+          type: string
+        price:
+          format: double
+          type: integer
+      type: object
+    ProductDto:
+      example:
+        image: image
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        costPrice: 1
+        menuId: 6
+        description:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        menuId:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        description:
+          $ref: '#/components/schemas/TextModel'
+        image:
+          type: string
+        costPrice:
+          format: double
+          type: integer
+      type: object
+    RestaurantDto:
+      example:
+        domain: domain
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        logo: logo
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        logo:
+          type: string
+        domain:
+          type: string
+      type: object
+    TextModel:
+      example:
+        ru: ru
+        uz: uz
+        eng: eng
+      properties:
+        uz:
+          type: string
+        ru:
+          type: string
+        eng:
+          type: string
+      type: object
+

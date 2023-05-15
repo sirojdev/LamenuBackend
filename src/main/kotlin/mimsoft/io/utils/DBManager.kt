@@ -118,7 +118,7 @@ object DBManager {
         }
     }
 
-    suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null): List<Any> {
+    suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null): List<Any?> {
         val tName = tableName ?: dataClass.simpleName ?: throw IllegalArgumentException("Table name must be provided")
         val columns = dataClass.memberProperties.joinToString(", ") { camelToSnakeCase(it.name) }
         val query = if (id == null || id == 0L) {
@@ -149,8 +149,7 @@ object DBManager {
         return resultList
     }
 
-
-    suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T, tableName: String? = null): Long? {
+    suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null): Long? {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
         val columns = filteredProperties.joinToString(", ") { camelToSnakeCase(it.name) }
@@ -163,7 +162,7 @@ object DBManager {
                 val statement = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)
 
                 filteredProperties.forEachIndexed { index, property ->
-                    when (val value = property.get(dataObject)) {
+                    when (val value = dataObject?.let { property.get(it) }) {
                         is String -> statement.setString(index + 1, value)
                         is Double -> statement.setDouble(index + 1, value)
                         is Int -> statement.setInt(index + 1, value)
@@ -185,7 +184,7 @@ object DBManager {
         }
     }
 
-    suspend fun <T : Any> updateData(dataClass: KClass<T>, dataObject: T, tableName: String? = null, idColumn: String = "id"): Int {
+    suspend fun <T : Any> updateData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null, idColumn: String = "id"): Boolean {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != idColumn }
 
@@ -193,12 +192,12 @@ object DBManager {
         val update = "UPDATE $tName SET $setClause WHERE NOT deleted AND $idColumn = ?"
         println("\nupdate --> $update")
 
-        return withContext(Dispatchers.IO) {
+         withContext(Dispatchers.IO) {
             connection().use { connection ->
                 val statement = connection.prepareStatement(update)
 
                 filteredProperties.forEachIndexed { index, property ->
-                    when (val value = property.get(dataObject)) {
+                    when (val value = dataObject?.let { property.get(it) }) {
                         is String -> statement.setString(index + 1, value)
                         is Double -> statement.setDouble(index + 1, value)
                         is Int -> statement.setInt(index + 1, value)
@@ -209,12 +208,13 @@ object DBManager {
                     }
                 }
 
-                val idValue = dataClass.memberProperties.first { it.name == idColumn }.get(dataObject)
+                val idValue = dataObject?.let { dataClass.memberProperties.first { it.name == idColumn }.get(it) }
                 statement.setLong(filteredProperties.size + 1, idValue as Long)
 
                 statement.executeUpdate()
             }
         }
+        return true
     }
 
     suspend fun deleteData(tableName: String, idColumn: String = "id", id: Long?): Boolean {

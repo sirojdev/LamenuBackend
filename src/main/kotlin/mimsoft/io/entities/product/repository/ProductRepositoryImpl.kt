@@ -27,7 +27,7 @@ object ProductRepositoryImpl : ProductRepository {
                         descriptionRu = resultSet.getString("description_ru"),
                         descriptionEng = resultSet.getString("description_eng"),
                         image = resultSet.getString("image"),
-                        price = resultSet.getDouble("price"),
+                        costPrice = resultSet.getDouble("price"),
                         deleted = resultSet.getBoolean("deleted"),
                         created = resultSet.getTimestamp("created"),
                         updated = resultSet.getTimestamp("updated")
@@ -55,7 +55,7 @@ object ProductRepositoryImpl : ProductRepository {
                     descriptionRu = resultSet.getString("description_ru"),
                     descriptionEng = resultSet.getString("description_eng"),
                     image = resultSet.getString("image"),
-                    price = resultSet.getDouble("price"),
+                    costPrice = resultSet.getDouble("price"),
                     deleted = resultSet.getBoolean("deleted"),
                     created = resultSet.getTimestamp("created"),
                     updated = resultSet.getTimestamp("updated")
@@ -77,7 +77,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             statement.setString(5, productTable?.descriptionRu)
             statement.setString(6, productTable?.descriptionEng)
             statement.setString(7, productTable?.image)
-            productTable?.price?.let { statement.setDouble(8, it) }
+            productTable?.costPrice?.let { statement.setDouble(8, it) }
             statement.setTimestamp(9, Timestamp(System.currentTimeMillis()))
             productTable?.menuId?.let { statement.setLong(10, it) }
             statement.executeUpdate()
@@ -103,7 +103,7 @@ WHERE NOT deleted AND id = ?"""
             statement.setString(5, productTable?.descriptionRu)
             statement.setString(6, productTable?.descriptionEng)
             statement.setString(7, productTable?.image)
-            statement.setDouble(8, productTable?.price ?: 0.0)
+            statement.setDouble(8, productTable?.costPrice ?: 0.0)
             statement.setTimestamp(9, Timestamp(System.currentTimeMillis()))
             productTable?.menuId?.let { statement.setLong(10, it) }
             productTable?.id?.let { statement.setLong(11, it) }
