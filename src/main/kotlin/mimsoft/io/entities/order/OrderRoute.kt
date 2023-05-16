@@ -7,15 +7,17 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.entities.label.LabelDto
 import mimsoft.io.entities.label.LabelMapper
+import mimsoft.io.entities.label.LabelTable
 import mimsoft.io.entities.order.repository.OrderRepository
 import mimsoft.io.entities.order.repository.OrderRepositoryImpl
+import mimsoft.io.utils.Mapper
 
 fun Route.routeToLabel() {
 
     val repository: OrderRepository = OrderRepositoryImpl
 
     get("/orders") {
-        val orders = repository.getAll().map { LabelMapper.toLabelDto(it) }
+        val orders = repository.getAll().map { it?.let { it1 -> Mapper.toDto<OrderTable, OrderDto>(it1) } }
         if (orders.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -29,7 +31,7 @@ fun Route.routeToLabel() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val order = LabelMapper.toLabelDto(repository.get(id))
+        val order = Mapper.toDto<OrderTable, OrderDto>(repository.get(id))
         if (order != null) {
             call.respond(HttpStatusCode.OK, order)
         } else {
@@ -38,14 +40,14 @@ fun Route.routeToLabel() {
     }
 
     post("/order") {
-        val order = call.receive<LabelDto>()
-        val id = repository.add(LabelMapper.toLabelTable(order))
-        call.respond(HttpStatusCode.OK, LabelId(id))
+        val order = call.receive<OrderDto>()
+        val id = repository.add(Mapper.toTable<OrderDto, OrderTable>(order))
+        call.respond(HttpStatusCode.OK, OrderId(id))
     }
 
     put("/order") {
-        val label = call.receive<LabelDto>()
-        repository.update(LabelMapper.toLabelTable(label))
+        val order = call.receive<OrderDto>()
+        repository.update(Mapper.toTable<OrderDto, OrderTable>(order))
         call.respond(HttpStatusCode.OK)
     }
 
@@ -64,6 +66,6 @@ fun Route.routeToLabel() {
     }
 }
 
-data class LabelId(
+data class OrderId(
     val id: Long? = null
 )
