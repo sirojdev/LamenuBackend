@@ -22,10 +22,10 @@ object ProductRepositoryImpl : ProductRepository {
                         menuId = resultSet.getLong("menu_id"),
                         nameUz = resultSet.getString("name_uz"),
                         nameRu = resultSet.getString("name_ru"),
-                        nameEng = resultSet.getString("name_eng"),
+                        nameEn = resultSet.getString("name_eng"),
                         descriptionUz = resultSet.getString("description_uz"),
                         descriptionRu = resultSet.getString("description_ru"),
-                        descriptionEng = resultSet.getString("description_eng"),
+                        descriptionEn = resultSet.getString("description_eng"),
                         image = resultSet.getString("image"),
                         costPrice = resultSet.getDouble("price"),
                         deleted = resultSet.getBoolean("deleted"),
@@ -50,10 +50,10 @@ object ProductRepositoryImpl : ProductRepository {
                     menuId = resultSet.getLong("menu_id"),
                     nameUz = resultSet.getString("name_uz"),
                     nameRu = resultSet.getString("name_ru"),
-                    nameEng = resultSet.getString("name_eng"),
+                    nameEn = resultSet.getString("name_eng"),
                     descriptionUz = resultSet.getString("description_uz"),
                     descriptionRu = resultSet.getString("description_ru"),
-                    descriptionEng = resultSet.getString("description_eng"),
+                    descriptionEn = resultSet.getString("description_eng"),
                     image = resultSet.getString("image"),
                     costPrice = resultSet.getDouble("price"),
                     deleted = resultSet.getBoolean("deleted"),
@@ -72,10 +72,10 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             val statement = DBManager.connection().prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)
             statement.setString(1, productTable?.nameUz)
             statement.setString(2, productTable?.nameRu)
-            statement.setString(3, productTable?.nameEng)
+            statement.setString(3, productTable?.nameEn)
             statement.setString(4, productTable?.descriptionUz)
             statement.setString(5, productTable?.descriptionRu)
-            statement.setString(6, productTable?.descriptionEng)
+            statement.setString(6, productTable?.descriptionEn)
             statement.setString(7, productTable?.image)
             productTable?.costPrice?.let { statement.setDouble(8, it) }
             statement.setTimestamp(9, Timestamp(System.currentTimeMillis()))
@@ -98,10 +98,10 @@ WHERE NOT deleted AND id = ?"""
             val statement = DBManager.connection().prepareStatement(update)
             statement.setString(1, productTable?.nameUz)
             statement.setString(2, productTable?.nameRu)
-            statement.setString(3, productTable?.nameEng)
+            statement.setString(3, productTable?.nameEn)
             statement.setString(4, productTable?.descriptionUz)
             statement.setString(5, productTable?.descriptionRu)
-            statement.setString(6, productTable?.descriptionEng)
+            statement.setString(6, productTable?.descriptionEn)
             statement.setString(7, productTable?.image)
             statement.setDouble(8, productTable?.costPrice ?: 0.0)
             statement.setTimestamp(9, Timestamp(System.currentTimeMillis()))
