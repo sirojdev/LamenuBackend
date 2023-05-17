@@ -1,4 +1,4 @@
-package mimsoft.io.plugins
+package mimsoft.io.utils.plugins
 
 import io.ktor.http.*
 import io.ktor.server.plugins.cors.routing.*

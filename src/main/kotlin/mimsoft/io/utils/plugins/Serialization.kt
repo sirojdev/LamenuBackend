@@ -1,4 +1,4 @@
-package mimsoft.io.plugins
+package mimsoft.io.utils.plugins
 
 import com.google.gson.GsonBuilder
 import io.ktor.http.*

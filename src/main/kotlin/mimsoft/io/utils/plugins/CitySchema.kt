@@ -1,4 +1,4 @@
-package mimsoft.io.plugins
+package mimsoft.io.utils.plugins
 
 import kotlinx.coroutines.*
 import kotlinx.serialization.Serializable
