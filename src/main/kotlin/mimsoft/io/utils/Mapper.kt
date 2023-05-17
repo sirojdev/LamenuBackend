@@ -4,7 +4,7 @@ import mimsoft.io.entities.order.OrderDto
 import mimsoft.io.entities.order.OrderTable
 import mimsoft.io.entities.product.ProductDto
 import mimsoft.io.entities.product.ProductTable
-import mimsoft.io.plugins.GSON
+import mimsoft.io.utils.plugins.GSON
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties

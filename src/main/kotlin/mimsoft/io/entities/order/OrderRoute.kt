@@ -12,7 +12,7 @@ import mimsoft.io.entities.order.repository.OrderRepository
 import mimsoft.io.entities.order.repository.OrderRepositoryImpl
 import mimsoft.io.utils.Mapper
 
-fun Route.routeToLabel() {
+fun Route.routeToOrder() {
 
     val repository: OrderRepository = OrderRepositoryImpl
 
