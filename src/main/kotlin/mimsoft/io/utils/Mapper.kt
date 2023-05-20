@@ -14,7 +14,7 @@ object Mapper {
 
     inline fun <reified T : Any, reified R : Any> toTable(dto: T): R? {
         val dtoClass = T::class
-        val tableName = dtoClass.simpleName?.replace("Dto", "Table") ?: return null
+        dtoClass.simpleName?.replace("Dto", "Table") ?: return null
         val tableClass = try {
             Class.forName(dtoClass.qualifiedName!!.replace("Dto", "Table")).kotlin
         } catch (e: ClassNotFoundException) {
@@ -109,33 +109,4 @@ object Mapper {
         }
     }
 
-}
-
-//descriptionUz = "zzzz",
-//descriptionRu = "xxxx",
-//descriptionEn = "vvvv",
-//image = "iiii",
-//costPrice = 458.54
-
-fun main() {
-    val productTable = ProductTable(
-        id = 1,
-        menuId = 4,
-        nameUz = "aaaa",
-        nameRu = "bbbb",
-        nameEn = "cccc"
-    )
-
-    val productDto = Mapper.toDto<ProductTable, ProductDto>(productTable)
-
-    val orderDto = OrderDto(
-        id = 4,
-        type = 4,
-        status = "gggg"
-    )
-
-    val orderTable = Mapper.toTable<OrderDto, OrderTable>(orderDto)
-
-    println(GSON.toJson(productDto))
-    println(GSON.toJson(orderTable))
 }

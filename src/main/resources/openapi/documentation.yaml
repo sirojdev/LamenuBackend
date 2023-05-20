@@ -8,6 +8,9 @@ servers:
   - url: 'http://188.166.167.80:8181/api/v1/'
 
 tags:
+  - name: Auth
+    description: Login endpoints
+
   - name: Users
     description: Endpoints related to user
 
@@ -36,6 +39,77 @@ tags:
     description: Endpoints related to restaurant
 
 paths:
+
+  /login:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get login token and sending verification code to phone"
+      requestBody:
+        description: "This object must contain only deviceUuid:unique and phone"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+
+  /verify:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get access and refresh tokens 
+      if this user exist else token for registration"
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: "This object must contain only verification code"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+  /reg:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get access and refresh tokens after registration"
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: "A JSON object containing user information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+
   /users:
     get:
       tags:
@@ -924,6 +998,28 @@ components:
           type: "integer"
           format: "double"
 
+    LoginRequest:
+      type: "object"
+      properties:
+        deviceUuid:
+          type: "string"
+        phone:
+          type: "string"
+        code:
+          type: "integer"
+          format: "long"
+    LoginResponse:
+      type: "object"
+      properties:
+        loginToken:
+          type: "string"
+        accessToken:
+          type: "string"
+        refreshToken:
+          type: "string"
+        regToken:
+          type: "string"
+
     RestaurantDto:
       type: "object"
       properties:
@@ -947,6 +1043,16 @@ components:
           type: "string"
         eng:
           type: "string"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
 
 
 

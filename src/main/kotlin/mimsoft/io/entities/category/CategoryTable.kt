@@ -1,8 +1,8 @@
 package mimsoft.io.entities.category
 
 import java.sql.Timestamp
-import java.time.LocalDateTime
 
+const val CATEGORY_TABLE_NAME = "category"
 data class CategoryTable(
     val id: Long? = null,
     val nameUz: String? = null,

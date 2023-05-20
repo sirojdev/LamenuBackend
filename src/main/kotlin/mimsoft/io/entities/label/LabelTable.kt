@@ -3,6 +3,7 @@ package mimsoft.io.entities.label
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
+const val LABEL_TABLE_NAME = "label"
 data class LabelTable(
     var id: Long? = null,
     val menuId: Long? = null,

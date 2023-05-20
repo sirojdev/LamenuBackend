@@ -2,6 +2,7 @@ package mimsoft.io.entities.branch
 
 import java.sql.Timestamp
 
+const val BRANCH_TABLE_NAME = "branch"
 data class BranchTable(
     var id: Long? = null,
     val nameUz: String? = null,
@@ -13,6 +14,5 @@ data class BranchTable(
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null,
-    val a: Boolean? = null
 )
 

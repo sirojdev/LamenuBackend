@@ -3,6 +3,7 @@ package mimsoft.io.entities.option
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
+const val OPTION_TABLE_NAME = "option"
 data class OptionTable(
     var id: Long? = null,
     val nameUz: String? = null,

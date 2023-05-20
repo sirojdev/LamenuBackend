@@ -5,6 +5,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
+import mimsoft.io.auth.routeToLogin
 import mimsoft.io.entities.branch.routeToBranch
 import mimsoft.io.entities.category.routeToCategory
 import mimsoft.io.entities.client.routeToUser
@@ -33,16 +34,12 @@ fun Application.configureRouting() {
             routeToRestaurant()
             routeToProduct()
             routeToOrder()
+            routeToLogin()
         }
 
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml") {
             version = "4.15.5"
         }
     }
-}
-
-fun Route.withRole(role: String, method: HttpMethod, build: Route.() -> Unit): Route {
-    val selector = HttpMethodRouteSelector(method)
-    return createChild(selector).apply(build)
 }
 

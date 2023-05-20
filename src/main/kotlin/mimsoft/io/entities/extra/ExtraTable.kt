@@ -3,6 +3,7 @@ package mimsoft.io.entities.extra
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
+const val EXTRA_TABLE_NAME = "extra"
 data class ExtraTable(
     var id: Long? = null,
     val nameUz: String? = null,

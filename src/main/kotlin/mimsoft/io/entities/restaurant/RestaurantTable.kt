@@ -2,6 +2,7 @@ package mimsoft.io.entities.restaurant
 
 import java.sql.Timestamp
 
+const val RESTAURANT_TABLE_NAME = "restaurant"
 data class RestaurantTable(
     var id: Long? = null,
     var nameUz: String? = null,

@@ -20,7 +20,7 @@ import io.ktor.server.routing.*
 
 fun Route.authorize(vararg roles: Role, build: Route.() -> Unit): Route {
     val authorizedRoute = createChild(AuthorizeRouteSelector())
-    authorizedRoute.intercept(ApplicationCallPipeline.Features) {
+    authorizedRoute.intercept(ApplicationCallPipeline.Plugins) {
         val principal = this.context.authentication.principal<MyPrincipal>()
 
         if (principal == null || principal.role !in roles) {

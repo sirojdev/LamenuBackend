@@ -3,7 +3,7 @@ package mimsoft.io.rsa
 import kotlin.random.Random
 
 object Generator {
-fun generate(static: Boolean = true): GeneratorModel {
+    fun generate(static: Boolean = true): GeneratorModel {
 
         val now = System.currentTimeMillis() / 1000
         val code = if (!static)
@@ -15,5 +15,9 @@ fun generate(static: Boolean = true): GeneratorModel {
             code = code,
             hash = hash
         )
+    }
+
+    fun validate(gen: GeneratorModel?): Status {
+        return Status.ACCEPTED
     }
 }

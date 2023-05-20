@@ -4,16 +4,28 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.entities.order.ORDER_TABLE_NAME
+import mimsoft.io.entities.order.OrderTable
+import mimsoft.io.session.SESSION_TABLE_NAME
+import mimsoft.io.session.SessionTable
+import mimsoft.io.utils.plugins.GSON
 
 import java.sql.Connection
 import java.sql.Statement
 import java.sql.Timestamp
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.KType
+import kotlin.reflect.full.*
+import kotlin.reflect.javaType
 
 object DBManager {
+
+    fun init(){
+//        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
+//        createTable(tableName = SESSION_TABLE_NAME, SessionTable::class)
+    }
+
+    private val dataSource = createDataSource()
 
     private fun createDataSource(): HikariDataSource {
         val dataSourceConfig = HikariConfig()
@@ -29,7 +41,6 @@ object DBManager {
     }
 
     fun connection(): Connection {
-        val dataSource = createDataSource()
         return dataSource.connection
     }
 
@@ -57,7 +68,7 @@ object DBManager {
         }
 
         val whereClause = if (where == null) {
-            "WHERE NOT deleted"
+            ""
         } else {
             generateWhereClause(where)
         }
@@ -121,10 +132,14 @@ object DBManager {
     suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null): List<Any?> {
         val tName = tableName ?: dataClass.simpleName ?: throw IllegalArgumentException("Table name must be provided")
         val columns = dataClass.memberProperties.joinToString(", ") { camelToSnakeCase(it.name) }
+
+        val hasDeleted = if (dataClass.memberProperties.find { it.name == "deleted" } != null)
+            "WHERE NOT deleted" else "WHERE true"
+
         val query = if (id == null || id == 0L) {
-            "SELECT $columns FROM $tName WHERE NOT deleted"
+            "SELECT $columns FROM $tName $hasDeleted".trimMargin()
         } else {
-            "SELECT $columns FROM $tName WHERE NOT deleted AND id = $id"
+            "SELECT $columns FROM $tName $hasDeleted AND id = $id"
         }
 
         val resultList = mutableListOf<Any>()
@@ -150,6 +165,9 @@ object DBManager {
     }
 
     suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null): Long? {
+
+        println("\ndataObject-->${GSON.toJson(dataObject)}")
+
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
         val columns = filteredProperties.joinToString(", ") { camelToSnakeCase(it.name) }
@@ -162,14 +180,22 @@ object DBManager {
                 val statement = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)
 
                 filteredProperties.forEachIndexed { index, property ->
-                    when (val value = dataObject?.let { property.get(it) }) {
-                        is String -> statement.setString(index + 1, value)
-                        is Double -> statement.setDouble(index + 1, value)
-                        is Int -> statement.setInt(index + 1, value)
-                        is Long -> statement.setLong(index + 1, value)
-                        is Timestamp -> statement.setTimestamp(index + 1, value)
-                        null -> {}
-                        else -> throw IllegalArgumentException("Unsupported data type: ${value::class.simpleName}")
+                    val propertyName = property.name
+                    val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
+                    val value = propertyInstance?.call(dataObject)
+//                    val value = dataObject?.let { property.get(it) }
+                    println("\npropertyName-->$propertyName")
+                    println("\npropertyInstance-->$propertyInstance")
+                    println("\nvalue-->$value")
+                    println("\nproperty.returnType-->${property.returnType}")
+                    when (property.returnType.toString()) {
+                        "kotlin.String?" -> statement.setString(index + 1, value as? String)
+                        "kotlin.Boolean?" -> (value as? Boolean)?.let { statement.setBoolean(index + 1, it) }
+                        "kotlin.Double?" -> (value as? Double)?.let { statement.setDouble(index + 1, it) }
+                        "kotlin.Int?" -> (value as? Int)?.let { statement.setInt(index + 1, it) }
+                        "kotlin.Long?" -> (value as? Long)?.let { statement.setLong(index + 1, it) }
+                        "java.sql.Timestamp?" -> statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
+                        else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
                     }
                 }
 
@@ -184,12 +210,16 @@ object DBManager {
         }
     }
 
-    suspend fun <T : Any> updateData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null, idColumn: String = "id"): Boolean {
+    suspend fun <T : Any> updateData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null, idColumn: String? = "id"): Boolean {
         val tName = tableName ?: dataClass.simpleName
-        val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != idColumn }
+        val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id" }
 
         val setClause = filteredProperties.joinToString(", ") { "${camelToSnakeCase(it.name)} = ?" }
-        val update = "UPDATE $tName SET $setClause WHERE NOT deleted AND $idColumn = ?"
+
+        val hasDeleted = if (dataClass.memberProperties.find { it.name == "deleted" } != null)
+            "WHERE NOT deleted" else "WHERE true"
+
+        val update = "UPDATE $tName SET $setClause $hasDeleted AND $idColumn = ?"
         println("\nupdate --> $update")
 
          withContext(Dispatchers.IO) {
@@ -197,14 +227,15 @@ object DBManager {
                 val statement = connection.prepareStatement(update)
 
                 filteredProperties.forEachIndexed { index, property ->
-                    when (val value = dataObject?.let { property.get(it) }) {
-                        is String -> statement.setString(index + 1, value)
-                        is Double -> statement.setDouble(index + 1, value)
-                        is Int -> statement.setInt(index + 1, value)
-                        is Long -> statement.setLong(index + 1, value)
-                        is Timestamp -> statement.setTimestamp(index + 1, value)
-                        null -> {}
-                        else -> throw IllegalArgumentException("Unsupported data type: ${value::class.simpleName}")
+                    val value = dataObject?.let { property.get(it) }
+                    when (property.returnType.toString()) {
+                        "kotlin.String?" -> statement.setString(index + 1, value as String)
+                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as Boolean)
+                        "kotlin.Double?" -> statement.setDouble(index + 1, value as Double)
+                        "kotlin.Int?" -> statement.setInt(index + 1, value as Int)
+                        "kotlin.Long?" -> statement.setLong(index + 1, value as Long)
+                        "java.sql.Timestamp?" -> statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
+                        else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
                     }
                 }
 
@@ -231,7 +262,7 @@ object DBManager {
         }
     }
 
-    fun createTable(tableName: String, dataClass: KClass<*>) {
+    private fun createTable(tableName: String, dataClass: KClass<*>) {
         val fields = dataClass.primaryConstructor?.parameters?.sortedBy { it.index }
 
         val primaryKey = fields?.firstOrNull { it.name == "id" }
@@ -244,6 +275,7 @@ object DBManager {
                 String::class.createType(nullable = true) -> "TEXT"
                 Boolean::class.createType(nullable = true) -> "BOOLEAN${if (columnName == "deleted") " DEFAULT FALSE" else ""}"
                 Timestamp::class.createType(nullable = true) -> "TIMESTAMP(6)"
+                Role::class.createType(nullable = true) -> "TEXT"
                 else -> null
             }
             if (columnType == null) {

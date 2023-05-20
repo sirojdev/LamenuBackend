@@ -1,3 +1,8 @@
+import io.ktor.network.sockets.*
+import io.ktor.server.application.*
+import java.sql.Connection
+import java.sql.DriverManager
+
 //package mimsoft.io.plugins
 //
 //import org.jetbrains.exposed.sql.*
@@ -103,15 +108,15 @@
 // * @return [Connection] that represent connection to the database. Please, don't forget to close this connection when
 // * your application shuts down by calling [Connection.close]
 // * */
-//fun Application.connectToPostgres(embedded: Boolean): Connection {
-//    Class.forName("org.postgresql.Driver")
-//    if (embedded) {
-//        return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
-//    } else {
-//        val url = environment.config.property("postgres.url").getString()
-//        val user = environment.config.property("postgres.user").getString()
-//        val password = environment.config.property("postgres.password").getString()
-//
-//        return DriverManager.getConnection(url, user, password)
-//    }
-//}
+fun Application.connectToPostgres(embedded: Boolean): Connection {
+    Class.forName("org.postgresql.Driver")
+    if (embedded) {
+        return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
+    } else {
+        val url = environment.config.property("postgres.url").getString()
+        val user = environment.config.property("postgres.user").getString()
+        val password = environment.config.property("postgres.password").getString()
+
+        return DriverManager.getConnection(url, user, password)
+    }
+}

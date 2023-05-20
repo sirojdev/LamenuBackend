@@ -2,6 +2,7 @@ package mimsoft.io.entities.product
 
 import java.sql.Timestamp
 
+const val PRODUCT_TABLE_NAME = "product"
 data class ProductTable(
     var id: Long? = null,
     var menuId: Long? = null,

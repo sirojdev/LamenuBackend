@@ -1,8 +1,8 @@
 package mimsoft.io.device
 
 data class DeviceDto(
-    val id: Long,
-    val uuid: String,
-    val phone: String,
-    val firebaseToken: String
+    val id: Long? = null,
+    val uuid: String? = null,
+    val phone: String? = null,
+    val firebaseToken: String? = null
 )

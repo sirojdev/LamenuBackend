@@ -3,7 +3,7 @@ package mimsoft.io.utils.plugins
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
-import mimsoft.io.device.DevicePrincipal
+import mimsoft.io.auth.LoginPrincipal
 import mimsoft.io.utils.MyPrincipal
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.Role
@@ -55,19 +55,41 @@ fun Application.configureSecurity() {
             }
         }
 
-        jwt("device") {
+        jwt("auth") {
             realm = JwtConfig.issuer
             verifier(JwtConfig.verifierDevice)
             validate { credential ->
 
-                val id = credential.payload.getClaim("deviceId").asLong()
-                val uuid = credential.payload.getClaim("uuid").asString()
-                val code = credential.payload.getClaim("code").asLong()
-                if (id != null && uuid != null && code != null) {
-                    DevicePrincipal(
-                        id = id,
-                        uuid = uuid,
-                        code = code
+                val deviceId = credential.payload.getClaim("deviceId").asLong()
+                val deviceUuid = credential.payload.getClaim("deviceUuid").asString()
+                val phone = credential.payload.getClaim("phone").asString()
+                val hash = credential.payload.getClaim("hash").asLong()
+                if (deviceId != null && deviceUuid != null && hash != null && phone != null) {
+                    LoginPrincipal(
+                        deviceId = deviceId,
+                        deviceUuid = deviceUuid,
+                        phone = phone,
+                        hash = hash
+                    )
+                } else {
+                    null
+                }
+            }
+        }
+
+        jwt("reg") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierDevice)
+            validate { credential ->
+
+                val deviceId = credential.payload.getClaim("deviceId").asLong()
+                val deviceUuid = credential.payload.getClaim("deviceUuid").asString()
+                val phone = credential.payload.getClaim("phone").asString()
+                if (deviceId != null && deviceUuid != null && phone != null) {
+                    LoginPrincipal(
+                        deviceId = deviceId,
+                        deviceUuid = deviceUuid,
+                        phone = phone
                     )
                 } else {
                     null

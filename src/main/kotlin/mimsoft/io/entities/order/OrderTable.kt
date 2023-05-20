@@ -2,6 +2,7 @@ package mimsoft.io.entities.order
 
 import java.sql.Timestamp
 
+const val ORDER_TABLE_NAME = "orders"
 data class OrderTable(
     val id: Long? = null,
     val userId: Long? = null,

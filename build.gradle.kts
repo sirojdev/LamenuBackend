@@ -31,7 +31,6 @@ dependencies {
     implementation("io.ktor:ktor-server-cors-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-swagger:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktor_version")
 //    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
 //    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
