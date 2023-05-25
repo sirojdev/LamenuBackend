@@ -26,32 +26,33 @@ fun Route.routeToStaff() {
             call.respond(authStaff.httpStatus, authStaff)
         else {
 
-            val staffBody = authStaff.body as StaffTable
+            val staffBody = mapper.toDto(authStaff.body as StaffTable)
 
-            val uuid = staffService.generateUuid(staffBody.id)
-            val roles = roleService.getByStaff(staffBody.id)
+            val uuid = staffService.generateUuid(staffBody?.id)
+//            val roles = roleService.getByStaff(staffBody?.id)
 
             sessionRepo.auth(
                 SessionTable(
                     uuid = uuid,
-                    stuffId = staffBody.id,
+                    stuffId = staffBody?.id,
                 )
             )
+
             call.respond(
-                staffBody.copy(
+                staffBody?.copy(
                     token = JwtConfig.generateAccessToken(
                         entityId = staffBody.id,
                         forUser = false,
                         uuid = uuid,
-                        roles = roles
+//                        roles = roles
                     )
-                )
+                )?: HttpStatusCode.NoContent
             )
         }
 
     }
 
-    authenticate("access") {
+
 
         get("staffs") {
             val staffs = staffService.getAll()
@@ -112,7 +113,7 @@ fun Route.routeToStaff() {
             else call.respond(status)
 
         }
-    }
+
 
 
 }

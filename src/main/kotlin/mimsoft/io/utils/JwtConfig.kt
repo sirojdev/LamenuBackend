@@ -24,7 +24,7 @@ object JwtConfig {
     val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
     val verifierLogin: JWTVerifier = JWT.require(algorithmLogin).withIssuer(issuer).build()
 
-    fun generateAccessToken(entityId: Long?, forUser: Boolean? = true, uuid: String? = null, roles: List<Role?>?): String {
+    fun generateAccessToken(entityId: Long?, forUser: Boolean? = true, uuid: String? = null, roles: List<Role?>? = null): String {
         val validate = if (forUser == true) validityAccessUser else validityRefresh
         return JWT.create()
             .withSubject("access")

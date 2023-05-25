@@ -1,13 +1,20 @@
 package mimsoft.io.utils.plugins
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.serialization.gson.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-val GSON = GsonBuilder().setPrettyPrinting().create()
+val GSON: Gson = GsonBuilder().setPrettyPrinting().create()
+
+val LOGGER: Logger = LoggerFactory.getLogger("LaLogger")
+
+
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {

@@ -8,6 +8,8 @@ import mimsoft.io.utils.StatusCode
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
+const val TIMESTAMP_FORMAT = "yyyy-MM-dd"
+
 fun timestampValidator(time: String?, format: String? = "yyyy-MM-dd"): Status {
     val dateFormat = SimpleDateFormat(format)
     val validated = try {
@@ -21,5 +23,15 @@ fun timestampValidator(time: String?, format: String? = "yyyy-MM-dd"): Status {
         body = validated,
         status = StatusCode.OK
     )
+}
+
+fun toTimeStamp(time: String?, format: String? = "yyyy-MM-dd"): Timestamp? {
+    val dateFormat = SimpleDateFormat(format.toString())
+    return try {
+        Timestamp(dateFormat.parse(time).time)
+    }catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 

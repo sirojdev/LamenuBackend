@@ -20,7 +20,9 @@ fun Application.configureSecurity() {
                 val id = credential.payload.getClaim("entityId").asLong()
                 val roles = credential.payload.getClaim("roles").asString()
                 val rolesList = Gson().fromJson<List<Role>>(roles, object : TypeToken<List<Role>>() {}.type)
-                if (id != null && roles != null) {
+                LOGGER.info("id:$id")
+                println("\n\nid-->$id")
+                if (id != null) {
                     LaPrincipal(
                         id = id,
                         roles = rolesList

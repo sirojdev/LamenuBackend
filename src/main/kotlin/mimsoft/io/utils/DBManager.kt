@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.staff.StaffTable
 import mimsoft.io.utils.plugins.GSON
 
 import java.sql.Connection
@@ -17,7 +18,8 @@ object DBManager {
     fun init() {
 //        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
 //        createTable(tableName = SESSION_TABLE_NAME, SessionTable::class)
-        createTable(tableName = "role", dataClass = Role::class)
+//        createTable(tableName = "role", dataClass = Role::class)
+//        createTable(tableName = "staff", dataClass = StaffTable::class)
     }
 
     private val dataSource = createDataSource()

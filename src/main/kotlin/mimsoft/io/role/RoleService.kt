@@ -1,6 +1,7 @@
 package mimsoft.io.role
 
 import mimsoft.io.utils.DBManager
+import mimsoft.io.utils.Role
 import mimsoft.io.utils.Status
 import mimsoft.io.utils.StatusCode
 
@@ -20,7 +21,7 @@ object RoleService {
             where = mapOf("name" to name as Any)
         )?.data?.firstOrNull()
 
-    suspend fun getByStaff(staffId: Long?): List<mimsoft.io.utils.Role?>? {
+    suspend fun getByStaff(staffId: Long?): List<Role?>? {
 
         val rolesObject = DBManager.getPageData(
             dataClass = RoleDto::class,

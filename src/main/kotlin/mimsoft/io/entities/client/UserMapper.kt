@@ -1,13 +1,15 @@
 package mimsoft.io.entities.client
 
+import mimsoft.io.config.TIMESTAMP_FORMAT
+import mimsoft.io.config.toTimeStamp
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
 object UserMapper {
     fun toUserTable(userDto: UserDto?): UserTable? {
         return if (userDto == null) null else {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-            val birthDay = Timestamp(dateFormat.parse(userDto.birthDay).time)
+
+            val birthDay = toTimeStamp(userDto.birthDay, TIMESTAMP_FORMAT)
             UserTable(
                 id = userDto.id,
                 phone = userDto.phone,
