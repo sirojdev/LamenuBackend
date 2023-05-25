@@ -1,12 +1,14 @@
 openapi: 3.0.3
 info:
-  description: Lamenu documentation allows to you view the schema of Lamenu project
-  title: Lamenu documentation
+  description: Lamenu documentation for Staffs
+  title: Lamenu documentation for Staffs
   version: 1.0.0
 servers:
 - url: http://0.0.0.0:8181/api/v1/
 - url: http://188.166.167.80:8181/api/v1/
 tags:
+- description: Login endpoints
+  name: Auth
 - description: Endpoints related to user
   name: Users
 - description: Endpoints related to branch
@@ -26,7 +28,30 @@ tags:
 - description: Endpoints related to restaurant
   name: Restaurants
 paths:
-  /users:
+  /staff/auth:
+    post:
+      description: Via this endpoint you can get auth token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffDto'
+        description: This object must contain only deviceUuid:unique and phone
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+                type: array
+          description: OK
+      tags:
+      - Auth
+      x-contentType: application/json
+      x-accepts: application/json
+  /staff/users:
     get:
       description: Returns a list of all users
       responses:
@@ -43,7 +68,7 @@ paths:
       tags:
       - Users
       x-accepts: application/json
-  /user:
+  /staff/user:
     post:
       description: Creates a new user
       requestBody:
@@ -76,7 +101,7 @@ paths:
       - Users
       x-contentType: application/json
       x-accepts: application/json
-  /user/{id}:
+  /staff/user/{id}:
     delete:
       description: Deletes a user by its ID
       parameters:
@@ -119,7 +144,7 @@ paths:
       tags:
       - Users
       x-accepts: application/json
-  /branches:
+  /staff/branches:
     get:
       description: Returns a list of all branches
       responses:
@@ -136,7 +161,7 @@ paths:
       tags:
       - Branches
       x-accepts: application/json
-  /branch:
+  /staff/branch:
     post:
       description: Adds a new branch
       requestBody:
@@ -169,7 +194,7 @@ paths:
       - Branches
       x-contentType: application/json
       x-accepts: application/json
-  /branch/{id}:
+  /staff/branch/{id}:
     delete:
       description: Deletes a branch by its ID
       parameters:
@@ -214,7 +239,7 @@ paths:
       tags:
       - Branches
       x-accepts: application/json
-  /categories:
+  /staff/categories:
     get:
       description: Returns a list of all catecories
       responses:
@@ -231,7 +256,7 @@ paths:
       tags:
       - Categories
       x-accepts: application/json
-  /category:
+  /staff/category:
     post:
       description: Adds a new category
       requestBody:
@@ -264,7 +289,7 @@ paths:
       - Categories
       x-contentType: application/json
       x-accepts: application/json
-  /category/{id}:
+  /staff/category/{id}:
     delete:
       description: Deletes a category by its ID
       parameters:
@@ -309,7 +334,7 @@ paths:
       tags:
       - Categories
       x-accepts: application/json
-  /extras:
+  /staff/extras:
     get:
       description: Returns a list of all extras
       responses:
@@ -326,7 +351,7 @@ paths:
       tags:
       - Extras
       x-accepts: application/json
-  /extra:
+  /staff/extra:
     post:
       description: Adds a new extra
       requestBody:
@@ -359,7 +384,7 @@ paths:
       - Extras
       x-contentType: application/json
       x-accepts: application/json
-  /extra/{id}:
+  /staff/extra/{id}:
     delete:
       description: Deletes a extra by its ID
       parameters:
@@ -404,7 +429,7 @@ paths:
       tags:
       - Extras
       x-accepts: application/json
-  /lables:
+  /staff/lables:
     get:
       description: Returns a list of all lables
       responses:
@@ -421,7 +446,7 @@ paths:
       tags:
       - Labels
       x-accepts: application/json
-  /lable:
+  /staff/staff/lable:
     post:
       description: Adds a new lable
       requestBody:
@@ -454,7 +479,7 @@ paths:
       - Labels
       x-contentType: application/json
       x-accepts: application/json
-  /lable/{id}:
+  /staff/lable/{id}:
     delete:
       description: Deletes a lable by its ID
       parameters:
@@ -499,7 +524,7 @@ paths:
       tags:
       - Labels
       x-accepts: application/json
-  /menus:
+  /staff/menus:
     get:
       description: Returns a list of all menus
       responses:
@@ -513,10 +538,12 @@ paths:
           description: OK
         "204":
           description: No Content
+      security:
+      - bearerAuth: []
       tags:
       - Menus
       x-accepts: application/json
-  /menu:
+  /staff/menu:
     post:
       description: Adds a new menu
       requestBody:
@@ -529,6 +556,8 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - bearerAuth: []
       tags:
       - Menus
       x-contentType: application/json
@@ -545,11 +574,13 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - bearerAuth: []
       tags:
       - Menus
       x-contentType: application/json
       x-accepts: application/json
-  /menu/{id}:
+  /staff/menu/{id}:
     delete:
       description: Deletes a menu by its ID
       parameters:
@@ -566,6 +597,8 @@ paths:
           description: OK
         "400":
           description: Bad Request
+      security:
+      - bearerAuth: []
       tags:
       - Menus
       x-accepts: application/json
@@ -591,10 +624,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+      security:
+      - bearerAuth: []
       tags:
       - Menus
       x-accepts: application/json
-  /options:
+  /staff/options:
     get:
       description: Returns a list of all option
       responses:
@@ -611,7 +646,7 @@ paths:
       tags:
       - Options
       x-accepts: application/json
-  /option:
+  /staff/option:
     post:
       description: Adds a new option
       requestBody:
@@ -644,7 +679,7 @@ paths:
       - Options
       x-contentType: application/json
       x-accepts: application/json
-  /option/{id}:
+  /staff/option/{id}:
     delete:
       description: Deletes a option by its ID
       parameters:
@@ -689,7 +724,7 @@ paths:
       tags:
       - Options
       x-accepts: application/json
-  /products:
+  /staff/products:
     get:
       description: Returns a list of all products
       responses:
@@ -706,7 +741,7 @@ paths:
       tags:
       - Products
       x-accepts: application/json
-  /product:
+  /staff/product:
     post:
       description: Adds a new product
       requestBody:
@@ -739,7 +774,7 @@ paths:
       - Products
       x-contentType: application/json
       x-accepts: application/json
-  /product/{id}:
+  /staff/product/{id}:
     delete:
       description: Deletes a product by its ID
       parameters:
@@ -784,7 +819,7 @@ paths:
       tags:
       - Products
       x-accepts: application/json
-  /restaurants:
+  /staff/restaurants:
     get:
       description: Returns a list of all Restaurants
       responses:
@@ -801,7 +836,7 @@ paths:
       tags:
       - Restaurants
       x-accepts: application/json
-  /restaurant:
+  /staff/restaurant:
     post:
       description: Adds a new restaurant
       requestBody:
@@ -834,7 +869,7 @@ paths:
       - Restaurants
       x-contentType: application/json
       x-accepts: application/json
-  /restaurant/{id}:
+  /staff/restaurant/{id}:
     delete:
       description: Deletes a restaurant by its ID
       parameters:
@@ -880,6 +915,9 @@ paths:
       - Restaurants
       x-accepts: application/json
 components:
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
   schemas:
     UserDto:
       example:
@@ -912,7 +950,7 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         id: 0
         longitude: 6.027456183070403
       properties:
@@ -934,7 +972,7 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         id: 0
       properties:
         id:
@@ -951,11 +989,11 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         description:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         id: 0
       properties:
         id:
@@ -975,7 +1013,7 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         icon: icon
         menuId: 6
         id: 0
@@ -1001,7 +1039,7 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         id: 0
       properties:
         id:
@@ -1017,11 +1055,11 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         description:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         id: 0
       properties:
         id:
@@ -1043,13 +1081,13 @@ components:
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         costPrice: 1
         menuId: 6
         description:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         id: 0
       properties:
         id:
@@ -1068,13 +1106,129 @@ components:
           format: double
           type: integer
       type: object
+    LoginRequest:
+      properties:
+        deviceUuid:
+          type: string
+        phone:
+          type: string
+        code:
+          format: long
+          type: integer
+      type: object
+    LoginResponse:
+      example:
+        regToken: regToken
+        loginToken: loginToken
+        accessToken: accessToken
+        refreshToken: refreshToken
+      properties:
+        loginToken:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        regToken:
+          type: string
+      type: object
+    StaffDto:
+      example:
+        firstName: firstName
+        lastName: lastName
+        birthDay: birthDay
+        image: image
+        password: password
+        id: 0
+        position:
+          roles:
+          - delivery: true
+            name: name
+            id: 1
+            menu: true
+            staffId: 5
+          - delivery: true
+            name: name
+            id: 1
+            menu: true
+            staffId: 5
+          name: name
+          id: 6
+        username: username
+      properties:
+        id:
+          format: long
+          type: integer
+        username:
+          type: string
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthDay:
+          format: yyyy-MM-dd
+          type: string
+        image:
+          type: string
+        position:
+          $ref: '#/components/schemas/PositionDto'
+      type: object
+    PositionDto:
+      example:
+        roles:
+        - delivery: true
+          name: name
+          id: 1
+          menu: true
+          staffId: 5
+        - delivery: true
+          name: name
+          id: 1
+          menu: true
+          staffId: 5
+        name: name
+        id: 6
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          type: string
+        roles:
+          items:
+            $ref: '#/components/schemas/RoleDto'
+          type: array
+      type: object
+    RoleDto:
+      example:
+        delivery: true
+        name: name
+        id: 1
+        menu: true
+        staffId: 5
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          type: string
+        staffId:
+          format: long
+          type: integer
+        menu:
+          type: boolean
+        delivery:
+          type: boolean
+      type: object
     RestaurantDto:
       example:
         domain: domain
         name:
           ru: ru
           uz: uz
-          eng: eng
+          en: en
         logo: logo
         id: 0
       properties:
@@ -1092,13 +1246,18 @@ components:
       example:
         ru: ru
         uz: uz
-        eng: eng
+        en: en
       properties:
         uz:
           type: string
         ru:
           type: string
-        eng:
+        en:
           type: string
       type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
 

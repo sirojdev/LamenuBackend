@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class MenusApi {
     }
 
     /**
-     * Build call for menuIdDelete
+     * Build call for staffMenuIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffMenuIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/menu/{id}"
+        String localVarPath = "/staff/menu/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -94,20 +94,20 @@ public class MenusApi {
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        String[] localVarAuthNames = new String[] {  };
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
         return localVarApiClient.buildCall(localVarPath, "DELETE", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call menuIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffMenuIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling menuIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffMenuIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = menuIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffMenuIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void menuIdDelete(Long id) throws ApiException {
-        menuIdDeleteWithHttpInfo(id);
+    public void staffMenuIdDelete(Long id) throws ApiException {
+        staffMenuIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> menuIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = menuIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffMenuIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffMenuIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffMenuIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = menuIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffMenuIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for menuIdGet
+     * Build call for staffMenuIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffMenuIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/menu/{id}"
+        String localVarPath = "/staff/menu/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -207,20 +207,20 @@ public class MenusApi {
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        String[] localVarAuthNames = new String[] {  };
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
         return localVarApiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call menuIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffMenuIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling menuIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffMenuIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = menuIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffMenuIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public MenuDto menuIdGet(Long id) throws ApiException {
-        ApiResponse<MenuDto> localVarResp = menuIdGetWithHttpInfo(id);
+    public MenuDto staffMenuIdGet(Long id) throws ApiException {
+        ApiResponse<MenuDto> localVarResp = staffMenuIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<MenuDto> menuIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = menuIdGetValidateBeforeCall(id, null);
+    public ApiResponse<MenuDto> staffMenuIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffMenuIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<MenuDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class MenusApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuIdGetAsync(Long id, final ApiCallback<MenuDto> _callback) throws ApiException {
+    public okhttp3.Call staffMenuIdGetAsync(Long id, final ApiCallback<MenuDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = menuIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffMenuIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<MenuDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for menuPost
+     * Build call for staffMenuPost
      * @param menuDto A JSON object containing updated menu information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuPostCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffMenuPostCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = menuDto;
 
         // create path and map variables
-        String localVarPath = "/menu";
+        String localVarPath = "/staff/menu";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -324,20 +324,20 @@ public class MenusApi {
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        String[] localVarAuthNames = new String[] {  };
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
         return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call menuPostValidateBeforeCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffMenuPostValidateBeforeCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'menuDto' is set
         if (menuDto == null) {
-            throw new ApiException("Missing the required parameter 'menuDto' when calling menuPost(Async)");
+            throw new ApiException("Missing the required parameter 'menuDto' when calling staffMenuPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = menuPostCall(menuDto, _callback);
+        okhttp3.Call localVarCall = staffMenuPostCall(menuDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void menuPost(MenuDto menuDto) throws ApiException {
-        menuPostWithHttpInfo(menuDto);
+    public void staffMenuPost(MenuDto menuDto) throws ApiException {
+        staffMenuPostWithHttpInfo(menuDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> menuPostWithHttpInfo(MenuDto menuDto) throws ApiException {
-        okhttp3.Call localVarCall = menuPostValidateBeforeCall(menuDto, null);
+    public ApiResponse<Void> staffMenuPostWithHttpInfo(MenuDto menuDto) throws ApiException {
+        okhttp3.Call localVarCall = staffMenuPostValidateBeforeCall(menuDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuPostAsync(MenuDto menuDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffMenuPostAsync(MenuDto menuDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = menuPostValidateBeforeCall(menuDto, _callback);
+        okhttp3.Call localVarCall = staffMenuPostValidateBeforeCall(menuDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for menuPut
+     * Build call for staffMenuPut
      * @param menuDto A JSON object containing updated menu information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuPutCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffMenuPutCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = menuDto;
 
         // create path and map variables
-        String localVarPath = "/menu";
+        String localVarPath = "/staff/menu";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -431,20 +431,20 @@ public class MenusApi {
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        String[] localVarAuthNames = new String[] {  };
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
         return localVarApiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call menuPutValidateBeforeCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffMenuPutValidateBeforeCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'menuDto' is set
         if (menuDto == null) {
-            throw new ApiException("Missing the required parameter 'menuDto' when calling menuPut(Async)");
+            throw new ApiException("Missing the required parameter 'menuDto' when calling staffMenuPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = menuPutCall(menuDto, _callback);
+        okhttp3.Call localVarCall = staffMenuPutCall(menuDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void menuPut(MenuDto menuDto) throws ApiException {
-        menuPutWithHttpInfo(menuDto);
+    public void staffMenuPut(MenuDto menuDto) throws ApiException {
+        staffMenuPutWithHttpInfo(menuDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> menuPutWithHttpInfo(MenuDto menuDto) throws ApiException {
-        okhttp3.Call localVarCall = menuPutValidateBeforeCall(menuDto, null);
+    public ApiResponse<Void> staffMenuPutWithHttpInfo(MenuDto menuDto) throws ApiException {
+        okhttp3.Call localVarCall = staffMenuPutValidateBeforeCall(menuDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class MenusApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menuPutAsync(MenuDto menuDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffMenuPutAsync(MenuDto menuDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = menuPutValidateBeforeCall(menuDto, _callback);
+        okhttp3.Call localVarCall = staffMenuPutValidateBeforeCall(menuDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for menusGet
+     * Build call for staffMenusGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menusGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffMenusGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/menus";
+        String localVarPath = "/staff/menus";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -538,15 +538,15 @@ public class MenusApi {
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        String[] localVarAuthNames = new String[] {  };
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
         return localVarApiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call menusGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffMenusGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = menusGetCall(_callback);
+        okhttp3.Call localVarCall = staffMenusGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<MenuDto> menusGet() throws ApiException {
-        ApiResponse<List<MenuDto>> localVarResp = menusGetWithHttpInfo();
+    public List<MenuDto> staffMenusGet() throws ApiException {
+        ApiResponse<List<MenuDto>> localVarResp = staffMenusGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<MenuDto>> menusGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = menusGetValidateBeforeCall(null);
+    public ApiResponse<List<MenuDto>> staffMenusGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffMenusGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<MenuDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call menusGetAsync(final ApiCallback<List<MenuDto>> _callback) throws ApiException {
+    public okhttp3.Call staffMenusGetAsync(final ApiCallback<List<MenuDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = menusGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffMenusGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<MenuDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

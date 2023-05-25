@@ -4,25 +4,20 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.entities.order.ORDER_TABLE_NAME
-import mimsoft.io.entities.order.OrderTable
-import mimsoft.io.session.SESSION_TABLE_NAME
-import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.plugins.GSON
 
 import java.sql.Connection
 import java.sql.Statement
 import java.sql.Timestamp
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
 import kotlin.reflect.full.*
-import kotlin.reflect.javaType
 
 object DBManager {
 
-    fun init(){
+    fun init() {
 //        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
 //        createTable(tableName = SESSION_TABLE_NAME, SessionTable::class)
+        createTable(tableName = "role", dataClass = Role::class)
     }
 
     private val dataSource = createDataSource()
@@ -75,7 +70,7 @@ object DBManager {
 
         val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause"
 
-        println("GET PAGE DATA QUERY ---> $query")
+        println("\nGET PAGE DATA QUERY ---> $query")
 
         val resultList = mutableListOf<T>()
         withContext(Dispatchers.IO) {
@@ -142,6 +137,8 @@ object DBManager {
             "SELECT $columns FROM $tName $hasDeleted AND id = $id"
         }
 
+        println("\nGET DATA-->$query")
+
         val resultList = mutableListOf<Any>()
         withContext(Dispatchers.IO) {
             connection().use { connection ->
@@ -166,14 +163,13 @@ object DBManager {
 
     suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null): Long? {
 
-        println("\ndataObject-->${GSON.toJson(dataObject)}")
-
         val tName = tableName ?: dataClass.simpleName
-        val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
+        val filteredProperties =
+            dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
         val columns = filteredProperties.joinToString(", ") { camelToSnakeCase(it.name) }
         val placeholders = filteredProperties.joinToString(", ") { "?" }
         val insert = "INSERT INTO $tName ($columns) VALUES ($placeholders)"
-        println("\ninsert-->$insert")
+        println("\nPOST DATA-->$insert")
 
         return withContext(Dispatchers.IO) {
             connection().use { connection ->
@@ -183,18 +179,22 @@ object DBManager {
                     val propertyName = property.name
                     val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
                     val value = propertyInstance?.call(dataObject)
-//                    val value = dataObject?.let { property.get(it) }
-                    println("\npropertyName-->$propertyName")
-                    println("\npropertyInstance-->$propertyInstance")
-                    println("\nvalue-->$value")
-                    println("\nproperty.returnType-->${property.returnType}")
+//
                     when (property.returnType.toString()) {
                         "kotlin.String?" -> statement.setString(index + 1, value as? String)
-                        "kotlin.Boolean?" -> (value as? Boolean)?.let { statement.setBoolean(index + 1, it) }
+                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as? Boolean == null)
                         "kotlin.Double?" -> (value as? Double)?.let { statement.setDouble(index + 1, it) }
                         "kotlin.Int?" -> (value as? Int)?.let { statement.setInt(index + 1, it) }
                         "kotlin.Long?" -> (value as? Long)?.let { statement.setLong(index + 1, it) }
-                        "java.sql.Timestamp?" -> statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
+                        "java.sql.Timestamp?" -> {
+                            if (propertyName == "created") {
+                                statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
+                            }
+                            else {
+                                statement.setTimestamp(index + 1, value as? Timestamp)
+                            }
+                        }
+
                         else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
                     }
                 }
@@ -210,9 +210,15 @@ object DBManager {
         }
     }
 
-    suspend fun <T : Any> updateData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null, idColumn: String? = "id"): Boolean {
+    suspend fun <T : Any> updateData(
+        dataClass: KClass<T>,
+        dataObject: T?,
+        tableName: String? = null,
+        idColumn: String? = "id"
+    ): Boolean {
         val tName = tableName ?: dataClass.simpleName
-        val filteredProperties = dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id" }
+        val filteredProperties =
+            dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id" }
 
         val setClause = filteredProperties.joinToString(", ") { "${camelToSnakeCase(it.name)} = ?" }
 
@@ -220,21 +226,32 @@ object DBManager {
             "WHERE NOT deleted" else "WHERE true"
 
         val update = "UPDATE $tName SET $setClause $hasDeleted AND $idColumn = ?"
-        println("\nupdate --> $update")
+        println("\nUPDATE DATA --> $update")
 
-         withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             connection().use { connection ->
                 val statement = connection.prepareStatement(update)
 
                 filteredProperties.forEachIndexed { index, property ->
-                    val value = dataObject?.let { property.get(it) }
+                    val propertyName = property.name
+                    val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
+                    val value = propertyInstance?.call(dataObject)
+//
                     when (property.returnType.toString()) {
-                        "kotlin.String?" -> statement.setString(index + 1, value as String)
-                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as Boolean)
-                        "kotlin.Double?" -> statement.setDouble(index + 1, value as Double)
-                        "kotlin.Int?" -> statement.setInt(index + 1, value as Int)
-                        "kotlin.Long?" -> statement.setLong(index + 1, value as Long)
-                        "java.sql.Timestamp?" -> statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
+                        "kotlin.String?" -> statement.setString(index + 1, value as? String)
+                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as? Boolean == null)
+                        "kotlin.Double?" -> (value as? Double)?.let { statement.setDouble(index + 1, it) }
+                        "kotlin.Int?" -> (value as? Int)?.let { statement.setInt(index + 1, it) }
+                        "kotlin.Long?" -> (value as? Long)?.let { statement.setLong(index + 1, it) }
+                        "java.sql.Timestamp?" -> {
+                            if (propertyName == "updated") {
+                                statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
+                            }
+                            else {
+                                statement.setTimestamp(index + 1, value as? Timestamp)
+                            }
+                        }
+
                         else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
                     }
                 }
@@ -248,14 +265,14 @@ object DBManager {
         return true
     }
 
-    suspend fun deleteData(tableName: String, idColumn: String = "id", id: Long?): Boolean {
-        val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $idColumn = ?"
-        println("\ndelete --> $delete")
+    suspend fun deleteData(tableName: String, where: String = "id", whereValue: Any? = null): Boolean {
+        val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
+        println("\nDELETE DATA --> $delete")
 
         return withContext(Dispatchers.IO) {
             connection().use { connection ->
                 val statement = connection.prepareStatement(delete)
-                id?.let { statement.setLong(1, it) }
+                statement.setObject(1, whereValue)
                 statement.executeUpdate()
                 return@withContext true
             }

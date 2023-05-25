@@ -196,7 +196,7 @@
         val dtoConstructor = dtoClass.primaryConstructor ?: return null
         val dtoParameters = dtoConstructor.parameters.associateBy { it.name }
         val dtoValues = dtoParameters.mapValues { (name, parameter) ->
-            val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("Eng", "")
+            val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("En", "")
             val property = tableClass.memberProperties.find { it.name == propertyName }
 
             if (property != null && property.returnType.classifier == TextModel::class) {
@@ -224,7 +224,7 @@
             when (lang) {
                 "Uz" -> textModel.uz = prop.get(table as Nothing)?.toString() ?: ""
                 "Ru" -> textModel.ru = prop.get(table as Nothing)?.toString() ?: ""
-                "Eng" -> textModel.eng = prop.get(table as Nothing)?.toString() ?: ""
+                "En" -> textModel.eng = prop.get(table as Nothing)?.toString() ?: ""
             }
         }
         return textModel

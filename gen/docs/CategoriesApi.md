@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**categoriesGet**](CategoriesApi.md#categoriesGet) | **GET** /categories | 
-[**categoryIdDelete**](CategoriesApi.md#categoryIdDelete) | **DELETE** /category/{id} | 
-[**categoryIdGet**](CategoriesApi.md#categoryIdGet) | **GET** /category/{id} | 
-[**categoryPost**](CategoriesApi.md#categoryPost) | **POST** /category | 
-[**categoryPut**](CategoriesApi.md#categoryPut) | **PUT** /category | 
+[**staffCategoriesGet**](CategoriesApi.md#staffCategoriesGet) | **GET** /staff/categories | 
+[**staffCategoryIdDelete**](CategoriesApi.md#staffCategoryIdDelete) | **DELETE** /staff/category/{id} | 
+[**staffCategoryIdGet**](CategoriesApi.md#staffCategoryIdGet) | **GET** /staff/category/{id} | 
+[**staffCategoryPost**](CategoriesApi.md#staffCategoryPost) | **POST** /staff/category | 
+[**staffCategoryPut**](CategoriesApi.md#staffCategoryPut) | **PUT** /staff/category | 
 
 
-<a name="categoriesGet"></a>
-# **categoriesGet**
-> List&lt;CategoryDto&gt; categoriesGet()
+<a name="staffCategoriesGet"></a>
+# **staffCategoriesGet**
+> List&lt;CategoryDto&gt; staffCategoriesGet()
 
 
 
@@ -35,10 +35,10 @@ public class Example {
 
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     try {
-      List<CategoryDto> result = apiInstance.categoriesGet();
+      List<CategoryDto> result = apiInstance.staffCategoriesGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#categoriesGet");
+      System.err.println("Exception when calling CategoriesApi#staffCategoriesGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -70,9 +70,9 @@ No authorization required
 **200** | OK |  -  |
 **204** | No Content |  -  |
 
-<a name="categoryIdDelete"></a>
-# **categoryIdDelete**
-> categoryIdDelete(id)
+<a name="staffCategoryIdDelete"></a>
+# **staffCategoryIdDelete**
+> staffCategoryIdDelete(id)
 
 
 
@@ -95,9 +95,9 @@ public class Example {
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.categoryIdDelete(id);
+      apiInstance.staffCategoryIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#categoryIdDelete");
+      System.err.println("Exception when calling CategoriesApi#staffCategoryIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -132,9 +132,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="categoryIdGet"></a>
-# **categoryIdGet**
-> CategoryDto categoryIdGet(id)
+<a name="staffCategoryIdGet"></a>
+# **staffCategoryIdGet**
+> CategoryDto staffCategoryIdGet(id)
 
 
 
@@ -157,10 +157,10 @@ public class Example {
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      CategoryDto result = apiInstance.categoryIdGet(id);
+      CategoryDto result = apiInstance.staffCategoryIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#categoryIdGet");
+      System.err.println("Exception when calling CategoriesApi#staffCategoryIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -196,9 +196,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="categoryPost"></a>
-# **categoryPost**
-> categoryPost(categoryDto)
+<a name="staffCategoryPost"></a>
+# **staffCategoryPost**
+> staffCategoryPost(categoryDto)
 
 
 
@@ -221,9 +221,9 @@ public class Example {
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     CategoryDto categoryDto = new CategoryDto(); // CategoryDto | A JSON object containing updated category information
     try {
-      apiInstance.categoryPost(categoryDto);
+      apiInstance.staffCategoryPost(categoryDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#categoryPost");
+      System.err.println("Exception when calling CategoriesApi#staffCategoryPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -257,9 +257,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="categoryPut"></a>
-# **categoryPut**
-> categoryPut(categoryDto)
+<a name="staffCategoryPut"></a>
+# **staffCategoryPut**
+> staffCategoryPut(categoryDto)
 
 
 
@@ -282,9 +282,9 @@ public class Example {
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     CategoryDto categoryDto = new CategoryDto(); // CategoryDto | A JSON object containing updated category information
     try {
-      apiInstance.categoryPut(categoryDto);
+      apiInstance.staffCategoryPut(categoryDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#categoryPut");
+      System.err.println("Exception when calling CategoriesApi#staffCategoryPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

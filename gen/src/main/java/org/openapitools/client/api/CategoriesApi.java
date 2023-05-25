@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class CategoriesApi {
     }
 
     /**
-     * Build call for categoriesGet
+     * Build call for staffCategoriesGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -66,11 +66,11 @@ public class CategoriesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoriesGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffCategoriesGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/categories";
+        String localVarPath = "/staff/categories";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -97,10 +97,10 @@ public class CategoriesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call categoriesGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffCategoriesGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = categoriesGetCall(_callback);
+        okhttp3.Call localVarCall = staffCategoriesGetCall(_callback);
         return localVarCall;
 
     }
@@ -117,8 +117,8 @@ public class CategoriesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<CategoryDto> categoriesGet() throws ApiException {
-        ApiResponse<List<CategoryDto>> localVarResp = categoriesGetWithHttpInfo();
+    public List<CategoryDto> staffCategoriesGet() throws ApiException {
+        ApiResponse<List<CategoryDto>> localVarResp = staffCategoriesGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -134,8 +134,8 @@ public class CategoriesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<CategoryDto>> categoriesGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = categoriesGetValidateBeforeCall(null);
+    public ApiResponse<List<CategoryDto>> staffCategoriesGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffCategoriesGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<CategoryDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -153,15 +153,15 @@ public class CategoriesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoriesGetAsync(final ApiCallback<List<CategoryDto>> _callback) throws ApiException {
+    public okhttp3.Call staffCategoriesGetAsync(final ApiCallback<List<CategoryDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = categoriesGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffCategoriesGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<CategoryDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for categoryIdDelete
+     * Build call for staffCategoryIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -173,11 +173,11 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffCategoryIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/category/{id}"
+        String localVarPath = "/staff/category/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -205,15 +205,15 @@ public class CategoriesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call categoryIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffCategoryIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling categoryIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffCategoryIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = categoryIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffCategoryIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -230,8 +230,8 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void categoryIdDelete(Long id) throws ApiException {
-        categoryIdDeleteWithHttpInfo(id);
+    public void staffCategoryIdDelete(Long id) throws ApiException {
+        staffCategoryIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -247,8 +247,8 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> categoryIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = categoryIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffCategoryIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffCategoryIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -266,14 +266,14 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffCategoryIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = categoryIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffCategoryIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for categoryIdGet
+     * Build call for staffCategoryIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -286,11 +286,11 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffCategoryIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/category/{id}"
+        String localVarPath = "/staff/category/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -318,15 +318,15 @@ public class CategoriesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call categoryIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffCategoryIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling categoryIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffCategoryIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = categoryIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffCategoryIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -345,8 +345,8 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public CategoryDto categoryIdGet(Long id) throws ApiException {
-        ApiResponse<CategoryDto> localVarResp = categoryIdGetWithHttpInfo(id);
+    public CategoryDto staffCategoryIdGet(Long id) throws ApiException {
+        ApiResponse<CategoryDto> localVarResp = staffCategoryIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -364,8 +364,8 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<CategoryDto> categoryIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = categoryIdGetValidateBeforeCall(id, null);
+    public ApiResponse<CategoryDto> staffCategoryIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffCategoryIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<CategoryDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -385,15 +385,15 @@ public class CategoriesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryIdGetAsync(Long id, final ApiCallback<CategoryDto> _callback) throws ApiException {
+    public okhttp3.Call staffCategoryIdGetAsync(Long id, final ApiCallback<CategoryDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = categoryIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffCategoryIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<CategoryDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for categoryPost
+     * Build call for staffCategoryPost
      * @param categoryDto A JSON object containing updated category information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -404,11 +404,11 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryPostCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffCategoryPostCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = categoryDto;
 
         // create path and map variables
-        String localVarPath = "/category";
+        String localVarPath = "/staff/category";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -435,15 +435,15 @@ public class CategoriesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call categoryPostValidateBeforeCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffCategoryPostValidateBeforeCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'categoryDto' is set
         if (categoryDto == null) {
-            throw new ApiException("Missing the required parameter 'categoryDto' when calling categoryPost(Async)");
+            throw new ApiException("Missing the required parameter 'categoryDto' when calling staffCategoryPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = categoryPostCall(categoryDto, _callback);
+        okhttp3.Call localVarCall = staffCategoryPostCall(categoryDto, _callback);
         return localVarCall;
 
     }
@@ -459,8 +459,8 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void categoryPost(CategoryDto categoryDto) throws ApiException {
-        categoryPostWithHttpInfo(categoryDto);
+    public void staffCategoryPost(CategoryDto categoryDto) throws ApiException {
+        staffCategoryPostWithHttpInfo(categoryDto);
     }
 
     /**
@@ -475,8 +475,8 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> categoryPostWithHttpInfo(CategoryDto categoryDto) throws ApiException {
-        okhttp3.Call localVarCall = categoryPostValidateBeforeCall(categoryDto, null);
+    public ApiResponse<Void> staffCategoryPostWithHttpInfo(CategoryDto categoryDto) throws ApiException {
+        okhttp3.Call localVarCall = staffCategoryPostValidateBeforeCall(categoryDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -493,14 +493,14 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryPostAsync(CategoryDto categoryDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffCategoryPostAsync(CategoryDto categoryDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = categoryPostValidateBeforeCall(categoryDto, _callback);
+        okhttp3.Call localVarCall = staffCategoryPostValidateBeforeCall(categoryDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for categoryPut
+     * Build call for staffCategoryPut
      * @param categoryDto A JSON object containing updated category information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -511,11 +511,11 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryPutCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffCategoryPutCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = categoryDto;
 
         // create path and map variables
-        String localVarPath = "/category";
+        String localVarPath = "/staff/category";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -542,15 +542,15 @@ public class CategoriesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call categoryPutValidateBeforeCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffCategoryPutValidateBeforeCall(CategoryDto categoryDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'categoryDto' is set
         if (categoryDto == null) {
-            throw new ApiException("Missing the required parameter 'categoryDto' when calling categoryPut(Async)");
+            throw new ApiException("Missing the required parameter 'categoryDto' when calling staffCategoryPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = categoryPutCall(categoryDto, _callback);
+        okhttp3.Call localVarCall = staffCategoryPutCall(categoryDto, _callback);
         return localVarCall;
 
     }
@@ -566,8 +566,8 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void categoryPut(CategoryDto categoryDto) throws ApiException {
-        categoryPutWithHttpInfo(categoryDto);
+    public void staffCategoryPut(CategoryDto categoryDto) throws ApiException {
+        staffCategoryPutWithHttpInfo(categoryDto);
     }
 
     /**
@@ -582,8 +582,8 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> categoryPutWithHttpInfo(CategoryDto categoryDto) throws ApiException {
-        okhttp3.Call localVarCall = categoryPutValidateBeforeCall(categoryDto, null);
+    public ApiResponse<Void> staffCategoryPutWithHttpInfo(CategoryDto categoryDto) throws ApiException {
+        okhttp3.Call localVarCall = staffCategoryPutValidateBeforeCall(categoryDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -600,9 +600,9 @@ public class CategoriesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call categoryPutAsync(CategoryDto categoryDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffCategoryPutAsync(CategoryDto categoryDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = categoryPutValidateBeforeCall(categoryDto, _callback);
+        okhttp3.Call localVarCall = staffCategoryPutValidateBeforeCall(categoryDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }

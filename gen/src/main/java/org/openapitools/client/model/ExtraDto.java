@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -28,7 +28,7 @@ import org.openapitools.client.model.TextModel;
 /**
  * ExtraDto
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-05-15T14:01:51.605023389+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-05-24T18:10:16.083903480+05:00[Asia/Tashkent]")
 public class ExtraDto {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)

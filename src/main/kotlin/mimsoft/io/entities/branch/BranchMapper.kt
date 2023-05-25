@@ -1,7 +1,5 @@
 package mimsoft.io.entities.branch
 
-import mimsoft.io.entities.branch.BranchDto
-import mimsoft.io.entities.branch.BranchTable
 import mimsoft.io.utils.TextModel
 
 object BranchMapper {
@@ -12,7 +10,7 @@ object BranchMapper {
                 id = branchDto.id,
                 nameUz = branchDto.name?.uz,
                 nameRu = branchDto.name?.ru,
-                nameEng = branchDto.name?.eng,
+                nameEn = branchDto.name?.en,
                 longitude = branchDto.longitude,
                 latitude = branchDto.latitude,
                 address = branchDto.address
@@ -27,7 +25,7 @@ object BranchMapper {
             name = TextModel(
                 uz = branchTable.nameUz,
                 ru = branchTable.nameRu,
-                eng = branchTable.nameEng,
+                en = branchTable.nameEn,
             ),
             longitude = branchTable.longitude,
             latitude = branchTable.latitude,

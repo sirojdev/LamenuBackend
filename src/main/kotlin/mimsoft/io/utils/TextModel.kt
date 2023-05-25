@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class TextModel(
     var uz: String? = null,
     var ru: String? = null,
-    var eng: String? = null
+    var en: String? = null
 )

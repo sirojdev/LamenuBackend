@@ -103,8 +103,9 @@ fun Route.routeToLogin() {
 
                             val newSession = SessionTable(
                                 uuid = sessionUuid,
+                                phone = principal?.phone,
                                 deviceId = principal?.deviceId,
-                                entityId = user.id,
+                                userId = user.id,
                                 role = Role.USER.name,
                                 isExpired = false
                             )
@@ -116,11 +117,11 @@ fun Route.routeToLogin() {
                         val loginResponse = LoginResponse(
                             accessToken = JwtConfig.generateAccessToken(
                                 entityId = user.id,
-                                role = Role.USER
+                                roles = arrayListOf(Role.USER)
                             ),
-                            regToken = JwtConfig.generateRefreshToken(
+                            refreshToken = JwtConfig.generateRefreshToken(
                                 entityId = user.id,
-                                role = Role.USER
+                                roles = arrayListOf(Role.USER)
                             )
                         )
 
@@ -149,6 +150,8 @@ fun Route.routeToLogin() {
             val principal = call.principal<LoginPrincipal>()
             val user = call.receive<UserDto>()
 
+            val sessionRepository = SessionRepository
+
             if (user.firstName == null) {
                 call.respond(HttpStatusCode.BadRequest, "firstName must not be null")
             }
@@ -156,17 +159,31 @@ fun Route.routeToLogin() {
             val userRepository: UserRepository = UserRepositoryImpl
             val mapper = Mapper
 
-            val userId = userRepository.add(
+            val status = userRepository.add(
                 mapper.toTable<UserDto, UserTable>(user.copy(phone = principal?.phone)))
+
+            val userBody = status.body as UserTable
+
+            val sessionUuid = sessionRepository.generateUuid()
+
+            val newSession = SessionTable(
+                uuid = sessionUuid,
+                phone = principal?.phone,
+                deviceId = principal?.deviceId,
+                userId = userBody.id,
+                role = Role.USER.name,
+                isExpired = false
+            )
+            sessionRepository.add(newSession)
 
             val loginResponse = LoginResponse(
                 accessToken = JwtConfig.generateAccessToken(
-                    entityId = userId,
-                    role = Role.USER
+                    entityId = userBody.id,
+                    roles = arrayListOf(Role.USER)
                 ),
                 refreshToken = JwtConfig.generateRefreshToken(
-                    entityId = userId,
-                    role = Role.USER
+                    entityId = userBody.id,
+                    roles = arrayListOf(Role.USER)
                 )
             )
 

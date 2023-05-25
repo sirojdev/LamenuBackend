@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**userIdDelete**](UsersApi.md#userIdDelete) | **DELETE** /user/{id} | 
-[**userIdGet**](UsersApi.md#userIdGet) | **GET** /user/{id} | 
-[**userPost**](UsersApi.md#userPost) | **POST** /user | 
-[**userPut**](UsersApi.md#userPut) | **PUT** /user | 
-[**usersGet**](UsersApi.md#usersGet) | **GET** /users | 
+[**staffUserIdDelete**](UsersApi.md#staffUserIdDelete) | **DELETE** /staff/user/{id} | 
+[**staffUserIdGet**](UsersApi.md#staffUserIdGet) | **GET** /staff/user/{id} | 
+[**staffUserPost**](UsersApi.md#staffUserPost) | **POST** /staff/user | 
+[**staffUserPut**](UsersApi.md#staffUserPut) | **PUT** /staff/user | 
+[**staffUsersGet**](UsersApi.md#staffUsersGet) | **GET** /staff/users | 
 
 
-<a name="userIdDelete"></a>
-# **userIdDelete**
-> userIdDelete(id)
+<a name="staffUserIdDelete"></a>
+# **staffUserIdDelete**
+> staffUserIdDelete(id)
 
 
 
@@ -36,9 +36,9 @@ public class Example {
     UsersApi apiInstance = new UsersApi(defaultClient);
     Integer id = 56; // Integer | 
     try {
-      apiInstance.userIdDelete(id);
+      apiInstance.staffUserIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling UsersApi#userIdDelete");
+      System.err.println("Exception when calling UsersApi#staffUserIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad request |  -  |
 
-<a name="userIdGet"></a>
-# **userIdGet**
-> UserDto userIdGet(id)
+<a name="staffUserIdGet"></a>
+# **staffUserIdGet**
+> UserDto staffUserIdGet(id)
 
 
 
@@ -98,10 +98,10 @@ public class Example {
     UsersApi apiInstance = new UsersApi(defaultClient);
     Integer id = 56; // Integer | 
     try {
-      UserDto result = apiInstance.userIdGet(id);
+      UserDto result = apiInstance.staffUserIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling UsersApi#userIdGet");
+      System.err.println("Exception when calling UsersApi#staffUserIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No content |  -  |
 **400** | Bad request |  -  |
 
-<a name="userPost"></a>
-# **userPost**
-> userPost(userDto)
+<a name="staffUserPost"></a>
+# **staffUserPost**
+> staffUserPost(userDto)
 
 
 
@@ -162,9 +162,9 @@ public class Example {
     UsersApi apiInstance = new UsersApi(defaultClient);
     UserDto userDto = new UserDto(); // UserDto | A JSON object containing user information
     try {
-      apiInstance.userPost(userDto);
+      apiInstance.staffUserPost(userDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling UsersApi#userPost");
+      System.err.println("Exception when calling UsersApi#staffUserPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="userPut"></a>
-# **userPut**
-> userPut(userDto)
+<a name="staffUserPut"></a>
+# **staffUserPut**
+> staffUserPut(userDto)
 
 
 
@@ -223,9 +223,9 @@ public class Example {
     UsersApi apiInstance = new UsersApi(defaultClient);
     UserDto userDto = new UserDto(); // UserDto | A JSON object containing updated user information
     try {
-      apiInstance.userPut(userDto);
+      apiInstance.staffUserPut(userDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling UsersApi#userPut");
+      System.err.println("Exception when calling UsersApi#staffUserPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="usersGet"></a>
-# **usersGet**
-> List&lt;UserDto&gt; usersGet()
+<a name="staffUsersGet"></a>
+# **staffUsersGet**
+> List&lt;UserDto&gt; staffUsersGet()
 
 
 
@@ -283,10 +283,10 @@ public class Example {
 
     UsersApi apiInstance = new UsersApi(defaultClient);
     try {
-      List<UserDto> result = apiInstance.usersGet();
+      List<UserDto> result = apiInstance.staffUsersGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling UsersApi#usersGet");
+      System.err.println("Exception when calling UsersApi#staffUsersGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

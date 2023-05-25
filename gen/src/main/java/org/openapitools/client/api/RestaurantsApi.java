@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class RestaurantsApi {
     }
 
     /**
-     * Build call for restaurantIdDelete
+     * Build call for staffRestaurantIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/restaurant/{id}"
+        String localVarPath = "/staff/restaurant/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class RestaurantsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call restaurantIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffRestaurantIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling restaurantIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffRestaurantIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = restaurantIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffRestaurantIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void restaurantIdDelete(Long id) throws ApiException {
-        restaurantIdDeleteWithHttpInfo(id);
+    public void staffRestaurantIdDelete(Long id) throws ApiException {
+        staffRestaurantIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> restaurantIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = restaurantIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffRestaurantIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffRestaurantIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = restaurantIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffRestaurantIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for restaurantIdGet
+     * Build call for staffRestaurantIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/restaurant/{id}"
+        String localVarPath = "/staff/restaurant/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class RestaurantsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call restaurantIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffRestaurantIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling restaurantIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffRestaurantIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = restaurantIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffRestaurantIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public RestaurantDto restaurantIdGet(Long id) throws ApiException {
-        ApiResponse<RestaurantDto> localVarResp = restaurantIdGetWithHttpInfo(id);
+    public RestaurantDto staffRestaurantIdGet(Long id) throws ApiException {
+        ApiResponse<RestaurantDto> localVarResp = staffRestaurantIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<RestaurantDto> restaurantIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = restaurantIdGetValidateBeforeCall(id, null);
+    public ApiResponse<RestaurantDto> staffRestaurantIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffRestaurantIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<RestaurantDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class RestaurantsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantIdGetAsync(Long id, final ApiCallback<RestaurantDto> _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantIdGetAsync(Long id, final ApiCallback<RestaurantDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = restaurantIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffRestaurantIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<RestaurantDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for restaurantPost
+     * Build call for staffRestaurantPost
      * @param restaurantDto A JSON object containing updated product information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantPostCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantPostCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = restaurantDto;
 
         // create path and map variables
-        String localVarPath = "/restaurant";
+        String localVarPath = "/staff/restaurant";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -329,15 +329,15 @@ public class RestaurantsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call restaurantPostValidateBeforeCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffRestaurantPostValidateBeforeCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'restaurantDto' is set
         if (restaurantDto == null) {
-            throw new ApiException("Missing the required parameter 'restaurantDto' when calling restaurantPost(Async)");
+            throw new ApiException("Missing the required parameter 'restaurantDto' when calling staffRestaurantPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = restaurantPostCall(restaurantDto, _callback);
+        okhttp3.Call localVarCall = staffRestaurantPostCall(restaurantDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void restaurantPost(RestaurantDto restaurantDto) throws ApiException {
-        restaurantPostWithHttpInfo(restaurantDto);
+    public void staffRestaurantPost(RestaurantDto restaurantDto) throws ApiException {
+        staffRestaurantPostWithHttpInfo(restaurantDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> restaurantPostWithHttpInfo(RestaurantDto restaurantDto) throws ApiException {
-        okhttp3.Call localVarCall = restaurantPostValidateBeforeCall(restaurantDto, null);
+    public ApiResponse<Void> staffRestaurantPostWithHttpInfo(RestaurantDto restaurantDto) throws ApiException {
+        okhttp3.Call localVarCall = staffRestaurantPostValidateBeforeCall(restaurantDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantPostAsync(RestaurantDto restaurantDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantPostAsync(RestaurantDto restaurantDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = restaurantPostValidateBeforeCall(restaurantDto, _callback);
+        okhttp3.Call localVarCall = staffRestaurantPostValidateBeforeCall(restaurantDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for restaurantPut
+     * Build call for staffRestaurantPut
      * @param restaurantDto A JSON object containing updated product information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantPutCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantPutCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = restaurantDto;
 
         // create path and map variables
-        String localVarPath = "/restaurant";
+        String localVarPath = "/staff/restaurant";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -436,15 +436,15 @@ public class RestaurantsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call restaurantPutValidateBeforeCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffRestaurantPutValidateBeforeCall(RestaurantDto restaurantDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'restaurantDto' is set
         if (restaurantDto == null) {
-            throw new ApiException("Missing the required parameter 'restaurantDto' when calling restaurantPut(Async)");
+            throw new ApiException("Missing the required parameter 'restaurantDto' when calling staffRestaurantPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = restaurantPutCall(restaurantDto, _callback);
+        okhttp3.Call localVarCall = staffRestaurantPutCall(restaurantDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void restaurantPut(RestaurantDto restaurantDto) throws ApiException {
-        restaurantPutWithHttpInfo(restaurantDto);
+    public void staffRestaurantPut(RestaurantDto restaurantDto) throws ApiException {
+        staffRestaurantPutWithHttpInfo(restaurantDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> restaurantPutWithHttpInfo(RestaurantDto restaurantDto) throws ApiException {
-        okhttp3.Call localVarCall = restaurantPutValidateBeforeCall(restaurantDto, null);
+    public ApiResponse<Void> staffRestaurantPutWithHttpInfo(RestaurantDto restaurantDto) throws ApiException {
+        okhttp3.Call localVarCall = staffRestaurantPutValidateBeforeCall(restaurantDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class RestaurantsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantPutAsync(RestaurantDto restaurantDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantPutAsync(RestaurantDto restaurantDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = restaurantPutValidateBeforeCall(restaurantDto, _callback);
+        okhttp3.Call localVarCall = staffRestaurantPutValidateBeforeCall(restaurantDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for restaurantsGet
+     * Build call for staffRestaurantsGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class RestaurantsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantsGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantsGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/restaurants";
+        String localVarPath = "/staff/restaurants";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +543,10 @@ public class RestaurantsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call restaurantsGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffRestaurantsGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = restaurantsGetCall(_callback);
+        okhttp3.Call localVarCall = staffRestaurantsGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class RestaurantsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<RestaurantDto> restaurantsGet() throws ApiException {
-        ApiResponse<List<RestaurantDto>> localVarResp = restaurantsGetWithHttpInfo();
+    public List<RestaurantDto> staffRestaurantsGet() throws ApiException {
+        ApiResponse<List<RestaurantDto>> localVarResp = staffRestaurantsGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class RestaurantsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<RestaurantDto>> restaurantsGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = restaurantsGetValidateBeforeCall(null);
+    public ApiResponse<List<RestaurantDto>> staffRestaurantsGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffRestaurantsGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<RestaurantDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class RestaurantsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call restaurantsGetAsync(final ApiCallback<List<RestaurantDto>> _callback) throws ApiException {
+    public okhttp3.Call staffRestaurantsGetAsync(final ApiCallback<List<RestaurantDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = restaurantsGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffRestaurantsGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<RestaurantDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

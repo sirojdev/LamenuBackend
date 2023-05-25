@@ -8,7 +8,7 @@ object RestaurantMapper {
             id = restaurantDto.id,
             nameUz = restaurantDto.name?.uz,
             nameRu = restaurantDto.name?.ru,
-            nameEng = restaurantDto.name?.eng,
+            nameEn = restaurantDto.name?.en,
             logo = restaurantDto.logo,
             domain = restaurantDto.domain
         )
@@ -21,7 +21,7 @@ object RestaurantMapper {
             name = TextModel(
                 uz = restaurantTable.nameUz,
                 ru = restaurantTable.nameRu,
-                eng = restaurantTable.nameEng
+                en = restaurantTable.nameEn
             ),
             logo = restaurantTable.logo,
             domain = restaurantTable.domain

@@ -1,6 +1,6 @@
 openapi: "3.0.3"
 info:
-  title: "Lamenu documentation"
+  title: "Lamenu documentation for Users"
   description: "Lamenu documentation allows to you view the schema of Lamenu project"
   version: "1.0.0"
 servers:
@@ -540,6 +540,8 @@ paths:
       tags:
         - Menus
       description: "Returns a list of all menus"
+      security:
+        - bearerAuth: [ ]
       responses:
         "200":
           description: "OK"
@@ -556,6 +558,8 @@ paths:
       tags:
         - Menus
       description: "Adds a new menu"
+      security:
+        - bearerAuth: [ ]
       requestBody:
         description: "A JSON object containing updated menu information"
         required: true
@@ -570,6 +574,8 @@ paths:
       tags:
         - Menus
       description: "Adds a new menu"
+      security:
+        - bearerAuth: [ ]
       requestBody:
         description: "A JSON object containing updated menu information"
         required: true
@@ -585,6 +591,8 @@ paths:
       tags:
         - Menus
       description: "Returns a menu by its ID"
+      security:
+        - bearerAuth: [ ]
       parameters:
         - name: "id"
           in: "path"
@@ -607,6 +615,8 @@ paths:
       tags:
         - Menus
       description: "Deletes a menu by its ID"
+      security:
+        - bearerAuth: [ ]
       parameters:
         - name: "id"
           in: "path"
@@ -1041,7 +1051,7 @@ components:
           type: "string"
         ru:
           type: "string"
-        eng:
+        en:
           type: "string"
 
   securitySchemes:

@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat
 object UserMapper {
     fun toUserTable(userDto: UserDto?): UserTable? {
         return if (userDto == null) null else {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS")
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
             val birthDay = Timestamp(dateFormat.parse(userDto.birthDay).time)
             UserTable(
                 id = userDto.id,

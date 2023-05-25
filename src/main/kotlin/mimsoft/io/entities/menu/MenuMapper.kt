@@ -8,7 +8,7 @@ object MenuMapper {
             id = menuDto.id,
             nameUz = menuDto.name?.uz,
             nameRu = menuDto.name?.ru,
-            nameEng = menuDto.name?.eng
+            nameEn = menuDto.name?.en
         )
     }
 
@@ -19,7 +19,7 @@ object MenuMapper {
             name = TextModel(
                 uz = menuTable.nameUz,
                 ru = menuTable.nameRu,
-                eng = menuTable.nameEng
+                en = menuTable.nameEn
             ),
         )
     }

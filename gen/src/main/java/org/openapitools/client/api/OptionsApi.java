@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class OptionsApi {
     }
 
     /**
-     * Build call for optionIdDelete
+     * Build call for staffOptionIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffOptionIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/option/{id}"
+        String localVarPath = "/staff/option/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class OptionsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call optionIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffOptionIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling optionIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffOptionIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = optionIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffOptionIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void optionIdDelete(Long id) throws ApiException {
-        optionIdDeleteWithHttpInfo(id);
+    public void staffOptionIdDelete(Long id) throws ApiException {
+        staffOptionIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> optionIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = optionIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffOptionIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffOptionIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffOptionIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = optionIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffOptionIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for optionIdGet
+     * Build call for staffOptionIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffOptionIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/option/{id}"
+        String localVarPath = "/staff/option/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class OptionsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call optionIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffOptionIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling optionIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffOptionIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = optionIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffOptionIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public OptionDto optionIdGet(Long id) throws ApiException {
-        ApiResponse<OptionDto> localVarResp = optionIdGetWithHttpInfo(id);
+    public OptionDto staffOptionIdGet(Long id) throws ApiException {
+        ApiResponse<OptionDto> localVarResp = staffOptionIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<OptionDto> optionIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = optionIdGetValidateBeforeCall(id, null);
+    public ApiResponse<OptionDto> staffOptionIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffOptionIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<OptionDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class OptionsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionIdGetAsync(Long id, final ApiCallback<OptionDto> _callback) throws ApiException {
+    public okhttp3.Call staffOptionIdGetAsync(Long id, final ApiCallback<OptionDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = optionIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffOptionIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<OptionDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for optionPost
+     * Build call for staffOptionPost
      * @param optionDto A JSON object containing updated option information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionPostCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffOptionPostCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = optionDto;
 
         // create path and map variables
-        String localVarPath = "/option";
+        String localVarPath = "/staff/option";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -329,15 +329,15 @@ public class OptionsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call optionPostValidateBeforeCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffOptionPostValidateBeforeCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'optionDto' is set
         if (optionDto == null) {
-            throw new ApiException("Missing the required parameter 'optionDto' when calling optionPost(Async)");
+            throw new ApiException("Missing the required parameter 'optionDto' when calling staffOptionPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = optionPostCall(optionDto, _callback);
+        okhttp3.Call localVarCall = staffOptionPostCall(optionDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void optionPost(OptionDto optionDto) throws ApiException {
-        optionPostWithHttpInfo(optionDto);
+    public void staffOptionPost(OptionDto optionDto) throws ApiException {
+        staffOptionPostWithHttpInfo(optionDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> optionPostWithHttpInfo(OptionDto optionDto) throws ApiException {
-        okhttp3.Call localVarCall = optionPostValidateBeforeCall(optionDto, null);
+    public ApiResponse<Void> staffOptionPostWithHttpInfo(OptionDto optionDto) throws ApiException {
+        okhttp3.Call localVarCall = staffOptionPostValidateBeforeCall(optionDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionPostAsync(OptionDto optionDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffOptionPostAsync(OptionDto optionDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = optionPostValidateBeforeCall(optionDto, _callback);
+        okhttp3.Call localVarCall = staffOptionPostValidateBeforeCall(optionDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for optionPut
+     * Build call for staffOptionPut
      * @param optionDto A JSON object containing updated option information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionPutCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffOptionPutCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = optionDto;
 
         // create path and map variables
-        String localVarPath = "/option";
+        String localVarPath = "/staff/option";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -436,15 +436,15 @@ public class OptionsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call optionPutValidateBeforeCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffOptionPutValidateBeforeCall(OptionDto optionDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'optionDto' is set
         if (optionDto == null) {
-            throw new ApiException("Missing the required parameter 'optionDto' when calling optionPut(Async)");
+            throw new ApiException("Missing the required parameter 'optionDto' when calling staffOptionPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = optionPutCall(optionDto, _callback);
+        okhttp3.Call localVarCall = staffOptionPutCall(optionDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void optionPut(OptionDto optionDto) throws ApiException {
-        optionPutWithHttpInfo(optionDto);
+    public void staffOptionPut(OptionDto optionDto) throws ApiException {
+        staffOptionPutWithHttpInfo(optionDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> optionPutWithHttpInfo(OptionDto optionDto) throws ApiException {
-        okhttp3.Call localVarCall = optionPutValidateBeforeCall(optionDto, null);
+    public ApiResponse<Void> staffOptionPutWithHttpInfo(OptionDto optionDto) throws ApiException {
+        okhttp3.Call localVarCall = staffOptionPutValidateBeforeCall(optionDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class OptionsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionPutAsync(OptionDto optionDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffOptionPutAsync(OptionDto optionDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = optionPutValidateBeforeCall(optionDto, _callback);
+        okhttp3.Call localVarCall = staffOptionPutValidateBeforeCall(optionDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for optionsGet
+     * Build call for staffOptionsGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class OptionsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionsGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffOptionsGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/options";
+        String localVarPath = "/staff/options";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +543,10 @@ public class OptionsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call optionsGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffOptionsGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = optionsGetCall(_callback);
+        okhttp3.Call localVarCall = staffOptionsGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class OptionsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<OptionDto> optionsGet() throws ApiException {
-        ApiResponse<List<OptionDto>> localVarResp = optionsGetWithHttpInfo();
+    public List<OptionDto> staffOptionsGet() throws ApiException {
+        ApiResponse<List<OptionDto>> localVarResp = staffOptionsGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class OptionsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<OptionDto>> optionsGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = optionsGetValidateBeforeCall(null);
+    public ApiResponse<List<OptionDto>> staffOptionsGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffOptionsGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<OptionDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class OptionsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call optionsGetAsync(final ApiCallback<List<OptionDto>> _callback) throws ApiException {
+    public okhttp3.Call staffOptionsGetAsync(final ApiCallback<List<OptionDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = optionsGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffOptionsGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<OptionDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

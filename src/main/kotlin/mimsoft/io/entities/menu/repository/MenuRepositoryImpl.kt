@@ -23,5 +23,5 @@ object MenuRepositoryImpl : MenuRepository {
 
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = MENU_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = MENU_TABLE_NAME, whereValue = id)
 }

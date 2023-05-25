@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**menuIdDelete**](MenusApi.md#menuIdDelete) | **DELETE** /menu/{id} | 
-[**menuIdGet**](MenusApi.md#menuIdGet) | **GET** /menu/{id} | 
-[**menuPost**](MenusApi.md#menuPost) | **POST** /menu | 
-[**menuPut**](MenusApi.md#menuPut) | **PUT** /menu | 
-[**menusGet**](MenusApi.md#menusGet) | **GET** /menus | 
+[**staffMenuIdDelete**](MenusApi.md#staffMenuIdDelete) | **DELETE** /staff/menu/{id} | 
+[**staffMenuIdGet**](MenusApi.md#staffMenuIdGet) | **GET** /staff/menu/{id} | 
+[**staffMenuPost**](MenusApi.md#staffMenuPost) | **POST** /staff/menu | 
+[**staffMenuPut**](MenusApi.md#staffMenuPut) | **PUT** /staff/menu | 
+[**staffMenusGet**](MenusApi.md#staffMenusGet) | **GET** /staff/menus | 
 
 
-<a name="menuIdDelete"></a>
-# **menuIdDelete**
-> menuIdDelete(id)
+<a name="staffMenuIdDelete"></a>
+# **staffMenuIdDelete**
+> staffMenuIdDelete(id)
 
 
 
@@ -25,6 +25,7 @@ Deletes a menu by its ID
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
+import org.openapitools.client.auth.*;
 import org.openapitools.client.models.*;
 import org.openapitools.client.api.MenusApi;
 
@@ -32,13 +33,17 @@ public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    
+    // Configure HTTP bearer authorization: bearerAuth
+    HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
+    bearerAuth.setBearerToken("BEARER TOKEN");
 
     MenusApi apiInstance = new MenusApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.menuIdDelete(id);
+      apiInstance.staffMenuIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#menuIdDelete");
+      System.err.println("Exception when calling MenusApi#staffMenuIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -60,7 +65,7 @@ null (empty response body)
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -73,9 +78,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="menuIdGet"></a>
-# **menuIdGet**
-> MenuDto menuIdGet(id)
+<a name="staffMenuIdGet"></a>
+# **staffMenuIdGet**
+> MenuDto staffMenuIdGet(id)
 
 
 
@@ -87,6 +92,7 @@ Returns a menu by its ID
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
+import org.openapitools.client.auth.*;
 import org.openapitools.client.models.*;
 import org.openapitools.client.api.MenusApi;
 
@@ -94,14 +100,18 @@ public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    
+    // Configure HTTP bearer authorization: bearerAuth
+    HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
+    bearerAuth.setBearerToken("BEARER TOKEN");
 
     MenusApi apiInstance = new MenusApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      MenuDto result = apiInstance.menuIdGet(id);
+      MenuDto result = apiInstance.staffMenuIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#menuIdGet");
+      System.err.println("Exception when calling MenusApi#staffMenuIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -123,7 +133,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -137,9 +147,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="menuPost"></a>
-# **menuPost**
-> menuPost(menuDto)
+<a name="staffMenuPost"></a>
+# **staffMenuPost**
+> staffMenuPost(menuDto)
 
 
 
@@ -151,6 +161,7 @@ Adds a new menu
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
+import org.openapitools.client.auth.*;
 import org.openapitools.client.models.*;
 import org.openapitools.client.api.MenusApi;
 
@@ -158,13 +169,17 @@ public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    
+    // Configure HTTP bearer authorization: bearerAuth
+    HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
+    bearerAuth.setBearerToken("BEARER TOKEN");
 
     MenusApi apiInstance = new MenusApi(defaultClient);
     MenuDto menuDto = new MenuDto(); // MenuDto | A JSON object containing updated menu information
     try {
-      apiInstance.menuPost(menuDto);
+      apiInstance.staffMenuPost(menuDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#menuPost");
+      System.err.println("Exception when calling MenusApi#staffMenuPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -186,7 +201,7 @@ null (empty response body)
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -198,9 +213,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="menuPut"></a>
-# **menuPut**
-> menuPut(menuDto)
+<a name="staffMenuPut"></a>
+# **staffMenuPut**
+> staffMenuPut(menuDto)
 
 
 
@@ -212,6 +227,7 @@ Adds a new menu
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
+import org.openapitools.client.auth.*;
 import org.openapitools.client.models.*;
 import org.openapitools.client.api.MenusApi;
 
@@ -219,13 +235,17 @@ public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    
+    // Configure HTTP bearer authorization: bearerAuth
+    HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
+    bearerAuth.setBearerToken("BEARER TOKEN");
 
     MenusApi apiInstance = new MenusApi(defaultClient);
     MenuDto menuDto = new MenuDto(); // MenuDto | A JSON object containing updated menu information
     try {
-      apiInstance.menuPut(menuDto);
+      apiInstance.staffMenuPut(menuDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#menuPut");
+      System.err.println("Exception when calling MenusApi#staffMenuPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -247,7 +267,7 @@ null (empty response body)
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -259,9 +279,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="menusGet"></a>
-# **menusGet**
-> List&lt;MenuDto&gt; menusGet()
+<a name="staffMenusGet"></a>
+# **staffMenusGet**
+> List&lt;MenuDto&gt; staffMenusGet()
 
 
 
@@ -273,6 +293,7 @@ Returns a list of all menus
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
+import org.openapitools.client.auth.*;
 import org.openapitools.client.models.*;
 import org.openapitools.client.api.MenusApi;
 
@@ -280,13 +301,17 @@ public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    
+    // Configure HTTP bearer authorization: bearerAuth
+    HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
+    bearerAuth.setBearerToken("BEARER TOKEN");
 
     MenusApi apiInstance = new MenusApi(defaultClient);
     try {
-      List<MenuDto> result = apiInstance.menusGet();
+      List<MenuDto> result = apiInstance.staffMenusGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#menusGet");
+      System.err.println("Exception when calling MenusApi#staffMenusGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -305,7 +330,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 

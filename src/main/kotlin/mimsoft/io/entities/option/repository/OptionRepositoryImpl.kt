@@ -21,5 +21,5 @@ object OptionRepositoryImpl : OptionRepository {
         DBManager.updateData(dataClass = OptionTable::class, dataObject = optionTable, tableName = OPTION_TABLE_NAME)
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = OPTION_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = OPTION_TABLE_NAME, whereValue = id)
 }

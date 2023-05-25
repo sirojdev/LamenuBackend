@@ -21,9 +21,11 @@ import io.ktor.server.routing.*
 fun Route.authorize(vararg roles: Role, build: Route.() -> Unit): Route {
     val authorizedRoute = createChild(AuthorizeRouteSelector())
     authorizedRoute.intercept(ApplicationCallPipeline.Plugins) {
-        val principal = this.context.authentication.principal<MyPrincipal>()
+        val principal = this.context.authentication.principal<LaPrincipal>()
 
-        if (principal == null || principal.role !in roles) {
+        println("\nauthorize principal")
+
+        if (principal == null || checkOverlap(principal.roles, roles.toList()) == true) {
             call.respond(HttpStatusCode.Forbidden, "you don't have access")
             return@intercept finish()
         }
@@ -37,4 +39,10 @@ class AuthorizeRouteSelector : RouteSelector() {
     override fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
         return RouteSelectorEvaluation.Constant
     }
+}
+
+fun checkOverlap(list1: List<Role?>?, list2: List<Role>): Boolean? {
+    val set1 = list1?.toSet()
+    val set2 = list2.toSet()
+    return set1?.intersect(set2)?.isNotEmpty()
 }

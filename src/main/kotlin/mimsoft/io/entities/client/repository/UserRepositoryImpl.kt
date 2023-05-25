@@ -3,8 +3,13 @@ package mimsoft.io.entities.client.repository
 import mimsoft.io.entities.client.USER_TABLE_NAME
 import mimsoft.io.entities.client.UserTable
 import mimsoft.io.utils.DBManager
+import mimsoft.io.utils.Status
+import mimsoft.io.utils.StatusCode
+import mimsoft.io.utils.plugins.GSON
 
 object UserRepositoryImpl : UserRepository {
+
+    val status: Status = Status()
 
     override suspend fun getAll(): List<UserTable?> =
         DBManager.getData(dataClass = UserTable::class, tableName = USER_TABLE_NAME)
@@ -23,32 +28,59 @@ object UserRepositoryImpl : UserRepository {
         )?.data?.firstOrNull()
     }
 
-    override suspend fun add(userTable: UserTable?): Long? {
+    override suspend fun add(userTable: UserTable?): Status {
         return when{
-            get(userTable?.phone) != null -> null
+            get(userTable?.phone) != null -> {
+                Status(
+                    status = StatusCode.ALREADY_EXISTS
+                )
+            }
 
-            userTable?.phone == null || userTable.firstName == null -> null
+            userTable?.phone == null || userTable.firstName == null -> {
+                Status(
+                    status = StatusCode.PHONE_OR_FIRSTNAME_NULL
+                )
+            }
 
-            else -> DBManager.postData(
-                dataClass = UserTable::class,
-                dataObject = userTable,
-                tableName = USER_TABLE_NAME)
+            else -> {
+                println("\nadd user-->${GSON.toJson(userTable)}")
+                Status(
+                    body = DBManager.postData(
+                        dataClass = UserTable::class,
+                        dataObject = userTable,
+                        tableName = USER_TABLE_NAME
+                    ),
+                    status = StatusCode.OK
+                )
+            }
         }
     }
 
-    override suspend fun update(userTable: UserTable?): Boolean {
+    override suspend fun update(userTable: UserTable?): Status {
         return when{
-            get(userTable?.phone) != null -> false
+            get(userTable?.phone) != null -> {
+                Status(
+                    status = StatusCode.ALREADY_EXISTS
+                )
+            }
 
-            userTable?.phone == null || userTable.firstName == null -> false
+            userTable?.phone == null || userTable.firstName == null -> Status(
+                status = StatusCode.PHONE_OR_FIRSTNAME_NULL
+            )
 
-            else -> DBManager.updateData(
-                dataClass = UserTable::class,
-                dataObject = userTable,
-                tableName = USER_TABLE_NAME)
+            else -> {
+                DBManager.updateData(
+                    dataClass = UserTable::class,
+                    dataObject = userTable,
+                    tableName = USER_TABLE_NAME
+                )
+                Status(
+                    status = StatusCode.OK
+                )
+            }
         }
     }
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = USER_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = USER_TABLE_NAME, whereValue = id)
 }

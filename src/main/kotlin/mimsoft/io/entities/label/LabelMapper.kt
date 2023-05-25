@@ -9,7 +9,7 @@ object LabelMapper {
             menuId = labelDto.menuId,
             nameUz = labelDto.name?.uz,
             nameRu = labelDto.name?.ru,
-            nameEng = labelDto.name?.eng,
+            nameEn = labelDto.name?.en,
             textColor = labelDto.textColor,
             bgColor = labelDto.bgColor,
             icon = labelDto.icon
@@ -24,7 +24,7 @@ object LabelMapper {
             name = TextModel(
                 uz = labelTable.nameUz,
                 ru = labelTable.nameRu,
-                eng = labelTable.nameEng
+                en = labelTable.nameEn
             ),
             textColor = labelTable.textColor,
             bgColor = labelTable.bgColor,

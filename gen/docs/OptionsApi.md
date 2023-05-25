@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**optionIdDelete**](OptionsApi.md#optionIdDelete) | **DELETE** /option/{id} | 
-[**optionIdGet**](OptionsApi.md#optionIdGet) | **GET** /option/{id} | 
-[**optionPost**](OptionsApi.md#optionPost) | **POST** /option | 
-[**optionPut**](OptionsApi.md#optionPut) | **PUT** /option | 
-[**optionsGet**](OptionsApi.md#optionsGet) | **GET** /options | 
+[**staffOptionIdDelete**](OptionsApi.md#staffOptionIdDelete) | **DELETE** /staff/option/{id} | 
+[**staffOptionIdGet**](OptionsApi.md#staffOptionIdGet) | **GET** /staff/option/{id} | 
+[**staffOptionPost**](OptionsApi.md#staffOptionPost) | **POST** /staff/option | 
+[**staffOptionPut**](OptionsApi.md#staffOptionPut) | **PUT** /staff/option | 
+[**staffOptionsGet**](OptionsApi.md#staffOptionsGet) | **GET** /staff/options | 
 
 
-<a name="optionIdDelete"></a>
-# **optionIdDelete**
-> optionIdDelete(id)
+<a name="staffOptionIdDelete"></a>
+# **staffOptionIdDelete**
+> staffOptionIdDelete(id)
 
 
 
@@ -36,9 +36,9 @@ public class Example {
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.optionIdDelete(id);
+      apiInstance.staffOptionIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#optionIdDelete");
+      System.err.println("Exception when calling OptionsApi#staffOptionIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="optionIdGet"></a>
-# **optionIdGet**
-> OptionDto optionIdGet(id)
+<a name="staffOptionIdGet"></a>
+# **staffOptionIdGet**
+> OptionDto staffOptionIdGet(id)
 
 
 
@@ -98,10 +98,10 @@ public class Example {
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      OptionDto result = apiInstance.optionIdGet(id);
+      OptionDto result = apiInstance.staffOptionIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#optionIdGet");
+      System.err.println("Exception when calling OptionsApi#staffOptionIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="optionPost"></a>
-# **optionPost**
-> optionPost(optionDto)
+<a name="staffOptionPost"></a>
+# **staffOptionPost**
+> staffOptionPost(optionDto)
 
 
 
@@ -162,9 +162,9 @@ public class Example {
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     OptionDto optionDto = new OptionDto(); // OptionDto | A JSON object containing updated option information
     try {
-      apiInstance.optionPost(optionDto);
+      apiInstance.staffOptionPost(optionDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#optionPost");
+      System.err.println("Exception when calling OptionsApi#staffOptionPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="optionPut"></a>
-# **optionPut**
-> optionPut(optionDto)
+<a name="staffOptionPut"></a>
+# **staffOptionPut**
+> staffOptionPut(optionDto)
 
 
 
@@ -223,9 +223,9 @@ public class Example {
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     OptionDto optionDto = new OptionDto(); // OptionDto | A JSON object containing updated option information
     try {
-      apiInstance.optionPut(optionDto);
+      apiInstance.staffOptionPut(optionDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#optionPut");
+      System.err.println("Exception when calling OptionsApi#staffOptionPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="optionsGet"></a>
-# **optionsGet**
-> List&lt;OptionDto&gt; optionsGet()
+<a name="staffOptionsGet"></a>
+# **staffOptionsGet**
+> List&lt;OptionDto&gt; staffOptionsGet()
 
 
 
@@ -283,10 +283,10 @@ public class Example {
 
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     try {
-      List<OptionDto> result = apiInstance.optionsGet();
+      List<OptionDto> result = apiInstance.staffOptionsGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#optionsGet");
+      System.err.println("Exception when calling OptionsApi#staffOptionsGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

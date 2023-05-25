@@ -22,5 +22,5 @@ object ExtraRepositoryImpl : ExtraRepository {
 
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = EXTRA_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = EXTRA_TABLE_NAME, whereValue = id)
 }

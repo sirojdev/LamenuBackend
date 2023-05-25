@@ -24,6 +24,6 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun delete(id: Long?): Boolean {
-        return DBManager.deleteData("orders", id = id)
+        return DBManager.deleteData("orders", whereValue = id)
     }
 }

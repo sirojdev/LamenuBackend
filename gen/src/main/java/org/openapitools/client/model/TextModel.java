@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * TextModel
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-05-15T14:01:51.605023389+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-05-24T18:10:16.083903480+05:00[Asia/Tashkent]")
 public class TextModel {
   public static final String SERIALIZED_NAME_UZ = "uz";
   @SerializedName(SERIALIZED_NAME_UZ)
@@ -37,9 +37,9 @@ public class TextModel {
   @SerializedName(SERIALIZED_NAME_RU)
   private String ru;
 
-  public static final String SERIALIZED_NAME_ENG = "eng";
-  @SerializedName(SERIALIZED_NAME_ENG)
-  private String eng;
+  public static final String SERIALIZED_NAME_EN = "en";
+  @SerializedName(SERIALIZED_NAME_EN)
+  private String en;
 
 
   public TextModel uz(String uz) {
@@ -88,26 +88,26 @@ public class TextModel {
   }
 
 
-  public TextModel eng(String eng) {
+  public TextModel en(String en) {
     
-    this.eng = eng;
+    this.en = en;
     return this;
   }
 
    /**
-   * Get eng
-   * @return eng
+   * Get en
+   * @return en
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public String getEng() {
-    return eng;
+  public String getEn() {
+    return en;
   }
 
 
-  public void setEng(String eng) {
-    this.eng = eng;
+  public void setEn(String en) {
+    this.en = en;
   }
 
 
@@ -122,12 +122,12 @@ public class TextModel {
     TextModel textModel = (TextModel) o;
     return Objects.equals(this.uz, textModel.uz) &&
         Objects.equals(this.ru, textModel.ru) &&
-        Objects.equals(this.eng, textModel.eng);
+        Objects.equals(this.en, textModel.en);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uz, ru, eng);
+    return Objects.hash(uz, ru, en);
   }
 
 
@@ -137,7 +137,7 @@ public class TextModel {
     sb.append("class TextModel {\n");
     sb.append("    uz: ").append(toIndentedString(uz)).append("\n");
     sb.append("    ru: ").append(toIndentedString(ru)).append("\n");
-    sb.append("    eng: ").append(toIndentedString(eng)).append("\n");
+    sb.append("    en: ").append(toIndentedString(en)).append("\n");
     sb.append("}");
     return sb.toString();
   }

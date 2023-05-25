@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**restaurantIdDelete**](RestaurantsApi.md#restaurantIdDelete) | **DELETE** /restaurant/{id} | 
-[**restaurantIdGet**](RestaurantsApi.md#restaurantIdGet) | **GET** /restaurant/{id} | 
-[**restaurantPost**](RestaurantsApi.md#restaurantPost) | **POST** /restaurant | 
-[**restaurantPut**](RestaurantsApi.md#restaurantPut) | **PUT** /restaurant | 
-[**restaurantsGet**](RestaurantsApi.md#restaurantsGet) | **GET** /restaurants | 
+[**staffRestaurantIdDelete**](RestaurantsApi.md#staffRestaurantIdDelete) | **DELETE** /staff/restaurant/{id} | 
+[**staffRestaurantIdGet**](RestaurantsApi.md#staffRestaurantIdGet) | **GET** /staff/restaurant/{id} | 
+[**staffRestaurantPost**](RestaurantsApi.md#staffRestaurantPost) | **POST** /staff/restaurant | 
+[**staffRestaurantPut**](RestaurantsApi.md#staffRestaurantPut) | **PUT** /staff/restaurant | 
+[**staffRestaurantsGet**](RestaurantsApi.md#staffRestaurantsGet) | **GET** /staff/restaurants | 
 
 
-<a name="restaurantIdDelete"></a>
-# **restaurantIdDelete**
-> restaurantIdDelete(id)
+<a name="staffRestaurantIdDelete"></a>
+# **staffRestaurantIdDelete**
+> staffRestaurantIdDelete(id)
 
 
 
@@ -36,9 +36,9 @@ public class Example {
     RestaurantsApi apiInstance = new RestaurantsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.restaurantIdDelete(id);
+      apiInstance.staffRestaurantIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling RestaurantsApi#restaurantIdDelete");
+      System.err.println("Exception when calling RestaurantsApi#staffRestaurantIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="restaurantIdGet"></a>
-# **restaurantIdGet**
-> RestaurantDto restaurantIdGet(id)
+<a name="staffRestaurantIdGet"></a>
+# **staffRestaurantIdGet**
+> RestaurantDto staffRestaurantIdGet(id)
 
 
 
@@ -98,10 +98,10 @@ public class Example {
     RestaurantsApi apiInstance = new RestaurantsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      RestaurantDto result = apiInstance.restaurantIdGet(id);
+      RestaurantDto result = apiInstance.staffRestaurantIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling RestaurantsApi#restaurantIdGet");
+      System.err.println("Exception when calling RestaurantsApi#staffRestaurantIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="restaurantPost"></a>
-# **restaurantPost**
-> restaurantPost(restaurantDto)
+<a name="staffRestaurantPost"></a>
+# **staffRestaurantPost**
+> staffRestaurantPost(restaurantDto)
 
 
 
@@ -162,9 +162,9 @@ public class Example {
     RestaurantsApi apiInstance = new RestaurantsApi(defaultClient);
     RestaurantDto restaurantDto = new RestaurantDto(); // RestaurantDto | A JSON object containing updated product information
     try {
-      apiInstance.restaurantPost(restaurantDto);
+      apiInstance.staffRestaurantPost(restaurantDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling RestaurantsApi#restaurantPost");
+      System.err.println("Exception when calling RestaurantsApi#staffRestaurantPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="restaurantPut"></a>
-# **restaurantPut**
-> restaurantPut(restaurantDto)
+<a name="staffRestaurantPut"></a>
+# **staffRestaurantPut**
+> staffRestaurantPut(restaurantDto)
 
 
 
@@ -223,9 +223,9 @@ public class Example {
     RestaurantsApi apiInstance = new RestaurantsApi(defaultClient);
     RestaurantDto restaurantDto = new RestaurantDto(); // RestaurantDto | A JSON object containing updated product information
     try {
-      apiInstance.restaurantPut(restaurantDto);
+      apiInstance.staffRestaurantPut(restaurantDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling RestaurantsApi#restaurantPut");
+      System.err.println("Exception when calling RestaurantsApi#staffRestaurantPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="restaurantsGet"></a>
-# **restaurantsGet**
-> List&lt;RestaurantDto&gt; restaurantsGet()
+<a name="staffRestaurantsGet"></a>
+# **staffRestaurantsGet**
+> List&lt;RestaurantDto&gt; staffRestaurantsGet()
 
 
 
@@ -283,10 +283,10 @@ public class Example {
 
     RestaurantsApi apiInstance = new RestaurantsApi(defaultClient);
     try {
-      List<RestaurantDto> result = apiInstance.restaurantsGet();
+      List<RestaurantDto> result = apiInstance.staffRestaurantsGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling RestaurantsApi#restaurantsGet");
+      System.err.println("Exception when calling RestaurantsApi#staffRestaurantsGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

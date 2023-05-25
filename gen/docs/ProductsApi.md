@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**productIdDelete**](ProductsApi.md#productIdDelete) | **DELETE** /product/{id} | 
-[**productIdGet**](ProductsApi.md#productIdGet) | **GET** /product/{id} | 
-[**productPost**](ProductsApi.md#productPost) | **POST** /product | 
-[**productPut**](ProductsApi.md#productPut) | **PUT** /product | 
-[**productsGet**](ProductsApi.md#productsGet) | **GET** /products | 
+[**staffProductIdDelete**](ProductsApi.md#staffProductIdDelete) | **DELETE** /staff/product/{id} | 
+[**staffProductIdGet**](ProductsApi.md#staffProductIdGet) | **GET** /staff/product/{id} | 
+[**staffProductPost**](ProductsApi.md#staffProductPost) | **POST** /staff/product | 
+[**staffProductPut**](ProductsApi.md#staffProductPut) | **PUT** /staff/product | 
+[**staffProductsGet**](ProductsApi.md#staffProductsGet) | **GET** /staff/products | 
 
 
-<a name="productIdDelete"></a>
-# **productIdDelete**
-> productIdDelete(id)
+<a name="staffProductIdDelete"></a>
+# **staffProductIdDelete**
+> staffProductIdDelete(id)
 
 
 
@@ -36,9 +36,9 @@ public class Example {
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.productIdDelete(id);
+      apiInstance.staffProductIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#productIdDelete");
+      System.err.println("Exception when calling ProductsApi#staffProductIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="productIdGet"></a>
-# **productIdGet**
-> ProductDto productIdGet(id)
+<a name="staffProductIdGet"></a>
+# **staffProductIdGet**
+> ProductDto staffProductIdGet(id)
 
 
 
@@ -98,10 +98,10 @@ public class Example {
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      ProductDto result = apiInstance.productIdGet(id);
+      ProductDto result = apiInstance.staffProductIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#productIdGet");
+      System.err.println("Exception when calling ProductsApi#staffProductIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="productPost"></a>
-# **productPost**
-> productPost(productDto)
+<a name="staffProductPost"></a>
+# **staffProductPost**
+> staffProductPost(productDto)
 
 
 
@@ -162,9 +162,9 @@ public class Example {
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     ProductDto productDto = new ProductDto(); // ProductDto | A JSON object containing updated product information
     try {
-      apiInstance.productPost(productDto);
+      apiInstance.staffProductPost(productDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#productPost");
+      System.err.println("Exception when calling ProductsApi#staffProductPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="productPut"></a>
-# **productPut**
-> productPut(productDto)
+<a name="staffProductPut"></a>
+# **staffProductPut**
+> staffProductPut(productDto)
 
 
 
@@ -223,9 +223,9 @@ public class Example {
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     ProductDto productDto = new ProductDto(); // ProductDto | A JSON object containing updated product information
     try {
-      apiInstance.productPut(productDto);
+      apiInstance.staffProductPut(productDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#productPut");
+      System.err.println("Exception when calling ProductsApi#staffProductPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="productsGet"></a>
-# **productsGet**
-> List&lt;ProductDto&gt; productsGet()
+<a name="staffProductsGet"></a>
+# **staffProductsGet**
+> List&lt;ProductDto&gt; staffProductsGet()
 
 
 
@@ -283,10 +283,10 @@ public class Example {
 
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     try {
-      List<ProductDto> result = apiInstance.productsGet();
+      List<ProductDto> result = apiInstance.staffProductsGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#productsGet");
+      System.err.println("Exception when calling ProductsApi#staffProductsGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

@@ -27,5 +27,5 @@ object BranchRepositoryImpl : BranchRepository {
 
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = BRANCH_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = BRANCH_TABLE_NAME, whereValue = id)
 }

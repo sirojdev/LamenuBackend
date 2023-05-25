@@ -24,5 +24,5 @@ object RestaurantRepositoryImpl : RestaurantRepository {
 
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = RESTAURANT_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = RESTAURANT_TABLE_NAME, whereValue = id)
 }

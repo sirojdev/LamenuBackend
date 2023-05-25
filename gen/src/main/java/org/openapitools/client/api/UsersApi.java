@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class UsersApi {
     }
 
     /**
-     * Build call for userIdDelete
+     * Build call for staffUserIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userIdDeleteCall(Integer id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffUserIdDeleteCall(Integer id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/user/{id}"
+        String localVarPath = "/staff/user/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class UsersApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call userIdDeleteValidateBeforeCall(Integer id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffUserIdDeleteValidateBeforeCall(Integer id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling userIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffUserIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = userIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffUserIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public void userIdDelete(Integer id) throws ApiException {
-        userIdDeleteWithHttpInfo(id);
+    public void staffUserIdDelete(Integer id) throws ApiException {
+        staffUserIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> userIdDeleteWithHttpInfo(Integer id) throws ApiException {
-        okhttp3.Call localVarCall = userIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffUserIdDeleteWithHttpInfo(Integer id) throws ApiException {
+        okhttp3.Call localVarCall = staffUserIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userIdDeleteAsync(Integer id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffUserIdDeleteAsync(Integer id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = userIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffUserIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for userIdGet
+     * Build call for staffUserIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userIdGetCall(Integer id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffUserIdGetCall(Integer id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/user/{id}"
+        String localVarPath = "/staff/user/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class UsersApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call userIdGetValidateBeforeCall(Integer id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffUserIdGetValidateBeforeCall(Integer id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling userIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffUserIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = userIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffUserIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public UserDto userIdGet(Integer id) throws ApiException {
-        ApiResponse<UserDto> localVarResp = userIdGetWithHttpInfo(id);
+    public UserDto staffUserIdGet(Integer id) throws ApiException {
+        ApiResponse<UserDto> localVarResp = staffUserIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<UserDto> userIdGetWithHttpInfo(Integer id) throws ApiException {
-        okhttp3.Call localVarCall = userIdGetValidateBeforeCall(id, null);
+    public ApiResponse<UserDto> staffUserIdGetWithHttpInfo(Integer id) throws ApiException {
+        okhttp3.Call localVarCall = staffUserIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<UserDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class UsersApi {
         <tr><td> 400 </td><td> Bad request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userIdGetAsync(Integer id, final ApiCallback<UserDto> _callback) throws ApiException {
+    public okhttp3.Call staffUserIdGetAsync(Integer id, final ApiCallback<UserDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = userIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffUserIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<UserDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for userPost
+     * Build call for staffUserPost
      * @param userDto A JSON object containing user information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userPostCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffUserPostCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = userDto;
 
         // create path and map variables
-        String localVarPath = "/user";
+        String localVarPath = "/staff/user";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -329,15 +329,15 @@ public class UsersApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call userPostValidateBeforeCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffUserPostValidateBeforeCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'userDto' is set
         if (userDto == null) {
-            throw new ApiException("Missing the required parameter 'userDto' when calling userPost(Async)");
+            throw new ApiException("Missing the required parameter 'userDto' when calling staffUserPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = userPostCall(userDto, _callback);
+        okhttp3.Call localVarCall = staffUserPostCall(userDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void userPost(UserDto userDto) throws ApiException {
-        userPostWithHttpInfo(userDto);
+    public void staffUserPost(UserDto userDto) throws ApiException {
+        staffUserPostWithHttpInfo(userDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> userPostWithHttpInfo(UserDto userDto) throws ApiException {
-        okhttp3.Call localVarCall = userPostValidateBeforeCall(userDto, null);
+    public ApiResponse<Void> staffUserPostWithHttpInfo(UserDto userDto) throws ApiException {
+        okhttp3.Call localVarCall = staffUserPostValidateBeforeCall(userDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userPostAsync(UserDto userDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffUserPostAsync(UserDto userDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = userPostValidateBeforeCall(userDto, _callback);
+        okhttp3.Call localVarCall = staffUserPostValidateBeforeCall(userDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for userPut
+     * Build call for staffUserPut
      * @param userDto A JSON object containing updated user information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userPutCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffUserPutCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = userDto;
 
         // create path and map variables
-        String localVarPath = "/user";
+        String localVarPath = "/staff/user";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -436,15 +436,15 @@ public class UsersApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call userPutValidateBeforeCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffUserPutValidateBeforeCall(UserDto userDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'userDto' is set
         if (userDto == null) {
-            throw new ApiException("Missing the required parameter 'userDto' when calling userPut(Async)");
+            throw new ApiException("Missing the required parameter 'userDto' when calling staffUserPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = userPutCall(userDto, _callback);
+        okhttp3.Call localVarCall = staffUserPutCall(userDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void userPut(UserDto userDto) throws ApiException {
-        userPutWithHttpInfo(userDto);
+    public void staffUserPut(UserDto userDto) throws ApiException {
+        staffUserPutWithHttpInfo(userDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> userPutWithHttpInfo(UserDto userDto) throws ApiException {
-        okhttp3.Call localVarCall = userPutValidateBeforeCall(userDto, null);
+    public ApiResponse<Void> staffUserPutWithHttpInfo(UserDto userDto) throws ApiException {
+        okhttp3.Call localVarCall = staffUserPutValidateBeforeCall(userDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class UsersApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call userPutAsync(UserDto userDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffUserPutAsync(UserDto userDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = userPutValidateBeforeCall(userDto, _callback);
+        okhttp3.Call localVarCall = staffUserPutValidateBeforeCall(userDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for usersGet
+     * Build call for staffUsersGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class UsersApi {
         <tr><td> 204 </td><td> No content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call usersGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffUsersGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/users";
+        String localVarPath = "/staff/users";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +543,10 @@ public class UsersApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call usersGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffUsersGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = usersGetCall(_callback);
+        okhttp3.Call localVarCall = staffUsersGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class UsersApi {
         <tr><td> 204 </td><td> No content </td><td>  -  </td></tr>
      </table>
      */
-    public List<UserDto> usersGet() throws ApiException {
-        ApiResponse<List<UserDto>> localVarResp = usersGetWithHttpInfo();
+    public List<UserDto> staffUsersGet() throws ApiException {
+        ApiResponse<List<UserDto>> localVarResp = staffUsersGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class UsersApi {
         <tr><td> 204 </td><td> No content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<UserDto>> usersGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = usersGetValidateBeforeCall(null);
+    public ApiResponse<List<UserDto>> staffUsersGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffUsersGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<UserDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class UsersApi {
         <tr><td> 204 </td><td> No content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call usersGetAsync(final ApiCallback<List<UserDto>> _callback) throws ApiException {
+    public okhttp3.Call staffUsersGetAsync(final ApiCallback<List<UserDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = usersGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffUsersGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<UserDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

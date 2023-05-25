@@ -1,6 +1,5 @@
 package mimsoft.io.utils.plugins
 
-import io.ktor.http.*
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.application.*
@@ -16,6 +15,8 @@ import mimsoft.io.entities.option.routeToOption
 import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
 import mimsoft.io.entities.restaurant.routeToRestaurant
+import mimsoft.io.staff.routeToStaff
+import mimsoft.io.staff.routeToStaffApis
 
 fun Application.configureRouting() {
     routing {
@@ -35,9 +36,15 @@ fun Application.configureRouting() {
             routeToProduct()
             routeToOrder()
             routeToLogin()
+            routeToStaff()
+
+            routeToStaffApis()
         }
 
-        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml") {
+        swaggerUI(path = "swagger/users", swaggerFile = "openapi/documentationUsers.yaml") {
+            version = "4.15.5"
+        }
+        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/documentationStaff.yaml") {
             version = "4.15.5"
         }
     }

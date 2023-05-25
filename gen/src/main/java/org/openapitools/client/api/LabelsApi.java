@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class LabelsApi {
     }
 
     /**
-     * Build call for lableIdDelete
+     * Build call for staffLableIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call lableIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffLableIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/lable/{id}"
+        String localVarPath = "/staff/lable/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class LabelsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call lableIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffLableIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling lableIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffLableIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = lableIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffLableIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void lableIdDelete(Long id) throws ApiException {
-        lableIdDeleteWithHttpInfo(id);
+    public void staffLableIdDelete(Long id) throws ApiException {
+        staffLableIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> lableIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = lableIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffLableIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffLableIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call lableIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffLableIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = lableIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffLableIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for lableIdGet
+     * Build call for staffLableIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call lableIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffLableIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/lable/{id}"
+        String localVarPath = "/staff/lable/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class LabelsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call lableIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffLableIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling lableIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffLableIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = lableIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffLableIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public LabelDto lableIdGet(Long id) throws ApiException {
-        ApiResponse<LabelDto> localVarResp = lableIdGetWithHttpInfo(id);
+    public LabelDto staffLableIdGet(Long id) throws ApiException {
+        ApiResponse<LabelDto> localVarResp = staffLableIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<LabelDto> lableIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = lableIdGetValidateBeforeCall(id, null);
+    public ApiResponse<LabelDto> staffLableIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffLableIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<LabelDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,229 +279,15 @@ public class LabelsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call lableIdGetAsync(Long id, final ApiCallback<LabelDto> _callback) throws ApiException {
+    public okhttp3.Call staffLableIdGetAsync(Long id, final ApiCallback<LabelDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = lableIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffLableIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<LabelDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for lablePost
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call lablePostCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = labelDto;
-
-        // create path and map variables
-        String localVarPath = "/lable";
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        final String[] localVarAccepts = {
-            
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            "application/json"
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        localVarHeaderParams.put("Content-Type", localVarContentType);
-
-        String[] localVarAuthNames = new String[] {  };
-        return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call lablePostValidateBeforeCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
-        
-        // verify the required parameter 'labelDto' is set
-        if (labelDto == null) {
-            throw new ApiException("Missing the required parameter 'labelDto' when calling lablePost(Async)");
-        }
-        
-
-        okhttp3.Call localVarCall = lablePostCall(labelDto, _callback);
-        return localVarCall;
-
-    }
-
-    /**
-     * 
-     * Adds a new lable
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public void lablePost(LabelDto labelDto) throws ApiException {
-        lablePostWithHttpInfo(labelDto);
-    }
-
-    /**
-     * 
-     * Adds a new lable
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @return ApiResponse&lt;Void&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<Void> lablePostWithHttpInfo(LabelDto labelDto) throws ApiException {
-        okhttp3.Call localVarCall = lablePostValidateBeforeCall(labelDto, null);
-        return localVarApiClient.execute(localVarCall);
-    }
-
-    /**
-     *  (asynchronously)
-     * Adds a new lable
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call lablePostAsync(LabelDto labelDto, final ApiCallback<Void> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = lablePostValidateBeforeCall(labelDto, _callback);
-        localVarApiClient.executeAsync(localVarCall, _callback);
-        return localVarCall;
-    }
-    /**
-     * Build call for lablePut
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call lablePutCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = labelDto;
-
-        // create path and map variables
-        String localVarPath = "/lable";
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        final String[] localVarAccepts = {
-            
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            "application/json"
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        localVarHeaderParams.put("Content-Type", localVarContentType);
-
-        String[] localVarAuthNames = new String[] {  };
-        return localVarApiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call lablePutValidateBeforeCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
-        
-        // verify the required parameter 'labelDto' is set
-        if (labelDto == null) {
-            throw new ApiException("Missing the required parameter 'labelDto' when calling lablePut(Async)");
-        }
-        
-
-        okhttp3.Call localVarCall = lablePutCall(labelDto, _callback);
-        return localVarCall;
-
-    }
-
-    /**
-     * 
-     * Adds a new lable
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public void lablePut(LabelDto labelDto) throws ApiException {
-        lablePutWithHttpInfo(labelDto);
-    }
-
-    /**
-     * 
-     * Adds a new lable
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @return ApiResponse&lt;Void&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<Void> lablePutWithHttpInfo(LabelDto labelDto) throws ApiException {
-        okhttp3.Call localVarCall = lablePutValidateBeforeCall(labelDto, null);
-        return localVarApiClient.execute(localVarCall);
-    }
-
-    /**
-     *  (asynchronously)
-     * Adds a new lable
-     * @param labelDto A JSON object containing updated lable information (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call lablePutAsync(LabelDto labelDto, final ApiCallback<Void> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = lablePutValidateBeforeCall(labelDto, _callback);
-        localVarApiClient.executeAsync(localVarCall, _callback);
-        return localVarCall;
-    }
-    /**
-     * Build call for lablesGet
+     * Build call for staffLablesGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +298,11 @@ public class LabelsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call lablesGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffLablesGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/lables";
+        String localVarPath = "/staff/lables";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +329,10 @@ public class LabelsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call lablesGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffLablesGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = lablesGetCall(_callback);
+        okhttp3.Call localVarCall = staffLablesGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +349,8 @@ public class LabelsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<LabelDto> lablesGet() throws ApiException {
-        ApiResponse<List<LabelDto>> localVarResp = lablesGetWithHttpInfo();
+    public List<LabelDto> staffLablesGet() throws ApiException {
+        ApiResponse<List<LabelDto>> localVarResp = staffLablesGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +366,8 @@ public class LabelsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<LabelDto>> lablesGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = lablesGetValidateBeforeCall(null);
+    public ApiResponse<List<LabelDto>> staffLablesGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffLablesGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<LabelDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,11 +385,225 @@ public class LabelsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call lablesGetAsync(final ApiCallback<List<LabelDto>> _callback) throws ApiException {
+    public okhttp3.Call staffLablesGetAsync(final ApiCallback<List<LabelDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = lablesGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffLablesGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<LabelDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for staffStaffLablePost
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call staffStaffLablePostCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
+        Object localVarPostBody = labelDto;
+
+        // create path and map variables
+        String localVarPath = "/staff/staff/lable";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call staffStaffLablePostValidateBeforeCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
+        
+        // verify the required parameter 'labelDto' is set
+        if (labelDto == null) {
+            throw new ApiException("Missing the required parameter 'labelDto' when calling staffStaffLablePost(Async)");
+        }
+        
+
+        okhttp3.Call localVarCall = staffStaffLablePostCall(labelDto, _callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * Adds a new lable
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public void staffStaffLablePost(LabelDto labelDto) throws ApiException {
+        staffStaffLablePostWithHttpInfo(labelDto);
+    }
+
+    /**
+     * 
+     * Adds a new lable
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @return ApiResponse&lt;Void&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<Void> staffStaffLablePostWithHttpInfo(LabelDto labelDto) throws ApiException {
+        okhttp3.Call localVarCall = staffStaffLablePostValidateBeforeCall(labelDto, null);
+        return localVarApiClient.execute(localVarCall);
+    }
+
+    /**
+     *  (asynchronously)
+     * Adds a new lable
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call staffStaffLablePostAsync(LabelDto labelDto, final ApiCallback<Void> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = staffStaffLablePostValidateBeforeCall(labelDto, _callback);
+        localVarApiClient.executeAsync(localVarCall, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for staffStaffLablePut
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call staffStaffLablePutCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
+        Object localVarPostBody = labelDto;
+
+        // create path and map variables
+        String localVarPath = "/staff/staff/lable";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call staffStaffLablePutValidateBeforeCall(LabelDto labelDto, final ApiCallback _callback) throws ApiException {
+        
+        // verify the required parameter 'labelDto' is set
+        if (labelDto == null) {
+            throw new ApiException("Missing the required parameter 'labelDto' when calling staffStaffLablePut(Async)");
+        }
+        
+
+        okhttp3.Call localVarCall = staffStaffLablePutCall(labelDto, _callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * Adds a new lable
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public void staffStaffLablePut(LabelDto labelDto) throws ApiException {
+        staffStaffLablePutWithHttpInfo(labelDto);
+    }
+
+    /**
+     * 
+     * Adds a new lable
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @return ApiResponse&lt;Void&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<Void> staffStaffLablePutWithHttpInfo(LabelDto labelDto) throws ApiException {
+        okhttp3.Call localVarCall = staffStaffLablePutValidateBeforeCall(labelDto, null);
+        return localVarApiClient.execute(localVarCall);
+    }
+
+    /**
+     *  (asynchronously)
+     * Adds a new lable
+     * @param labelDto A JSON object containing updated lable information (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call staffStaffLablePutAsync(LabelDto labelDto, final ApiCallback<Void> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = staffStaffLablePutValidateBeforeCall(labelDto, _callback);
+        localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
 }

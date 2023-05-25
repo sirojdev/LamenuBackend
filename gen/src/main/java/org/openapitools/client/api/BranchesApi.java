@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation
- * Lamenu documentation allows to you view the schema of Lamenu project
+ * Lamenu documentation for Staffs
+ * Lamenu documentation for Staffs
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class BranchesApi {
     }
 
     /**
-     * Build call for branchIdDelete
+     * Build call for staffBranchIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffBranchIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/branch/{id}"
+        String localVarPath = "/staff/branch/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class BranchesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call branchIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffBranchIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling branchIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffBranchIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = branchIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = staffBranchIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void branchIdDelete(Long id) throws ApiException {
-        branchIdDeleteWithHttpInfo(id);
+    public void staffBranchIdDelete(Long id) throws ApiException {
+        staffBranchIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> branchIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = branchIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> staffBranchIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffBranchIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffBranchIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = branchIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffBranchIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for branchIdGet
+     * Build call for staffBranchIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffBranchIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/branch/{id}"
+        String localVarPath = "/staff/branch/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class BranchesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call branchIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffBranchIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling branchIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling staffBranchIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = branchIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = staffBranchIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public BranchDto branchIdGet(Long id) throws ApiException {
-        ApiResponse<BranchDto> localVarResp = branchIdGetWithHttpInfo(id);
+    public BranchDto staffBranchIdGet(Long id) throws ApiException {
+        ApiResponse<BranchDto> localVarResp = staffBranchIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<BranchDto> branchIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = branchIdGetValidateBeforeCall(id, null);
+    public ApiResponse<BranchDto> staffBranchIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = staffBranchIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<BranchDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class BranchesApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchIdGetAsync(Long id, final ApiCallback<BranchDto> _callback) throws ApiException {
+    public okhttp3.Call staffBranchIdGetAsync(Long id, final ApiCallback<BranchDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = branchIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = staffBranchIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<BranchDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for branchPost
+     * Build call for staffBranchPost
      * @param branchDto A JSON object containing updated branch information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchPostCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffBranchPostCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = branchDto;
 
         // create path and map variables
-        String localVarPath = "/branch";
+        String localVarPath = "/staff/branch";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -329,15 +329,15 @@ public class BranchesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call branchPostValidateBeforeCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffBranchPostValidateBeforeCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'branchDto' is set
         if (branchDto == null) {
-            throw new ApiException("Missing the required parameter 'branchDto' when calling branchPost(Async)");
+            throw new ApiException("Missing the required parameter 'branchDto' when calling staffBranchPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = branchPostCall(branchDto, _callback);
+        okhttp3.Call localVarCall = staffBranchPostCall(branchDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void branchPost(BranchDto branchDto) throws ApiException {
-        branchPostWithHttpInfo(branchDto);
+    public void staffBranchPost(BranchDto branchDto) throws ApiException {
+        staffBranchPostWithHttpInfo(branchDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> branchPostWithHttpInfo(BranchDto branchDto) throws ApiException {
-        okhttp3.Call localVarCall = branchPostValidateBeforeCall(branchDto, null);
+    public ApiResponse<Void> staffBranchPostWithHttpInfo(BranchDto branchDto) throws ApiException {
+        okhttp3.Call localVarCall = staffBranchPostValidateBeforeCall(branchDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchPostAsync(BranchDto branchDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffBranchPostAsync(BranchDto branchDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = branchPostValidateBeforeCall(branchDto, _callback);
+        okhttp3.Call localVarCall = staffBranchPostValidateBeforeCall(branchDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for branchPut
+     * Build call for staffBranchPut
      * @param branchDto A JSON object containing updated branch information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchPutCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffBranchPutCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = branchDto;
 
         // create path and map variables
-        String localVarPath = "/branch";
+        String localVarPath = "/staff/branch";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -436,15 +436,15 @@ public class BranchesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call branchPutValidateBeforeCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffBranchPutValidateBeforeCall(BranchDto branchDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'branchDto' is set
         if (branchDto == null) {
-            throw new ApiException("Missing the required parameter 'branchDto' when calling branchPut(Async)");
+            throw new ApiException("Missing the required parameter 'branchDto' when calling staffBranchPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = branchPutCall(branchDto, _callback);
+        okhttp3.Call localVarCall = staffBranchPutCall(branchDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void branchPut(BranchDto branchDto) throws ApiException {
-        branchPutWithHttpInfo(branchDto);
+    public void staffBranchPut(BranchDto branchDto) throws ApiException {
+        staffBranchPutWithHttpInfo(branchDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> branchPutWithHttpInfo(BranchDto branchDto) throws ApiException {
-        okhttp3.Call localVarCall = branchPutValidateBeforeCall(branchDto, null);
+    public ApiResponse<Void> staffBranchPutWithHttpInfo(BranchDto branchDto) throws ApiException {
+        okhttp3.Call localVarCall = staffBranchPutValidateBeforeCall(branchDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class BranchesApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchPutAsync(BranchDto branchDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call staffBranchPutAsync(BranchDto branchDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = branchPutValidateBeforeCall(branchDto, _callback);
+        okhttp3.Call localVarCall = staffBranchPutValidateBeforeCall(branchDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for branchesGet
+     * Build call for staffBranchesGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class BranchesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchesGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call staffBranchesGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/branches";
+        String localVarPath = "/staff/branches";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +543,10 @@ public class BranchesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call branchesGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call staffBranchesGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = branchesGetCall(_callback);
+        okhttp3.Call localVarCall = staffBranchesGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class BranchesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<BranchDto> branchesGet() throws ApiException {
-        ApiResponse<List<BranchDto>> localVarResp = branchesGetWithHttpInfo();
+    public List<BranchDto> staffBranchesGet() throws ApiException {
+        ApiResponse<List<BranchDto>> localVarResp = staffBranchesGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class BranchesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<BranchDto>> branchesGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = branchesGetValidateBeforeCall(null);
+    public ApiResponse<List<BranchDto>> staffBranchesGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = staffBranchesGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<BranchDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class BranchesApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call branchesGetAsync(final ApiCallback<List<BranchDto>> _callback) throws ApiException {
+    public okhttp3.Call staffBranchesGetAsync(final ApiCallback<List<BranchDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = branchesGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = staffBranchesGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<BranchDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

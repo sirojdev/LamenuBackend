@@ -1,10 +1,5 @@
 package mimsoft.io.utils
 
-import mimsoft.io.entities.order.OrderDto
-import mimsoft.io.entities.order.OrderTable
-import mimsoft.io.entities.product.ProductDto
-import mimsoft.io.entities.product.ProductTable
-import mimsoft.io.utils.plugins.GSON
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
@@ -26,23 +21,22 @@ object Mapper {
         val tableConstructor = tableClass.primaryConstructor ?: return null
         val tableParameters = tableConstructor.parameters.associateBy { it.name }
         val tableValues = tableParameters.mapValues { (name, parameter) ->
-            val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("Eng", "")
+            val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("En", "")
+            println("\nmapper propertyName-->$propertyName")
             dtoClass.memberProperties.find { it.name == propertyName }?.get(dto)?.let {
                 when (it) {
-                    is String -> {
-                        it.trim()
-                    }
 
                     is TextModel -> {
                         when (name) {
                             "${propertyName}Uz" -> it.uz
                             "${propertyName}Ru" -> it.ru
-                            "${propertyName}Eng" -> it.eng
+                            "${propertyName}En" -> it.en
                             else -> null
                         }
                     }
 
                     else -> {
+                        println("\nmapper it-->$it")
                         it
                     }
                 }
@@ -63,7 +57,7 @@ object Mapper {
         val dtoConstructor = dtoClass.primaryConstructor ?: return null
         val dtoParameters = dtoConstructor.parameters.associateBy { it.name }
         val dtoValues = dtoParameters.mapValues { (name, parameter) ->
-            val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("Eng", "")
+            val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("En", "")
             val property = tableClass.memberProperties.find { it.name == propertyName }
 
             if (parameter.type.classifier == TextModel::class) {
@@ -73,7 +67,7 @@ object Mapper {
                     when (lang) {
                         "Uz" -> textModel.uz = table?.let { prop.get(it).toString() }
                         "Ru" -> textModel.ru = table?.let { prop.get(it).toString() }
-                        "En" -> textModel.eng = table?.let { prop.get(it).toString() }
+                        "En" -> textModel.en = table?.let { prop.get(it).toString() }
                     }
                 }
                 textModel
@@ -99,11 +93,11 @@ object Mapper {
         val defaultValueConstructor = clazz.primaryConstructor?.parameters?.firstOrNull { it == parameter }
         return defaultValueConstructor?.type?.classifier?.let { classifier ->
             when (classifier) {
-                Int::class -> 0
-                Long::class -> 0L
-                Float::class -> 0f
-                Double::class -> 0.0
-                String::class -> ""
+                Int::class -> null
+                Long::class -> null
+                Float::class -> null
+                Double::class -> null
+                String::class -> null
                 else -> null
             }
         }

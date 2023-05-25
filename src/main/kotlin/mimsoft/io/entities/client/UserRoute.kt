@@ -5,8 +5,13 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.config.timestampValidator
+import mimsoft.io.entities.client.repository.PostStatus
 import mimsoft.io.entities.client.repository.UserRepository
 import mimsoft.io.entities.client.repository.UserRepositoryImpl
+import mimsoft.io.utils.StatusCode
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
 
 fun Route.routeToUser() {
 
@@ -38,8 +43,23 @@ fun Route.routeToUser() {
     post("user") {
         try {
             val user = call.receive<UserDto>()
-            val id = userRepository.add(UserMapper.toUserTable(user))
-            call.respond(HttpStatusCode.OK, UserId(id))
+
+            val statusTimestamp = timestampValidator(user.birthDay)
+
+            if (statusTimestamp.status != StatusCode.OK){
+                call.respond(statusTimestamp)
+                return@post
+            }
+
+            val status = userRepository.add(
+                UserMapper.toUserTable(user))
+
+            if (status.status != StatusCode.OK){
+                call.respond(status)
+                return@post
+            }
+
+            call.respond(HttpStatusCode.OK, status)
         }catch (e: Exception) {
             e.printStackTrace()
             call.respond(HttpStatusCode.BadRequest)
@@ -48,7 +68,22 @@ fun Route.routeToUser() {
 
     put("user") {
         val user = call.receive<UserDto>()
-        userRepository.update(UserMapper.toUserTable(user))
+
+        val statusTimestamp = timestampValidator(user.birthDay)
+
+        if (statusTimestamp.status != StatusCode.OK){
+            call.respond(statusTimestamp)
+            return@put
+        }
+
+        val status = userRepository.update(
+            UserMapper.toUserTable(user))
+
+        if (status.status != StatusCode.OK) {
+            call.respond(status)
+            return@put
+        }
+
         call.respond(HttpStatusCode.OK)
     }
 
@@ -62,7 +97,3 @@ fun Route.routeToUser() {
         call.respond(HttpStatusCode.OK)
     }
 }
-
-data class UserId(
-    val id: Long? = null
-)

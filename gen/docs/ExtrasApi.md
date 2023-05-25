@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**extraIdDelete**](ExtrasApi.md#extraIdDelete) | **DELETE** /extra/{id} | 
-[**extraIdGet**](ExtrasApi.md#extraIdGet) | **GET** /extra/{id} | 
-[**extraPost**](ExtrasApi.md#extraPost) | **POST** /extra | 
-[**extraPut**](ExtrasApi.md#extraPut) | **PUT** /extra | 
-[**extrasGet**](ExtrasApi.md#extrasGet) | **GET** /extras | 
+[**staffExtraIdDelete**](ExtrasApi.md#staffExtraIdDelete) | **DELETE** /staff/extra/{id} | 
+[**staffExtraIdGet**](ExtrasApi.md#staffExtraIdGet) | **GET** /staff/extra/{id} | 
+[**staffExtraPost**](ExtrasApi.md#staffExtraPost) | **POST** /staff/extra | 
+[**staffExtraPut**](ExtrasApi.md#staffExtraPut) | **PUT** /staff/extra | 
+[**staffExtrasGet**](ExtrasApi.md#staffExtrasGet) | **GET** /staff/extras | 
 
 
-<a name="extraIdDelete"></a>
-# **extraIdDelete**
-> extraIdDelete(id)
+<a name="staffExtraIdDelete"></a>
+# **staffExtraIdDelete**
+> staffExtraIdDelete(id)
 
 
 
@@ -36,9 +36,9 @@ public class Example {
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.extraIdDelete(id);
+      apiInstance.staffExtraIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#extraIdDelete");
+      System.err.println("Exception when calling ExtrasApi#staffExtraIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="extraIdGet"></a>
-# **extraIdGet**
-> ExtraDto extraIdGet(id)
+<a name="staffExtraIdGet"></a>
+# **staffExtraIdGet**
+> ExtraDto staffExtraIdGet(id)
 
 
 
@@ -98,10 +98,10 @@ public class Example {
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      ExtraDto result = apiInstance.extraIdGet(id);
+      ExtraDto result = apiInstance.staffExtraIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#extraIdGet");
+      System.err.println("Exception when calling ExtrasApi#staffExtraIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="extraPost"></a>
-# **extraPost**
-> extraPost(extraDto)
+<a name="staffExtraPost"></a>
+# **staffExtraPost**
+> staffExtraPost(extraDto)
 
 
 
@@ -162,9 +162,9 @@ public class Example {
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     ExtraDto extraDto = new ExtraDto(); // ExtraDto | A JSON object containing updated extra information
     try {
-      apiInstance.extraPost(extraDto);
+      apiInstance.staffExtraPost(extraDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#extraPost");
+      System.err.println("Exception when calling ExtrasApi#staffExtraPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="extraPut"></a>
-# **extraPut**
-> extraPut(extraDto)
+<a name="staffExtraPut"></a>
+# **staffExtraPut**
+> staffExtraPut(extraDto)
 
 
 
@@ -223,9 +223,9 @@ public class Example {
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     ExtraDto extraDto = new ExtraDto(); // ExtraDto | A JSON object containing updated extra information
     try {
-      apiInstance.extraPut(extraDto);
+      apiInstance.staffExtraPut(extraDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#extraPut");
+      System.err.println("Exception when calling ExtrasApi#staffExtraPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="extrasGet"></a>
-# **extrasGet**
-> List&lt;ExtraDto&gt; extrasGet()
+<a name="staffExtrasGet"></a>
+# **staffExtrasGet**
+> List&lt;ExtraDto&gt; staffExtrasGet()
 
 
 
@@ -283,10 +283,10 @@ public class Example {
 
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     try {
-      List<ExtraDto> result = apiInstance.extrasGet();
+      List<ExtraDto> result = apiInstance.staffExtrasGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#extrasGet");
+      System.err.println("Exception when calling ExtrasApi#staffExtrasGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

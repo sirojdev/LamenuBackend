@@ -4,16 +4,16 @@ All URIs are relative to *http://0.0.0.0:8181/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**branchIdDelete**](BranchesApi.md#branchIdDelete) | **DELETE** /branch/{id} | 
-[**branchIdGet**](BranchesApi.md#branchIdGet) | **GET** /branch/{id} | 
-[**branchPost**](BranchesApi.md#branchPost) | **POST** /branch | 
-[**branchPut**](BranchesApi.md#branchPut) | **PUT** /branch | 
-[**branchesGet**](BranchesApi.md#branchesGet) | **GET** /branches | 
+[**staffBranchIdDelete**](BranchesApi.md#staffBranchIdDelete) | **DELETE** /staff/branch/{id} | 
+[**staffBranchIdGet**](BranchesApi.md#staffBranchIdGet) | **GET** /staff/branch/{id} | 
+[**staffBranchPost**](BranchesApi.md#staffBranchPost) | **POST** /staff/branch | 
+[**staffBranchPut**](BranchesApi.md#staffBranchPut) | **PUT** /staff/branch | 
+[**staffBranchesGet**](BranchesApi.md#staffBranchesGet) | **GET** /staff/branches | 
 
 
-<a name="branchIdDelete"></a>
-# **branchIdDelete**
-> branchIdDelete(id)
+<a name="staffBranchIdDelete"></a>
+# **staffBranchIdDelete**
+> staffBranchIdDelete(id)
 
 
 
@@ -36,9 +36,9 @@ public class Example {
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.branchIdDelete(id);
+      apiInstance.staffBranchIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#branchIdDelete");
+      System.err.println("Exception when calling BranchesApi#staffBranchIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="branchIdGet"></a>
-# **branchIdGet**
-> BranchDto branchIdGet(id)
+<a name="staffBranchIdGet"></a>
+# **staffBranchIdGet**
+> BranchDto staffBranchIdGet(id)
 
 
 
@@ -98,10 +98,10 @@ public class Example {
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      BranchDto result = apiInstance.branchIdGet(id);
+      BranchDto result = apiInstance.staffBranchIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#branchIdGet");
+      System.err.println("Exception when calling BranchesApi#staffBranchIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="branchPost"></a>
-# **branchPost**
-> branchPost(branchDto)
+<a name="staffBranchPost"></a>
+# **staffBranchPost**
+> staffBranchPost(branchDto)
 
 
 
@@ -162,9 +162,9 @@ public class Example {
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     BranchDto branchDto = new BranchDto(); // BranchDto | A JSON object containing updated branch information
     try {
-      apiInstance.branchPost(branchDto);
+      apiInstance.staffBranchPost(branchDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#branchPost");
+      System.err.println("Exception when calling BranchesApi#staffBranchPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="branchPut"></a>
-# **branchPut**
-> branchPut(branchDto)
+<a name="staffBranchPut"></a>
+# **staffBranchPut**
+> staffBranchPut(branchDto)
 
 
 
@@ -223,9 +223,9 @@ public class Example {
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     BranchDto branchDto = new BranchDto(); // BranchDto | A JSON object containing updated branch information
     try {
-      apiInstance.branchPut(branchDto);
+      apiInstance.staffBranchPut(branchDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#branchPut");
+      System.err.println("Exception when calling BranchesApi#staffBranchPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="branchesGet"></a>
-# **branchesGet**
-> List&lt;BranchDto&gt; branchesGet()
+<a name="staffBranchesGet"></a>
+# **staffBranchesGet**
+> List&lt;BranchDto&gt; staffBranchesGet()
 
 
 
@@ -283,10 +283,10 @@ public class Example {
 
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     try {
-      List<BranchDto> result = apiInstance.branchesGet();
+      List<BranchDto> result = apiInstance.staffBranchesGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#branchesGet");
+      System.err.println("Exception when calling BranchesApi#staffBranchesGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

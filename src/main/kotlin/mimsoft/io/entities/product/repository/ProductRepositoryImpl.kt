@@ -22,5 +22,5 @@ object ProductRepositoryImpl : ProductRepository {
         DBManager.updateData(dataClass = ProductTable::class, dataObject = productTable, tableName = PRODUCT_TABLE_NAME)
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = PRODUCT_TABLE_NAME, id = id)
+        DBManager.deleteData(tableName = PRODUCT_TABLE_NAME, whereValue = id)
 }
