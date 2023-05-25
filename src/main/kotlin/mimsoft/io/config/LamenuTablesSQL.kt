@@ -133,3 +133,25 @@ const val RESTAURANT =
     updated  timestamp(6),
     deleted  boolean DEFAULT false
 );"""
+
+
+const val TABLE =
+    """CREATE TABLE table
+(
+    id       bigserial PRIMARY KEY,
+    name     text not null,
+    roomId   bigint not null,
+    qr       text not null,
+    restaurant_id    text not null
+);"""
+
+const val ROOM =
+    """CREATE TABLE room
+(
+    id       bigserial PRIMARY KEY,
+    name     text not null,
+    flatId   bigint not null,
+    restaurant_id    bigint not null
+);"""
+
+
