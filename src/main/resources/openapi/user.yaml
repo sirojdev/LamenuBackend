@@ -1,8 +1,8 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
-  title: Lamenu documentation for Staffs
-  description: Lamenu documentation for Staffs
-  version: 1.0.0
+  title: "Lamenu documentation for Users"
+  description: "Lamenu documentation allows to you view the schema of Lamenu project"
+  version: "1.0.0"
 servers:
   - url: 'http://0.0.0.0:8181/api/v1/'
   - url: 'http://188.166.167.80:8181/api/v1/'
@@ -40,18 +40,18 @@ tags:
 
 paths:
 
-  /staff/auth:
+  /login:
     post:
       tags:
         - Auth
-      description: "Via this endpoint you can get auth token"
+      description: "Via this endpoint you can get login token and sending verification code to phone"
       requestBody:
         description: "This object must contain only deviceUuid:unique and phone"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StaffDto"
+              $ref: "#/components/schemas/LoginRequest"
       responses:
         "200":
           description: "OK"
@@ -62,7 +62,83 @@ paths:
                 items:
                   $ref: '#/components/schemas/LoginResponse'
 
-  /staff/users:
+  /verify:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get access and refresh tokens 
+      if this user exist else token for registration"
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: "This object must contain only verification code"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+  /reg:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get access and refresh tokens after registration"
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: "A JSON object containing user information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      description: "Returns a list of all orders"
+      responses:
+        "200":
+          description: "OK"
+          parameters:
+            - name: "status"
+              in: "query"
+              required: true
+              schema:
+                type: "string"
+            - name: "size"
+              in: "query"
+              required: true
+              schema:
+                type: "integer"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+        "204":
+          description: "No content"
+
+  /users:
     get:
       tags:
         - Users
@@ -79,7 +155,7 @@ paths:
         "204":
           description: "No content"
 
-  /staff/user:
+  /user:
     post:
       tags:
         - Users
@@ -109,7 +185,7 @@ paths:
         "200":
           description: "OK"
 
-  /staff/user/{id}:
+  /user/{id}:
     get:
       tags:
         - Users
@@ -147,7 +223,7 @@ paths:
         "400":
           description: "Bad request"
 
-  /staff/branches:
+  /branches:
     get:
       tags:
         - Branches
@@ -163,7 +239,7 @@ paths:
                   $ref: "#/components/schemas/BranchDto"
         "204":
           description: "No Content"
-  /staff/branch:
+  /branch:
     post:
       tags:
         - Branches
@@ -192,7 +268,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/branch/{id}:
+  /branch/{id}:
     get:
       tags:
         - Branches
@@ -232,7 +308,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/categories:
+  /categories:
     get:
       tags:
         - Categories
@@ -248,7 +324,7 @@ paths:
                   $ref: "#/components/schemas/CategoryDto"
         "204":
           description: "No Content"
-  /staff/category:
+  /category:
     post:
       tags:
         - Categories
@@ -277,7 +353,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/category/{id}:
+  /category/{id}:
     get:
       tags:
         - Categories
@@ -317,7 +393,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/extras:
+  /extras:
     get:
       tags:
         - Extras
@@ -333,7 +409,7 @@ paths:
                   $ref: "#/components/schemas/ExtraDto"
         "204":
           description: "No Content"
-  /staff/extra:
+  /extra:
     post:
       tags:
         - Extras
@@ -362,7 +438,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/extra/{id}:
+  /extra/{id}:
     get:
       tags:
         - Extras
@@ -402,7 +478,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/lables:
+  /lables:
     get:
       tags:
         - Labels
@@ -418,7 +494,7 @@ paths:
                   $ref: "#/components/schemas/LabelDto"
         "204":
           description: "No Content"
-  /staff/staff/lable:
+  /lable:
     post:
       tags:
         - Labels
@@ -447,7 +523,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/lable/{id}:
+  /lable/{id}:
     get:
       tags:
         - Labels
@@ -487,7 +563,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/menus:
+  /menus:
     get:
       tags:
         - Menus
@@ -505,7 +581,7 @@ paths:
                   $ref: "#/components/schemas/MenuDto"
         "204":
           description: "No Content"
-  /staff/menu:
+  /menu:
     post:
       tags:
         - Menus
@@ -538,7 +614,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/menu/{id}:
+  /menu/{id}:
     get:
       tags:
         - Menus
@@ -582,7 +658,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/options:
+  /options:
     get:
       tags:
         - Options
@@ -598,7 +674,7 @@ paths:
                   $ref: "#/components/schemas/OptionDto"
         "204":
           description: "No Content"
-  /staff/option:
+  /option:
     post:
       tags:
         - Options
@@ -627,7 +703,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/option/{id}:
+  /option/{id}:
     get:
       tags:
         - Options
@@ -667,7 +743,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/products:
+  /products:
     get:
       tags:
         - Products
@@ -683,7 +759,7 @@ paths:
                   $ref: "#/components/schemas/ProductDto"
         "204":
           description: "No Content"
-  /staff/product:
+  /product:
     post:
       tags:
         - Products
@@ -712,7 +788,7 @@ paths:
       responses:
         "200":
           description: "OK"
-  /staff/product/{id}:
+  /product/{id}:
     get:
       tags:
         - Products
@@ -752,7 +828,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /staff/restaurants:
+  /restaurants:
     get:
       tags:
         - Restaurants
@@ -768,7 +844,7 @@ paths:
                   $ref: "#/components/schemas/RestaurantDto"
         "204":
           description: "No Content"
-  /staff/restaurant:
+  /restaurant:
     post:
       tags:
         - Restaurants
@@ -799,7 +875,7 @@ paths:
         "200":
           description: "OK"
 
-  /staff/restaurant/{id}:
+  /restaurant/{id}:
     get:
       tags:
         - Restaurants
@@ -842,6 +918,7 @@ paths:
 
 components:
   schemas:
+
     UserDto:
       type: "object"
       properties:
@@ -882,6 +959,45 @@ components:
         name:
           $ref: "#/components/schemas/TextModel"
         image:
+          type: "string"
+    OrderDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        type:
+          $ref: "#/components/schemas/OrderType"
+        status:
+          type: "string"
+        createdAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        updatedAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveredAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveryAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        totalPrice:
+          type: "number"
+          format: "double"
+        totalDiscount:
+          type: "number"
+          format: "double"
+        comment:
+          type: "string"
+
+    OrderType:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
           type: "string"
 
     ExtraDto:
@@ -981,56 +1097,6 @@ components:
           type: "string"
         regToken:
           type: "string"
-    StaffDto:
-      type: object
-      properties:
-        id:
-          type: "integer"
-          format: "long"
-        username:
-          type: "string"
-        password:
-          type: "string"
-        firstName:
-          type: "string"
-        lastName:
-          type: "string"
-        birthDay:
-          type: "string"
-          format: "yyyy-MM-dd"
-        image:
-          type: "string"
-        position:
-          $ref: "#/components/schemas/PositionDto"
-
-    PositionDto:
-      type: object
-      properties:
-        id:
-          type: "integer"
-          format: "long"
-        name:
-          type: "string"
-        roles:
-          type: array
-          items:
-            $ref: "#/components/schemas/RoleDto"
-
-    RoleDto:
-      type: object
-      properties:
-        id:
-          type: "integer"
-          format: "long"
-        name:
-          type: "string"
-        staffId:
-          type: "integer"
-          format: "long"
-        menu:
-          type: boolean
-        delivery:
-          type: boolean
 
     RestaurantDto:
       type: "object"
@@ -1065,6 +1131,3 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
-
-
-

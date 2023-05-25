@@ -21,7 +21,7 @@ object SessionRepository {
                     "        returning *)\n" +
                     "insert\n" +
                     "into session (created, device_id, stuff_id, user_id,  uuid)\n" +
-                    "select ?, ${session.deviceId}, ${session.stuffId}, ${session.userId}, ?, ?\n" +
+                    "select ?, ${session.deviceId}, ${session.stuffId}, ${session.userId}, ?\n" +
                     "where not exists(select * from upsert);"
 
         return withContext(Dispatchers.IO) {

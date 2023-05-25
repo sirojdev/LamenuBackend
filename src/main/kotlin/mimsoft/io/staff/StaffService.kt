@@ -5,11 +5,13 @@ import mimsoft.io.utils.DBManager
 import mimsoft.io.utils.Status
 import mimsoft.io.utils.StatusCode
 import mimsoft.io.utils.UNDEFINED
+import mimsoft.io.utils.plugins.LOGGER
 import java.util.UUID
 
 object StaffService {
 
     suspend fun auth(staff: StaffTable?): Status {
+        LOGGER.info("auth: $staff")
         return when {
             staff?.password == null || staff.username == null -> {
                 Status(

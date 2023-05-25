@@ -7,7 +7,7 @@ data class OrderTable(
     val id: Long? = null,
     val userId: Long? = null,
     val userPhone: String? = null,
-    val type: Int? = null,
+    val type: String? = null,
     val products: String? = null,
     val status: String? = null,
     val addLat: Double? = null,
@@ -17,5 +17,6 @@ data class OrderTable(
     val deliveryAt: Timestamp? = null,
     val deliveredAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
-    val deleted: Boolean? = null
+    val deleted: Boolean? = null,
+    val comment: String? = null,
 )

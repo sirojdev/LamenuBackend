@@ -5,20 +5,44 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.entities.label.LabelDto
-import mimsoft.io.entities.label.LabelMapper
-import mimsoft.io.entities.label.LabelTable
 import mimsoft.io.entities.order.repository.OrderRepository
 import mimsoft.io.entities.order.repository.OrderRepositoryImpl
 import mimsoft.io.utils.Mapper
+import mimsoft.io.utils.OrderStatus
 
 fun Route.routeToOrder() {
 
     val repository: OrderRepository = OrderRepositoryImpl
+    val mapper = OrderMapper
+
+    get("live") {
+        val type = call.parameters["type"]
+        val orders = repository.getLiveOrders(type = type.toString())
+        val orderDto = orders?.data?.map { mapper.toDto(it) }
+        if(orderDto == null) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        }
+        call.respond(HttpStatusCode.OK, orderDto)
+    }
+
+    get("history") {
+        val orders = repository.getAll()
+        val orderDto = orders?.data?.map { mapper.toDto(it) }
+        if(orderDto == null) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        }
+        call.respond(HttpStatusCode.OK, orderDto)
+    }
 
     get("/orders") {
-        val orders = repository.getAll().map { it?.let { it1 -> Mapper.toDto<OrderTable, OrderDto>(it1) } }
-        if (orders.isEmpty()) {
+        val status = call.parameters["status"]
+        val type = call.parameters["type"]
+        val limit = call.parameters["limit"]?.toIntOrNull()
+        val offset = call.parameters["offset"]?.toIntOrNull()
+        val orders = repository.getAll(status, type, limit, offset)?.data?.map{ mapper.toDto(it) }
+        if (orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }

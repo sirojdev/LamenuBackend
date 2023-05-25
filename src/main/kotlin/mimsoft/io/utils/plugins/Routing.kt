@@ -41,10 +41,10 @@ fun Application.configureRouting() {
             routeToStaffApis()
         }
 
-        swaggerUI(path = "swagger/users", swaggerFile = "openapi/documentationUsers.yaml") {
+        swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/documentationStaff.yaml") {
+        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/staff.yaml") {
             version = "4.15.5"
         }
     }

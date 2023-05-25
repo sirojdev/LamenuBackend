@@ -10,10 +10,9 @@ data class StaffTable(
     val password: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
-    val birthDay: String? = null,
+    val birthDay: Timestamp? = null,
     val image: String? = null,
-    val create: Timestamp? = null,
+    val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null,
-    val token: String? = null
 )
