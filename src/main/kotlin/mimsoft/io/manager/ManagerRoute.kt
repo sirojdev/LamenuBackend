@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.StatusCode
 
 fun Route.routeToManager() {
 
@@ -43,11 +44,36 @@ fun Route.routeToManager() {
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-        val id = service.add(managerTable)
+        val status = service.add(managerTable)
+        call.respond(status)
+
+    }
+
+    put("/manager") {
+        val managerDto = call.receive<ManagerDto>()
+        val managerTable = mapper.toTable(managerDto)
+        if (managerTable == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@put
+        }
+        val result = service.update(managerTable)
+        if (!result) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@put
+        }
+        call.respond(HttpStatusCode.OK)
+    }
+    delete {
+        val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
-            return@post
+            return@delete
         }
-        call.respond(HttpStatusCode.OK, id)
+        val result = service.delete(id)
+        if (!result) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@delete
+        }
+        call.respond(HttpStatusCode.OK)
     }
 }

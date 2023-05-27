@@ -2,7 +2,7 @@ package mimsoft.io.staff
 
 
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.Status
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.StatusCode
 import mimsoft.io.utils.UNDEFINED
 import mimsoft.io.utils.plugins.LOGGER
@@ -10,18 +10,18 @@ import java.util.UUID
 
 object StaffService {
 
-    suspend fun auth(staff: StaffTable?): Status {
+    suspend fun auth(staff: StaffTable?): ResponseModel {
         LOGGER.info("auth: $staff")
         return when {
             staff?.password == null || staff.username == null -> {
-                Status(
+                ResponseModel(
                     status = StatusCode.USERNAME_OR_PASSWORD_NULL,
                     httpStatus = UNDEFINED
                 )
             }
 
             else -> {
-                Status(
+                ResponseModel(
                    body = DBManager.getPageData(
                        dataClass = StaffTable::class,
                        tableName = STAFF_TABLE_NAME,
@@ -52,24 +52,24 @@ object StaffService {
             where = mapOf("username" to username as String)
         )?.data?.firstOrNull()
 
-    suspend fun add(staff: StaffTable?): Status {
+    suspend fun add(staff: StaffTable?): ResponseModel {
         val oldStaff = get(staff?.username)
 
         return when {
             staff?.username == null || staff.password == null || staff.firstName == null -> {
-                Status(
+                ResponseModel(
                     status = StatusCode.USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL,
                     httpStatus = UNDEFINED
                 )
             }
 
             oldStaff != null -> {
-                Status(status = StatusCode.ALREADY_EXISTS,
+                ResponseModel(status = StatusCode.ALREADY_EXISTS,
                     httpStatus = UNDEFINED)
             }
 
             else -> {
-                Status(
+                ResponseModel(
                     body = DBManager.postData(
                         dataClass = StaffTable::class,
                         dataObject = staff, tableName = STAFF_TABLE_NAME
@@ -82,24 +82,24 @@ object StaffService {
     }
 
 
-    suspend fun update(staff: StaffTable?): Status {
+    suspend fun update(staff: StaffTable?): ResponseModel {
         val oldStaff = get(staff?.username)
 
         return when {
             staff?.username == null || staff.password == null || staff.firstName == null -> {
-                Status(
+                ResponseModel(
                     status = StatusCode.USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL,
                     httpStatus = UNDEFINED
                 )
             }
 
             oldStaff != null -> {
-                Status(status = StatusCode.ALREADY_EXISTS,
+                ResponseModel(status = StatusCode.ALREADY_EXISTS,
                     httpStatus = UNDEFINED)
             }
 
             else -> {
-                Status(
+                ResponseModel(
                     body = DBManager.updateData(
                         dataClass = StaffTable::class,
                         dataObject = staff, tableName = STAFF_TABLE_NAME

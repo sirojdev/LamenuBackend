@@ -13,7 +13,8 @@ object OptionMapper {
             descriptionRu = optionDto.description?.ru,
             descriptionEn = optionDto.description?.en,
             image = optionDto.image,
-            price = optionDto.price
+            price = optionDto.price,
+            options = optionDto.options?.map { toOptionTable(it) }
         )
     }
 
