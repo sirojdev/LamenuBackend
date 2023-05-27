@@ -2,7 +2,7 @@ package mimsoft.io.entities.client.repository
 
 import mimsoft.io.entities.client.USER_TABLE_NAME
 import mimsoft.io.entities.client.UserTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.Status
 import mimsoft.io.utils.StatusCode
 import mimsoft.io.utils.plugins.GSON

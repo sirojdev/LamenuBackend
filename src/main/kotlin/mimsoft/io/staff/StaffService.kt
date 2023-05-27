@@ -1,7 +1,7 @@
 package mimsoft.io.staff
 
 
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.Status
 import mimsoft.io.utils.StatusCode
 import mimsoft.io.utils.UNDEFINED

@@ -2,7 +2,7 @@ package mimsoft.io.entities.extra.ropository
 
 import mimsoft.io.entities.extra.EXTRA_TABLE_NAME
 import mimsoft.io.entities.extra.ExtraTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 object ExtraRepositoryImpl : ExtraRepository {

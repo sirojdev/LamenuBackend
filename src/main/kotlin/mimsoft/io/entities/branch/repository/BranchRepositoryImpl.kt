@@ -2,7 +2,7 @@ package mimsoft.io.entities.branch.repository
 
 import mimsoft.io.entities.branch.BRANCH_TABLE_NAME
 import mimsoft.io.entities.branch.BranchTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 object BranchRepositoryImpl : BranchRepository {

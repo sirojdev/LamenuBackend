@@ -2,7 +2,7 @@ package mimsoft.io.entities.restaurant.repository
 
 import mimsoft.io.entities.restaurant.RESTAURANT_TABLE_NAME
 import mimsoft.io.entities.restaurant.RestaurantTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 

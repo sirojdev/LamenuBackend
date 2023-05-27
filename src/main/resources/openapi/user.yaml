@@ -110,33 +110,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/LoginResponse'
 
-  /orders:
-    get:
-      tags:
-        - Orders
-      description: "Returns a list of all orders"
-      responses:
-        "200":
-          description: "OK"
-          parameters:
-            - name: "status"
-              in: "query"
-              required: true
-              schema:
-                type: "string"
-            - name: "size"
-              in: "query"
-              required: true
-              schema:
-                type: "integer"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: '#/components/schemas/OrderDto'
-        "204":
-          description: "No content"
+
 
   /users:
     get:

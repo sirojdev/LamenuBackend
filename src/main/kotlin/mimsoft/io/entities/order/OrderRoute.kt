@@ -7,8 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.entities.order.repository.OrderRepository
 import mimsoft.io.entities.order.repository.OrderRepositoryImpl
-import mimsoft.io.utils.Mapper
-import mimsoft.io.utils.OrderStatus
+import mimsoft.io.repository.Mapper
 
 fun Route.routeToOrder() {
 
@@ -63,7 +62,7 @@ fun Route.routeToOrder() {
         }
     }
 
-    post("/order") {
+    post("/order/create") {
         val order = call.receive<OrderDto>()
         val id = repository.add(Mapper.toTable<OrderDto, OrderTable>(order))
         call.respond(HttpStatusCode.OK, OrderId(id))
