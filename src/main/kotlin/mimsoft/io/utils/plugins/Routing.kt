@@ -15,8 +15,11 @@ import mimsoft.io.entities.option.routeToOption
 import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
 import mimsoft.io.entities.restaurant.routeToRestaurant
+import mimsoft.io.flat.routeToFlat
+import mimsoft.io.room.routeToRoom
 import mimsoft.io.staff.routeToStaff
 import mimsoft.io.staff.routeToStaffApis
+import mimsoft.io.table.routeToTable
 
 fun Application.configureRouting() {
     routing {
@@ -37,7 +40,9 @@ fun Application.configureRouting() {
             routeToOrder()
             routeToLogin()
             routeToStaff()
-
+            routeToTable()
+            routeToRoom()
+            routeToFlat()
             routeToStaffApis()
         }
 
