@@ -1,5 +1,6 @@
-package mimsoft.io.utils
+package mimsoft.io.repository
 
+import mimsoft.io.utils.TextModel
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties

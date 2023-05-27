@@ -2,7 +2,7 @@ package mimsoft.io.entities.category.repository
 
 import mimsoft.io.entities.category.CATEGORY_TABLE_NAME
 import mimsoft.io.entities.category.CategoryTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 object CategoryRepositoryImpl : CategoryRepository {
 

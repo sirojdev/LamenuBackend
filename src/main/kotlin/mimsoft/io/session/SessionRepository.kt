@@ -2,7 +2,7 @@ package mimsoft.io.session
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
 import java.util.UUID
 

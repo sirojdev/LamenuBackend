@@ -2,7 +2,7 @@ package mimsoft.io.entities.option.repository
 
 import mimsoft.io.entities.option.OPTION_TABLE_NAME
 import mimsoft.io.entities.option.OptionTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 object OptionRepositoryImpl : OptionRepository {

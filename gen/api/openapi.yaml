@@ -915,6 +915,7 @@ paths:
       - Restaurants
       x-accepts: application/json
 components:
+  
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
@@ -1255,6 +1256,8 @@ components:
         en:
           type: string
       type: object
+
+
   securitySchemes:
     bearerAuth:
       bearerFormat: JWT

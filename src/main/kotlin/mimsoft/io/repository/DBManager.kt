@@ -1,11 +1,10 @@
-package mimsoft.io.utils
+package mimsoft.io.repository
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.staff.StaffTable
-import mimsoft.io.utils.plugins.GSON
+import mimsoft.io.utils.Role
 
 import java.sql.Connection
 import java.sql.Statement
@@ -13,7 +12,7 @@ import java.sql.Timestamp
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 
-object DBManager {
+object DBManager: Repository {
 
     fun init() {
 //        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
@@ -41,12 +40,12 @@ object DBManager {
         return dataSource.connection
     }
 
-    suspend fun <T : Any> getPageData(
+    override suspend fun <T : Any> getPageData(
         dataClass: KClass<T>,
-        tableName: String? = null,
-        where: Map<String, Any>? = null,
-        limit: Int? = null,
-        offset: Int? = null
+        tableName: String?,
+        where: Map<String, Any>?,
+        limit: Int?,
+        offset: Int?
     ): DataPage<T>? {
 
         val tName = tableName ?: dataClass.simpleName
@@ -98,6 +97,64 @@ object DBManager {
         return totalCount?.let { DataPage(resultList, it) }
     }
 
+    override suspend fun <T : Any> getJoinPageData(
+        dataClass1: KClass<T>,
+        dataClass2: KClass<*>?,
+        tableName: String?,
+        where: Map<String, Any>?,
+        limit: Int?,
+        offset: Int?
+    ): DataPage<T>? {
+
+        val tName = tableName ?: dataClass1.simpleName
+        val columns = dataClass1.memberProperties.joinToString(", ") { camelToSnakeCase(it.name) }
+
+        val limitClause = if (limit != null && limit > 0) {
+            "LIMIT $limit"
+        } else {
+            ""
+        }
+
+        val offsetClause = if (offset != null && offset > 0) {
+            "OFFSET $offset"
+        } else {
+            ""
+        }
+
+        val whereClause = if (where == null) {
+            ""
+        } else {
+            generateWhereClause(where)
+        }
+
+        val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause"
+
+        println("\nGET PAGE DATA QUERY ---> $query")
+
+        val resultList = mutableListOf<T>()
+        withContext(Dispatchers.IO) {
+            connection().use { connection ->
+                val statement = connection.createStatement()
+                val resultSet = statement.executeQuery(query)
+                val constructor = dataClass1.primaryConstructor
+                    ?: throw IllegalStateException("Data class must have a primary constructor")
+
+                while (resultSet.next()) {
+                    val parameters = constructor.parameters.associateWith { parameter ->
+                        val columnName = parameter.name?.let { camelToSnakeCase(it) }
+                        resultSet.getObject(columnName)
+                    }
+                    val instance = constructor.callBy(parameters)
+                    resultList.add(instance)
+                }
+            }
+        }
+
+        val totalCount = tName?.let { getDataCount(it) }
+
+        return totalCount?.let { DataPage(resultList, it) }
+    }
+
     private fun generateWhereClause(where: List<Any>, whereName: List<String>): String {
         if (where.isEmpty() || whereName.isEmpty() || where.size != whereName.size) {
             return ""
@@ -126,7 +183,7 @@ object DBManager {
         }
     }
 
-    suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null): List<Any?> {
+    override suspend fun getData(dataClass: KClass<*>, id: Long?, tableName: String?): List<Any?> {
         val tName = tableName ?: dataClass.simpleName ?: throw IllegalArgumentException("Table name must be provided")
         val columns = dataClass.memberProperties.joinToString(", ") { camelToSnakeCase(it.name) }
 
@@ -163,7 +220,7 @@ object DBManager {
         return resultList
     }
 
-    suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null): Long? {
+    override suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String?): Long? {
 
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
@@ -212,11 +269,11 @@ object DBManager {
         }
     }
 
-    suspend fun <T : Any> updateData(
+    override suspend fun <T : Any> updateData(
         dataClass: KClass<T>,
         dataObject: T?,
-        tableName: String? = null,
-        idColumn: String? = "id"
+        tableName: String?,
+        idColumn: String?
     ): Boolean {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
@@ -267,7 +324,7 @@ object DBManager {
         return true
     }
 
-    suspend fun deleteData(tableName: String, where: String = "id", whereValue: Any? = null): Boolean {
+    override suspend fun deleteData(tableName: String, where: String, whereValue: Any?): Boolean {
         val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
         println("\nDELETE DATA --> $delete")
 

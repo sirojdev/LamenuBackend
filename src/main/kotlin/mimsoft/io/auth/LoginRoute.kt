@@ -20,7 +20,7 @@ import mimsoft.io.services.SmsServiceIml
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.Mapper
+import mimsoft.io.repository.Mapper
 import mimsoft.io.utils.Role
 import mimsoft.io.utils.plugins.GSON
 

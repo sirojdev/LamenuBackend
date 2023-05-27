@@ -2,7 +2,7 @@ package mimsoft.io.entities.menu.repository
 
 import mimsoft.io.entities.menu.MENU_TABLE_NAME
 import mimsoft.io.entities.menu.MenuTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 object MenuRepositoryImpl : MenuRepository {
