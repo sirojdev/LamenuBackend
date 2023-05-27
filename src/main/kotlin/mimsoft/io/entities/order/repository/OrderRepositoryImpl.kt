@@ -4,10 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.entities.order.ORDER_TABLE_NAME
 import mimsoft.io.entities.order.OrderTable
-import mimsoft.io.entities.order.utils.OrderType
 import mimsoft.io.entities.order.utils.OrderTypeEnums
-import mimsoft.io.utils.DBManager
-import mimsoft.io.utils.DataPage
+import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.OrderStatus
 
 object OrderRepositoryImpl : OrderRepository {
@@ -65,7 +64,7 @@ object OrderRepositoryImpl : OrderRepository {
                         )
                     )
                 }
-                return@withContext DataPage(data = data, total = data.size)?:null
+                return@withContext DataPage(data = data, total = data.size) ?:null
 
             }
         }

@@ -1,7 +1,7 @@
 package mimsoft.io.entities.order.repository
 
 import mimsoft.io.entities.order.OrderTable
-import mimsoft.io.utils.DataPage
+import mimsoft.io.repository.DataPage
 
 interface OrderRepository {
 

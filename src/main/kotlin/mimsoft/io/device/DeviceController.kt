@@ -1,7 +1,7 @@
 package mimsoft.io.device
 
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.plugins.GSON
 
 object DeviceController {

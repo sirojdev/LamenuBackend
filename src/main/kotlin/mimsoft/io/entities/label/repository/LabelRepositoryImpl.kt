@@ -2,7 +2,7 @@ package mimsoft.io.entities.label.repository
 
 import mimsoft.io.entities.label.LABEL_TABLE_NAME
 import mimsoft.io.entities.label.LabelTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 object LabelRepositoryImpl : LabelRepository {

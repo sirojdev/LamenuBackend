@@ -2,7 +2,7 @@ package mimsoft.io.entities.product.repository
 
 import mimsoft.io.entities.product.PRODUCT_TABLE_NAME
 import mimsoft.io.entities.product.ProductTable
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
 
 
 object ProductRepositoryImpl : ProductRepository {
