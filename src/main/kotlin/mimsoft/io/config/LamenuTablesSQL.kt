@@ -145,13 +145,22 @@ const val TABLE =
     restaurant_id    text not null
 );"""
 
-const val ROOM =
-    """CREATE TABLE room
-(
-    id       bigserial PRIMARY KEY,
-    name     text not null,
-    flatId   bigint not null,
-    restaurant_id    bigint not null
+const val ADDRESS =
+    """CREATE TABLE address(
+        id bigserial PRIMARY KEY,
+        type text,
+        name text,
+        details text,
+        description text,
+        latitude decimal,
+        longitude decimal,
+        created timestamp,
+        updated timestamp,
+        deleted boolean
+    );
 );"""
+
+
+
 
 
