@@ -1,8 +1,9 @@
 package mimsoft.io.repository
 
+import java.sql.Connection
 import kotlin.reflect.KClass
 
-interface Repository {
+interface BaseRepository {
     suspend fun <T : Any> getPageData(
         dataClass: KClass<T>,
         tableName: String?,
@@ -27,4 +28,8 @@ interface Repository {
         idColumn: String? = "id"
     ): Boolean
     suspend fun deleteData(tableName: String, where: String = "id", whereValue: Any? = null): Boolean
+
+    fun connection() : Connection
+
+
 }

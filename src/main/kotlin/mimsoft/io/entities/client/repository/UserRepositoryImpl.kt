@@ -3,13 +3,13 @@ package mimsoft.io.entities.client.repository
 import mimsoft.io.entities.client.USER_TABLE_NAME
 import mimsoft.io.entities.client.UserTable
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.Status
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.StatusCode
 import mimsoft.io.utils.plugins.GSON
 
 object UserRepositoryImpl : UserRepository {
 
-    val status: Status = Status()
+    val status: ResponseModel = ResponseModel()
 
     override suspend fun getAll(): List<UserTable?> =
         DBManager.getData(dataClass = UserTable::class, tableName = USER_TABLE_NAME)
@@ -28,23 +28,23 @@ object UserRepositoryImpl : UserRepository {
         )?.data?.firstOrNull()
     }
 
-    override suspend fun add(userTable: UserTable?): Status {
+    override suspend fun add(userTable: UserTable?): ResponseModel {
         return when{
             get(userTable?.phone) != null -> {
-                Status(
+                ResponseModel(
                     status = StatusCode.ALREADY_EXISTS
                 )
             }
 
             userTable?.phone == null || userTable.firstName == null -> {
-                Status(
+                ResponseModel(
                     status = StatusCode.PHONE_OR_FIRSTNAME_NULL
                 )
             }
 
             else -> {
                 println("\nadd user-->${GSON.toJson(userTable)}")
-                Status(
+                ResponseModel(
                     body = DBManager.postData(
                         dataClass = UserTable::class,
                         dataObject = userTable,
@@ -56,15 +56,15 @@ object UserRepositoryImpl : UserRepository {
         }
     }
 
-    override suspend fun update(userTable: UserTable?): Status {
+    override suspend fun update(userTable: UserTable?): ResponseModel {
         return when{
             get(userTable?.phone) != null -> {
-                Status(
+                ResponseModel(
                     status = StatusCode.ALREADY_EXISTS
                 )
             }
 
-            userTable?.phone == null || userTable.firstName == null -> Status(
+            userTable?.phone == null || userTable.firstName == null -> ResponseModel(
                 status = StatusCode.PHONE_OR_FIRSTNAME_NULL
             )
 
@@ -74,7 +74,7 @@ object UserRepositoryImpl : UserRepository {
                     dataObject = userTable,
                     tableName = USER_TABLE_NAME
                 )
-                Status(
+                ResponseModel(
                     status = StatusCode.OK
                 )
             }
