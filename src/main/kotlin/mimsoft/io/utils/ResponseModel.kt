@@ -3,7 +3,7 @@ package mimsoft.io.utils
 import io.ktor.http.*
 
 val UNDEFINED = HttpStatusCode(208, "Look at the status")
-data class Status(
+data class ResponseModel(
     val body: Any? = null,
     val status: StatusCode? = null,
     val httpStatus: HttpStatusCode? = null
@@ -16,5 +16,8 @@ enum class StatusCode(i: Int) {
     OK(13),
     INVALID_TIMESTAMP(14),
     NAME_NULL(15),
-    USERNAME_OR_PASSWORD_NULL(16)
+    USERNAME_OR_PASSWORD_NULL(16),
+    PHONE_NULL(17),
+
 }
+val x = HttpStatusCode(215, "Look at the status")

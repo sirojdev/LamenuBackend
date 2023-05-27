@@ -10,9 +10,11 @@ import java.sql.Connection
 import java.sql.Statement
 import java.sql.Timestamp
 import kotlin.reflect.KClass
-import kotlin.reflect.full.*
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
-object DBManager: Repository {
+object DBManager: BaseRepository {
 
     fun init() {
 //        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
@@ -36,7 +38,7 @@ object DBManager: Repository {
         return HikariDataSource(dataSourceConfig)
     }
 
-    fun connection(): Connection {
+    override  fun connection(): Connection {
         return dataSource.connection
     }
 
