@@ -1,4 +1,4 @@
-package mimsoft.io.room
+package mimsoft.io.entities.table
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,52 +6,53 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.routeToRoom(){
-    val roomService : RoomRepository = RoomService
-    val roomMapper = RoomMapper
-    get("rooms"){
-        val rooms = roomService.getAll().map { roomMapper.toRoomDto(it) }
-        if(rooms.isEmpty()){
+fun Route.routeToTable(){
+    val tableService : TableRepository = TableService
+    val tableMapper = TableMapper
+    get("tables"){
+        val tables = tableService.getAll().map { TableMapper.toTableDto(it) }
+        if(tables.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(rooms)
+        }else call.respond(tables)
     }
 
-    get("room/{id}"){
+    get("table/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = RoomMapper.toRoomDto(roomService.get(id))
-        if(room == null){
+        val table = TableMapper.toTableDto(tableService.get(id))
+        if(table == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(room)
+        call.respond(table)
     }
 
-    post ("room"){
-        val room = call.receive<RoomDto>()
-        roomService.add(RoomMapper.toRoomTable(room))
+    post ("table"){
+        val table = call.receive<TableDto>()
+        tableService.add(TableMapper.toTableTable(table))
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("room"){
-        val room = call.receive<RoomDto>()
-        roomService.update(RoomMapper.toRoomTable(room))
+    put ("table"){
+        val table = call.receive<TableDto>()
+        tableService.update(TableMapper.toTableTable(table))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("room/{id}"){
+    delete("table/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        roomService.delete(id)
+        tableService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
+
 
 
 

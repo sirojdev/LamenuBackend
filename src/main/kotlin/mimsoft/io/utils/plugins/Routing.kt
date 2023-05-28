@@ -16,11 +16,12 @@ import mimsoft.io.entities.option.routeToOption
 import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
 import mimsoft.io.entities.restaurant.routeToRestaurant
-import mimsoft.io.flat.routeToFlat
-import mimsoft.io.room.routeToRoom
+import mimsoft.io.entities.flat.routeToFlat
+import mimsoft.io.entities.room.routeToRoom
 import mimsoft.io.staff.routeToStaff
 import mimsoft.io.staff.routeToStaffApis
-import mimsoft.io.table.routeToTable
+import mimsoft.io.entities.table.routeToTable
+import mimsoft.io.telegram_bot.routeToBot
 
 fun Application.configureRouting() {
     routing {
@@ -46,6 +47,7 @@ fun Application.configureRouting() {
             routeToRoom()
             routeToFlat()
             routeToStaffApis()
+            routeToBot()
         }
 
         swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {

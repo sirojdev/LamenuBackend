@@ -1,4 +1,4 @@
-package mimsoft.io.room
+package mimsoft.io.entities.room
 
 import mimsoft.io.utils.DBManager
 object RoomService : RoomRepository {

@@ -1,4 +1,4 @@
-package mimsoft.io.flat
+package mimsoft.io.entities.flat
 
 interface FlatRepository {
     suspend fun getAll(): List<FlatTable?>

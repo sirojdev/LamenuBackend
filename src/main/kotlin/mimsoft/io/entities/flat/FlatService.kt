@@ -1,4 +1,4 @@
-package mimsoft.io.flat
+package mimsoft.io.entities.flat
 
 import mimsoft.io.utils.DBManager
 object FlatService : FlatRepository {

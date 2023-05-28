@@ -1,4 +1,4 @@
-package mimsoft.io.flat
+package mimsoft.io.entities.flat
 
 object FlatMapper {
     fun toFlatTable(flatDto: FlatDto?): FlatTable? {

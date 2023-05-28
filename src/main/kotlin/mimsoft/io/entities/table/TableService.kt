@@ -1,4 +1,4 @@
-package mimsoft.io.table
+package mimsoft.io.entities.table
 
 import mimsoft.io.utils.DBManager
 object TableService : TableRepository {

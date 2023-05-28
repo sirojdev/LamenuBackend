@@ -1,4 +1,4 @@
-package mimsoft.io.room
+package mimsoft.io.entities.room
 
 object RoomMapper {
     fun toRoomTable(roomDto: RoomDto?): RoomTable? {
@@ -10,7 +10,7 @@ object RoomMapper {
             restaurantId = roomDto.restaurantId
         )
     }
-    fun toRoomDto(roomTable: RoomTable?):RoomDto? {
+    fun toRoomDto(roomTable: RoomTable?): RoomDto? {
         return if(roomTable == null) null
         else RoomDto(
             id = roomTable.id,

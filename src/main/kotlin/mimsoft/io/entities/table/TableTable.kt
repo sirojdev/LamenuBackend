@@ -1,4 +1,4 @@
-package mimsoft.io.table
+package mimsoft.io.entities.table
 import java.sql.Timestamp
 const val TABLE_TABLE_NAME = "tables"
 data class TableTable(

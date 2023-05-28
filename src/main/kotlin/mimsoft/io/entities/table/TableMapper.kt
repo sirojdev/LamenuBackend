@@ -1,4 +1,4 @@
-package mimsoft.io.table
+package mimsoft.io.entities.table
 
 object TableMapper {
     fun toTableTable(tableDto: TableDto?): TableTable? {
@@ -11,7 +11,7 @@ object TableMapper {
             restaurantId = tableDto.restaurantId
         )
     }
-    fun toTableDto(tableTable: TableTable?):TableDto? {
+    fun toTableDto(tableTable: TableTable?): TableDto? {
         return if(tableTable == null) null
         else TableDto(
             id = tableTable.id,

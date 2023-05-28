@@ -1,4 +1,4 @@
-package mimsoft.io.flat
+package mimsoft.io.entities.flat
 import java.sql.Timestamp
 
 const val FLAT_TABLE_NAME = "flat"

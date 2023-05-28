@@ -1,4 +1,4 @@
-package mimsoft.io.table
+package mimsoft.io.entities.table
 
 data class TableDto (
     val id: Long? = null,

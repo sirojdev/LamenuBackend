@@ -1,4 +1,4 @@
-package mimsoft.io.room
+package mimsoft.io.entities.room
 import java.sql.Timestamp
 const val ROOM_TABLE_NAME = "room"
 data class RoomTable(

@@ -1,4 +1,4 @@
-package mimsoft.io.table
+package mimsoft.io.entities.flat
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,57 +6,50 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.routeToTable(){
-    val tableService : TableRepository = TableService
-    val tableMapper = TableMapper
-    get("tables"){
-        val tables = tableService.getAll().map { tableMapper.toTableDto(it) }
-        if(tables.isEmpty()){
+fun Route.routeToFlat(){
+    val flatService : FlatRepository = FlatService
+    val flatMapper = FlatMapper
+    get("flats"){
+        val flats = flatService.getAll().map { FlatMapper.toFlatDto(it) }
+        if(flats.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(tables)
+        }else call.respond(flats)
     }
 
-    get("table/{id}"){
+    get("flat/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val table = TableMapper.toTableDto(tableService.get(id))
-        if(table == null){
+        val flat = FlatMapper.toFlatDto(flatService.get(id))
+        if(flat == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(table)
+        call.respond(flat)
     }
 
-    post ("table"){
-        val table = call.receive<TableDto>()
-        tableService.add(TableMapper.toTableTable(table))
+    post ("flat"){
+        val flat = call.receive<FlatDto>()
+        flatService.add(FlatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("table"){
-        val table = call.receive<TableDto>()
-        tableService.update(TableMapper.toTableTable(table))
+    put ("flat"){
+        val flat = call.receive<FlatDto>()
+        flatService.update(FlatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("table/{id}"){
+    delete("flat/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        tableService.delete(id)
+        flatService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
-
-
-
-
-
-
-
 }

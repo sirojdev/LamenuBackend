@@ -1,8 +1,8 @@
-package mimsoft.io.room
+package mimsoft.io.entities.flat
 
-data class RoomDto (
+data class FlatDto(
     val id: Long? = null,
     val name: String? = null,
-    val flatId: Long? = null,
+    val branchId: Long? = null,
     val restaurantId: Long? = null
-    )
+)
