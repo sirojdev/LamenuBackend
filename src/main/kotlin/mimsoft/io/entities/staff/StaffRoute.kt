@@ -21,13 +21,14 @@ fun Route.routeToStaff() {
             call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
         }
 
-        get ("{id}"){
+        get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
+            val merchantId = 1L
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val staff = StaffService.get(id)
+            val staff = StaffService.get(id = id, merchantId = merchantId)
             if (staff == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get

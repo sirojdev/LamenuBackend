@@ -9,7 +9,7 @@ import mimsoft.io.utils.plugins.LOGGER
 import java.util.UUID
 
 object StaffService {
-
+    val mapper = StaffMapper
     suspend fun auth(staff: StaffTable?): ResponseModel {
         LOGGER.info("auth: $staff")
         return when {
@@ -41,10 +41,15 @@ object StaffService {
         DBManager.getData(dataClass = StaffTable::class, tableName = STAFF_TABLE_NAME)
             .filterIsInstance<StaffTable?>().map { StaffMapper.toDto(it) }
 
-    suspend fun get(id: Long?): StaffTable {
-        return DBManager.getData(dataClass = StaffTable::class, id = id, tableName = STAFF_TABLE_NAME)
-            .firstOrNull() as StaffTable
-//        val query = "select ( "
+    suspend fun get(id: Long?, merchantId: Long?): StaffDto? {
+        return DBManager.getData(
+            dataClass = StaffTable::class,
+            tableName = STAFF_TABLE_NAME,
+            id = id,
+            merchantId = merchantId
+        ).firstOrNull()?.let {
+            mapper.toDto(it as? StaffTable)
+        }
     }
 
     suspend fun get(username: String?): StaffTable? =

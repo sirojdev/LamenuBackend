@@ -13,7 +13,7 @@ object StaffMapper {
             password = staffTable?.password,
             firstName = staffTable?.firstName,
             lastName = staffTable?.lastName,
-            position = PositionDto(staffTable?.positionId),
+            position = staffTable?.position,
             birthDay = staffTable?.birthDay.toString(),
             image = staffTable?.image,
             comment = staffTable?.comment
@@ -30,7 +30,7 @@ object StaffMapper {
             password = staffDto?.password,
             firstName = staffDto?.firstName,
             lastName = staffDto?.lastName,
-            positionId = staffDto?.position?.id,
+            position = staffDto?.position,
             birthDay = birthDay,
             image = staffDto?.image,
             comment = staffDto?.comment

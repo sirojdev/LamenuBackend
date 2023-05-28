@@ -184,20 +184,21 @@ object DBManager : BaseRepository {
         }
     }
 
-    override suspend fun getData(dataClass: KClass<*>, id: Long?, tableName: String?): List<Any?> {
+    override suspend fun getData(dataClass: KClass<*>, id: Long?, tableName: String?, merchantId: Long?): List<Any?> {
         val tName = tableName ?: dataClass.simpleName ?: throw IllegalArgumentException("Table name must be provided")
         val columns = dataClass.memberProperties.filter { it ->
             !(it.javaField?.name?.endsWith("List") ?: false)
         }.joinToString(", ") { camelToSnakeCase(it.name) }
 
 
-        val hasDeleted = if (dataClass.memberProperties.find { it.name == "deleted" } != null)
+        var filter = if (dataClass.memberProperties.find { it.name == "deleted" } != null)
             "WHERE NOT deleted " else "WHERE true "
-
+        if (merchantId != null)
+            filter += "and ( merchant_id = $merchantId or 1=1) "
         val query = if (id == null || id == 0L) {
-            "SELECT $columns FROM $tName $hasDeleted".trimMargin()
+            "SELECT $columns FROM $tName $filter".trimMargin()
         } else {
-            "SELECT $columns FROM $tName $hasDeleted AND id = $id"
+            "SELECT $columns FROM $tName $filter AND id = $id"
         }
 
         println("\nGET DATA-->$query")
