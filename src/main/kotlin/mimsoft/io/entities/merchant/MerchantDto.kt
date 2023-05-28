@@ -1,8 +1,8 @@
-package mimsoft.io.entities.restaurant
+package mimsoft.io.entities.merchant
 
 import mimsoft.io.utils.TextModel
 
-data class RestaurantDto(
+data class MerchantDto(
     var id: Long? = null,
     var name: TextModel? = null,
     var logo: String? = null,

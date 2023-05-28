@@ -5,6 +5,7 @@ import java.sql.Timestamp
 
 data class StaffDto(
     val id: Long? = null,
+    val merchantId : Long? = null,
     val username: String? = null,
     val password: String? = null,
     val firstName: String? = null,

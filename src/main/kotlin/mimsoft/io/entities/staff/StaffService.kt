@@ -22,14 +22,14 @@ object StaffService {
 
             else -> {
                 ResponseModel(
-                   body = DBManager.getPageData(
-                       dataClass = StaffTable::class,
-                       tableName = STAFF_TABLE_NAME,
-                       where = mapOf(
-                           "username" to staff.username as Any,
-                           "password" to staff.password as Any
-                       )
-                   )?.data?.firstOrNull(),
+                    body = DBManager.getPageData(
+                        dataClass = StaffTable::class,
+                        tableName = STAFF_TABLE_NAME,
+                        where = mapOf(
+                            "username" to staff.username as Any,
+                            "password" to staff.password as Any
+                        )
+                    )?.data?.firstOrNull(),
                     status = StatusCode.OK
                 )
             }
@@ -37,13 +37,15 @@ object StaffService {
 
     }
 
-    suspend fun getAll(): List<StaffTable?> =
+    suspend fun getAll(): List<StaffDto?> =
         DBManager.getData(dataClass = StaffTable::class, tableName = STAFF_TABLE_NAME)
-            .filterIsInstance<StaffTable?>()
+            .filterIsInstance<StaffTable?>().map { StaffMapper.toDto(it) }
 
-    suspend fun get(id: Long?): StaffTable? =
-        DBManager.getData(dataClass = StaffTable::class, id = id, tableName = STAFF_TABLE_NAME)
+    suspend fun get(id: Long?): StaffTable {
+        return DBManager.getData(dataClass = StaffTable::class, id = id, tableName = STAFF_TABLE_NAME)
             .firstOrNull() as StaffTable
+//        val query = "select ( "
+    }
 
     suspend fun get(username: String?): StaffTable? =
         DBManager.getPageData(
@@ -64,8 +66,10 @@ object StaffService {
             }
 
             oldStaff != null -> {
-                ResponseModel(status = StatusCode.ALREADY_EXISTS,
-                    httpStatus = UNDEFINED)
+                ResponseModel(
+                    status = StatusCode.ALREADY_EXISTS,
+                    httpStatus = UNDEFINED
+                )
             }
 
             else -> {
@@ -94,8 +98,10 @@ object StaffService {
             }
 
             oldStaff != null -> {
-                ResponseModel(status = StatusCode.ALREADY_EXISTS,
-                    httpStatus = UNDEFINED)
+                ResponseModel(
+                    status = StatusCode.ALREADY_EXISTS,
+                    httpStatus = UNDEFINED
+                )
             }
 
             else -> {
@@ -110,8 +116,9 @@ object StaffService {
 
         }
     }
+
     suspend fun delete(id: Long?): Boolean =
         DBManager.deleteData(tableName = STAFF_TABLE_NAME, whereValue = id)
 
-    fun generateUuid(id: Long?): String = UUID.randomUUID().toString()+"-"+id
+    fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 }
