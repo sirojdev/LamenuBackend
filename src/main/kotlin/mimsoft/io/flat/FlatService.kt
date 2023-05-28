@@ -1,7 +1,6 @@
 package mimsoft.io.flat
 
-import mimsoft.io.repository.DBManager
-
+import mimsoft.io.utils.DBManager
 object FlatService : FlatRepository {
 
     override suspend fun getAll(): List<FlatTable?> =
