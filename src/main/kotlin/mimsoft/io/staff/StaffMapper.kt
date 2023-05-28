@@ -15,7 +15,8 @@ object StaffMapper {
             lastName = staffTable?.lastName,
             position = PositionDto(staffTable?.positionId),
             birthDay = staffTable?.birthDay.toString(),
-            image = staffTable?.image
+            image = staffTable?.image,
+            comment = staffTable?.comment
         )
     }
 
@@ -31,7 +32,8 @@ object StaffMapper {
             lastName = staffDto?.lastName,
             positionId = staffDto?.position?.id,
             birthDay = birthDay,
-            image = staffDto?.image
+            image = staffDto?.image,
+            comment = staffDto?.comment
         )
     }
 }

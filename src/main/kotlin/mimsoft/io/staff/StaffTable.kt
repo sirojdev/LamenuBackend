@@ -15,4 +15,5 @@ data class StaffTable(
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null,
+    val comment: String? = null
 )

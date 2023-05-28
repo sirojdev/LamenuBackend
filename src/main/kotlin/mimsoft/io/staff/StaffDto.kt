@@ -12,5 +12,6 @@ data class StaffDto(
     val birthDay: String? = null,
     val image: String? = null,
     val position: PositionDto? = null,
-    val token: String? = null
+    val token: String? = null,
+    val comment: String?=null
 )
