@@ -1,4 +1,4 @@
-package mimsoft.io.staff
+package mimsoft.io.entities.staff
 
 
 import mimsoft.io.repository.DBManager

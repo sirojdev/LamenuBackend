@@ -5,6 +5,7 @@ import io.ktor.server.response.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
 import mimsoft.io.auth.routeToLogin
+import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.branch.routeToBranch
 import mimsoft.io.entities.category.routeToCategory
 import mimsoft.io.entities.client.routeToUser
@@ -15,8 +16,12 @@ import mimsoft.io.entities.option.routeToOption
 import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
 import mimsoft.io.entities.restaurant.routeToRestaurant
-import mimsoft.io.staff.routeToStaff
-import mimsoft.io.staff.routeToStaffApis
+import mimsoft.io.entities.flat.routeToFlat
+import mimsoft.io.entities.room.routeToRoom
+import mimsoft.io.entities.staff.routeToStaff
+import mimsoft.io.entities.staff.routeToStaffApis
+import mimsoft.io.entities.table.routeToTable
+import mimsoft.io.telegram_bot.routeToBot
 
 fun Application.configureRouting() {
     routing {
@@ -37,8 +42,12 @@ fun Application.configureRouting() {
             routeToOrder()
             routeToLogin()
             routeToStaff()
-
+            routeToAddress()
+            routeToTable()
+            routeToRoom()
+            routeToFlat()
             routeToStaffApis()
+            routeToBot()
         }
 
         swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {

@@ -1,4 +1,4 @@
-package mimsoft.io.staff
+package mimsoft.io.entities.staff
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -14,48 +14,10 @@ import mimsoft.io.utils.*
 
 fun Route.routeToStaff() {
 
-    val staffService = StaffService
-    val mapper = StaffMapper
-    val sessionRepo = SessionRepository
-    val roleService = RoleService
-
-    post("staff/auth") {
-        val staff = call.receive<StaffDto>()
-        val authStaff = staffService.auth(mapper.toTable(staff))
-        if (authStaff.status != StatusCode.OK && authStaff.httpStatus != null)
-            call.respond(authStaff.httpStatus, authStaff)
-        else {
-
-            val staffBody = mapper.toDto(authStaff.body as StaffTable)
-
-            val uuid = staffService.generateUuid(staffBody?.id)
-//            val roles = roleService.getByStaff(staffBody?.id)
-
-            sessionRepo.auth(
-                SessionTable(
-                    uuid = uuid,
-                    stuffId = staffBody?.id,
-                )
-            )
-
-            call.respond(
-                staffBody?.copy(
-                    token = JwtConfig.generateAccessToken(
-                        entityId = staffBody.id,
-                        forUser = false,
-                        uuid = uuid,
-//                        roles = roles
-                    )
-                )?: HttpStatusCode.NoContent
-            )
-        }
-
-    }
-
 
 
         get("staffs") {
-            val staffs = staffService.getAll()
+            val staffs = StaffService.getAll()
             call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
         }
 
@@ -67,7 +29,7 @@ fun Route.routeToStaff() {
                 return@get
             }
 
-            val staff = staffService.get(id)
+            val staff = StaffService.get(id)
             if(staff == null){
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -87,7 +49,7 @@ fun Route.routeToStaff() {
                 return@post
             }
 
-            val status = staffService.add(mapper.toTable(staff))
+            val status = StaffService.add(StaffMapper.toTable(staff))
 
             if (status.httpStatus != null)
                 call.respond(status.httpStatus, status)
@@ -106,7 +68,7 @@ fun Route.routeToStaff() {
                 return@put
             }
 
-            val status = staffService.update(mapper.toTable(staff))
+            val status = StaffService.update(StaffMapper.toTable(staff))
 
             if (status.httpStatus != null)
                 call.respond(status.httpStatus, status)

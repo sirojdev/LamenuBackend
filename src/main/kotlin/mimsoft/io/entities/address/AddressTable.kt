@@ -1,10 +1,11 @@
 package mimsoft.io.entities.address
 
-import java.sql.Timestamp
 
+import java.sql.Timestamp
+const val ADDRESS_TABLE_NAME = "address"
 data class AddressTable(
     val id: Long? = null,
-    val type: AddressType? = null,
+    val type: String? = null,
     val name: String? = null,
     val details: String? = null,
     val description: String? = null,
@@ -12,5 +13,7 @@ data class AddressTable(
     val longitude: Double? = null,
     val create: Timestamp? = null,
     val update: Timestamp? = null,
+    val created: Timestamp? = null,
+    val updated: Timestamp? = null,
     val deleted: Boolean? = null
 )

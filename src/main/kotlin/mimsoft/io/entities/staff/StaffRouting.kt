@@ -1,4 +1,4 @@
-package mimsoft.io.staff
+package mimsoft.io.entities.staff
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -16,7 +16,9 @@ import mimsoft.io.entities.restaurant.routeToRestaurant
 
 fun Route.routeToStaffApis() {
     route("staff") {
-        authenticate("access"){
+        routeToStaffAuth()
+
+        authenticate("access") {
             routeToUser()
             routeToBranch()
             routeToCategory()
