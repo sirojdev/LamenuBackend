@@ -1,6 +1,7 @@
 package mimsoft.io.table
 
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
+
 object TableService : TableRepository {
 
     override suspend fun getAll(): List<TableTable?> =

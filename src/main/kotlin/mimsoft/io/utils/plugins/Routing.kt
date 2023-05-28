@@ -5,6 +5,7 @@ import io.ktor.server.response.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
 import mimsoft.io.auth.routeToLogin
+import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.branch.routeToBranch
 import mimsoft.io.entities.category.routeToCategory
 import mimsoft.io.entities.client.routeToUser
@@ -15,8 +16,11 @@ import mimsoft.io.entities.option.routeToOption
 import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
 import mimsoft.io.entities.restaurant.routeToRestaurant
+import mimsoft.io.flat.routeToFlat
+import mimsoft.io.room.routeToRoom
 import mimsoft.io.staff.routeToStaff
 import mimsoft.io.staff.routeToStaffApis
+import mimsoft.io.table.routeToTable
 
 fun Application.configureRouting() {
     routing {
@@ -37,7 +41,10 @@ fun Application.configureRouting() {
             routeToOrder()
             routeToLogin()
             routeToStaff()
-
+            routeToAddress()
+            routeToTable()
+            routeToRoom()
+            routeToFlat()
             routeToStaffApis()
         }
 
