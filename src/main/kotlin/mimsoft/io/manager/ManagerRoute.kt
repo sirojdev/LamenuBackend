@@ -57,11 +57,7 @@ fun Route.routeToManager() {
             return@put
         }
         val result = service.update(managerTable)
-        if (!result) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@put
-        }
-        call.respond(HttpStatusCode.OK)
+        call.respond(result)
     }
     delete {
         val id = call.parameters["id"]?.toLongOrNull()

@@ -2,19 +2,18 @@ package mimsoft.io.repository
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.ktor.util.reflect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.utils.Role
-
 import java.sql.Connection
 import java.sql.Statement
 import java.sql.Timestamp
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.*
+import kotlin.reflect.jvm.javaField
 
-object DBManager: BaseRepository {
+object DBManager : BaseRepository {
 
     fun init() {
 //        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
@@ -38,7 +37,7 @@ object DBManager: BaseRepository {
         return HikariDataSource(dataSourceConfig)
     }
 
-    override  fun connection(): Connection {
+    override fun connection(): Connection {
         return dataSource.connection
     }
 
@@ -187,10 +186,13 @@ object DBManager: BaseRepository {
 
     override suspend fun getData(dataClass: KClass<*>, id: Long?, tableName: String?): List<Any?> {
         val tName = tableName ?: dataClass.simpleName ?: throw IllegalArgumentException("Table name must be provided")
-        val columns = dataClass.memberProperties.joinToString(", ") { camelToSnakeCase(it.name) }
+        val columns = dataClass.memberProperties.filter { it ->
+            !(it.javaField?.name?.endsWith("List") ?: false)
+        }.joinToString(", ") { camelToSnakeCase(it.name) }
+
 
         val hasDeleted = if (dataClass.memberProperties.find { it.name == "deleted" } != null)
-            "WHERE NOT deleted" else "WHERE true"
+            "WHERE NOT deleted " else "WHERE true "
 
         val query = if (id == null || id == 0L) {
             "SELECT $columns FROM $tName $hasDeleted".trimMargin()
@@ -227,6 +229,7 @@ object DBManager: BaseRepository {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
             dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
+
         val columns = filteredProperties.joinToString(", ") { camelToSnakeCase(it.name) }
         val placeholders = filteredProperties.joinToString(", ") { "?" }
         val insert = "INSERT INTO $tName ($columns) VALUES ($placeholders)"
@@ -240,23 +243,19 @@ object DBManager: BaseRepository {
                     val propertyName = property.name
                     val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
                     val value = propertyInstance?.call(dataObject)
-//
+
                     when (property.returnType.toString()) {
-                        "kotlin.String?" -> statement.setString(index + 1, value as? String)
-                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as? Boolean == null)
-                        "kotlin.Double?" -> (value as? Double)?.let { statement.setDouble(index + 1, it) }
-                        "kotlin.Int?" -> (value as? Int)?.let { statement.setInt(index + 1, it) }
-                        "kotlin.Long?" -> (value as? Long)?.let { statement.setLong(index + 1, it) }
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "created") {
                                 statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
-                            }
-                            else {
+                            } else {
                                 statement.setTimestamp(index + 1, value as? Timestamp)
                             }
                         }
+                        else -> {
+                            statement.setObject(index + 1, value)
+                        }
 
-                        else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
                     }
                 }
 
@@ -307,8 +306,7 @@ object DBManager: BaseRepository {
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "updated") {
                                 statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
-                            }
-                            else {
+                            } else {
                                 statement.setTimestamp(index + 1, value as? Timestamp)
                             }
                         }

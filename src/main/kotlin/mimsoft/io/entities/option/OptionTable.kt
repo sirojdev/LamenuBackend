@@ -2,12 +2,11 @@ package mimsoft.io.entities.option
 
 import java.sql.Timestamp
 
-const val OPTION_TABLE_NAME = "option"
+const val OPTION_TABLE_NAME = "options"
 
 data class OptionTable(
     var id: Long? = null,
     val parentId: Long? = null,
-    val options: List<OptionTable?>? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
     val nameEn: String? = null,
