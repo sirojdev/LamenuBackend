@@ -33,7 +33,6 @@ object ManagerService {
                 dataObject = managerTable, tableName = "manager"),
             status = StatusCode.OK
         )
-
     }
     suspend fun update(managerTable: ManagerTable?): ResponseModel {
         if (managerTable?.phone == null) return ResponseModel(status = StatusCode.PHONE_NULL)
