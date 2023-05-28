@@ -24,5 +24,4 @@ object CategoryRepositoryImpl : CategoryRepository {
 
     override suspend fun delete(id: Long?): Boolean =
         DBManager.deleteData(tableName = CATEGORY_TABLE_NAME, whereValue = id)
-
 }

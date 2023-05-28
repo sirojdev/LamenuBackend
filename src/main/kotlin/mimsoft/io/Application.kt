@@ -10,8 +10,7 @@ import mimsoft.io.utils.plugins.configureSecurity
 import mimsoft.io.utils.plugins.configureSerialization
 
 fun main() {
-//    embeddedServer(Netty, port = 8181, host = "0.0.0.0", module = Application::module)
-    embeddedServer(Netty, port = 8080, host = "localhost", module = Application::module)
+    embeddedServer(Netty, port = 8181, host = "localhost", module = Application::module)
         .start(wait = true)
 }
 

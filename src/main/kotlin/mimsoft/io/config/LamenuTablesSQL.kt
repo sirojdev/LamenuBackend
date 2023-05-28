@@ -161,6 +161,16 @@ const val ROOM =
 );"""
 
 
+const val TG_BOT = """
+    CREATE TABLE tg_bot(
+        id bigserial unique,
+        tg_token text,
+        tg_username text,
+        group_id text, 
+        merchant_id text
+    );"""
+
+
 
 const val FLAT =
     """CREATE TABLE flat

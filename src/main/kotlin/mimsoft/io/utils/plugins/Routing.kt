@@ -1,25 +1,15 @@
 package mimsoft.io.utils.plugins
 
-import io.ktor.server.routing.*
-import io.ktor.server.response.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import mimsoft.io.admin.routeToAdmin
 import mimsoft.io.auth.routeToLogin
-import mimsoft.io.entities.branch.routeToBranch
-import mimsoft.io.entities.category.routeToCategory
+import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.client.routeToUser
-import mimsoft.io.entities.extra.routeToExtra
-import mimsoft.io.entities.label.routeToLabel
-import mimsoft.io.entities.menu.routeToMenu
-import mimsoft.io.entities.option.routeToOption
-import mimsoft.io.entities.order.routeToOrder
-import mimsoft.io.entities.product.routeToProduct
-import mimsoft.io.entities.restaurant.routeToRestaurant
-import mimsoft.io.flat.routeToFlat
-import mimsoft.io.room.routeToRoom
-import mimsoft.io.staff.routeToStaff
-import mimsoft.io.staff.routeToStaffApis
-import mimsoft.io.table.routeToTable
+import mimsoft.io.entities.merchant.routeToMerchantProfile
+import mimsoft.io.entities.staff.routeToStaffApis
 
 fun Application.configureRouting() {
     routing {
@@ -28,22 +18,16 @@ fun Application.configureRouting() {
         }
 
         route("api/v1"){
-            routeToUser()
-            routeToBranch()
-            routeToCategory()
-            routeToExtra()
-            routeToLabel()
-            routeToMenu()
-            routeToOption()
-            routeToRestaurant()
-            routeToProduct()
-            routeToOrder()
-            routeToLogin()
-            routeToStaff()
-            routeToTable()
-            routeToRoom()
-            routeToFlat()
+            routeToAdmin()
+            routeToMerchantProfile()
             routeToStaffApis()
+
+
+            routeToUser()
+
+            routeToLogin()
+            routeToAddress()
+
         }
 
         swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {

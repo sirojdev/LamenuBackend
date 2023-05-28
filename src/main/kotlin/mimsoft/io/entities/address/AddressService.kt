@@ -1,7 +1,6 @@
 package mimsoft.io.entities.address
 
 import mimsoft.io.repository.DBManager
-
 object AddressService : AddressRepository {
 
     override suspend fun getAll(): List<AddressTable?> =
