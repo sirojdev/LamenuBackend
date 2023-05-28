@@ -20,7 +20,7 @@ import mimsoft.io.entities.flat.routeToFlat
 import mimsoft.io.entities.room.routeToRoom
 import mimsoft.io.entities.staff.routeToStaff
 import mimsoft.io.entities.staff.routeToStaffApis
-import mimsoft.io.entities.table.routeToTable
+import mimsoft.io.table.routeToTable
 import mimsoft.io.telegram_bot.routeToBot
 
 fun Application.configureRouting() {
