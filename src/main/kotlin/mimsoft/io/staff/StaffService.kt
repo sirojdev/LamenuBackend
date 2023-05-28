@@ -1,117 +1,140 @@
 package mimsoft.io.staff
 
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.StatusCode
-import mimsoft.io.utils.UNDEFINED
+import mimsoft.io.utils.*
 import mimsoft.io.utils.plugins.LOGGER
+import java.sql.Timestamp
 import java.util.UUID
 
 object StaffService {
 
-    suspend fun auth(staff: StaffTable?): ResponseModel {
+    val repository: BaseRepository = DBManager
+    val mapper = StaffMapper
+
+    suspend fun auth(staff: StaffDto?): ResponseModel {
         LOGGER.info("auth: $staff")
-        return when {
-            staff?.password == null || staff.username == null -> {
+        when {
+            staff?.password == null -> {
                 ResponseModel(
-                    status = StatusCode.USERNAME_OR_PASSWORD_NULL,
-                    httpStatus = UNDEFINED
+                    httpStatus = PASSWORD_NULL,
                 )
             }
 
-            else -> {
+            staff.phone == null -> {
                 ResponseModel(
-                   body = DBManager.getPageData(
-                       dataClass = StaffTable::class,
-                       tableName = STAFF_TABLE_NAME,
-                       where = mapOf(
-                           "username" to staff.username as Any,
-                           "password" to staff.password as Any
-                       )
-                   )?.data?.firstOrNull(),
-                    status = StatusCode.OK
+                    httpStatus = PASSWORD_NULL
                 )
             }
         }
 
+
+        return ResponseModel(
+            body = repository.getPageData(
+                dataClass = StaffTable::class,
+                tableName = STAFF_TABLE_NAME,
+                where = mapOf(
+                    "username" to staff?.phone as Any,
+                    "password" to staff.password as Any
+                )
+            )?.data?.firstOrNull(),
+        )
     }
 
-    suspend fun getAll(): List<StaffTable?> =
-        DBManager.getData(dataClass = StaffTable::class, tableName = STAFF_TABLE_NAME)
+    suspend fun getAll(): List<StaffDto?> =
+        repository.getData(
+            dataClass = StaffTable::class,
+            tableName = STAFF_TABLE_NAME
+        )
             .filterIsInstance<StaffTable?>()
+            .map { mapper.toDto(it) }
 
-    suspend fun get(id: Long?): StaffTable? =
-        DBManager.getData(dataClass = StaffTable::class, id = id, tableName = STAFF_TABLE_NAME)
-            .firstOrNull() as StaffTable
+    suspend fun get(id: Long?): StaffDto? =
+        repository.getData(
+            dataClass = StaffTable::class,
+            id = id,
+            tableName = STAFF_TABLE_NAME)
+            .firstOrNull().let { mapper.toDto(it as StaffTable) }
 
-    suspend fun get(username: String?): StaffTable? =
-        DBManager.getPageData(
+    suspend fun get(phone: String?): StaffDto? =
+        repository.getPageData(
             dataClass = StaffTable::class,
             tableName = STAFF_TABLE_NAME,
-            where = mapOf("username" to username as String)
-        )?.data?.firstOrNull()
+            where = mapOf("phone" to phone as String)
+        )?.data?.firstOrNull().let { mapper.toDto(it as StaffTable) }
 
-    suspend fun add(staff: StaffTable?): ResponseModel {
-        val oldStaff = get(staff?.username)
+    suspend fun add(staff: StaffDto?): ResponseModel {
 
-        return when {
-            staff?.username == null || staff.password == null || staff.firstName == null -> {
+        when {
+            staff?.phone == null -> {
                 ResponseModel(
-                    status = StatusCode.USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL,
-                    httpStatus = UNDEFINED
+                    httpStatus = PHONE_NULL
                 )
             }
 
-            oldStaff != null -> {
-                ResponseModel(status = StatusCode.ALREADY_EXISTS,
-                    httpStatus = UNDEFINED)
-            }
-
-            else -> {
+            staff.password == null -> {
                 ResponseModel(
-                    body = DBManager.postData(
-                        dataClass = StaffTable::class,
-                        dataObject = staff, tableName = STAFF_TABLE_NAME
-                    ),
-                    status = StatusCode.OK
+                    httpStatus = PASSWORD_NULL
                 )
             }
-
         }
+        val oldStaff = get(staff?.phone)
+
+        if (oldStaff != null) return ResponseModel(
+            httpStatus = ALREADY_EXISTS,
+        )
+
+        return ResponseModel(
+            body = repository.postData(
+                dataClass = StaffTable::class,
+                dataObject = mapper.toTable(staff),
+                tableName = STAFF_TABLE_NAME
+            ),
+        )
     }
 
 
-    suspend fun update(staff: StaffTable?): ResponseModel {
-        val oldStaff = get(staff?.username)
+    suspend fun update(staff: StaffDto?): ResponseModel {
+        if (staff?.id == null) return ResponseModel(
+            httpStatus = ID_NULL
+        )
 
-        return when {
-            staff?.username == null || staff.password == null || staff.firstName == null -> {
-                ResponseModel(
-                    status = StatusCode.USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL,
-                    httpStatus = UNDEFINED
-                )
+        val query = """
+            UPDATE $STAFF_TABLE_NAME
+            SET
+                first_name = ?,
+                last_name = ?,
+                birth_day = ?,
+                image = ?,
+                position_id = ?,
+                updated = ?
+            WHERE not deleted and id = ?
+        """.trimIndent()
+
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                it.prepareStatement(query).use { ti ->
+                    ti.setString(1, staff.firstName)
+                    ti.setString(2, staff.lastName)
+                    ti.setString(3, staff.birthDay)
+                    ti.setString(4, staff.image)
+                    staff.position?.id?.let { it1 -> ti.setLong(5, it1) }
+                    ti.setString(6, Timestamp(System.currentTimeMillis()).toString())
+                    ti.setLong(7, staff.id)
+                    ti.executeUpdate()
+                }
             }
-
-            oldStaff != null -> {
-                ResponseModel(status = StatusCode.ALREADY_EXISTS,
-                    httpStatus = UNDEFINED)
-            }
-
-            else -> {
-                ResponseModel(
-                    body = DBManager.updateData(
-                        dataClass = StaffTable::class,
-                        dataObject = staff, tableName = STAFF_TABLE_NAME
-                    ),
-                    status = StatusCode.OK
-                )
-            }
-
         }
+        return ResponseModel(
+            httpStatus = OK,
+        )
     }
+
     suspend fun delete(id: Long?): Boolean =
         DBManager.deleteData(tableName = STAFF_TABLE_NAME, whereValue = id)
 
-    fun generateUuid(id: Long?): String = UUID.randomUUID().toString()+"-"+id
+    fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 }

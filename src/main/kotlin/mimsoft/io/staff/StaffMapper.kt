@@ -9,7 +9,7 @@ object StaffMapper {
     fun toDto(staffTable: StaffTable?): StaffDto? {
         return StaffDto(
             id = staffTable?.id,
-            username = staffTable?.username,
+            phone = staffTable?.phone,
             password = staffTable?.password,
             firstName = staffTable?.firstName,
             lastName = staffTable?.lastName,
@@ -25,7 +25,7 @@ object StaffMapper {
         else null
         return StaffTable(
             id = staffDto?.id,
-            username = staffDto?.username,
+            phone = staffDto?.phone,
             password = staffDto?.password,
             firstName = staffDto?.firstName,
             lastName = staffDto?.lastName,

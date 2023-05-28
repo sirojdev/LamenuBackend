@@ -2,9 +2,10 @@ package mimsoft.io.entities.address
 
 import java.sql.Timestamp
 
+
 data class AddressTable(
     val id: Long? = null,
-    val type: AddressType? = null,
+    val type: String? = null,
     val name: String? = null,
     val details: String? = null,
     val description: String? = null,

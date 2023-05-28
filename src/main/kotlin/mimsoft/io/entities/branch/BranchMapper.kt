@@ -10,7 +10,7 @@ object BranchMapper {
                 id = branchDto.id,
                 nameUz = branchDto.name?.uz,
                 nameRu = branchDto.name?.ru,
-                nameEn = branchDto.name?.en,
+                nameEn = branchDto.name?.eng,
                 longitude = branchDto.longitude,
                 latitude = branchDto.latitude,
                 address = branchDto.address
@@ -25,7 +25,7 @@ object BranchMapper {
             name = TextModel(
                 uz = branchTable.nameUz,
                 ru = branchTable.nameRu,
-                en = branchTable.nameEn,
+                eng = branchTable.nameEn,
             ),
             longitude = branchTable.longitude,
             latitude = branchTable.latitude,

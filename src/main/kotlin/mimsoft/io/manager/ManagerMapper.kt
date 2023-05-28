@@ -7,7 +7,6 @@ object ManagerMapper {
             phone = manager.phone,
             firstName = manager.firstName,
             lastName = manager.lastName,
-            username = manager.username,
             password = manager.password,
         )
         else null
@@ -19,7 +18,6 @@ object ManagerMapper {
             phone = manager.phone,
             firstName = manager.firstName,
             lastName = manager.lastName,
-            username = manager.username,
             password = manager.password,
         )
         else null

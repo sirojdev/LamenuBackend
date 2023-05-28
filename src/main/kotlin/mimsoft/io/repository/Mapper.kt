@@ -31,7 +31,7 @@ object Mapper {
                         when (name) {
                             "${propertyName}Uz" -> it.uz
                             "${propertyName}Ru" -> it.ru
-                            "${propertyName}En" -> it.en
+                            "${propertyName}En" -> it.eng
                             else -> null
                         }
                     }
@@ -68,7 +68,7 @@ object Mapper {
                     when (lang) {
                         "Uz" -> textModel.uz = table?.let { prop.get(it).toString() }
                         "Ru" -> textModel.ru = table?.let { prop.get(it).toString() }
-                        "En" -> textModel.en = table?.let { prop.get(it).toString() }
+                        "En" -> textModel.eng = table?.let { prop.get(it).toString() }
                     }
                 }
                 textModel

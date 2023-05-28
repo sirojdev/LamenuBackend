@@ -2,22 +2,23 @@ package mimsoft.io.utils
 
 import io.ktor.http.*
 
-val UNDEFINED = HttpStatusCode(208, "Look at the status")
+
 data class ResponseModel(
     val body: Any? = null,
-    val status: StatusCode? = null,
-    val httpStatus: HttpStatusCode? = null
+    val httpStatus: HttpStatusCode = HttpStatusCode.OK,
 )
 
-enum class StatusCode(i: Int) {
-    USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL(10),
-    ALREADY_EXISTS(11),
-    PHONE_OR_FIRSTNAME_NULL(12),
-    OK(13),
-    INVALID_TIMESTAMP(14),
-    NAME_NULL(15),
-    USERNAME_OR_PASSWORD_NULL(16),
-    PHONE_NULL(17),
 
-}
-val x = HttpStatusCode(215, "Look at the status")
+val USERNAME_NULL = HttpStatusCode(1, "username must not be null")
+val PASSWORD_NULL = HttpStatusCode(2, "password must not be null")
+val FIRSTNAME_NULL = HttpStatusCode(3, "username must not be null")
+val ALREADY_EXISTS = HttpStatusCode(4, "already exists")
+val PHONE_NULL = HttpStatusCode(6, "phone must not be null")
+val INVALID_TIMESTAMP = HttpStatusCode(7, "invalid timestamp")
+val NAME_NULL = HttpStatusCode(8, "name must not be null")
+val UNDEFINED = HttpStatusCode(9, "Look at the status")
+val OK = HttpStatusCode(200, "OK")
+val ID_NULL = HttpStatusCode(10, "id must not be null")
+
+
+

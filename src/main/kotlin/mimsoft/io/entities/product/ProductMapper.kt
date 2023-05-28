@@ -9,10 +9,10 @@ object ProductMapper {
             menuId = productDto.menuId,
             nameUz = productDto.name?.uz,
             nameRu = productDto.name?.ru,
-            nameEn = productDto.name?.en,
+            nameEn = productDto.name?.eng,
             descriptionUz = productDto.description?.uz,
             descriptionRu = productDto.description?.ru,
-            descriptionEn = productDto.description?.en,
+            descriptionEn = productDto.description?.eng,
             image = productDto.image,
             costPrice = productDto.costPrice
         )
@@ -26,12 +26,12 @@ object ProductMapper {
             name = TextModel(
                 uz = productTable.nameUz,
                 ru = productTable.nameRu,
-                en = productTable.nameEn
+                eng = productTable.nameEn
             ),
             description = TextModel(
                 uz = productTable.descriptionUz,
                 ru = productTable.descriptionRu,
-                en = productTable.descriptionEn
+                eng = productTable.descriptionEn
             ),
             image = productTable.image,
             costPrice = productTable.costPrice

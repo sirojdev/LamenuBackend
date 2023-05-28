@@ -4,7 +4,6 @@ import java.sql.Timestamp
 
 data class ManagerTable(
     val id: Long? = null,
-    val username: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
     val phone: String? = null,

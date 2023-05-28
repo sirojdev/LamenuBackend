@@ -3,7 +3,6 @@ package mimsoft.io.role
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.Role
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.StatusCode
 
 object RoleService {
 
@@ -33,19 +32,21 @@ object RoleService {
         return rolesObject?.map { mimsoft.io.utils.Role.valueOf(it.name.toString()) }
     }
 
-    suspend fun add(role: RoleDto?): ResponseModel {
+    /*suspend fun add(role: RoleDto?): ResponseModel {
+
+
         val oldRole = get(role?.name)
         return when {
 
             role?.name == null -> {
                 ResponseModel(
-                    status = StatusCode.NAME_NULL
+                    httpStatus = StatusCode.NAME_NULL
                 )
             }
 
             oldRole != null -> {
                 ResponseModel(
-                    status = StatusCode.ALREADY_EXISTS
+                    httpStatus = StatusCode.ALREADY_EXISTS
                 )
             }
 
@@ -53,11 +54,11 @@ object RoleService {
                 ResponseModel(
                     body = DBManager.postData(
                         dataClass = RoleDto::class, dataObject = role, tableName = "role"),
-                    status = StatusCode.OK
+                    httpStatus = StatusCode.OK
                 )
             }
         }
-    }
+    }*/
 
     suspend fun update(role: RoleDto?): Boolean =
         DBManager.updateData(dataClass = RoleDto::class, dataObject = role, tableName = "role")

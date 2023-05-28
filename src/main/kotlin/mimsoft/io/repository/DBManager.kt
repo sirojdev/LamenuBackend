@@ -279,7 +279,7 @@ object DBManager: BaseRepository {
     ): Boolean {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
-            dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id" }
+            dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id"}
 
         val setClause = filteredProperties.joinToString(", ") { "${camelToSnakeCase(it.name)} = ?" }
 

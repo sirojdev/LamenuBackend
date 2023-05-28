@@ -13,7 +13,7 @@ fun Route.routeToCategory() {
     val categoryRepository: CategoryRepository = CategoryRepositoryImpl
 
     get("categories") {
-        val categories = categoryRepository.getAll().map { CategoryMapper.toCategoryDto(it) }
+        val categories = categoryRepository.getAll()
         if (categories.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -26,7 +26,7 @@ fun Route.routeToCategory() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val category = CategoryMapper.toCategoryDto(categoryRepository.get(id))
+        val category = categoryRepository.get(id)
         if (category==null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -36,13 +36,13 @@ fun Route.routeToCategory() {
 
     post("category") {
         val category = call.receive<CategoryDto>()
-        categoryRepository.add(CategoryMapper.toCategoryTable(category))
-        call.respond(HttpStatusCode.OK)
+        val status = categoryRepository.add(category)
+        call.respond(HttpStatusCode.OK, status?:0)
     }
 
     put("category") {
         val category = call.receive<CategoryDto>()
-        categoryRepository.update(CategoryMapper.toCategoryTable(category))
+        categoryRepository.update(category)
         call.respond(HttpStatusCode.OK)
     }
 

@@ -1,24 +1,25 @@
 package mimsoft.io.config
 
+import mimsoft.io.utils.INVALID_TIMESTAMP
+import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.StatusCode
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
 const val TIMESTAMP_FORMAT = "yyyy-MM-dd"
 
 fun timestampValidator(time: String?, format: String? = "yyyy-MM-dd"): ResponseModel {
-    val dateFormat = SimpleDateFormat(format)
+    val dateFormat = format?.let { SimpleDateFormat(it) }
     val validated = try {
-        Timestamp(dateFormat.parse(time).time)
+        dateFormat?.parse(time)?.let { Timestamp(it.time) }
     }catch (e: Exception) {
         e.printStackTrace()
-        return ResponseModel(status = StatusCode.INVALID_TIMESTAMP)
+        return ResponseModel(httpStatus = INVALID_TIMESTAMP)
     }
 
     return ResponseModel(
         body = validated,
-        status = StatusCode.OK
+        httpStatus = OK
     )
 }
 

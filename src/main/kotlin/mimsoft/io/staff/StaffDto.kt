@@ -1,11 +1,10 @@
 package mimsoft.io.staff
 
 import mimsoft.io.position.PositionDto
-import java.sql.Timestamp
 
 data class StaffDto(
     val id: Long? = null,
-    val username: String? = null,
+    val phone: String? = null,
     val password: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,

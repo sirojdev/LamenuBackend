@@ -10,7 +10,7 @@ fun Route.routeToTable(){
     val tableService : TableRepository = TableService
     val tableMapper = TableMapper
     get("tables"){
-        val tables = tableService.getAll().map { tableMapper.toTableDto(it) }
+        val tables = tableService.getAll()
         if(tables.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -23,7 +23,7 @@ fun Route.routeToTable(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val table = TableMapper.toTableDto(tableService.get(id))
+        val table = tableService.get(id)
         if(table == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -33,13 +33,13 @@ fun Route.routeToTable(){
 
     post ("table"){
         val table = call.receive<TableDto>()
-        tableService.add(TableMapper.toTableTable(table))
+        tableService.add(table)
         call.respond(HttpStatusCode.OK)
     }
 
     put ("table"){
         val table = call.receive<TableDto>()
-        tableService.update(TableMapper.toTableTable(table))
+        tableService.update(table)
         call.respond(HttpStatusCode.OK)
     }
 
@@ -52,11 +52,5 @@ fun Route.routeToTable(){
         tableService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
-
-
-
-
-
-
 
 }

@@ -9,7 +9,7 @@ object CategoryMapper {
             id = categoryDto.id,
             nameUz = categoryDto.name?.uz,
             nameRu = categoryDto.name?.ru,
-            nameEn = categoryDto.name?.en,
+            nameEn = categoryDto.name?.eng,
             image = categoryDto.image
         )
     }
@@ -21,7 +21,7 @@ object CategoryMapper {
             name = TextModel(
                 uz = categoryTable.nameUz,
                 ru = categoryTable.nameRu,
-                en = categoryTable.nameEn
+                eng = categoryTable.nameEn
             ),
             image = categoryTable.image
         )
