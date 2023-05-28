@@ -1,14 +1,14 @@
 package mimsoft.io.utils
 
+import io.ktor.client.plugins.*
 import io.ktor.http.*
 
 val UNDEFINED = HttpStatusCode(208, "Look at the status")
-data class ResponseModel(
+class ResponseModel(
     val body: Any? = null,
     val status: StatusCode? = null,
     val httpStatus: HttpStatusCode? = null
 )
-
 enum class StatusCode(i: Int) {
     USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL(10),
     ALREADY_EXISTS(11),
@@ -20,4 +20,5 @@ enum class StatusCode(i: Int) {
     PHONE_NULL(17),
 
 }
+
 val x = HttpStatusCode(215, "Look at the status")
