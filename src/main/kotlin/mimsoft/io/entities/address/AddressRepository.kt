@@ -1,7 +1,5 @@
 package mimsoft.io.entities.address
 
-import mimsoft.io.table.TableTable
-
 interface AddressRepository {
     suspend fun getAll(): List<AddressTable?>
     suspend fun get(id: Long?): AddressTable?
