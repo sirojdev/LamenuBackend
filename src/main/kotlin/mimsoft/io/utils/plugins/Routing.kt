@@ -1,9 +1,9 @@
 package mimsoft.io.utils.plugins
 
+import io.ktor.server.routing.*
+import io.ktor.server.response.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import mimsoft.io.admin.routeToAdmin
 import mimsoft.io.auth.routeToLogin
 import mimsoft.io.entities.address.routeToAddress
@@ -23,12 +23,9 @@ fun Application.configureRouting() {
             routeToMerchantProfile()
             routeToStaffApis()
             routeToPoster()
-
             routeToUser()
-
             routeToLogin()
             routeToAddress()
-
         }
 
         swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {
