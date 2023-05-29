@@ -149,7 +149,7 @@ public class ApiClient {
     }
 
     /**
-     * Get HTTP client
+     * Get HTTP merchant
      *
      * @return An instance of OkHttpClient
      */
@@ -158,7 +158,7 @@ public class ApiClient {
     }
 
     /**
-     * Set HTTP client, which must never be null.
+     * Set HTTP merchant, which must never be null.
      *
      * @param newHttpClient An instance of OkHttpClient
      * @return Api Client
@@ -182,7 +182,7 @@ public class ApiClient {
      * Set JSON
      *
      * @param json JSON object
-     * @return Api client
+     * @return Api merchant
      */
     public ApiClient setJSON(JSON json) {
         this.json = json;
@@ -239,7 +239,7 @@ public class ApiClient {
     }
 
     /**
-     * Configure client keys to use for authorization in an SSL session.
+     * Configure merchant keys to use for authorization in an SSL session.
      * Use null to reset to default.
      *
      * @param managers The KeyManagers to use
@@ -418,7 +418,7 @@ public class ApiClient {
     }
 
     /**
-     * Check that whether debugging is enabled for this API client.
+     * Check that whether debugging is enabled for this API merchant.
      *
      * @return True if debugging is enabled, false otherwise.
      */
@@ -427,7 +427,7 @@ public class ApiClient {
     }
 
     /**
-     * Enable/disable debugging for this API client.
+     * Enable/disable debugging for this API merchant.
      *
      * @param debugging To enable (true) or disable (false) debugging
      * @return ApiClient
@@ -487,7 +487,7 @@ public class ApiClient {
      * {@link Integer#MAX_VALUE}.
      *
      * @param connectionTimeout connection timeout in milliseconds
-     * @return Api client
+     * @return Api merchant
      */
     public ApiClient setConnectTimeout(int connectionTimeout) {
         httpClient = httpClient.newBuilder().connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS).build();
@@ -509,7 +509,7 @@ public class ApiClient {
      * {@link Integer#MAX_VALUE}.
      *
      * @param readTimeout read timeout in milliseconds
-     * @return Api client
+     * @return Api merchant
      */
     public ApiClient setReadTimeout(int readTimeout) {
         httpClient = httpClient.newBuilder().readTimeout(readTimeout, TimeUnit.MILLISECONDS).build();
@@ -531,7 +531,7 @@ public class ApiClient {
      * {@link Integer#MAX_VALUE}.
      *
      * @param writeTimeout connection timeout in milliseconds
-     * @return Api client
+     * @return Api merchant
      */
     public ApiClient setWriteTimeout(int writeTimeout) {
         httpClient = httpClient.newBuilder().writeTimeout(writeTimeout, TimeUnit.MILLISECONDS).build();

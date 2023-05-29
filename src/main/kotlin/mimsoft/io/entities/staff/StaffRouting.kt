@@ -28,7 +28,7 @@ fun Route.routeToStaffApis() {
             routeToOption()
             routeToProduct()
             routeToOrder()
-            routeToLogin()
+            routeToMerchant()
         }
     }
 }

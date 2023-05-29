@@ -21,19 +21,16 @@ fun Application.configureRouting() {
             routeToAdmin()
             routeToMerchantProfile()
             routeToStaffApis()
-
-
             routeToUser()
-
             routeToLogin()
             routeToAddress()
 
         }
 
-        swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {
+        swaggerUI(path = "swagger/users", swaggerFile = "openapi/merchant/merchant.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/staff.yaml") {
+        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/staff/staffDoc.yaml") {
             version = "4.15.5"
         }
         swaggerUI(path = "swagger/orders", swaggerFile = "openapi/entities/orders.yaml") {

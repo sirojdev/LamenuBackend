@@ -50,7 +50,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "org.openapitools:openapi-java-client:1.0.0"
+compile "org.openapitools:openapi-java-merchant:1.0.0"
 ```
 
 ### Others

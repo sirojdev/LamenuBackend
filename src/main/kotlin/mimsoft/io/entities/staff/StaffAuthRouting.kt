@@ -14,9 +14,7 @@ import mimsoft.io.utils.OK
 fun Route.routeToStaffAuth(){
 
     val staffService = StaffService
-    val mapper = StaffMapper
     val sessionRepo = SessionRepository
-    val roleService = RoleService
 
     post("staff/auth") {
         val staff = call.receive<StaffDto>()
