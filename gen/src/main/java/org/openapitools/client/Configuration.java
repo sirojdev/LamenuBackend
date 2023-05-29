@@ -18,20 +18,20 @@ public class Configuration {
     private static ApiClient defaultApiClient = new ApiClient();
 
     /**
-     * Get the default API client, which would be used when creating API
-     * instances without providing an API client.
+     * Get the default API merchant, which would be used when creating API
+     * instances without providing an API merchant.
      *
-     * @return Default API client
+     * @return Default API merchant
      */
     public static ApiClient getDefaultApiClient() {
         return defaultApiClient;
     }
 
     /**
-     * Set the default API client, which would be used when creating API
-     * instances without providing an API client.
+     * Set the default API merchant, which would be used when creating API
+     * instances without providing an API merchant.
      *
-     * @param apiClient API client
+     * @param apiClient API merchant
      */
     public static void setDefaultApiClient(ApiClient apiClient) {
         defaultApiClient = apiClient;

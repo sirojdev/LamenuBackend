@@ -12,7 +12,7 @@ import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
 import mimsoft.io.entities.room.routeToRoom
 import mimsoft.io.entities.staff.routeToStaff
-import mimsoft.io.table.routeToTable
+import mimsoft.io.entities.table.routeToTable
 import mimsoft.io.telegram_bot.routeToBot
 
 
