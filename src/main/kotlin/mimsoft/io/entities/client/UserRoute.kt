@@ -6,19 +6,16 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.config.timestampValidator
-import mimsoft.io.entities.client.repository.PostStatus
 import mimsoft.io.entities.client.repository.UserRepository
 import mimsoft.io.entities.client.repository.UserRepositoryImpl
-import mimsoft.io.utils.StatusCode
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
+import mimsoft.io.utils.OK
 
 fun Route.routeToUser() {
 
     val userRepository: UserRepository = UserRepositoryImpl
 
     get("users") {
-        val users = userRepository.getAll().map { UserMapper.toUserDto(it) }
+        val users = userRepository.getAll()
         if (users.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -32,7 +29,7 @@ fun Route.routeToUser() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val user = UserMapper.toUserDto(userRepository.get(id))
+        val user = userRepository.get(id)
         if (user==null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -46,20 +43,14 @@ fun Route.routeToUser() {
 
             val statusTimestamp = timestampValidator(user.birthDay)
 
-            if (statusTimestamp.status != StatusCode.OK){
+            if (statusTimestamp.httpStatus != OK){
                 call.respond(statusTimestamp)
                 return@post
             }
 
-            val status = userRepository.add(
-                UserMapper.toUserTable(user))
+            val status = userRepository.add(user)
 
-            if (status.status != StatusCode.OK){
-                call.respond(status)
-                return@post
-            }
-
-            call.respond(HttpStatusCode.OK, status)
+            call.respond(status.httpStatus, status)
         }catch (e: Exception) {
             e.printStackTrace()
             call.respond(HttpStatusCode.BadRequest)
@@ -71,20 +62,14 @@ fun Route.routeToUser() {
 
         val statusTimestamp = timestampValidator(user.birthDay)
 
-        if (statusTimestamp.status != StatusCode.OK){
+        if (statusTimestamp.httpStatus != OK){
             call.respond(statusTimestamp)
             return@put
         }
 
-        val status = userRepository.update(
-            UserMapper.toUserTable(user))
+        val status = userRepository.update(user)
 
-        if (status.status != StatusCode.OK) {
-            call.respond(status)
-            return@put
-        }
-
-        call.respond(HttpStatusCode.OK)
+        call.respond(status.httpStatus, status)
     }
 
     delete("user/{id}") {

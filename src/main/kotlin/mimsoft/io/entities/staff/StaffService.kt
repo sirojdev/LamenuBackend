@@ -1,39 +1,46 @@
 package mimsoft.io.entities.staff
 
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.StatusCode
-import mimsoft.io.utils.UNDEFINED
+import mimsoft.io.utils.*
 import mimsoft.io.utils.plugins.LOGGER
+import java.sql.Timestamp
 import java.util.UUID
 
 object StaffService {
     val mapper = StaffMapper
-    suspend fun auth(staff: StaffTable?): ResponseModel {
+    val repository:BaseRepository = DBManager
+    suspend fun auth(staff: StaffDto?): ResponseModel {
         LOGGER.info("auth: $staff")
-        return when {
-            staff?.password == null || staff.username == null -> {
+        when {
+            staff?.password == null -> {
                 ResponseModel(
-                    status = StatusCode.USERNAME_OR_PASSWORD_NULL,
-                    httpStatus = UNDEFINED
+                    httpStatus = PASSWORD_NULL,
                 )
             }
 
-            else -> {
+            staff.phone == null -> {
                 ResponseModel(
-                    body = DBManager.getPageData(
-                        dataClass = StaffTable::class,
-                        tableName = STAFF_TABLE_NAME,
-                        where = mapOf(
-                            "username" to staff.username as Any,
-                            "password" to staff.password as Any
-                        )
-                    )?.data?.firstOrNull(),
-                    status = StatusCode.OK
+                    httpStatus = PASSWORD_NULL
                 )
             }
         }
+
+
+        return ResponseModel(
+            body = repository.getPageData(
+                dataClass = StaffTable::class,
+                tableName = STAFF_TABLE_NAME,
+                where = mapOf(
+                    "username" to staff?.phone as Any,
+                    "password" to staff.password as Any
+                )
+            )?.data?.firstOrNull(),
+        )
+
 
     }
 
@@ -59,67 +66,72 @@ object StaffService {
             where = mapOf("username" to username as String)
         )?.data?.firstOrNull()
 
-    suspend fun add(staff: StaffTable?): ResponseModel {
-        val oldStaff = get(staff?.username)
-
-        return when {
-            staff?.username == null || staff.password == null || staff.firstName == null -> {
-                ResponseModel(
-                    status = StatusCode.USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL,
-                    httpStatus = UNDEFINED
-                )
-            }
-
-            oldStaff != null -> {
-                ResponseModel(
-                    status = StatusCode.ALREADY_EXISTS,
-                    httpStatus = UNDEFINED
-                )
-            }
-
-            else -> {
-                ResponseModel(
-                    body = DBManager.postData(
-                        dataClass = StaffTable::class,
-                        dataObject = staff, tableName = STAFF_TABLE_NAME
-                    ),
-                    status = StatusCode.OK
-                )
-            }
-
+    suspend fun add(staff: StaffDto?): ResponseModel {
+        when {
+            staff?.phone == null -> {
+            ResponseModel(
+                httpStatus = PHONE_NULL
+            )
         }
+
+            staff.password == null -> {
+            ResponseModel(
+                httpStatus = PASSWORD_NULL
+            )
+        }
+        }
+        val oldStaff = get(staff?.phone)
+
+        if (oldStaff != null) return ResponseModel(
+            httpStatus = ALREADY_EXISTS,
+        )
+
+        return ResponseModel(
+            body = repository.postData(
+                dataClass = StaffTable::class,
+                dataObject = mapper.toTable(staff),
+                tableName = STAFF_TABLE_NAME
+            ),
+        )
+
     }
 
 
-    suspend fun update(staff: StaffTable?): ResponseModel {
-        val oldStaff = get(staff?.username)
+    suspend fun update(staff: StaffDto?): ResponseModel {
+        if (staff?.id == null) return ResponseModel(
+            httpStatus = ID_NULL
+        )
 
-        return when {
-            staff?.username == null || staff.password == null || staff.firstName == null -> {
-                ResponseModel(
-                    status = StatusCode.USERNAME_OR_PASSWORD_OR_FIRSTNAME_NULL,
-                    httpStatus = UNDEFINED
-                )
+        val query = """
+            UPDATE $STAFF_TABLE_NAME
+            SET
+                first_name = ?,
+                last_name = ?,
+                birth_day = ?,
+                image = ?,
+                position = ?,
+                updated = ?
+            WHERE not deleted and id = ?
+        """.trimIndent()
+
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                it.prepareStatement(query).use { ti ->
+                    ti.setString(1, staff.firstName)
+                    ti.setString(2, staff.lastName)
+                    ti.setString(3, staff.birthDay)
+                    ti.setString(4, staff.image)
+                    ti.setString(5, staff.position)
+                    ti.setString(6, Timestamp(System.currentTimeMillis()).toString())
+                    ti.setLong(7, staff.id)
+                    ti.executeUpdate()
+                }
             }
-
-            oldStaff != null -> {
-                ResponseModel(
-                    status = StatusCode.ALREADY_EXISTS,
-                    httpStatus = UNDEFINED
-                )
-            }
-
-            else -> {
-                ResponseModel(
-                    body = DBManager.updateData(
-                        dataClass = StaffTable::class,
-                        dataObject = staff, tableName = STAFF_TABLE_NAME
-                    ),
-                    status = StatusCode.OK
-                )
-            }
-
         }
+        return ResponseModel(
+            httpStatus = OK,
+        )
+
     }
 
     suspend fun delete(id: Long?): Boolean =

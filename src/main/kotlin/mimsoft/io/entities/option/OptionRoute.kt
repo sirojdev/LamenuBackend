@@ -13,22 +13,7 @@ import mimsoft.io.entities.option.repository.OptionRepositoryImpl
 import mimsoft.io.utils.TextModel
 
 
-fun main() {
-    val op = OptionDto(
-        productId = 12,
-        parentId = 4,
-        name = TextModel(
-            uz = "name uz",
-            ru = "name uz",
-            en = "name uz",
 
-            )
-    )
-    val optionRepository: OptionRepository = OptionRepositoryImpl
-    GlobalScope.launch {
-        optionRepository.add(OptionMapper.toOptionTable(op))
-    }
-}
 
 fun Route.routeToOption() {
 

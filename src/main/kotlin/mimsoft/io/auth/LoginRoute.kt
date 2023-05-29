@@ -159,8 +159,7 @@ fun Route.routeToLogin() {
             val userRepository: UserRepository = UserRepositoryImpl
             val mapper = Mapper
 
-            val status = userRepository.add(
-                mapper.toTable<UserDto, UserTable>(user.copy(phone = principal?.phone)))
+            val status = userRepository.add(user.copy(phone = principal?.phone))
 
             val userBody = status.body as UserTable
 

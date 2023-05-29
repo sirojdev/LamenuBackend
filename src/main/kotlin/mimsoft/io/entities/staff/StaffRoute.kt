@@ -41,29 +41,25 @@ fun Route.routeToStaff() {
             val principal = call.principal<LaPrincipal>()
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
-            if (statusTimestamp.status != StatusCode.OK) {
+            if (statusTimestamp.httpStatus != OK) {
                 call.respond(statusTimestamp)
                 return@post
             }
-            val status = StaffService.add(StaffMapper.toTable(staff))
-            if (status.httpStatus != null)
-                call.respond(status.httpStatus, status)
-            else call.respond(status)
+            val status = StaffService.add(staff)
+            call.respond(status.httpStatus, status)
+
         }
 
         put {
             val principal = call.principal<LaPrincipal>()
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
-            if (statusTimestamp.status != StatusCode.OK) {
+            if (statusTimestamp.httpStatus != OK) {
                 call.respond(statusTimestamp)
                 return@put
             }
-            val status = StaffService.update(StaffMapper.toTable(staff))
-            if (status.httpStatus != null)
-                call.respond(status.httpStatus, status)
-            else call.respond(status)
-
+            val status = StaffService.update(staff)
+            call.respond(status.httpStatus, status)
         }
 
     }

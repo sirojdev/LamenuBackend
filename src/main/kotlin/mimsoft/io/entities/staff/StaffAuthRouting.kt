@@ -9,7 +9,7 @@ import mimsoft.io.role.RoleService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.StatusCode
+import mimsoft.io.utils.OK
 
 fun Route.routeToStaffAuth(){
 
@@ -20,30 +20,31 @@ fun Route.routeToStaffAuth(){
 
     post("staff/auth") {
         val staff = call.receive<StaffDto>()
-        val authStaff = StaffService.auth(StaffMapper.toTable(staff))
-        if (authStaff.status != StatusCode.OK && authStaff.httpStatus != null)
-            call.respond(authStaff.httpStatus, authStaff)
+        val status = staffService.auth(staff)
+
+        if (status.httpStatus != OK)
+            call.respond(status.httpStatus, status)
         else {
-
-            val staffBody = StaffMapper.toDto(authStaff.body as StaffTable)
-
-            val uuid = StaffService.generateUuid(staffBody?.id)
+            val authStaff = status.body as StaffDto?
+            val uuid = staffService.generateUuid(authStaff?.id)
+//            val roles = roleService.getByStaff(staffBody?.id)
 
             sessionRepo.auth(
                 SessionTable(
                     uuid = uuid,
-                    stuffId = staffBody?.id,
+                    stuffId = authStaff?.id,
                 )
             )
 
             call.respond(
-                staffBody?.copy(
+                authStaff?.copy(
                     token = JwtConfig.generateAccessToken(
-                        entityId = staffBody.id,
+                        entityId = authStaff.id,
                         forUser = false,
                         uuid = uuid,
+//                        roles = roles
                     )
-                )?: HttpStatusCode.NoContent
+                ) ?: HttpStatusCode.NoContent
             )
         }
 

@@ -7,14 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToAddress(){
-    val addressService : AddressRepository = AddressService
+    val addressService : AddressService = AddressServiceImpl
     val addressMapper = AddressMapper
     get("addresses"){
-        val addresses = addressService.getAll().map {
-            if (it != null) {
-                addressMapper.toAddressDto(it)
-            }
-        }
+        val addresses = addressService.getAll()
         if(addresses.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -27,7 +23,7 @@ fun Route.routeToAddress(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val address = addressService.get(id)?.let { it1 -> AddressMapper.toAddressDto(it1) }
+        val address = addressService.get(id)
         if(address == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -37,13 +33,13 @@ fun Route.routeToAddress(){
 
     post ("address"){
         val table = call.receive<AddressDto>()
-        addressService.add(AddressMapper.toAddressTable(table))
+        addressService.add(table)
         call.respond(HttpStatusCode.OK)
     }
 
     put ("address"){
         val table = call.receive<AddressDto>()
-        addressService.update(AddressMapper.toAddressTable(table))
+        addressService.update(table)
         call.respond(HttpStatusCode.OK)
     }
 

@@ -8,7 +8,7 @@ object MerchantMapper {
             id = restaurantDto.id,
             nameUz = restaurantDto.name?.uz,
             nameRu = restaurantDto.name?.ru,
-            nameEn = restaurantDto.name?.en,
+            nameEn = restaurantDto.name?.eng,
             logo = restaurantDto.logo,
             domain = restaurantDto.domain
         )
@@ -21,7 +21,7 @@ object MerchantMapper {
             name = TextModel(
                 uz = merchantTable.nameUz,
                 ru = merchantTable.nameRu,
-                en = merchantTable.nameEn
+                eng = merchantTable.nameEn
             ),
             logo = merchantTable.logo,
             domain = merchantTable.domain

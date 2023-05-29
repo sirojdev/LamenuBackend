@@ -3,7 +3,7 @@ package mimsoft.io.entities.staff
 data class StaffDto(
     val id: Long? = null,
     val merchantId: Long? = null,
-    val username: String? = null,
+    val phone: String? = null,
     val password: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,

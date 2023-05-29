@@ -9,11 +9,11 @@ object ExtraMapper {
             id = extraDto.id,
             nameUz = extraDto.name?.uz,
             nameRu = extraDto.name?.ru,
-            nameEn = extraDto.name?.en,
+            nameEn = extraDto.name?.eng,
             price = extraDto.price,
             descriptionUz = extraDto.description?.uz,
             descriptionRu = extraDto.description?.ru,
-            descriptionEn = extraDto.description?.en
+            descriptionEn = extraDto.description?.eng
         )
     }
 
@@ -24,13 +24,13 @@ object ExtraMapper {
             name = TextModel(
                 uz = extraTable.nameUz,
                 ru = extraTable.nameRu,
-                en = extraTable.nameEn
+                eng = extraTable.nameEn
             ),
             price = extraTable.price,
             description = TextModel(
                 uz = extraTable.descriptionUz,
                 ru = extraTable.descriptionRu,
-                en = extraTable.descriptionEn
+                eng = extraTable.descriptionEn
             )
         )
     }

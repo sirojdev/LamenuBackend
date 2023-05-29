@@ -7,10 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToRoom(){
-    val roomService : RoomRepository = RoomService
-    val roomMapper = RoomMapper
+    val roomService : RoomService = RoomServiceImpl
+    
     get("rooms"){
-        val rooms = roomService.getAll().map { roomMapper.toRoomDto(it) }
+        val rooms = roomService.getAll()
         if(rooms.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -23,7 +23,7 @@ fun Route.routeToRoom(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = RoomMapper.toRoomDto(roomService.get(id))
+        val room = roomService.get(id)
         if(room == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -33,13 +33,13 @@ fun Route.routeToRoom(){
 
     post ("room"){
         val room = call.receive<RoomDto>()
-        roomService.add(RoomMapper.toRoomTable(room))
+        roomService.add(room)
         call.respond(HttpStatusCode.OK)
     }
 
     put ("room"){
         val room = call.receive<RoomDto>()
-        roomService.update(RoomMapper.toRoomTable(room))
+        roomService.update(room)
         call.respond(HttpStatusCode.OK)
     }
 
@@ -52,10 +52,5 @@ fun Route.routeToRoom(){
         roomService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
-
-
-
-
-
 
 }

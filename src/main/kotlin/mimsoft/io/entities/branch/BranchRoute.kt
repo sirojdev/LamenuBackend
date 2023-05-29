@@ -5,15 +5,15 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.entities.branch.repository.BranchRepository
-import mimsoft.io.entities.branch.repository.BranchRepositoryImpl
+import mimsoft.io.entities.branch.repository.BranchService
+import mimsoft.io.entities.branch.repository.BranchServiceImpl
 
 fun Route.routeToBranch() {
 
-    val branchRepository: BranchRepository = BranchRepositoryImpl
+    val branchService: BranchService = BranchServiceImpl
 
     get("branches") {
-        val branches = branchRepository.getAll().map { BranchMapper.toBranchDto(it) }
+        val branches = branchService.getAll()
         if (branches.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -27,7 +27,7 @@ fun Route.routeToBranch() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val branch = BranchMapper.toBranchDto(branchRepository.get(id))
+        val branch = branchService.get(id)
         if (branch==null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -37,13 +37,13 @@ fun Route.routeToBranch() {
 
     post("branch") {
         val branch = call.receive<BranchDto>()
-        val id = branchRepository.add(BranchMapper.toBranchTable(branch))
+        val id = branchService.add(branch)
         call.respond(HttpStatusCode.OK, BranchId(id))
     }
 
     put("branch") {
         val branch = call.receive<BranchDto>()
-        branchRepository.update(BranchMapper.toBranchTable(branch))
+        branchService.update(branch)
         call.respond(HttpStatusCode.OK)
     }
 
@@ -53,7 +53,7 @@ fun Route.routeToBranch() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        branchRepository.delete(id)
+        branchService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
 }
