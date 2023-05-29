@@ -7,10 +7,15 @@ import io.ktor.server.plugins.swagger.*
 import mimsoft.io.admin.routeToAdmin
 import mimsoft.io.auth.routeToLogin
 import mimsoft.io.entities.address.routeToAddress
+import mimsoft.io.entities.app.routeToApp
 import mimsoft.io.entities.client.routeToUser
+import mimsoft.io.entities.delivery.routeToDelivery
 import mimsoft.io.entities.merchant.routeToMerchantProfile
+import mimsoft.io.entities.payment.routeToPayment
 import mimsoft.io.entities.poster.routeToPoster
+import mimsoft.io.entities.sms_gateway.routeToSmsGateways
 import mimsoft.io.entities.staff.routeToStaffApis
+import mimsoft.io.entities.telephony.routeToTelephony
 
 fun Application.configureRouting() {
     routing {
@@ -26,6 +31,11 @@ fun Application.configureRouting() {
             routeToUser()
             routeToLogin()
             routeToAddress()
+            routeToApp()
+            routeToPayment()
+            routeToSmsGateways()
+            routeToDelivery()
+            routeToTelephony()
         }
 
         swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {

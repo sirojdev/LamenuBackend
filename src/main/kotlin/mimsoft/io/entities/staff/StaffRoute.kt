@@ -14,58 +14,52 @@ import mimsoft.io.utils.*
 
 fun Route.routeToStaff() {
 
-    route("staffs") {
 
-        get {
-            val staffs = StaffService.getAll()
-            call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
+    get("staffs") {
+        val staffs = StaffService.getAll()
+        call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
+    }
+
+    get("{id}") {
+        val id = call.parameters["id"]?.toLongOrNull()
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
         }
-
-        get ("{id}"){
-            val id = call.parameters["id"]?.toLongOrNull()
-            if (id == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
-            }
-            val staff = StaffService.get(id)
-            if (staff == null) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(staff)
+        val staff = StaffService.get(id)
+        if (staff == null) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
         }
-
-
-        post {
-            val principal = call.principal<LaPrincipal>()
-            val staff = call.receive<StaffDto>()
-            val statusTimestamp = timestampValidator(staff.birthDay)
-            if (statusTimestamp.status != StatusCode.OK) {
-                call.respond(statusTimestamp)
-                return@post
-            }
-            val status = StaffService.add(StaffMapper.toTable(staff))
-            if (status.httpStatus != null)
-                call.respond(status.httpStatus, status)
-            else call.respond(status)
-        }
-
-        put {
-            val principal = call.principal<LaPrincipal>()
-            val staff = call.receive<StaffDto>()
-            val statusTimestamp = timestampValidator(staff.birthDay)
-            if (statusTimestamp.status != StatusCode.OK) {
-                call.respond(statusTimestamp)
-                return@put
-            }
-            val status = StaffService.update(StaffMapper.toTable(staff))
-            if (status.httpStatus != null)
-                call.respond(status.httpStatus, status)
-            else call.respond(status)
-
-        }
-
+        call.respond(staff)
     }
 
 
+    post {
+        val principal = call.principal<LaPrincipal>()
+        val staff = call.receive<StaffDto>()
+        val statusTimestamp = timestampValidator(staff.birthDay)
+        if (statusTimestamp.status != StatusCode.OK) {
+            call.respond(statusTimestamp)
+            return@post
+        }
+        val status = StaffService.add(StaffMapper.toTable(staff))
+        if (status.httpStatus != null)
+            call.respond(status.httpStatus, status)
+        else call.respond(status)
+    }
+
+    put {
+        val principal = call.principal<LaPrincipal>()
+        val staff = call.receive<StaffDto>()
+        val statusTimestamp = timestampValidator(staff.birthDay)
+        if (statusTimestamp.status != StatusCode.OK) {
+            call.respond(statusTimestamp)
+            return@put
+        }
+        val status = StaffService.update(StaffMapper.toTable(staff))
+        if (status.httpStatus != null)
+            call.respond(status.httpStatus, status)
+        else call.respond(status)
+    }
 }

@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.entities.poster.PosterDto
 import mimsoft.io.utils.Role
 import java.sql.Connection
 import java.sql.Statement
