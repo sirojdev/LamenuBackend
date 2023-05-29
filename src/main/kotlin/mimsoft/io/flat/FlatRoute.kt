@@ -5,6 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.entities.flat.FlatDto
+import mimsoft.io.entities.flat.FlatMapper
+import mimsoft.io.entities.flat.FlatRepository
+import mimsoft.io.entities.flat.FlatService
 
 fun Route.routeToFlat(){
     val flatService : FlatRepository = FlatService
