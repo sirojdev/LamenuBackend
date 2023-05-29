@@ -9,8 +9,8 @@ import mimsoft.io.auth.routeToLogin
 import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.client.routeToUser
 import mimsoft.io.entities.merchant.routeToMerchantProfile
+import mimsoft.io.entities.poster.routeToPoster
 import mimsoft.io.entities.staff.routeToStaffApis
-import mimsoft.io.onlinePbx.routeOnlinePbx
 
 fun Application.configureRouting() {
     routing {
@@ -22,25 +22,22 @@ fun Application.configureRouting() {
             routeToAdmin()
             routeToMerchantProfile()
             routeToStaffApis()
+            routeToPoster()
+
             routeToUser()
+
             routeToLogin()
             routeToAddress()
-            routeOnlinePbx()
+
         }
 
-        swaggerUI(path = "swagger/user", swaggerFile = "openapi/user.yaml") {
+        swaggerUI(path = "swagger/users", swaggerFile = "openapi/user.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/staff", swaggerFile = "openapi/staff/staffDoc.yaml") {
+        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/staff.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/staff/order", swaggerFile = "openapi/staff/order.yaml") {
-            version = "4.15.5"
-        }
-        swaggerUI(path = "swagger/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {
-            version = "4.15.5"
-        }
-        swaggerUI(path = "swagger/merchant/staff", swaggerFile = "openapi/merchant/staff.yaml") {
+        swaggerUI(path = "swagger/orders", swaggerFile = "openapi/orders.yaml") {
             version = "4.15.5"
         }
     }

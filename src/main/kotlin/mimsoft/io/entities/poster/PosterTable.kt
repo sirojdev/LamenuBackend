@@ -6,7 +6,6 @@ data class PosterTable(
     val id: Long?=null,
     val merchantId: Long? = null,
     val joinPosterApiKey: String? = null,
-    val joinPoserApiKey: String? = null,
     val rKeeperClientId: Long? = null,
     val rKeeperClientSecret: String? = null,
     val deleted: Boolean? = null,
