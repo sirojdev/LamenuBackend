@@ -1,6 +1,5 @@
 package mimsoft.io.table
 
-import mimsoft.io.entities.restaurant.RestaurantDto
 
 data class TableDto (
     val id: Long? = null,

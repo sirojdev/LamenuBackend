@@ -1,7 +1,5 @@
 package mimsoft.io.entities.option.repository
 
-import com.google.gson.Gson
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mimsoft.io.entities.option.OPTION_TABLE_NAME
@@ -13,10 +11,8 @@ import mimsoft.io.repository.BaseRepository
 
 
 object OptionRepositoryImpl : OptionRepository {
-
     val repository: BaseRepository = DBManager
     override suspend fun getSubOptions(id: Long?): List<OptionDto?> {
-
         val query = "select * from $OPTION_TABLE_NAME where parent_id = $id and deleted = false order by id asc"
         return repository.connection().use {
             val rs = it.prepareStatement(query).executeQuery()
@@ -44,9 +40,7 @@ object OptionRepositoryImpl : OptionRepository {
                 options.add(op)
 
             }
-
             return@use options
-
         }
     }
 
