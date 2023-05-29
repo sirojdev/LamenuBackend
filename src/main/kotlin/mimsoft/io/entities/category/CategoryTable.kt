@@ -1,5 +1,4 @@
 package mimsoft.io.entities.category
-
 import java.sql.Timestamp
 
 const val CATEGORY_TABLE_NAME = "category"
@@ -9,6 +8,9 @@ data class CategoryTable(
     val nameRu: String? = null,
     val nameEn: String? = null,
     val image: String? = null,
+    val merchantId: Long? = null,
+    val bgColor: String? = null,
+    val textColor: String? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,
     var updated: Timestamp? = null

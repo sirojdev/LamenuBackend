@@ -19,7 +19,7 @@ interface BaseRepository {
         limit: Int? = null,
         offset: Int? = null
     ): DataPage<T>?
-    suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null): List<Any?>
+    suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null, merchantId: Long? = null): List<Any?>
     suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null): Long?
     suspend fun <T : Any> updateData(
         dataClass: KClass<T>,

@@ -32,33 +32,6 @@ object RoleService {
         return rolesObject?.map { mimsoft.io.utils.Role.valueOf(it.name.toString()) }
     }
 
-    /*suspend fun add(role: RoleDto?): ResponseModel {
-
-
-        val oldRole = get(role?.name)
-        return when {
-
-            role?.name == null -> {
-                ResponseModel(
-                    httpStatus = StatusCode.NAME_NULL
-                )
-            }
-
-            oldRole != null -> {
-                ResponseModel(
-                    httpStatus = StatusCode.ALREADY_EXISTS
-                )
-            }
-
-            else -> {
-                ResponseModel(
-                    body = DBManager.postData(
-                        dataClass = RoleDto::class, dataObject = role, tableName = "role"),
-                    httpStatus = StatusCode.OK
-                )
-            }
-        }
-    }*/
 
     suspend fun update(role: RoleDto?): Boolean =
         DBManager.updateData(dataClass = RoleDto::class, dataObject = role, tableName = "role")

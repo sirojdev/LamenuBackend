@@ -1,4 +1,4 @@
-package mimsoft.io.staff
+package mimsoft.io.entities.staff
 
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
@@ -13,9 +13,10 @@ object StaffMapper {
             password = staffTable?.password,
             firstName = staffTable?.firstName,
             lastName = staffTable?.lastName,
-            position = PositionDto(staffTable?.positionId),
+            position = staffTable?.position,
             birthDay = staffTable?.birthDay.toString(),
-            image = staffTable?.image
+            image = staffTable?.image,
+            comment = staffTable?.comment
         )
     }
 
@@ -29,9 +30,10 @@ object StaffMapper {
             password = staffDto?.password,
             firstName = staffDto?.firstName,
             lastName = staffDto?.lastName,
-            positionId = staffDto?.position?.id,
+            position = staffDto?.position,
             birthDay = birthDay,
-            image = staffDto?.image
+            image = staffDto?.image,
+            comment = staffDto?.comment
         )
     }
 }

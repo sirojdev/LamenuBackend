@@ -1,11 +1,11 @@
-package mimsoft.io.staff
+package mimsoft.io.entities.staff
 
 import java.sql.Timestamp
 
 const val STAFF_TABLE_NAME = "staff"
 data class StaffTable(
     val id: Long? = null,
-    val positionId: Long? = null,
+    val position: String? = null,
     val phone: String? = null,
     val password: String? = null,
     val firstName: String? = null,
@@ -15,4 +15,5 @@ data class StaffTable(
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null,
+    val comment: String? = null
 )

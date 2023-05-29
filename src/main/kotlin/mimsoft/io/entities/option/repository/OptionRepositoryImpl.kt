@@ -1,7 +1,12 @@
 package mimsoft.io.entities.option.repository
 
+import com.google.gson.Gson
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mimsoft.io.entities.option.OPTION_TABLE_NAME
 import mimsoft.io.entities.option.OptionDto
+import mimsoft.io.entities.option.OptionMapper
 import mimsoft.io.entities.option.OptionTable
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.BaseRepository
@@ -10,53 +15,55 @@ import mimsoft.io.repository.BaseRepository
 object OptionRepositoryImpl : OptionRepository {
 
     val repository: BaseRepository = DBManager
-    override suspend fun getSubOptions(id: Long?): List<OptionTable?> {
+    override suspend fun getSubOptions(id: Long?): List<OptionDto?> {
 
-        val query = "select * from $OPTION_TABLE_NAME where parentId = $id and deleted = false order by id asc"
-        repository.connection().use {
+        val query = "select * from $OPTION_TABLE_NAME where parent_id = $id and deleted = false order by id asc"
+        return repository.connection().use {
             val rs = it.prepareStatement(query).executeQuery()
-            val options = arrayListOf<OptionTable>()
+            val options = arrayListOf<OptionDto?>()
             while (rs.next()) {
-                val op = OptionTable(
-                    id = rs.getLong("id"),
-                    parentId = rs.getLong("parent_id"),
-                    nameUz = rs.getString("name_uz"),
-                    nameRu = rs.getString("name_ru"),
-                    nameEn = rs.getString("name_en"),
-                    descriptionUz = rs.getString("description_uz"),
-                    descriptionRu = rs.getString("description_ru"),
-                    descriptionEn = rs.getString("description_en"),
-                    image = rs.getString("image"),
-                    price = rs.getDouble("price"),
-                    deleted = rs.getBoolean("deleted"),
-                    created = rs.getTimestamp("created"),
-                    updated = rs.getTimestamp("updated"),
-                    options = getSubOptions(rs.getLong("id"))
+                val op = OptionMapper.toOptionDto(
+                    OptionTable(
+                        id = rs.getLong("id"),
+                        parentId = rs.getLong("parent_id"),
+                        nameUz = rs.getString("name_uz"),
+                        nameRu = rs.getString("name_ru"),
+                        nameEn = rs.getString("name_en"),
+                        descriptionUz = rs.getString("description_uz"),
+                        descriptionRu = rs.getString("description_ru"),
+                        descriptionEn = rs.getString("description_en"),
+                        image = rs.getString("image"),
+                        price = rs.getDouble("price"),
+                        deleted = rs.getBoolean("deleted"),
+                        created = rs.getTimestamp("created"),
+                        updated = rs.getTimestamp("updated"),
+                    )
+                )?.copy(
+                    options = getSubOptions(id = rs.getLong("id"))
                 )
                 options.add(op)
 
             }
 
-            return options
-
-
+            return@use options
 
         }
     }
 
 
-    override suspend fun getAll(): List<OptionTable?> {
+    override suspend fun getAll(): List<OptionDto?> {
         val list = DBManager.getData(dataClass = OptionTable::class, tableName = OPTION_TABLE_NAME)
-            .filterIsInstance<OptionTable?>()
+            .filterIsInstance<OptionTable?>().map { OptionMapper.toOptionDto(it) }
         return list
     }
 
-    override suspend fun get(id: Long?): OptionTable? {
-        val op = DBManager.getData(dataClass = OptionTable::class, id = id, tableName = OPTION_TABLE_NAME)
-            .firstOrNull() as OptionTable?
-
-        val subOps = getSubOptions(id)
-        return op?.copy(options = subOps)
+    override suspend fun get(id: Long?): OptionDto? {
+        return OptionMapper.toOptionDto(
+            DBManager.getData(dataClass = OptionTable::class, id = id, tableName = OPTION_TABLE_NAME)
+                .firstOrNull() as OptionTable?
+        )?.copy(
+            options = getSubOptions(id = id)
+        )
     }
 
     override suspend fun add(optionTable: OptionTable?): Long? =

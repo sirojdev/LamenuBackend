@@ -1,4 +1,4 @@
-package mimsoft.io.staff
+package mimsoft.io.entities.staff
 
 
 import kotlinx.coroutines.Dispatchers
@@ -11,10 +11,8 @@ import java.sql.Timestamp
 import java.util.UUID
 
 object StaffService {
-
-    val repository: BaseRepository = DBManager
     val mapper = StaffMapper
-
+    val repository:BaseRepository = DBManager
     suspend fun auth(staff: StaffDto?): ResponseModel {
         LOGGER.info("auth: $staff")
         when {
@@ -42,44 +40,45 @@ object StaffService {
                 )
             )?.data?.firstOrNull(),
         )
+
+
     }
 
     suspend fun getAll(): List<StaffDto?> =
-        repository.getData(
-            dataClass = StaffTable::class,
-            tableName = STAFF_TABLE_NAME
-        )
-            .filterIsInstance<StaffTable?>()
-            .map { mapper.toDto(it) }
+        DBManager.getData(dataClass = StaffTable::class, tableName = STAFF_TABLE_NAME)
+            .filterIsInstance<StaffTable?>().map { StaffMapper.toDto(it) }
 
-    suspend fun get(id: Long?): StaffDto? =
-        repository.getData(
-            dataClass = StaffTable::class,
-            id = id,
-            tableName = STAFF_TABLE_NAME)
-            .firstOrNull().let { mapper.toDto(it as StaffTable) }
-
-    suspend fun get(phone: String?): StaffDto? =
-        repository.getPageData(
+    suspend fun get(id: Long?, merchantId: Long?): StaffDto? {
+        return DBManager.getData(
             dataClass = StaffTable::class,
             tableName = STAFF_TABLE_NAME,
-            where = mapOf("phone" to phone as String)
-        )?.data?.firstOrNull().let { mapper.toDto(it as StaffTable) }
+            id = id,
+            merchantId = merchantId
+        ).firstOrNull()?.let {
+            mapper.toDto(it as? StaffTable)
+        }
+    }
+
+    suspend fun get(username: String?): StaffTable? =
+        DBManager.getPageData(
+            dataClass = StaffTable::class,
+            tableName = STAFF_TABLE_NAME,
+            where = mapOf("username" to username as String)
+        )?.data?.firstOrNull()
 
     suspend fun add(staff: StaffDto?): ResponseModel {
-
         when {
             staff?.phone == null -> {
-                ResponseModel(
-                    httpStatus = PHONE_NULL
-                )
-            }
+            ResponseModel(
+                httpStatus = PHONE_NULL
+            )
+        }
 
             staff.password == null -> {
-                ResponseModel(
-                    httpStatus = PASSWORD_NULL
-                )
-            }
+            ResponseModel(
+                httpStatus = PASSWORD_NULL
+            )
+        }
         }
         val oldStaff = get(staff?.phone)
 
@@ -94,6 +93,7 @@ object StaffService {
                 tableName = STAFF_TABLE_NAME
             ),
         )
+
     }
 
 
@@ -109,7 +109,7 @@ object StaffService {
                 last_name = ?,
                 birth_day = ?,
                 image = ?,
-                position_id = ?,
+                position = ?,
                 updated = ?
             WHERE not deleted and id = ?
         """.trimIndent()
@@ -121,7 +121,7 @@ object StaffService {
                     ti.setString(2, staff.lastName)
                     ti.setString(3, staff.birthDay)
                     ti.setString(4, staff.image)
-                    staff.position?.id?.let { it1 -> ti.setLong(5, it1) }
+                    ti.setString(5, staff.position)
                     ti.setString(6, Timestamp(System.currentTimeMillis()).toString())
                     ti.setLong(7, staff.id)
                     ti.executeUpdate()
@@ -131,6 +131,7 @@ object StaffService {
         return ResponseModel(
             httpStatus = OK,
         )
+
     }
 
     suspend fun delete(id: Long?): Boolean =

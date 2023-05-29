@@ -14,7 +14,6 @@ object OptionMapper {
             descriptionEn = optionDto.description?.eng,
             image = optionDto.image,
             price = optionDto.price,
-            options = optionDto.options?.map { toOptionTable(it) }
         )
     }
 
