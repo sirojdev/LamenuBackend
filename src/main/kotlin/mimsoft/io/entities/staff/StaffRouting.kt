@@ -12,7 +12,7 @@ import mimsoft.io.entities.menu.routeToMenu
 import mimsoft.io.entities.option.routeToOption
 import mimsoft.io.entities.order.routeToOrder
 import mimsoft.io.entities.product.routeToProduct
-import mimsoft.io.entities.restaurant.routeToRestaurant
+import mimsoft.io.entities.merchant.routeToMerchant
 
 fun Route.routeToStaffApis() {
     route("staff") {
@@ -26,11 +26,9 @@ fun Route.routeToStaffApis() {
             routeToLabel()
             routeToMenu()
             routeToOption()
-            routeToRestaurant()
             routeToProduct()
             routeToOrder()
             routeToLogin()
-            routeToStaff()
         }
     }
 }

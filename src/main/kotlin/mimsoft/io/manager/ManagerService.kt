@@ -29,11 +29,11 @@ object ManagerService {
         val oldManager = get(phone = managerTable.phone)
         if (oldManager != null) return ResponseModel(status = StatusCode.ALREADY_EXISTS)
         return ResponseModel (
-            body = repository.postData(dataClass = ManagerTable::class,
+            body = repository.postData(
+                dataClass = ManagerTable::class,
                 dataObject = managerTable, tableName = "manager"),
             status = StatusCode.OK
         )
-
     }
     suspend fun update(managerTable: ManagerTable?): ResponseModel {
         if (managerTable?.phone == null) return ResponseModel(status = StatusCode.PHONE_NULL)

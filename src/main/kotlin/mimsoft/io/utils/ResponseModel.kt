@@ -18,6 +18,7 @@ enum class StatusCode(i: Int) {
     NAME_NULL(15),
     USERNAME_OR_PASSWORD_NULL(16),
     PHONE_NULL(17),
+    MERCHANT_ID_NULL(18),
 
 }
 
