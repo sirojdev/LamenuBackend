@@ -6,7 +6,7 @@ object PosterMapper {
         else PosterTable(
             id = posterDto.id,
             merchantId = posterDto.merchantId,
-            joinPoserApiKey = posterDto.joinPosterApiKey,
+            joinPosterApiKey = posterDto.joinPosterApiKey,
             rKeeperClientId = posterDto.rKeeperClientId,
             rKeeperClientSecret = posterDto.rKeeperClientSecret
         )
@@ -17,7 +17,7 @@ object PosterMapper {
         else PosterDto(
             id = posterTable.id,
             merchantId = posterTable.merchantId,
-            joinPosterApiKey = posterTable.joinPoserApiKey,
+            joinPosterApiKey = posterTable.joinPosterApiKey,
             rKeeperClientId = posterTable.rKeeperClientId,
             rKeeperClientSecret = posterTable.rKeeperClientSecret
         )

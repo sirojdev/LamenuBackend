@@ -19,6 +19,7 @@ val NAME_NULL = HttpStatusCode(8, "name must not be null")
 val UNDEFINED = HttpStatusCode(9, "Look at the status")
 val OK = HttpStatusCode(200, "OK")
 val ID_NULL = HttpStatusCode(10, "id must not be null")
+val MERCHANT_ID_NULL = HttpStatusCode(11, "merchant id must not be null")
 
 
 
