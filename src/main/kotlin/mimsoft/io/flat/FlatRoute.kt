@@ -43,12 +43,12 @@ fun Route.routeToFlat(){
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("flat/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
+    delete("flat"){
+        val flat = call.receive<FlatDto>()
+        val id = flat.id
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
+            return@delete        }
         flatService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
