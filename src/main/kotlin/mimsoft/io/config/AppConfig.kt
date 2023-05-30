@@ -5,6 +5,7 @@ import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 
 const val TIMESTAMP_FORMAT = "yyyy-MM-dd"
 
@@ -32,4 +33,7 @@ fun toTimeStamp(time: String?, format: String? = "yyyy-MM-dd"): Timestamp? {
         null
     }
 }
+val FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern(TIMESTAMP_FORMAT)
+
+
 

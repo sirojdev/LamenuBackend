@@ -1,10 +1,14 @@
 openapi: 3.0.3
 info:
-  title: Title
-  description: Title
+  title: Staff profile
+  description: There are all the endpoints for staff profile
   version: 1.0.0
 servers:
-  - url: 'https'
+  - url: 'http://0.0.0.0:8181/api/v1'
+    description: 'Local server'
+  - url: 'https://188.166.167.80:8181/api/v1/'
+    description: 'Production server'
+
 paths:
   /staffs:
     get:
@@ -92,6 +96,32 @@ paths:
         "400":
           description: "Bad request"
 
+  /onlinePbx/callsHistory:
+    get:
+      tags:
+        - Staff
+      description: "Deletes a staff by its ID"
+      parameters:
+        - name: "startStampFrom"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "yyyy-MM-dd"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/CallHistoryDto'
+        "400":
+          description: "Bad request"
+
+
+
 
 components:
   schemas:
@@ -145,3 +175,47 @@ components:
           type: boolean
         delivery:
           type: boolean
+
+    CallHistoryDto:
+      type: array
+      items:
+        $ref: "#/components/schemas/CallModel"
+
+
+    CallModel:
+      type: object
+      properties:
+        accountcode:
+          type: "string"
+        caller_id_name:
+          type: "string"
+        caller_id_number:
+          type: "string"
+        destination_number:
+          type: "string"
+        direction:
+          type: "string"
+        end_stamp:
+          type: "integer"
+          format: "long"
+        from_host:
+          type: "string"
+        gateway:
+          type: "string"
+        hangup_cause:
+            type: "string"
+        quality_score:
+          type: "integer"
+          format: "long"
+        start_stamp:
+            type: "integer"
+            format: "long"
+        to_host:
+            type: "string"
+        user_talk_time:
+            type: "integer"
+            format: "long"
+        uuid:
+            type: "string"
+        outgoingCall:
+            type: "boolean"

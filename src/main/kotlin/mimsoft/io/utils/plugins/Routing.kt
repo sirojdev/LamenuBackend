@@ -10,6 +10,7 @@ import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.client.routeToUser
 import mimsoft.io.entities.merchant.routeToMerchantProfile
 import mimsoft.io.entities.staff.routeToStaffApis
+import mimsoft.io.onlinePbx.routeOnlinePbx
 
 fun Application.configureRouting() {
     routing {
@@ -24,7 +25,7 @@ fun Application.configureRouting() {
             routeToUser()
             routeToLogin()
             routeToAddress()
-
+            routeOnlinePbx()
         }
 
         swaggerUI(path = "swagger/user", swaggerFile = "openapi/user.yaml") {
