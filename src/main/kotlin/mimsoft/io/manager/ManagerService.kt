@@ -42,7 +42,6 @@ object ManagerService {
                 dataObject = mapper.toTable(managerDto),
                 tableName = "manager")
         )
-
     }
     suspend fun update(managerDto: ManagerDto?): ResponseModel {
         if (managerDto?.id == null) return ResponseModel(httpStatus = ID_NULL)
