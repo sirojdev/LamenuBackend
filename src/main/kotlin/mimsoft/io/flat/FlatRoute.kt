@@ -1,4 +1,4 @@
-package mimsoft.io.room
+package mimsoft.io.flat
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,56 +6,50 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.routeToRoom(){
-    val roomService : RoomRepository = RoomService
-    val roomMapper = RoomMapper
-    get("rooms"){
-        val rooms = roomService.getAll().map { roomMapper.toRoomDto(it) }
-        if(rooms.isEmpty()){
+fun Route.routeToFlat(){
+    val flatService : FlatRepository = FlatService
+    val flatMapper = FlatMapper
+    get("flats"){
+        val flats = flatService.getAll().map { flatMapper.toFlatDto(it) }
+        if(flats.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(rooms)
+        }else call.respond(flats)
     }
 
-    get("room/{id}"){
+    get("flat/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = RoomMapper.toRoomDto(roomService.get(id))
-        if(room == null){
+        val flat = FlatMapper.toFlatDto(flatService.get(id))
+        if(flat == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(room)
+        call.respond(flat)
     }
 
-    post ("room"){
-        val room = call.receive<RoomDto>()
-        roomService.add(RoomMapper.toRoomTable(room))
+    post ("flat"){
+        val flat = call.receive<FlatDto>()
+        flatService.add(FlatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("room"){
-        val room = call.receive<RoomDto>()
-        roomService.update(RoomMapper.toRoomTable(room))
+    put ("flat"){
+        val flat = call.receive<FlatDto>()
+        flatService.update(FlatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("room/{id}"){
+    delete("flat/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        roomService.delete(id)
+        flatService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
-
-
-
-
-
-
 }
