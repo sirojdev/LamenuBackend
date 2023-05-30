@@ -1,54 +1,53 @@
-package mimsoft.io.entities.poster
+package mimsoft.io.entities.app
 
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-
-fun Route.routeToPoster(){
-    val posterMapper = PosterMapper
-    get("posters"){
-        val posters = PosterService.getAll().map {posterMapper.toPosterDto(it)}
-        if(posters.isEmpty()){
+fun Route.routeToApp(){
+    val appMapper = AppMapper
+    get("apps"){
+        val apps = AppService.getAll().map {appMapper.toAppDto(it)}
+        if(apps.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(posters)
+        }else call.respond(apps)
     }
 
-    get("poster/{id}"){
+    get("app/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val poster = PosterService.get(id)
-        if(poster == null){
+        val app = AppService.get(id)
+        if(app == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(poster)
+        call.respond(app)
     }
 
-    post ("poster"){
-        val table = call.receive<PosterDto>()
-        PosterService.add(table)
+    post ("app"){
+        val table = call.receive<AppDto>()
+        AppService.add(table)
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("poster"){
-        val table = call.receive<PosterDto>()
-        PosterService.update(table)
+    put ("app"){
+        val table = call.receive<AppDto>()
+        AppService.update(table)
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("poster/{id}"){
+    delete("app/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        PosterService.delete(id)
+        AppService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
 }
