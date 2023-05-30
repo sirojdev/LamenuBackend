@@ -1,4 +1,4 @@
-package mimsoft.io.flat
+package mimsoft.io.entities.poster
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,50 +6,49 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.routeToFlat(){
-    val flatService : FlatService = FlatServiceImpl
-    val flatMapper = FlatMapper
-    get("flats"){
-        val flats = flatService.getAll()
-        if(flats.isEmpty()){
+fun Route.routeToPoster(){
+    val posterMapper = PosterMapper
+    get("posters"){
+        val posters = PosterService.getAll().map {posterMapper.toPosterDto(it)}
+        if(posters.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(flats)
+        }else call.respond(posters)
     }
 
-    get("flat/{id}"){
+    get("poster/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val flat = flatService.get(id)
-        if(flat == null){
+        val poster = PosterService.get(id)
+        if(poster == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(flat)
+        call.respond(poster)
     }
 
-    post ("flat"){
-        val flat = call.receive<FlatDto>()
-        flatService.add(flat)
+    post ("poster"){
+        val table = call.receive<PosterDto>()
+        PosterService.add(table)
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("flat"){
-        val flat = call.receive<FlatDto>()
-        flatService.update(flat)
+    put ("poster"){
+        val table = call.receive<PosterDto>()
+        PosterService.update(table)
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("flat/{id}"){
+    delete("poster/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        flatService.delete(id)
+        PosterService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
 }

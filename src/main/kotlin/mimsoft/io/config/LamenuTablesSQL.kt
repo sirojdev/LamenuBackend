@@ -21,7 +21,7 @@ const val BRANCH =
         primary key,
     name_uz   text not null,
     name_ru   text not null,
-    name_eng  text not null,
+    name_en  text not null,
     longitude double precision not null,
     latitude  double precision not null,
     address   text not null,
@@ -136,41 +136,42 @@ const val RESTAURANT =
 
 
 const val TABLE =
-    """CREATE TABLE table
+    """CREATE TABLE tables
 (
     id       bigserial PRIMARY KEY,
     name     text not null,
     roomId   bigint not null,
     qr       text not null,
-    restaurant_id    text not null
+    restaurant_id    bigint not null,
+    created  timestamp(6),
+    updated  timestamp(6),
+    deleted  boolean DEFAULT false
 );"""
 
-const val ADDRESS =
-    """CREATE TABLE address(
-        id bigserial PRIMARY KEY,
-        type text,
-        name text,
-        details text,
-        description text,
-        latitude decimal,
-        longitude decimal,
-        created timestamp,
-        updated timestamp,
-        deleted boolean
-    );
+const val ROOM =
+    """CREATE TABLE room
+(
+    id       bigserial PRIMARY KEY,
+    name     text not null,
+    flatId   bigint not null,
+    restaurant_id    bigint not null,
+    created  timestamp(6),
+    updated  timestamp(6),
+    deleted  boolean DEFAULT false
 );"""
 
 
-const val TG_BOT = """
-    CREATE TABLE tg_bot(
-        id bigserial unique,
-        tg_token text,
-        tg_username text,
-        group_id text, 
-        merchant_id text
-    );"""
 
-
-
+const val FLAT =
+    """CREATE TABLE flat
+(
+    id       bigserial PRIMARY KEY,
+    name     text not null,
+    branch_id   bigint not null,
+    restaurant_id    bigint not null,
+    created  timestamp(6),
+    updated  timestamp(6),
+    deleted  boolean DEFAULT false
+);"""
 
 
