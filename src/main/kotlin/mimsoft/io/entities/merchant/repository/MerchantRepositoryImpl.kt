@@ -1,5 +1,6 @@
 package mimsoft.io.entities.merchant.repository
 
+import MerchantInterface
 import mimsoft.io.entities.merchant.RESTAURANT_TABLE_NAME
 import mimsoft.io.entities.merchant.MerchantTable
 import mimsoft.io.repository.DBManager

@@ -1,28 +1,28 @@
 package mimsoft.io.entities.seles.repository
 
-import mimsoft.io.entities.merchant.RESTAURANT_TABLE_NAME
-import mimsoft.io.entities.merchant.MerchantTable
+import mimsoft.io.entities.seles.SALES_MERCHANT_TABLE_NAME
+import mimsoft.io.entities.seles.SalesMerchantTable
 import mimsoft.io.repository.DBManager
 
 
 
-object MerchantRepositoryImp : MerchantInterface {
-    override suspend fun getAll(): List<MerchantTable?> =
-        DBManager.getData(dataClass = MerchantTable::class, tableName = RESTAURANT_TABLE_NAME)
-            .filterIsInstance<MerchantTable?>()
+object MerchantRepositoryImp : SalesMerchantInterface {
+    override suspend fun getAll(): List<SalesMerchantTable?> =
+        DBManager.getData(dataClass = SalesMerchantTable::class, tableName = SALES_MERCHANT_TABLE_NAME)
+            .filterIsInstance<SalesMerchantTable?>()
 
-    override suspend fun get(id: Long?): MerchantTable? =
-        DBManager.getData(dataClass = MerchantTable::class, id = id, tableName = RESTAURANT_TABLE_NAME)
-            .firstOrNull() as MerchantTable?
+    override suspend fun get(id: Long?): SalesMerchantTable? =
+        DBManager.getData(dataClass = SalesMerchantTable::class, id = id, tableName = SALES_MERCHANT_TABLE_NAME)
+            .firstOrNull() as SalesMerchantTable?
 
-    override suspend fun add(merchantTable: MerchantTable?): Long? =
-        DBManager.postData(dataClass = MerchantTable::class, dataObject = merchantTable, tableName = RESTAURANT_TABLE_NAME)
+    override suspend fun add(merchantTable: SalesMerchantTable?): Long? =
+        DBManager.postData(dataClass = SalesMerchantTable::class, dataObject = merchantTable, tableName = SALES_MERCHANT_TABLE_NAME)
 
 
-    override suspend fun update(merchantTable: MerchantTable?): Boolean =
-        DBManager.updateData(dataClass = MerchantTable::class, dataObject = merchantTable, tableName = RESTAURANT_TABLE_NAME)
+    override suspend fun update(merchantTable: SalesMerchantTable?): Boolean =
+        DBManager.updateData(dataClass = SalesMerchantTable::class, dataObject = merchantTable, tableName = SALES_MERCHANT_TABLE_NAME)
 
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = RESTAURANT_TABLE_NAME, whereValue = id)
+        DBManager.deleteData(tableName = SALES_MERCHANT_TABLE_NAME, whereValue = id)
 }

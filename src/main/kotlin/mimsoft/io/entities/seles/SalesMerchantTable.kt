@@ -1,10 +1,9 @@
 package mimsoft.io.entities.seles
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import java.sql.Timestamp
 
-const val RESTAURANT_TABLE_NAME = "merchant"
-data class MerchantTable(
+const val SALES_MERCHANT_TABLE_NAME = "sales_merchant"
+data class SalesMerchantTable(
     var id: Long? = null,
     var nameUz: String? = null,
     var nameRu: String? = null,

@@ -1,5 +1,3 @@
-package mimsoft.io.entities.merchant.repository
-
 import mimsoft.io.entities.merchant.MerchantTable
 
 interface MerchantInterface {

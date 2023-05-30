@@ -2,7 +2,7 @@ package mimsoft.io.entities.seles
 
 import mimsoft.io.utils.TextModel
 
-data class MerchantDto(
+data class SalesMerchantDto(
     var id: Long? = null,
     var subdomain: String? = null,
     var logo: String? = null,

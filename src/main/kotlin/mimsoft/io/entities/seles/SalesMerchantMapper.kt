@@ -1,9 +1,9 @@
 package mimsoft.io.entities.seles
 import mimsoft.io.utils.TextModel
 
-object MerchantMapper {
-    fun toMerchantTable(restaurantDto: MerchantDto?): MerchantTable? {
-        return if (restaurantDto == null) null else MerchantTable(
+object SalesMerchantMapper {
+    fun toSalesMerchantTable(restaurantDto: SalesMerchantDto?): SalesMerchantTable? {
+        return if (restaurantDto == null) null else SalesMerchantTable(
             id = restaurantDto.id,
             nameUz = restaurantDto.name?.uz,
             nameRu = restaurantDto.name?.ru,
@@ -16,20 +16,20 @@ object MerchantMapper {
         )
     }
 
-    fun toMerchantDto(merchantTable: MerchantTable?): MerchantDto? {
-        return if (merchantTable == null) null
-        else MerchantDto(
-            id = merchantTable.id,
+    fun toSalesMerchantDto(salesMerchantTable: SalesMerchantTable?): SalesMerchantDto? {
+        return if (salesMerchantTable == null) null
+        else SalesMerchantDto(
+            id = salesMerchantTable.id,
             name = TextModel(
-                uz = merchantTable.nameUz,
-                ru = merchantTable.nameRu,
-                eng = merchantTable.nameEng
+                uz = salesMerchantTable.nameUz,
+                ru = salesMerchantTable.nameRu,
+                eng = salesMerchantTable.nameEng
             ),
-            logo = merchantTable.logo,
-            domain = merchantTable.domain,
-            subdomain = merchantTable.subdomain,
-            phone = merchantTable.phone,
-            password = merchantTable.password
+            logo = salesMerchantTable.logo,
+            domain = salesMerchantTable.domain,
+            subdomain = salesMerchantTable.subdomain,
+            phone = salesMerchantTable.phone,
+            password = salesMerchantTable.password
         )
     }
 }
