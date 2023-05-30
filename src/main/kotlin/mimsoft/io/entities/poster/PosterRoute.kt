@@ -1,11 +1,13 @@
 package mimsoft.io.entities.poster
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.entities.flat.FlatMapper
+import mimsoft.io.utils.plugins.GSON
 
 fun Route.routeToPoster(){
     val posterMapper = PosterMapper
@@ -17,30 +19,18 @@ fun Route.routeToPoster(){
         }else call.respond(posters)
     }
 
-  /*  get("posters"){
-        val posters = PosterService.getAll().map {
-            if (it != null) {
-                posterMapper.toPosterDto(it)
-            }
-        }
-        if(posters.isEmpty()){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }else call.respond(posters)
-    }*/
-
     get("poster/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val address = PosterService.get(id)?.let { it1 -> PosterMapper.toPosterDto(it1) }
-        if(address == null){
+        val poster = PosterService.get(id)
+        if(poster == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(address)
+        call.respond(poster)
     }
 
     post ("poster"){

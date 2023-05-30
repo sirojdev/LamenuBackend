@@ -7,10 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToFlat(){
-    val flatService : FlatRepository = FlatService
+    val flatService: FlatService = FlatServiceImpl
     val flatMapper = FlatMapper
     get("flats"){
-        val flats = flatService.getAll().map { FlatMapper.toFlatDto(it) }
+        val flats = flatService.getAll()
         if(flats.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -23,7 +23,7 @@ fun Route.routeToFlat(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val flat = FlatMapper.toFlatDto(flatService.get(id))
+        val flat = flatService.get(id)
         if(flat == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -33,22 +33,22 @@ fun Route.routeToFlat(){
 
     post ("flat"){
         val flat = call.receive<FlatDto>()
-        flatService.add(FlatMapper.toFlatTable(flat))
+        flatService.add(flat)
         call.respond(HttpStatusCode.OK)
     }
 
     put ("flat"){
         val flat = call.receive<FlatDto>()
-        flatService.update(FlatMapper.toFlatTable(flat))
+        flatService.update(flat)
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("flat/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
+    delete("flat"){
+        val flat = call.receive<FlatDto>()
+        val id = flat.id
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
+            return@delete        }
         flatService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
