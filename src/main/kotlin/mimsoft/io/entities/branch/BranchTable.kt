@@ -7,7 +7,7 @@ data class BranchTable(
     var id: Long? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
-    val nameEn: String? = null,
+    val nameEng: String? = null,
     val longitude: Double? = null,
     val latitude: Double? = null,
     val address: String? = null,

@@ -27,13 +27,19 @@ fun Application.configureRouting() {
 
         }
 
-        swaggerUI(path = "swagger/users", swaggerFile = "openapi/merchant/merchant.yaml") {
+        swaggerUI(path = "swagger/user", swaggerFile = "openapi/user.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/staffs", swaggerFile = "openapi/staff/staffDoc.yaml") {
+        swaggerUI(path = "swagger/staff", swaggerFile = "openapi/staff/staffDoc.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/orders", swaggerFile = "openapi/entities/orders.yaml") {
+        swaggerUI(path = "swagger/staff/order", swaggerFile = "openapi/staff/order.yaml") {
+            version = "4.15.5"
+        }
+        swaggerUI(path = "swagger/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {
+            version = "4.15.5"
+        }
+        swaggerUI(path = "swagger/merchant/staff", swaggerFile = "openapi/merchant/staff.yaml") {
             version = "4.15.5"
         }
     }

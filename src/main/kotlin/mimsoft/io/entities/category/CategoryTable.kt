@@ -6,7 +6,7 @@ data class CategoryTable(
     val id: Long? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
-    val nameEn: String? = null,
+    val nameEng: String? = null,
     val image: String? = null,
     val merchantId: Long? = null,
     val bgColor: String? = null,

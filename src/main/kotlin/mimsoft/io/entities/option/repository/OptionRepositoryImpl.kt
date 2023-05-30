@@ -1,9 +1,5 @@
 package mimsoft.io.entities.option.repository
 
-import com.google.gson.Gson
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import mimsoft.io.entities.option.OPTION_TABLE_NAME
 import mimsoft.io.entities.option.OptionDto
 import mimsoft.io.entities.option.OptionMapper
@@ -28,10 +24,10 @@ object OptionRepositoryImpl : OptionRepository {
                         parentId = rs.getLong("parent_id"),
                         nameUz = rs.getString("name_uz"),
                         nameRu = rs.getString("name_ru"),
-                        nameEn = rs.getString("name_en"),
+                        nameEng = rs.getString("name_en"),
                         descriptionUz = rs.getString("description_uz"),
                         descriptionRu = rs.getString("description_ru"),
-                        descriptionEn = rs.getString("description_en"),
+                        descriptionEng = rs.getString("description_en"),
                         image = rs.getString("image"),
                         price = rs.getDouble("price"),
                         deleted = rs.getBoolean("deleted"),

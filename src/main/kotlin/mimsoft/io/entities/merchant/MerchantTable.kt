@@ -7,7 +7,7 @@ data class MerchantTable(
     var id: Long? = null,
     var nameUz: String? = null,
     var nameRu: String? = null,
-    var nameEn: String? = null,
+    var nameEng: String? = null,
     var logo: String? = null,
     var domain: String? = null,
     val deleted: Boolean? = null,
