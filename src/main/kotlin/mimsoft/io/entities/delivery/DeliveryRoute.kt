@@ -1,4 +1,4 @@
-package mimsoft.io.entities.poster
+package mimsoft.io.entities.delivery
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,49 +6,49 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.routeToPoster(){
-    val posterMapper = PosterMapper
-    get("posters"){
-        val posters = PosterService.getAll().map {posterMapper.toPosterDto(it)}
-        if(posters.isEmpty()){
+fun Route.routeToDelivery(){
+    val deliveryMapper = DeliveryMapper
+    get("deliveries"){
+        val deliveries = DeliveryService.getAll().map {deliveryMapper.toDeliveryDto(it)}
+        if(deliveries.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(posters)
+        }else call.respond(deliveries)
     }
 
-    get("poster/{id}"){
+    get("delivery/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val poster = PosterService.get(id)
-        if(poster == null){
+        val delivery = DeliveryService.get(id)
+        if(delivery == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(poster)
+        call.respond(delivery)
     }
 
-    post ("poster"){
-        val table = call.receive<PosterDto>()
-        PosterService.add(table)
+    post ("delivery"){
+        val table = call.receive<DeliveryDto>()
+        DeliveryService.add(table)
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("poster"){
-        val table = call.receive<PosterDto>()
-        PosterService.update(table)
+    put ("delivery"){
+        val table = call.receive<DeliveryDto>()
+        DeliveryService.update(table)
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("poster/{id}"){
+    delete("delivery/{id}"){
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        PosterService.delete(id)
+        DeliveryService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
 }
