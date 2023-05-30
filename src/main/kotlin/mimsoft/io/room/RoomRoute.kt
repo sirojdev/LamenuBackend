@@ -5,6 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.entities.room.RoomDto
+import mimsoft.io.entities.room.RoomMapper
+import mimsoft.io.entities.room.RoomRepository
+import mimsoft.io.entities.room.RoomService
 
 fun Route.routeToRoom(){
     val roomService : RoomRepository = RoomService
