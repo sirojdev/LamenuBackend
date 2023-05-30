@@ -3,6 +3,8 @@ package mimsoft.io.entities.staff
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.config.TIMESTAMP_FORMAT
+import mimsoft.io.config.toTimeStamp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.*
@@ -12,7 +14,7 @@ import java.util.UUID
 
 object StaffService {
     val mapper = StaffMapper
-    val repository:BaseRepository = DBManager
+    val repository: BaseRepository = DBManager
     suspend fun auth(staff: StaffDto?): ResponseModel {
         LOGGER.info("auth: $staff")
         when {
@@ -48,37 +50,36 @@ object StaffService {
         DBManager.getData(dataClass = StaffTable::class, tableName = STAFF_TABLE_NAME)
             .filterIsInstance<StaffTable?>().map { StaffMapper.toDto(it) }
 
-    suspend fun get(id: Long?, merchantId: Long?): StaffDto? {
+    suspend fun get(id: Long?): StaffDto? {
         return DBManager.getData(
             dataClass = StaffTable::class,
             tableName = STAFF_TABLE_NAME,
-            id = id,
-            merchantId = merchantId
+            id = id
         ).firstOrNull()?.let {
             mapper.toDto(it as? StaffTable)
         }
     }
 
-    suspend fun get(username: String?): StaffTable? =
+    suspend fun get(phone: String?): StaffTable? =
         DBManager.getPageData(
             dataClass = StaffTable::class,
             tableName = STAFF_TABLE_NAME,
-            where = mapOf("username" to username as String)
+            where = mapOf("phone" to phone as String)
         )?.data?.firstOrNull()
 
     suspend fun add(staff: StaffDto?): ResponseModel {
         when {
             staff?.phone == null -> {
-            ResponseModel(
-                httpStatus = PHONE_NULL
-            )
-        }
+                ResponseModel(
+                    httpStatus = PHONE_NULL
+                )
+            }
 
             staff.password == null -> {
-            ResponseModel(
-                httpStatus = PASSWORD_NULL
-            )
-        }
+                ResponseModel(
+                    httpStatus = PASSWORD_NULL
+                )
+            }
         }
         val oldStaff = get(staff?.phone)
 
@@ -101,9 +102,10 @@ object StaffService {
         if (staff?.id == null) return ResponseModel(
             httpStatus = ID_NULL
         )
+        val birthDay = toTimeStamp(staff.birthDay, TIMESTAMP_FORMAT)
 
         val query = """
-            UPDATE $STAFF_TABLE_NAME
+            UPDATE $STAFF_TABLE_NAME 
             SET
                 first_name = ?,
                 last_name = ?,
@@ -119,10 +121,10 @@ object StaffService {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, staff.firstName)
                     ti.setString(2, staff.lastName)
-                    ti.setString(3, staff.birthDay)
+                    ti.setTimestamp(3, birthDay)
                     ti.setString(4, staff.image)
                     ti.setString(5, staff.position)
-                    ti.setString(6, Timestamp(System.currentTimeMillis()).toString())
+                    ti.setTimestamp(6, Timestamp(System.currentTimeMillis()))
                     ti.setLong(7, staff.id)
                     ti.executeUpdate()
                 }

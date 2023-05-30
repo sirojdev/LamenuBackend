@@ -5,6 +5,7 @@ import java.sql.Timestamp
 const val STAFF_TABLE_NAME = "staff"
 data class StaffTable(
     val id: Long? = null,
+    val merchantId: Long? = null,
     val position: String? = null,
     val phone: String? = null,
     val password: String? = null,

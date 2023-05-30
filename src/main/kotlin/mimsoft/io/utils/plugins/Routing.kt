@@ -9,6 +9,8 @@ import mimsoft.io.auth.routeToLogin
 import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.client.routeToUser
 import mimsoft.io.entities.merchant.routeToMerchantProfile
+import mimsoft.io.entities.outcome_type.outcomeTypeRoute
+import mimsoft.io.entities.seles.routeToSales
 import mimsoft.io.entities.staff.routeToStaffApis
 
 fun Application.configureRouting() {
@@ -20,6 +22,7 @@ fun Application.configureRouting() {
         route("api/v1"){
             routeToAdmin()
             routeToMerchantProfile()
+            routeToSales()
             routeToStaffApis()
             routeToUser()
             routeToLogin()

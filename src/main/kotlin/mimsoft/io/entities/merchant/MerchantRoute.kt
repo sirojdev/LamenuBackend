@@ -1,11 +1,11 @@
 package mimsoft.io.entities.merchant
 
+import MerchantInterface
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.entities.merchant.repository.MerchantInterface
 import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
 
 fun Route.routeToMerchant() {
