@@ -45,14 +45,14 @@ object OnlinePbxService {
         socketService.send(message)
     }
 
-    fun callHistories(start: Long?): List<CallModel?>? {
+    fun callHistories(start: Long?, end: Long?): List<CallModel?>? {
 
 
         val auth = OnPBXAuth.auth()
 
         val request = OkHttp.request(
             mediaType = FORM_URLENCODED,
-            body = "start_stamp_from=$start",
+            body = "start_stamp_from=$start&start_stamp_to=$end",
             url = CALLS_HISTORY_URL,
             method = POST
         )
