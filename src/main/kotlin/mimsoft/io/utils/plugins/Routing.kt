@@ -9,7 +9,6 @@ import mimsoft.io.auth.routeToLogin
 import mimsoft.io.entities.address.routeToAddress
 import mimsoft.io.entities.client.routeToUser
 import mimsoft.io.entities.merchant.routeToMerchantProfile
-import mimsoft.io.entities.outcome_type.outcomeTypeRoute
 import mimsoft.io.entities.seles.routeToSales
 import mimsoft.io.entities.staff.routeToStaffApis
 
@@ -22,7 +21,6 @@ fun Application.configureRouting() {
         route("api/v1"){
             routeToAdmin()
             routeToMerchantProfile()
-            routeToSales()
             routeToStaffApis()
             routeToUser()
             routeToLogin()
@@ -40,6 +38,9 @@ fun Application.configureRouting() {
             version = "4.15.5"
         }
         swaggerUI(path = "swagger/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {
+            version = "4.15.5"
+        }
+        swaggerUI(path = "swagger/admin", swaggerFile = "openapi/admin/merchant.yaml") {
             version = "4.15.5"
         }
         swaggerUI(path = "swagger/merchant/staff", swaggerFile = "openapi/merchant/staff.yaml") {

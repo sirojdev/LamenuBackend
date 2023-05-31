@@ -32,8 +32,28 @@ tags:
   - name: Products
     description: Endpoints related to product
 
-  - name: Restaurants
-    description: Endpoints related to restaurant
+  - name: Outcomes
+    description: Endpoints related to outcomes
+
+  - name: Posters
+    description: Endpoints related to posters
+
+  - name: Apps
+    description: Endpoints related to apps
+
+  - name: Payments
+    description: Endpoints related to payment systems
+
+  - name: Sms Gateways
+    description: Endpoints related to sms gateways
+
+  - name: Telephony
+    description: Endpoints related to telephony
+
+  - name: Delivery
+    description: Endpoints related to delivery
+
+
 
 paths:
 
@@ -383,7 +403,7 @@ paths:
         - Menus
       description: "Returns a list of all menus"
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: "OK"
@@ -417,7 +437,7 @@ paths:
         - Menus
       description: "Adds a new menu"
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         description: "A JSON object containing updated menu information"
         required: true
@@ -434,7 +454,7 @@ paths:
         - Menus
       description: "Returns a menu by its ID"
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: "id"
           in: "path"
@@ -458,7 +478,7 @@ paths:
         - Menus
       description: "Deletes a menu by its ID"
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: "id"
           in: "path"
@@ -557,6 +577,7 @@ paths:
         "400":
           description: "Bad Request"
 
+
   /merchant/settings/products:
     get:
       tags:
@@ -642,11 +663,12 @@ paths:
         "400":
           description: "Bad Request"
 
-  /merchants:
+
+  /merchant/settings/posters:
     get:
       tags:
-        - Restaurants
-      description: "Returns a list of all Restaurants"
+        - Posters
+      description: "Returns a list of all posters"
       responses:
         "200":
           description: "OK"
@@ -655,44 +677,43 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/MerchantDto"
+                  $ref: "#/components/schemas/PosterDto"
         "204":
           description: "No Content"
-  /merchant:
+  /merchant/settings/poster:
     post:
       tags:
-        - Restaurants
-      description: "Adds a new restaurant"
+        - Posters
+      description: "Adds a new poster"
       requestBody:
-        description: "A JSON object containing updated product information"
+        description: "A JSON object containing updated poster information"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MerchantDto"
+              $ref: "#/components/schemas/PosterDto"
       responses:
         "200":
           description: "OK"
     put:
       tags:
-        - Restaurants
-      description: "Update the restaurant"
+        - Posters
+      description: "Adds a new poster"
       requestBody:
-        description: "A JSON object containing updated product information"
+        description: "A JSON object containing updated poster information"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MerchantDto"
+              $ref: "#/components/schemas/PosterDto"
       responses:
         "200":
           description: "OK"
-
-  /merchant/{id}:
+  /merchant/settings/poster/{id}:
     get:
       tags:
-        - Restaurants
-      description: "Returns a restaurant by its ID"
+        - Posters
+      description: "Returns a poster by its ID"
       parameters:
         - name: "id"
           in: "path"
@@ -706,15 +727,272 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MerchantDto"
+                $ref: "#/components/schemas/PosterDto"
         "204":
           description: "No Content"
         "400":
           description: "Bad Request"
     delete:
       tags:
-        - Restaurants
-      description: "Deletes a restaurant by its ID"
+        - Posters
+      description: "Deletes a product by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/apps:
+    get:
+      tags:
+        - Apps
+      description: "Returns a list of all apps"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/AppDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/app:
+    post:
+      tags:
+        - Apps
+      description: "Adds a new app"
+      requestBody:
+        description: "A JSON object containing updated app information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Apps
+      description: "Adds a new app"
+      requestBody:
+        description: "A JSON object containing updated app information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/app/{id}:
+    get:
+      tags:
+        - Apps
+      description: "Returns a app by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Apps
+      description: "Deletes app by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/payments:
+    get:
+      tags:
+        - Payments
+      description: "Returns a list of all payments"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/PaymentDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/payment:
+    post:
+      tags:
+        - Payments
+      description: "Adds a new payment"
+      requestBody:
+        description: "A JSON object containing updated payment information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Payments
+      description: "Adds a new payment"
+      requestBody:
+        description: "A JSON object containing updated payment information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/payment/{id}:
+    get:
+      tags:
+        - Payments
+      description: "Returns a payment by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Payments
+      description: "Deletes payment by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+#//==================================================================================================
+  /merchant/finance/outcomes:
+    get:
+      tags:
+        - Outcomes
+      description: "Returns a list of all Outcomes"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OutcomeDto"
+        "204":
+          description: "No Content"
+  /merchant/finance/outcome:
+    post:
+      tags:
+        - Outcomes
+      description: "Adds a new outcome"
+      requestBody:
+        description: "A JSON object containing updated outcome information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Outcomes
+      description: "Update the outcomes"
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/finance/outcome/{id}:
+    get:
+      tags:
+        - Outcomes
+      description: "Returns a outcome by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutcomeDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Outcomes
+      description: "Deletes a outcome by its ID"
       parameters:
         - name: "id"
           in: "path"
@@ -852,6 +1130,64 @@ components:
           type: "string"
         domain:
           type: "string"
+        subdomain:
+          type: "string"
+        phone:
+          type: "string"
+        password:
+          type: "string"
+    OutcomeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        staff:
+          $ref: "#/components/schemas/StaffDto"
+        outcomeType:
+          $ref: "#/components/schemas/OutcomeTypeDto"
+    StaffDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        phone:
+          type: "string"
+        password:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        image:
+          type: "string"
+        comment:
+          type: "string"
+        position:
+          type: "string"
+    OutcomeTypeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
     TextModel:
       type: "object"
       properties:
@@ -885,6 +1221,63 @@ components:
           $ref: "#/components/schemas/TextModel"
         image:
           type: "string"
+    PosterDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        joinPosterApiKey:
+          type: "string"
+        rKeeperClientId:
+          type: "integer"
+          format: "long"
+        rKeeperClientSecret:
+          type: "string"
+    AppDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        googleToken:
+          type: "string"
+        appleToken:
+          type: "string"
+        telegramBotToken:
+          type: "string"
+    PaymentDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        paymeMerchantId:
+          type: "integer"
+          format: "long"
+        paymeSecret:
+          type: "string"
+        apelsinMerchantId:
+          type: "integer"
+          format: "long"
+        apelsinMerchantToken:
+          type: "string"
+        clickServiceId:
+          type: "integer"
+          format: "long"
+        clickKey:
+          type: "string"
+
+
 
   securitySchemes:
     bearerAuth:

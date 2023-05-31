@@ -1,5 +1,6 @@
-package mimsoft.io.entities.seles.repository
+package mimsoft.io.admin.repository
 
+import SalesMerchantInterface
 import mimsoft.io.entities.seles.SALES_MERCHANT_TABLE_NAME
 import mimsoft.io.entities.seles.SalesMerchantTable
 import mimsoft.io.repository.DBManager

@@ -29,7 +29,8 @@ object MerchantMapper {
             domain = merchantTable.domain,
             subdomain = merchantTable.subdomain,
             phone = merchantTable.phone,
-            password = merchantTable.password
+            password = merchantTable.password,
+            isActive = merchantTable.isActive
         )
     }
 }
