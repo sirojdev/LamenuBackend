@@ -1,6 +1,3 @@
-package mimsoft.io.entities.seles.repository
-
-import mimsoft.io.entities.merchant.MerchantTable
 import mimsoft.io.entities.seles.SalesMerchantTable
 
 interface SalesMerchantInterface {

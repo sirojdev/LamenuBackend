@@ -1,6 +1,5 @@
 package mimsoft.io.entities.merchant
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import java.sql.Timestamp
 
 const val RESTAURANT_TABLE_NAME = "merchant"

@@ -1,26 +1,27 @@
 package mimsoft.io.entities.seles
 
+import SalesMerchantInterface
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.entities.seles.repository.SalesMerchantInterface
+import mimsoft.io.admin.repository.MerchantRepositoryImp
 
 fun Route.routeToMerchant() {
 
-    val merchantRepository: SalesMerchantInterface = mimsoft.io.entities.seles.repository.MerchantRepositoryImp
+    val merchantRepository: SalesMerchantInterface = MerchantRepositoryImp
 
 
     route("merchant") {
 
         get {
-            val restaurants = merchantRepository.getAll().map { SalesMerchantMapper.toSalesMerchantDto(it) }
-            if (restaurants.isEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(HttpStatusCode.OK, restaurants)
+//            val restaurants = merchantRepository.getAll().map {AdminMerchantMapper.toAdminMerchantDto(it)}
+//            if (restaurants.isEmpty()) {
+//                call.respond(HttpStatusCode.NoContent)
+//                return@get
+//            }
+//            call.respond(HttpStatusCode.OK, restaurants)
         }
 
         get("{id}") {

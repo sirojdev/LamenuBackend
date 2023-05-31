@@ -12,7 +12,6 @@ fun Route.routeToMerchant() {
 
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
 
-
     route("merchant") {
 
         get {
