@@ -2,6 +2,7 @@ package mimsoft.io.sms
 
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import java.sql.Timestamp
 
 object SmsService {
     val repository: BaseRepository = DBManager
@@ -27,7 +28,9 @@ object SmsService {
     }
 
     suspend fun post(smsDto: SmsDto?): Long? {
-        return repository.postData(SmsTable::class, mapper.toTable(smsDto), tableName = "sms")
+        return repository.postData(SmsTable::class,
+            mapper.toTable(smsDto)?.copy(time = Timestamp(System.currentTimeMillis())),
+            tableName = "sms")
     }
 
     suspend fun update(smsDto: SmsDto?): Boolean {

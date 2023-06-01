@@ -59,14 +59,16 @@ object SmsGatewayService {
                 "selected = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${smsGatewayDto?.merchantId} and not deleted "
-        repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
-                this.setString(1, smsGatewayDto?.eskizToken)
-                this.setString(2, smsGatewayDto?.playMobileKey)
-                this.setString(3, smsGatewayDto?.selected)
-                this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
-                this.closeOnCompletion()
-            }.execute()
+        withContext(Dispatchers.IO){
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, smsGatewayDto?.eskizToken)
+                    this.setString(2, smsGatewayDto?.playMobileKey)
+                    this.setString(3, smsGatewayDto?.selected)
+                    this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
         }
         return true
     }

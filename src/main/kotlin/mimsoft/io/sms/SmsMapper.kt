@@ -1,5 +1,7 @@
 package mimsoft.io.sms
 
+import java.sql.Timestamp
+
 object SmsMapper {
     fun toDto(smsTable: SmsTable?): SmsDto? {
         return if (smsTable == null) null
@@ -7,8 +9,8 @@ object SmsMapper {
             id = smsTable.id,
             clientId = smsTable.clientId,
             messageId = smsTable.messageId,
-            time = smsTable.time,
-            status = smsTable.status
+            time = smsTable.time.toString(),
+            status = Status.valueOf(smsTable.status ?: "NOT_SENT")
         )
     }
 
@@ -18,8 +20,8 @@ object SmsMapper {
             id = smsDto.id,
             clientId = smsDto.clientId,
             messageId = smsDto.messageId,
-            time = smsDto.time,
-            status = smsDto.status
+            time = smsDto.time?.let { Timestamp.valueOf(it) },
+            status = smsDto.status?.name
         )
     }
 }

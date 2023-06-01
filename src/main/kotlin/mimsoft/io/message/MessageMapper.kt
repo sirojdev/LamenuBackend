@@ -1,6 +1,7 @@
 package mimsoft.io.message
 
 import mimsoft.io.sms.SmsMapper
+import java.sql.Timestamp
 
 object MessageMapper {
     fun toDto(messageTable: MessageTable?): MessageDto? {
@@ -8,8 +9,7 @@ object MessageMapper {
         else MessageDto(
             id = messageTable.id,
             content = messageTable.content,
-            time = messageTable.time,
-            smss = messageTable.smss?.map { SmsMapper.toDto(it) }
+            time = messageTable.time.toString(),
         )
     }
 
@@ -18,8 +18,7 @@ object MessageMapper {
         else MessageTable(
             id = messageDto.id,
             content = messageDto.content,
-            time = messageDto.time,
-            smss = messageDto.smss?.map { SmsMapper.toTable(it) }
+            time = messageDto.time.let { Timestamp.valueOf(it)}
         )
     }
 }

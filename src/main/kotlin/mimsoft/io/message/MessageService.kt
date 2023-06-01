@@ -7,6 +7,7 @@ import kotlinx.coroutines.supervisorScope
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.sms.SmsService
+import java.sql.Timestamp
 
 object MessageService {
 
@@ -29,7 +30,9 @@ object MessageService {
     }
 
     suspend fun post(messageDto: MessageDto?): Long? {
-        return repository.postData(MessageTable::class, mapper.toTable(messageDto), tableName = "message")
+        return repository.postData(MessageTable::class,
+            mapper.toTable(messageDto?.copy(time = Timestamp(System.currentTimeMillis()).toString())),
+            tableName = "message")
     }
 
     suspend fun update(messageDto: MessageDto?): Boolean {
