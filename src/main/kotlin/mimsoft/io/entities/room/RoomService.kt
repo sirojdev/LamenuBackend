@@ -9,11 +9,11 @@ object RoomService : RoomRepository {
     override suspend fun get(id: Long?): RoomTable?  =
         DBManager.getData(dataClass = RoomTable::class, id = id, tableName = ROOM_TABLE_NAME).firstOrNull() as RoomTable?
 
-    override suspend fun add(tableTable: RoomTable?): Long? =
-        DBManager.postData(dataClass = RoomTable::class, dataObject = tableTable, tableName = ROOM_TABLE_NAME)
+    override suspend fun add(roomTable: RoomTable?): Long? =
+        DBManager.postData(dataClass = RoomTable::class, dataObject = roomTable, tableName = ROOM_TABLE_NAME)
 
-    override suspend fun update(tableTable: RoomTable?): Boolean =
-        DBManager.updateData(dataClass = RoomTable::class, dataObject = tableTable, tableName = ROOM_TABLE_NAME)
+    override suspend fun update(roomTable: RoomTable?): Boolean =
+        DBManager.updateData(dataClass = RoomTable::class, dataObject = roomTable, tableName = ROOM_TABLE_NAME)
 
     override suspend fun delete(id: Long?) : Boolean =
         DBManager.deleteData(tableName = ROOM_TABLE_NAME, whereValue = id)

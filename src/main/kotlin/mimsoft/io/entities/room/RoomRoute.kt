@@ -43,8 +43,9 @@ fun Route.routeToRoom(){
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("room/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
+    delete("room"){
+        val roomDto = call.receive<RoomDto>()
+        val id = roomDto.id
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete

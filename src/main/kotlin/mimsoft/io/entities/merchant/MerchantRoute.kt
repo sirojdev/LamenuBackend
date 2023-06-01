@@ -14,6 +14,14 @@ fun Route.routeToMerchant() {
 
     route("merchant") {
 
+        get("info") {
+            val sub = call.parameters["sub"]
+            if (sub == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
+        }
+
         get {
             val restaurants = merchantRepository.getAll().map { MerchantMapper.toMerchantDto(it) }
             if (restaurants.isEmpty()) {
