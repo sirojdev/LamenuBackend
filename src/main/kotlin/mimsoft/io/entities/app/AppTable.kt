@@ -8,6 +8,7 @@ data class AppTable(
     val googleToken: String? = null,
     val appleToken: String? = null,
     val telegramBotToken: String? = null,
+    val selected: String? = null,
     val deleted: Boolean? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null

@@ -7,48 +7,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToDelivery(){
-    val deliveryMapper = DeliveryMapper
-    get("deliveries"){
-        val deliveries = DeliveryService.getAll().map {deliveryMapper.toDeliveryDto(it)}
-        if(deliveries.isEmpty()){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }else call.respond(deliveries)
-    }
-
-    get("delivery/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
-        if(id==null){
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
-        }
-        val delivery = DeliveryService.get(id)
-        if(delivery == null){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }
+    get("delivery"){
+        val merchantId = 1L
+        val delivery = DeliveryService.get(merchantId = merchantId)?: DeliveryDto()
         call.respond(delivery)
     }
 
     post ("delivery"){
+        val merchantId = 1L
         val table = call.receive<DeliveryDto>()
-        DeliveryService.add(table)
-        call.respond(HttpStatusCode.OK)
-    }
-
-    put ("delivery"){
-        val table = call.receive<DeliveryDto>()
-        DeliveryService.update(table)
-        call.respond(HttpStatusCode.OK)
-    }
-
-    delete("delivery/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
-        if(id==null){
-            call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
-        DeliveryService.delete(id)
+        DeliveryService.add(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 }

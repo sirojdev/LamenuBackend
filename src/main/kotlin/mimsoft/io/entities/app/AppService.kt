@@ -12,11 +12,6 @@ object AppService {
     val merchant = MerchantRepositoryImp
     val mapper = AppMapper
 
-    suspend fun getAll(): List<AppTable?> {
-        return repository.getData(dataClass = AppTable::class, tableName = APP_TABLE_NAME)
-            .filterIsInstance<AppTable?>()
-    }
-
     suspend fun get(merchantId: Long?): AppDto? {
         val query = "select * from $APP_TABLE_NAME where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO){
@@ -25,11 +20,10 @@ object AppService {
                 if (rs.next()) {
                     return@withContext AppMapper.toAppDto(
                         AppTable(
-                            id = rs.getLong("id"),
-                            merchantId = rs.getLong("merchant_id"),
                             googleToken = rs.getString("google_token"),
                             appleToken = rs.getString("apple_token"),
-                            telegramBotToken = rs.getString("telegram_bot_token")
+                            telegramBotToken = rs.getString("telegram_bot_token"),
+                            selected = rs.getString("selected")
                         )
                     )
                 }else return@withContext null
@@ -38,9 +32,8 @@ object AppService {
     }
 
     suspend fun add(appDto: AppDto?): ResponseModel {
-        if (appDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(appDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(httpStatus = ALREADY_EXISTS)
+        val checkMerchant = merchant.get(appDto?.merchantId)
+        if(checkMerchant != null) update(appDto = appDto)
         return ResponseModel(
             body = repository.postData(
                 dataClass = AppTable::class,
@@ -55,6 +48,7 @@ object AppService {
                 "google_token = ?," +
                 "apple_token = ?, " +
                 "telegram_bot_token = ?, " +
+                "selected = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${appDto?.merchantId} and not deleted "
         repository.connection().use {
@@ -66,12 +60,6 @@ object AppService {
                 this.closeOnCompletion()
             }.execute()
         }
-        return true
-    }
-
-    suspend fun delete(merchantId: Long?): Boolean {
-        val query = "update $APP_TABLE_NAME set deleted = true where merchant_id = $merchantId"
-        repository.connection().use {val rs = it.prepareStatement(query).execute()}
         return true
     }
 }
