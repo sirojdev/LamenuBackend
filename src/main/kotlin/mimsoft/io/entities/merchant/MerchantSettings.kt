@@ -48,4 +48,6 @@ fun Route.routeToMerchantSettings() {
         outcomeTypeRoute()
         routeToUser()
     }
+
+    routeToSrm()
 }
