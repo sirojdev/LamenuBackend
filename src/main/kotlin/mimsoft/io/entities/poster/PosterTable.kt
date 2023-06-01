@@ -8,6 +8,7 @@ data class PosterTable(
     val joinPosterApiKey: String? = null,
     val rKeeperClientId: Long? = null,
     val rKeeperClientSecret: String? = null,
+    val selected: String? = null,
     val deleted: Boolean? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null
