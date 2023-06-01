@@ -1,8 +1,11 @@
 package mimsoft.io.entities.menu
 
+import mimsoft.io.entities.category.CategoryDto
+import mimsoft.io.entities.product.ProductDto
 import mimsoft.io.utils.TextModel
 
 data class MenuDto(
-    var id: Long? = null,
-    val name: TextModel? = null,
-)
+    var categoryList: List<CategoryDto?>,
+    var productList: List<ProductDto?>
+    )
+
