@@ -2,6 +2,7 @@ package mimsoft.io.table
 
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+
 object TableService : TableRepository {
 
     val repository: BaseRepository = DBManager
