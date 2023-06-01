@@ -10,6 +10,7 @@ object SmsGatewayMapper {
             eskizToken = smsGatewaysDto.eskizToken,
             playMobileServiceId = smsGatewaysDto.playMobileServiceId,
             playMobileKey = smsGatewaysDto.playMobileKey,
+            selected = smsGatewaysDto.selected
         )
     }
 
@@ -22,6 +23,7 @@ object SmsGatewayMapper {
             eskizToken = smsGatewaysTable.eskizToken,
             playMobileServiceId = smsGatewaysTable.playMobileServiceId,
             playMobileKey = smsGatewaysTable.playMobileKey,
+            selected = smsGatewaysTable.selected
         )
     }
 }

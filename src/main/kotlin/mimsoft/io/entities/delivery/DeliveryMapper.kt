@@ -9,6 +9,7 @@ object DeliveryMapper {
             yandexToken = deliveryDto.yandexToken,
             expressId = deliveryDto.expressId,
             expressToken = deliveryDto.expressToken,
+            selected = deliveryDto.selected
         )
     }
 
@@ -21,6 +22,7 @@ object DeliveryMapper {
             yandexToken = deliveryTable.yandexToken,
             expressId = deliveryTable.expressId,
             expressToken = deliveryTable.expressToken,
+            selected = deliveryTable.selected
         )
     }
 }

@@ -7,7 +7,8 @@ object AppMapper {
             merchantId = appDto.merchantId,
             googleToken = appDto.googleToken,
             appleToken = appDto.appleToken,
-            telegramBotToken = appDto.telegramBotToken
+            telegramBotToken = appDto.telegramBotToken,
+            selected = appDto.selected
         )
     }
 
@@ -18,7 +19,8 @@ object AppMapper {
             merchantId = appTable.merchantId,
             googleToken = appTable.googleToken,
             appleToken = appTable.appleToken,
-            telegramBotToken = appTable.telegramBotToken
+            telegramBotToken = appTable.telegramBotToken,
+            selected = appTable.selected
         )
     }
 }

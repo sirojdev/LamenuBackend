@@ -17,11 +17,6 @@ object SmsGatewayService {
     val merchant = MerchantRepositoryImp
     val mapper = SmsGatewayMapper
 
-    suspend fun getAll(): List<SmsGatewayTable?> {
-        return repository.getData(dataClass = SmsGatewayTable::class, tableName = SMS_GATEWAY_TABLE)
-            .filterIsInstance<SmsGatewayTable?>()
-    }
-
     suspend fun get(merchantId: Long?): SmsGatewayDto? {
         val query = "select * from $SMS_GATEWAY_TABLE where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO) {
@@ -30,12 +25,11 @@ object SmsGatewayService {
                 if (rs.next()) {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
-                            id = rs.getLong("id"),
-                            merchantId = rs.getLong("merchant_id"),
                             eskizId = rs.getLong("eskiz_id"),
                             eskizToken = rs.getString("eskiz_token"),
                             playMobileServiceId = rs.getLong("play_mobile_service_id"),
-                            playMobileKey = rs.getString("play_mobile_key")
+                            playMobileKey = rs.getString("play_mobile_key"),
+                            selected = rs.getString("selected")
                         )
                     )
                 } else return@withContext null
@@ -46,7 +40,7 @@ object SmsGatewayService {
     suspend fun add(smsGatewayDto: SmsGatewayDto?): ResponseModel {
         if (smsGatewayDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(smsGatewayDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(ALREADY_EXISTS)
+        if (checkMerchant != null) update(smsGatewayDto = smsGatewayDto)
         return ResponseModel(
             body = repository.postData(
                 dataClass = SmsGatewayTable::class,
@@ -62,24 +56,21 @@ object SmsGatewayService {
                 "eskiz_token = ?, " +
                 "play_mobile_service_id = ${smsGatewayDto?.playMobileServiceId}, " +
                 "play_mobile_key = ?, " +
+                "selected = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${smsGatewayDto?.merchantId} and not deleted "
         repository.connection().use {
             val rs = it.prepareStatement(query).apply {
                 this.setString(1, smsGatewayDto?.eskizToken)
                 this.setString(2, smsGatewayDto?.playMobileKey)
-                this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                this.setString(3, smsGatewayDto?.selected)
+                this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()
         }
         return true
     }
 
-    suspend fun delete(merchantId: Long?): Boolean {
-        val query = "update $SMS_GATEWAY_TABLE set deleted = true where merchant_id = $merchantId"
-        repository.connection().use { val rs = it.prepareStatement(query).execute() }
-        return true
-    }
 }
 
 

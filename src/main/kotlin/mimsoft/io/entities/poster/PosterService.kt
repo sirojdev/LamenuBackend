@@ -21,8 +21,6 @@ object PosterService {
                 if (rs.next()) {
                     return@withContext PosterMapper.toPosterDto(
                         PosterTable(
-                            id = rs.getLong("id"),
-                            merchantId = rs.getLong("merchant_id"),
                             joinPosterApiKey = rs.getString("join_poster_api_key"),
                             rKeeperClientId = rs.getLong("r_keeper_client_id"),
                             rKeeperClientSecret = rs.getString("r_keeper_client_secret"),
@@ -36,7 +34,7 @@ object PosterService {
 
     suspend fun add(posterDto: PosterDto?): ResponseModel {
         if (posterDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(posterDto.merchantId)
+        val checkMerchant = get(posterDto.merchantId)
         if (checkMerchant != null) update(posterDto = posterDto)
         return ResponseModel(
             body = repository.postData(
@@ -52,7 +50,7 @@ object PosterService {
                 "join_poster_api_key = ?, " +
                 "r_keeper_client_id = ${posterDto?.rKeeperClientId}," +
                 "r_keeper_client_secret = ?, " +
-                "selected = ?, "
+                "selected = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${posterDto?.merchantId} and not deleted "
         repository.connection().use {

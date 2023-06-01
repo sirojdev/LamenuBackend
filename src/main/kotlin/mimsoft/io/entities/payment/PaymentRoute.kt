@@ -7,48 +7,19 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToPayment(){
-    val paymentMapper = PaymentMapper
-    get("payments"){
-        val payments = PaymentService.getAll().map {paymentMapper.toPaymentDto(it)}
-        if(payments.isEmpty()){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }else call.respond(payments)
-    }
 
-    get("payment/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
-        if(id==null){
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
-        }
-        val payment = PaymentService.get(id)
-        if(payment == null){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }
+
+    get("payment"){
+        val merchantId = 2L
+        val payment = PaymentService.get(merchantId = merchantId)?: PaymentDto()
         call.respond(payment)
     }
 
     post ("payment"){
+        val merchantId = 2L
         val table = call.receive<PaymentDto>()
-        PaymentService.add(table)
+        PaymentService.add(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("payment"){
-        val table = call.receive<PaymentDto>()
-        PaymentService.update(table)
-        call.respond(HttpStatusCode.OK)
-    }
-
-    delete("payment/{id}"){
-        val id = call.parameters["id"]?.toLongOrNull()
-        if(id==null){
-            call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
-        PaymentService.delete(id)
-        call.respond(HttpStatusCode.OK)
-    }
 }

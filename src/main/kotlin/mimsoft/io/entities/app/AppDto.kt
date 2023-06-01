@@ -5,5 +5,6 @@ data class AppDto (
     val merchantId: Long? = null,
     val googleToken: String? = null,
     val appleToken: String? = null,
-    val telegramBotToken: String? = null
+    val telegramBotToken: String? = null,
+    val selected: String? = null
 )

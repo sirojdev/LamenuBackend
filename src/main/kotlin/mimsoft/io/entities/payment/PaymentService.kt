@@ -15,11 +15,6 @@ object PaymentService {
     val merchant = MerchantRepositoryImp
     val mapper = PaymentMapper
 
-    suspend fun getAll(): List<PaymentTable?> {
-        return repository.getData(dataClass = PaymentTable::class, tableName = PAYMENT_TABLE_NAME)
-            .filterIsInstance<PaymentTable?>()
-    }
-
     suspend fun get(merchantId: Long?): PaymentDto? {
         val query = "select * from $PAYMENT_TABLE_NAME where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO){
@@ -28,14 +23,13 @@ object PaymentService {
                 if (rs.next()) {
                     return@withContext PaymentMapper.toPaymentDto(
                         PaymentTable(
-                            id = rs.getLong("id"),
-                            merchantId = rs.getLong("merchant_id"),
                             paymeMerchantId = rs.getLong("payme_merchant_id"),
                             paymeSecret = rs.getString("payme_secret"),
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),
                             clickServiceId = rs.getLong("click_service_id"),
-                            clickKey = rs.getString("click_key")
+                            clickKey = rs.getString("click_key"),
+                            selected = rs.getString("selected")
                         )
                     )
                 }else return@withContext null
@@ -46,7 +40,7 @@ object PaymentService {
     suspend fun add(paymentDto: PaymentDto?): ResponseModel {
         if (paymentDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(paymentDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(ALREADY_EXISTS)
+        if (checkMerchant != null) update(paymentDto = paymentDto)
         return ResponseModel(
             body = repository.postData(
                 dataClass = PaymentTable::class,
@@ -64,6 +58,7 @@ object PaymentService {
                 "apelsin_merchant_token = ?, " +
                 "click_service_id = ${paymentDto?.clickServiceId}, " +
                 "click_key = ?, " +
+                "selected = ?, "+
                 "updated = ? \n" +
                 "where merchant_id = ${paymentDto?.merchantId} and not deleted "
         repository.connection().use {
@@ -71,18 +66,14 @@ object PaymentService {
                 this.setString(1, paymentDto?.paymeSecret)
                 this.setString(2, paymentDto?.apelsinMerchantToken)
                 this.setString(3, paymentDto?.clickKey)
-                this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
+                this.setString(4, paymentDto?.selected)
+                this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()
         }
         return true
     }
 
-    suspend fun delete(merchantId: Long?): Boolean {
-        val query = "update $PAYMENT_TABLE_NAME set deleted = true where merchant_id = $merchantId"
-        repository.connection().use {val rs = it.prepareStatement(query).execute()}
-        return true
-    }
 }
 
 
