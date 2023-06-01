@@ -1,6 +1,7 @@
 package mimsoft.io.room
 
-import mimsoft.io.utils.DBManager
+import mimsoft.io.repository.DBManager
+
 object RoomService : RoomRepository {
 
     override suspend fun getAll(): List<RoomTable?> =

@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.entities.outcome_type.OutcomeTypeService
-import mimsoft.io.entities.staff.StaffService
+import mimsoft.io.entities.staff.StaffService2
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ALREADY_EXISTS
@@ -17,6 +17,7 @@ object OutcomeService {
     val repository: BaseRepository = DBManager
     val merchant = MerchantRepositoryImp
     val mapper = OutcomeMapper
+
 
     suspend fun getAll(): List<OutcomeTable?> {
         return repository.getData(dataClass = OutcomeTable::class, tableName = OUTCOME_TABLE_NAME)
@@ -58,7 +59,7 @@ object OutcomeService {
     }
 
     suspend fun update(outcomeDto: OutcomeDto?): Boolean {
-        val staff = StaffService.get(outcomeDto?.staff?.phone)
+        val staff = StaffService2.get(outcomeDto?.staff?.phone)
         val outcomeType = OutcomeTypeService.get(outcomeDto?.outcomeType?.merchantId)
         val query = "update $OUTCOME_TABLE_NAME set " +
                 "name = ? , " +

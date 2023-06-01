@@ -5,8 +5,10 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.ALREADY_EXISTS
+import mimsoft.io.utils.MERCHANT_ID_NULL
+import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.StatusCode
 import java.sql.Timestamp
 object PosterService {
     val repository: BaseRepository = DBManager
@@ -39,15 +41,15 @@ object PosterService {
     }
 
     suspend fun add(posterDto: PosterDto?): ResponseModel {
-        if (posterDto?.merchantId == null) return ResponseModel(status = StatusCode.MERCHANT_ID_NULL)
+        if (posterDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(posterDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(status = StatusCode.ALREADY_EXISTS)
+        if (checkMerchant != null) return ResponseModel(httpStatus = ALREADY_EXISTS)
         return ResponseModel(
             body = repository.postData(
                 dataClass = PosterTable::class,
                 dataObject = mapper.toPosterTable(posterDto), tableName = POSTER_TABLE
             ),
-            status = StatusCode.OK
+            httpStatus = OK
         )
     }
 
