@@ -107,7 +107,7 @@ components:
           type: "integer"
           format: "long"
         name:
-          $ref: "#/components/schemas/TextModel"
+          $ref: "../merchant/merchant.yaml#/components/schemas/TextModel"
         logo:
           type: "string"
         domain:
