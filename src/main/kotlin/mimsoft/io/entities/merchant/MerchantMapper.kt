@@ -1,5 +1,4 @@
 package mimsoft.io.entities.merchant
-
 import mimsoft.io.utils.TextModel
 
 object MerchantMapper {
@@ -10,7 +9,10 @@ object MerchantMapper {
             nameRu = restaurantDto.name?.ru,
             nameEng = restaurantDto.name?.eng,
             logo = restaurantDto.logo,
-            domain = restaurantDto.domain
+            domain = restaurantDto.domain,
+            subdomain = restaurantDto.subdomain,
+            phone = restaurantDto.phone,
+            password = restaurantDto.password
         )
     }
 
@@ -24,7 +26,11 @@ object MerchantMapper {
                 eng = merchantTable.nameEng
             ),
             logo = merchantTable.logo,
-            domain = merchantTable.domain
+            domain = merchantTable.domain,
+            subdomain = merchantTable.subdomain,
+            phone = merchantTable.phone,
+            password = merchantTable.password,
+            isActive = merchantTable.isActive
         )
     }
 }

@@ -5,7 +5,10 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.*
+import mimsoft.io.utils.ALREADY_EXISTS
+import mimsoft.io.utils.MERCHANT_ID_NULL
+import mimsoft.io.utils.OK
+import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 object PaymentService {
     val repository: BaseRepository = DBManager
@@ -41,15 +44,15 @@ object PaymentService {
     }
 
     suspend fun add(paymentDto: PaymentDto?): ResponseModel {
-        if (paymentDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
+        if (paymentDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(paymentDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(httpStatus = ALREADY_EXISTS)
+        if (checkMerchant != null) return ResponseModel(ALREADY_EXISTS)
         return ResponseModel(
             body = repository.postData(
                 dataClass = PaymentTable::class,
                 dataObject = mapper.toPaymentTable(paymentDto), tableName = PAYMENT_TABLE_NAME
             ),
-            httpStatus = OK
+            OK
         )
     }
 

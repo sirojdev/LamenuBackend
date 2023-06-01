@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.role.RoleService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
@@ -13,7 +12,7 @@ import mimsoft.io.utils.OK
 
 fun Route.routeToStaffAuth(){
 
-    val staffService = StaffService
+    val staffService = StaffService2
     val sessionRepo = SessionRepository
 
     post("staff/auth") {

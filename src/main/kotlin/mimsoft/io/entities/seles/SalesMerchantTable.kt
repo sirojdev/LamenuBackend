@@ -1,9 +1,9 @@
-package mimsoft.io.entities.merchant
+package mimsoft.io.entities.seles
 
 import java.sql.Timestamp
 
-const val MERCHANT_TABLE_NAME = "merchant"
-data class MerchantTable(
+const val SALES_MERCHANT_TABLE_NAME = "sales_merchant"
+data class SalesMerchantTable(
     var id: Long? = null,
     var nameUz: String? = null,
     var nameRu: String? = null,

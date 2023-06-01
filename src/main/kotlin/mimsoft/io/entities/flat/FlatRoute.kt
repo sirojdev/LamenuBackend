@@ -7,10 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToFlat(){
-    val flatService: FlatService = FlatServiceImpl
+    val flatService : FlatRepository = FlatService
     val flatMapper = FlatMapper
     get("flats"){
-        val flats = flatService.getAll()
+        val flats = flatService.getAll().map { FlatMapper.toFlatDto(it) }
         if(flats.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -23,7 +23,7 @@ fun Route.routeToFlat(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val flat = flatService.get(id)
+        val flat = FlatMapper.toFlatDto(flatService.get(id))
         if(flat == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -33,13 +33,13 @@ fun Route.routeToFlat(){
 
     post ("flat"){
         val flat = call.receive<FlatDto>()
-        flatService.add(flat)
+        flatService.add(FlatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 
     put ("flat"){
         val flat = call.receive<FlatDto>()
-        flatService.update(flat)
+        flatService.update(FlatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 

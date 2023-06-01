@@ -14,18 +14,17 @@ fun Route.routeToStaff() {
     route("staffs") {
 
         get {
-            val staffs = StaffService.getAll()
+            val staffs = StaffService2.getAll()
             call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
         }
 
         get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
-            val merchantId = 1L
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val staff = StaffService.get(id = id, merchantId = merchantId)
+            val staff = StaffService2.get(id = id)
             if (staff == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -42,9 +41,8 @@ fun Route.routeToStaff() {
                 call.respond(statusTimestamp)
                 return@post
             }
-            val status = StaffService.add(staff)
+            val status = StaffService2.add(staff)
             call.respond(status.httpStatus, status)
-
         }
 
         put {
@@ -55,8 +53,18 @@ fun Route.routeToStaff() {
                 call.respond(statusTimestamp)
                 return@put
             }
-            val status = StaffService.update(staff)
+            val status = StaffService2.update(staff)
             call.respond(status.httpStatus, status)
+        }
+
+        delete ("{id}"){
+            val id = call.parameters["id"]?.toLongOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@delete
+            }
+            val staff = StaffService2.delete(id = id)
+            call.respond(staff)
         }
 
     }

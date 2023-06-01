@@ -1,34 +1,27 @@
-package mimsoft.io.entities.merchant
+package mimsoft.io.entities.seles
 
-import MerchantInterface
+import SalesMerchantInterface
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.admin.repository.MerchantRepositoryImp
 
 fun Route.routeToMerchant() {
 
-    val merchantRepository: MerchantInterface = MerchantRepositoryImp
+    val merchantRepository: SalesMerchantInterface = MerchantRepositoryImp
+
 
     route("merchant") {
 
-        get("info") {
-            val sub = call.parameters["sub"]
-            if (sub == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
-            }
-        }
-
         get {
-            val restaurants = merchantRepository.getAll().map { MerchantMapper.toMerchantDto(it) }
-            if (restaurants.isEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(HttpStatusCode.OK, restaurants)
+//            val restaurants = merchantRepository.getAll().map {AdminMerchantMapper.toAdminMerchantDto(it)}
+//            if (restaurants.isEmpty()) {
+//                call.respond(HttpStatusCode.NoContent)
+//                return@get
+//            }
+//            call.respond(HttpStatusCode.OK, restaurants)
         }
 
         get("{id}") {
@@ -37,7 +30,7 @@ fun Route.routeToMerchant() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val restaurant = MerchantMapper.toMerchantDto(merchantRepository.get(id))
+            val restaurant = SalesMerchantMapper.toSalesMerchantDto(merchantRepository.get(id))
             if (restaurant != null) {
                 call.respond(HttpStatusCode.OK, restaurant)
             } else {
@@ -46,14 +39,14 @@ fun Route.routeToMerchant() {
         }
 
         post {
-            val restaurant = call.receive<MerchantDto>()
-            val id = merchantRepository.add(MerchantMapper.toMerchantTable(restaurant))
-            call.respond(HttpStatusCode.OK, MerchantDto(id))
+            val restaurant = call.receive<SalesMerchantDto>()
+            val id = merchantRepository.add(SalesMerchantMapper.toSalesMerchantTable(restaurant))
+            call.respond(HttpStatusCode.OK, SalesMerchantDto(id))
         }
 
         put {
-            val restaurant = call.receive<MerchantDto>()
-            val updated = merchantRepository.update(MerchantMapper.toMerchantTable(restaurant))
+            val restaurant = call.receive<SalesMerchantDto>()
+            val updated = merchantRepository.update(SalesMerchantMapper.toSalesMerchantTable(restaurant))
             if (updated) call.respond(HttpStatusCode.OK)
             else call.respond(HttpStatusCode.InternalServerError)
         }
