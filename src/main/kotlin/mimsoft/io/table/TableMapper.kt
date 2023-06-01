@@ -1,6 +1,7 @@
 package mimsoft.io.table
 
 import mimsoft.io.entities.table.TableDto
+import mimsoft.io.entities.table.TableTable
 
 object TableMapper {
     fun toTableTable(tableDto: TableDto?): TableTable? {
