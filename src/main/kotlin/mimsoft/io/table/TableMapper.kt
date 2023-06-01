@@ -1,5 +1,7 @@
 package mimsoft.io.table
 
+import mimsoft.io.entities.table.TableDto
+
 object TableMapper {
     fun toTableTable(tableDto: TableDto?): TableTable? {
         return if (tableDto == null) null
