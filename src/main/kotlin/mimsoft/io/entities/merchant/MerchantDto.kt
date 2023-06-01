@@ -2,7 +2,7 @@ package mimsoft.io.entities.merchant
 
 import mimsoft.io.utils.TextModel
 
-data class MerchantDto(
+data class  MerchantDto(
     var id: Long? = null,
     var subdomain: String? = null,
     var logo: String? = null,

@@ -26,7 +26,6 @@ fun Route.routeToMenu() {
             categoryList = categories,
             productList = products
         )
-
         call.respond(HttpStatusCode.OK, menus)
     }
 

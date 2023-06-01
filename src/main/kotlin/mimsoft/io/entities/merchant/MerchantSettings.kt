@@ -31,7 +31,6 @@ fun Route.routeToMerchantSettings() {
         routeToCategory()
         routeToExtra()
         routeToLabel()
-        routeToMenu()
         routeToOption()
         routeToProduct()
         routeToOrder()

@@ -10,6 +10,7 @@ import mimsoft.io.repository.DBManager
 object MerchantRepositoryImp : MerchantInterface {
     override suspend fun getInfo(sub: String?): MerchantDto? {
         val query = "select * from $MERCHANT_TABLE_NAME where sub = '$sub'"
+        return null
     }
 
     override suspend fun getAll(): List<MerchantTable?> =

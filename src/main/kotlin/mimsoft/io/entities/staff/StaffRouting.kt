@@ -24,7 +24,6 @@ fun Route.routeToStaffApis() {
             routeToCategory()
             routeToExtra()
             routeToLabel()
-            routeToMenu()
             routeToOption()
             routeToProduct()
             routeToOrder()

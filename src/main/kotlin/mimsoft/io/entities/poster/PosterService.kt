@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ALREADY_EXISTS
 import mimsoft.io.utils.MERCHANT_ID_NULL
 import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
@@ -14,12 +13,6 @@ object PosterService {
     val repository: BaseRepository = DBManager
     val merchant = MerchantRepositoryImp
     val mapper = PosterMapper
-
-    suspend fun getAll(): List<PosterTable?> {
-        return repository.getData(dataClass = PosterTable::class, tableName = POSTER_TABLE)
-            .filterIsInstance<PosterTable?>()
-    }
-
     suspend fun get(merchantId: Long?): PosterDto? {
         val query = "select * from $POSTER_TABLE where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO){
@@ -33,6 +26,7 @@ object PosterService {
                             joinPosterApiKey = rs.getString("join_poster_api_key"),
                             rKeeperClientId = rs.getLong("r_keeper_client_id"),
                             rKeeperClientSecret = rs.getString("r_keeper_client_secret"),
+                            selected = rs.getString("selected")
                         )
                     )
                 }else return@withContext null
@@ -43,7 +37,7 @@ object PosterService {
     suspend fun add(posterDto: PosterDto?): ResponseModel {
         if (posterDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(posterDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(httpStatus = ALREADY_EXISTS)
+        if (checkMerchant != null) update(posterDto = posterDto)
         return ResponseModel(
             body = repository.postData(
                 dataClass = PosterTable::class,
@@ -53,27 +47,23 @@ object PosterService {
         )
     }
 
-    suspend fun update(posterDto: PosterDto?): Boolean {
+    fun update(posterDto: PosterDto?): Boolean {
         val query = "update $POSTER_TABLE set " +
                 "join_poster_api_key = ?, " +
                 "r_keeper_client_id = ${posterDto?.rKeeperClientId}," +
                 "r_keeper_client_secret = ?, " +
+                "selected = ?, "
                 "updated = ? \n" +
                 "where merchant_id = ${posterDto?.merchantId} and not deleted "
         repository.connection().use {
             val rs = it.prepareStatement(query).apply {
                 this.setString(1, posterDto?.joinPosterApiKey)
                 this.setString(2, posterDto?.rKeeperClientSecret)
-                this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                this.setString(3, posterDto?.selected)
+                this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()
         }
-        return true
-    }
-
-    suspend fun delete(merchantId: Long?): Boolean {
-        val query = "update $POSTER_TABLE set deleted = true where merchant_id = $merchantId"
-        repository.connection().use {val rs = it.prepareStatement(query).execute()}
         return true
     }
 }
