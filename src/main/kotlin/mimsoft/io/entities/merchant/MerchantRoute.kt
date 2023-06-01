@@ -11,7 +11,6 @@ import mimsoft.io.entities.merchant.repository.MerchantRepositoryImp
 fun Route.routeToMerchant() {
 
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
-
     route("merchant") {
 
         get("info") {

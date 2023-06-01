@@ -9,6 +9,7 @@ data class DeliveryTable(
     val yandexToken: String? = null,
     val expressId: Long? = null,
     val expressToken: String? = null,
+    val selected: String? = null,
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null

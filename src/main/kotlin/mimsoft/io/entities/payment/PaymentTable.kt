@@ -10,6 +10,7 @@ data class PaymentTable(
     val apelsinMerchantId: Long? = null,
     val apelsinMerchantToken: String? = null,
     val clickServiceId: Long? = null,
+    val selected: String? = null,
     val clickKey: String? = null,
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,

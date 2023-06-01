@@ -6,5 +6,6 @@ data class DeliveryDto(
     val yandexClientId: Long? = null,
     val yandexToken: String? = null,
     val expressId: Long? = null,
-    val expressToken: String? = null
+    val expressToken: String? = null,
+    val selected: String? = null
 )

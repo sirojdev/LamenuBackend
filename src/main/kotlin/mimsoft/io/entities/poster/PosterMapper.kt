@@ -8,7 +8,8 @@ object PosterMapper {
             merchantId = posterDto.merchantId,
             joinPosterApiKey = posterDto.joinPosterApiKey,
             rKeeperClientId = posterDto.rKeeperClientId,
-            rKeeperClientSecret = posterDto.rKeeperClientSecret
+            rKeeperClientSecret = posterDto.rKeeperClientSecret,
+            selected = posterDto.selected
         )
     }
 
@@ -19,7 +20,8 @@ object PosterMapper {
             merchantId = posterTable.merchantId,
             joinPosterApiKey = posterTable.joinPosterApiKey,
             rKeeperClientId = posterTable.rKeeperClientId,
-            rKeeperClientSecret = posterTable.rKeeperClientSecret
+            rKeeperClientSecret = posterTable.rKeeperClientSecret,
+            selected = posterTable.selected
         )
     }
 }

@@ -9,6 +9,7 @@ data class SmsGatewayTable(
     val eskizToken: String? = null,
     val playMobileServiceId: Long? = null,
     val playMobileKey: String? = null,
+    val selected: String? = null,
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null

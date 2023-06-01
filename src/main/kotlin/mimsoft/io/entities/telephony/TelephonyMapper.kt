@@ -15,7 +15,7 @@ object TelephonyMapper {
         else TelephonyDto(
             id = telephonyTable.id,
             merchantId = telephonyTable.merchantId,
-           onlinePbxToken = telephonyTable.onlinePbxToken
+            onlinePbxToken = telephonyTable.onlinePbxToken
         )
     }
 }

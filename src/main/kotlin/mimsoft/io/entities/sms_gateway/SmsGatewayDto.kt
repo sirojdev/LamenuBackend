@@ -6,4 +6,5 @@ data class SmsGatewayDto (
     val eskizToken: String? = null,
     val playMobileServiceId: Long? = null,
     val playMobileKey: String? = null,
+    val selected: String? = null
 )
