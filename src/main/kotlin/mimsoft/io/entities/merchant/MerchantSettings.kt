@@ -4,6 +4,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.entities.app.routeToApp
 import mimsoft.io.entities.branch.routeToBranch
 import mimsoft.io.entities.category.routeToCategory
+import mimsoft.io.entities.client.routeToUser
 import mimsoft.io.entities.delivery.routeToDelivery
 import mimsoft.io.entities.extra.routeToExtra
 import mimsoft.io.entities.flat.routeToFlat
@@ -45,5 +46,6 @@ fun Route.routeToMerchantSettings() {
         routeToTelephony()
         routeToDelivery()
         outcomeTypeRoute()
+        routeToUser()
     }
 }

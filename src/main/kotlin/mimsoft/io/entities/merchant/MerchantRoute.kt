@@ -19,6 +19,12 @@ fun Route.routeToMerchant() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
+            val merchant = merchantRepository.getInfo(sub)
+            if (merchant != null) {
+                call.respond(HttpStatusCode.OK, merchant)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
 
         get {

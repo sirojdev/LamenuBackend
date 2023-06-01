@@ -7,7 +7,7 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.plugins.*
 
 fun main() {
-    embeddedServer(Netty, port = 8181, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
 

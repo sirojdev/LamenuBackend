@@ -53,8 +53,6 @@ tags:
   - name: Delivery
     description: Endpoints related to delivery
 
-
-
 paths:
 
   /merchant/settings/extras:

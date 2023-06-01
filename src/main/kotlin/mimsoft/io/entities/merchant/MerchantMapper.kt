@@ -9,8 +9,7 @@ object MerchantMapper {
             nameRu = restaurantDto.name?.ru,
             nameEng = restaurantDto.name?.eng,
             logo = restaurantDto.logo,
-            domain = restaurantDto.domain,
-            subdomain = restaurantDto.subdomain,
+            sub = restaurantDto.sub,
             phone = restaurantDto.phone,
             password = restaurantDto.password
         )
@@ -26,8 +25,7 @@ object MerchantMapper {
                 eng = merchantTable.nameEng
             ),
             logo = merchantTable.logo,
-            domain = merchantTable.domain,
-            subdomain = merchantTable.subdomain,
+            sub = merchantTable.sub,
             phone = merchantTable.phone,
             password = merchantTable.password,
             isActive = merchantTable.isActive
