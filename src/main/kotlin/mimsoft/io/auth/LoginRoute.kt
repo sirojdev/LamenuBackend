@@ -16,7 +16,6 @@ import mimsoft.io.rsa.Generator
 import mimsoft.io.rsa.GeneratorModel
 import mimsoft.io.rsa.Status
 import mimsoft.io.services.SmsService
-import mimsoft.io.services.SmsServiceIml
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
@@ -41,7 +40,7 @@ fun Route.routeToLogin() {
             return@post
         }
 
-        val smsService: SmsService = SmsServiceIml
+        val smsService: SmsService = SmsService
         val generator = Generator
 
         val generated = generator.generate()

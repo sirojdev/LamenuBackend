@@ -8,3 +8,7 @@ data class SmsGatewayDto (
     val playMobileKey: String? = null,
     val selected: String? = null
 )
+
+enum class SMSGatewaySelected {
+    ESKIZ, PLAY_MOBILE
+}

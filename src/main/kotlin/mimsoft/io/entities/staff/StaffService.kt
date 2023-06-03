@@ -12,7 +12,7 @@ import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
 import java.util.UUID
 
-object StaffService2 {
+object StaffService {
     val mapper = StaffMapper
     val repository: BaseRepository = DBManager
     suspend fun auth(staff: StaffDto?): ResponseModel {

@@ -14,3 +14,4 @@ data class SmsGatewayTable(
     val updated: Timestamp? = null,
     val created: Timestamp? = null
 )
+

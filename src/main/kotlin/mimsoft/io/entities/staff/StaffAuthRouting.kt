@@ -12,7 +12,7 @@ import mimsoft.io.utils.OK
 
 fun Route.routeToStaffAuth(){
 
-    val staffService = StaffService2
+    val staffService = StaffService
     val sessionRepo = SessionRepository
 
     post("staff/auth") {

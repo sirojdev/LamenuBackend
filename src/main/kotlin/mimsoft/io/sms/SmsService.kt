@@ -27,7 +27,7 @@ object SmsService {
             .firstOrNull()
     }
 
-    suspend fun post(smsDto: SmsDto?): Long? {
+    suspend fun post(smsDto: SmsDto? ): Long? {
         return repository.postData(SmsTable::class,
             mapper.toTable(smsDto)?.copy(time = Timestamp(System.currentTimeMillis())),
             tableName = "sms")
