@@ -6,8 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.entities.payment.PaymentDto
-import mimsoft.io.entities.payment.PaymentService
-import mimsoft.io.entities.payment.SmsGatewayService
 
 fun Route.routeToSmsGateways(){
 

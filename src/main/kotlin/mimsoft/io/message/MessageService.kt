@@ -4,8 +4,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import mimsoft.io.entities.client.repository.UserRepository
+import mimsoft.io.entities.client.repository.UserRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.services.SmsSender
 import mimsoft.io.sms.SmsService
 import java.sql.Timestamp
 
@@ -14,6 +17,8 @@ object MessageService {
     val repository: BaseRepository = DBManager
     val mapper: MessageMapper = MessageMapper
     private val smsService: SmsService = SmsService
+    private val smsSender: SmsSender = SmsSender
+    private val userRepository: UserRepository = UserRepositoryImpl
     suspend fun getAll(): List<MessageDto?> {
         val messages = repository.getData(MessageTable::class, tableName = "message")
             .map { mapper.toDto(it as MessageTable) }
@@ -30,9 +35,26 @@ object MessageService {
     }
 
     suspend fun post(messageDto: MessageDto?): Long? {
-        return repository.postData(MessageTable::class,
+        val messageId =  repository.postData(MessageTable::class,
             mapper.toTable(messageDto?.copy(time = Timestamp(System.currentTimeMillis()).toString())),
             tableName = "message")
+
+
+        coroutineScope {
+            messageDto?.smss?.forEach {
+                launch {
+                    userRepository.get(it?.clientId ?: 0)?.phone?.let { it1 ->
+                        smsSender.send(
+                            phone = it1,
+                            content = messageDto.content,
+                            merchantId = messageDto.merchantId
+                        )
+                    }
+                    smsService.post(it?.copy(messageId = messageId))
+                }
+            }
+        }
+        return messageId
     }
 
     suspend fun update(messageDto: MessageDto?): Boolean {

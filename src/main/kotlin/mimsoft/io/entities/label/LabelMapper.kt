@@ -6,7 +6,6 @@ object LabelMapper {
     fun toLabelTable(labelDto: LabelDto?): LabelTable? {
         return if (labelDto == null) null else LabelTable(
             id = labelDto.id,
-            menuId = labelDto.menuId,
             nameUz = labelDto.name?.uz,
             nameRu = labelDto.name?.ru,
             nameEng = labelDto.name?.eng,
@@ -20,7 +19,6 @@ object LabelMapper {
         return if (labelTable == null) null
         else LabelDto(
             id = labelTable.id,
-            menuId = labelTable.menuId,
             name = TextModel(
                 uz = labelTable.nameUz,
                 ru = labelTable.nameRu,

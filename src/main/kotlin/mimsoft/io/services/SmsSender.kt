@@ -1,17 +1,17 @@
 package mimsoft.io.services
 
-import mimsoft.io.entities.payment.SmsGatewayService
+import mimsoft.io.entities.sms_gateway.SmsGatewayService
 import mimsoft.io.entities.sms_gateway.SMSGatewaySelected
 
-object SmsService {
+object SmsSender {
     private val smsGateway = SmsGatewayService
     private val eskizService = EskizService
     private val playMobileService = PlayMobileService
-    suspend fun send(merchantId: Long?, phone: String, code: Long?) {
+    suspend fun send(merchantId: Long?, phone: String, content: String?) {
         val gateway = smsGateway.get(merchantId)
         val smsService: SmsInterface
         val key: String?
-        val serviceId: Long?
+        val serviceId: String?
         when (gateway?.selected) {
             SMSGatewaySelected.ESKIZ.name -> {
                 smsService = eskizService
@@ -28,7 +28,7 @@ object SmsService {
             else -> return
         }
 
-        smsService.send(merchantId, phone, code, key, serviceId)
+        smsService.send(phone, content, key, serviceId)
 
     }
 }

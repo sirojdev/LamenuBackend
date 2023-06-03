@@ -5,7 +5,6 @@ import java.sql.Timestamp
 const val LABEL_TABLE_NAME = "label"
 data class LabelTable(
     var id: Long? = null,
-    val menuId: Long? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
     val nameEng: String? = null,

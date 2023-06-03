@@ -2,6 +2,7 @@ package mimsoft.io.entities.merchant.settings
 
 import io.ktor.server.routing.*
 import mimsoft.io.entities.app.routeToApp
+import mimsoft.io.entities.badge.routeToBadge
 import mimsoft.io.entities.branch.routeToBranch
 import mimsoft.io.entities.category.routeToCategory
 import mimsoft.io.entities.client.routeToUser
@@ -47,6 +48,7 @@ fun Route.routeToMerchantSettings() {
         outcomeTypeRoute()
         routeToUser()
         routeToProfileSettings()
+        routeToBadge()
     }
 
 }

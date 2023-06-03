@@ -2,11 +2,10 @@ package mimsoft.io.services
 
 object PlayMobileService : SmsInterface {
     override suspend fun send(
-        merchantId: Long?,
         phone: String,
-        code: Long?,
+        content: String?,
         key: String?,
-        serviceId: Long?
+        serviceId: String?
     ) {
         println("PlayMobileService.send")
     }
