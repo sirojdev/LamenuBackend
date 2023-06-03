@@ -1,6 +1,6 @@
 package mimsoft.io.position
 
-import mimsoft.io.role.RoleDto
+import mimsoft.io.auth.role.RoleDto
 
 data class PositionDto(
     val id: Long? = null,

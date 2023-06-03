@@ -4,13 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.admin.routeToAdmin
-import mimsoft.io.auth.routeToLogin
-import mimsoft.io.entities.address.routeToAddress
-import mimsoft.io.entities.client.routeToUser
-import mimsoft.io.entities.menu.routeToClient
-import mimsoft.io.entities.merchant.profile.routeToMerchantProfile
-import mimsoft.io.entities.staff.routeToStaffApis
+import mimsoft.io.routing.routeToV1
 
 fun Application.configureRouting() {
     routing {
@@ -19,18 +13,10 @@ fun Application.configureRouting() {
         }
 
         route("v1"){
-            routeToAdmin()
-            routeToMerchantProfile()
-            routeToClient()
-            routeToStaffApis()
-            routeToUser()
-            routeToLogin()
-            routeToAddress()
-
-            swaggerUI(path = "docs/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {
-                version = "4.15.5"
-            }
-
+            routeToV1()
+        }
+        swaggerUI(path = "docs/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {
+            version = "4.15.5"
         }
 
         swaggerUI(path = "swagger/user", swaggerFile = "openapi/user.yaml") {
