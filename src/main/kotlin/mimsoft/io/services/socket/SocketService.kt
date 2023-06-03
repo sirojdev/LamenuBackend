@@ -1,4 +1,4 @@
-package mimsoft.io.socket
+package mimsoft.io.services.socket
 
 import com.google.gson.Gson
 import io.ktor.websocket.*

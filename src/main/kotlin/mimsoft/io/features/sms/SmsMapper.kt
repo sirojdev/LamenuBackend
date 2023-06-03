@@ -1,4 +1,4 @@
-package mimsoft.io.sms
+package mimsoft.io.features.sms
 
 import java.sql.Timestamp
 

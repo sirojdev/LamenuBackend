@@ -1,4 +1,4 @@
-package mimsoft.io.onlinePbx
+package mimsoft.io.integrate.onlinePbx
 
 data class PbxHookModel(
     val event: String? = null,

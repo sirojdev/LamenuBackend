@@ -1,4 +1,4 @@
-package mimsoft.io.telegram_bot
+package mimsoft.io.features.telegram_bot
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -9,7 +9,8 @@ fun Route.routeToBot() {
     val botService: BotRepository = BotService
     val botMapper = BotMapper
     get("bots") {
-        val bots = botService.getAll().map { BotMapper.toBotDto(it)
+        val bots = botService.getAll().map {
+            BotMapper.toBotDto(it)
         }
         if (bots.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)

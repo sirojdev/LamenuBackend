@@ -1,6 +1,6 @@
 package mimsoft.io.features.message
 
-import mimsoft.io.sms.SmsDto
+import mimsoft.io.features.sms.SmsDto
 
 data class MessageDto(
     val id: Long? = null,

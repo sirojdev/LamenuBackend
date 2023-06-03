@@ -1,4 +1,4 @@
-package mimsoft.io.socket
+package mimsoft.io.services.socket
 
 import io.ktor.websocket.*
 

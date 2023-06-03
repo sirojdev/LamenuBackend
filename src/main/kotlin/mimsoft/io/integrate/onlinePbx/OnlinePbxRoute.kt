@@ -1,4 +1,4 @@
-package mimsoft.io.onlinePbx
+package mimsoft.io.integrate.onlinePbx
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -27,8 +27,8 @@ fun Route.routeOnlinePbx() {
             val caller = webhook["caller"]
             val callee = webhook["callee"]
 
-            olinePbxService.sendWebSocketMessage(PbxHookModel(event, direction, caller, callee))
-            olinePbxService.saveHook(event, direction, caller, callee, webhook.toString())
+            OnlinePbxService.sendWebSocketMessage(PbxHookModel(event, direction, caller, callee))
+            OnlinePbxService.saveHook(event, direction, caller, callee, webhook.toString())
         }
 
         get("callsHistory") {
@@ -41,7 +41,7 @@ fun Route.routeOnlinePbx() {
             val start = SimpleDateFormat("yyyy-MM-dd").parse(startStampFrom).time / 1000
             val end = start + 86400
 
-            val calls = olinePbxService.callHistories(start, end)
+            val calls = OnlinePbxService.callHistories(start, end)
             if (calls != null) {
                 call.respond(calls)
             }

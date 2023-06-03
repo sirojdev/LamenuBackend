@@ -1,4 +1,4 @@
-package mimsoft.io.telegram_bot
+package mimsoft.io.features.telegram_bot
 
 object BotMapper {
     fun toBotTable(botDto: BotDto?) : BotTable? {

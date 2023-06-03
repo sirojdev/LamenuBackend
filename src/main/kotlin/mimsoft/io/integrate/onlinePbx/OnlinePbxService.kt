@@ -1,11 +1,11 @@
-package mimsoft.io.onlinePbx
+package mimsoft.io.integrate.onlinePbx
 
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.socket.SocketService
+import mimsoft.io.services.socket.SocketService
 import mimsoft.io.utils.OkHttp
 import java.sql.Timestamp
 

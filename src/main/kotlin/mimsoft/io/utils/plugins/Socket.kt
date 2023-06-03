@@ -5,10 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import mimsoft.io.socket.MessageModel
-import mimsoft.io.socket.SocketEntity
-import mimsoft.io.socket.SocketService
-import mimsoft.io.socket.StatusConnection
+import mimsoft.io.services.socket.MessageModel
+import mimsoft.io.services.socket.SocketEntity
+import mimsoft.io.services.socket.SocketService
+import mimsoft.io.services.socket.StatusConnection
 import java.time.Duration
 
 fun Application.configureSocket() {
@@ -25,7 +25,8 @@ fun Application.configureSocket() {
             send(
                 Gson().toJson(
                     MessageModel(
-                        message = StatusConnection.CONNECTED.value)))
+                        message = StatusConnection.CONNECTED.value)
+                ))
 
             try {
 

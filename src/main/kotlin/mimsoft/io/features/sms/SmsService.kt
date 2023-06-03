@@ -1,4 +1,4 @@
-package mimsoft.io.sms
+package mimsoft.io.features.sms
 
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -10,7 +10,7 @@ object SmsService {
 
     suspend fun getAll(): List<SmsDto?> {
         return repository.getData(SmsTable::class, tableName = "sms")
-            .map { mapper.toDto(it as SmsTable) }
+            .map { SmsMapper.toDto(it as SmsTable) }
     }
 
     suspend fun getByMessageId(messageId: Long): List<SmsDto?> {
@@ -18,23 +18,24 @@ object SmsService {
             SmsTable::class,
             tableName = "sms",
             where = mapOf("message_id" to messageId as Any
-        ))?.data?.map { mapper.toDto(it) } ?: emptyList()
+        ))?.data?.map { SmsMapper.toDto(it) } ?: emptyList()
     }
 
     suspend fun get(id: Long): SmsDto? {
         return repository.getData(SmsTable::class, id, tableName = "sms")
-            .map { mapper.toDto(it as SmsTable) }
+            .map { SmsMapper.toDto(it as SmsTable) }
             .firstOrNull()
     }
 
     suspend fun post(smsDto: SmsDto? ): Long? {
-        return repository.postData(SmsTable::class,
-            mapper.toTable(smsDto)?.copy(time = Timestamp(System.currentTimeMillis())),
+        return repository.postData(
+            SmsTable::class,
+            SmsMapper.toTable(smsDto)?.copy(time = Timestamp(System.currentTimeMillis())),
             tableName = "sms")
     }
 
     suspend fun update(smsDto: SmsDto?): Boolean {
-        return repository.updateData(SmsTable::class, mapper.toTable(smsDto), tableName = "sms")
+        return repository.updateData(SmsTable::class, SmsMapper.toTable(smsDto), tableName = "sms")
     }
 
     suspend fun delete(id: Long): Boolean {

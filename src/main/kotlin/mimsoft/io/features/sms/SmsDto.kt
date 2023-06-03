@@ -1,4 +1,4 @@
-package mimsoft.io.sms
+package mimsoft.io.features.sms
 
 data class SmsDto (
     val id: Long? = null,

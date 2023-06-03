@@ -1,4 +1,4 @@
-package mimsoft.io.onlinePbx
+package mimsoft.io.integrate.onlinePbx
 
 import com.google.gson.annotations.SerializedName
 

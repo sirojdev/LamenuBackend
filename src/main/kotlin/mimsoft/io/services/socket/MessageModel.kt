@@ -1,4 +1,4 @@
-package mimsoft.io.socket
+package mimsoft.io.services.socket
 
 data class MessageModel(
     val message: String? = null,

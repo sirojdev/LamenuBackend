@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.sms.SmsService
+import mimsoft.io.features.sms.SmsService
 import java.sql.Timestamp
 
 object MessageService {

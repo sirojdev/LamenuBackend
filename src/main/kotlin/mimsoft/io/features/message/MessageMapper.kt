@@ -1,6 +1,6 @@
 package mimsoft.io.features.message
 
-import mimsoft.io.sms.SmsMapper
+import mimsoft.io.features.sms.SmsMapper
 import java.sql.Timestamp
 
 object MessageMapper {

@@ -1,4 +1,4 @@
-package mimsoft.io.onlinePbx
+package mimsoft.io.integrate.onlinePbx
 
 import com.google.gson.Gson
 import mimsoft.io.utils.OkHttp
@@ -8,7 +8,7 @@ object OnPBXAuth {
 
         val request = OkHttp.request(
             mediaType = FORM_URLENCODED,
-            body = "auth_key=${AUTH_KEY}&new=true",
+            body = "auth_key=$AUTH_KEY&new=true",
             url = AUTH_URL,
             method = POST
         )

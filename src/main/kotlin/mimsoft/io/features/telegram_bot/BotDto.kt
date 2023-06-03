@@ -1,4 +1,4 @@
-package mimsoft.io.telegram_bot
+package mimsoft.io.features.telegram_bot
 
 data class BotDto(
     val id : Long? = null,

@@ -1,6 +1,6 @@
 package mimsoft.io.features.message
 
-import mimsoft.io.sms.SmsTable
+import mimsoft.io.features.sms.SmsTable
 import java.sql.Timestamp
 
 data class MessageTable(
