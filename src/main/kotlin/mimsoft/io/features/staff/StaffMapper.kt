@@ -2,7 +2,7 @@ package mimsoft.io.features.staff
 
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
-import mimsoft.io.position.PositionDto
+import mimsoft.io.auth.position.PositionDto
 
 object StaffMapper {
 

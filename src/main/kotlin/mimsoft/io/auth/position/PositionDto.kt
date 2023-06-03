@@ -1,4 +1,4 @@
-package mimsoft.io.position
+package mimsoft.io.auth.position
 
 import mimsoft.io.auth.role.RoleDto
 
