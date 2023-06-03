@@ -1,11 +1,11 @@
 openapi: "3.0.3"
 info:
-  title: "Lamenu documentation for Users"
-  description: "Lamenu documentation allows to you view the schema of Lamenu project"
+  title: "Lamenu documentation Merchant"
+  description: "Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project"
   version: "1.0.0"
 servers:
-  - url: 'http://0.0.0.0:8181/api/v1/'
-  - url: 'http://188.166.167.80:8181/api/v1/'
+  - url: 'http://0.0.0.0:9000/api/v1/'
+  - url: 'http://188.166.167.80:9000/api/v1/'
 
 tags:
   - name: Auth
@@ -1173,10 +1173,167 @@ paths:
         "400":
           description: "Bad Request"
 
+#//==================================================================================================CRM
+  /merchant/crm/smss:
+    get:
+      summary: Get all SMS messages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmsDto'
+        '204':
+          description: No content
+      tags:
+        - CRM
+
+  /merchant/crm/sms:
+    post:
+      summary: Create a new SMS message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+
+  /merchant/crm/sms/{id}:
+    get:
+      summary: Get a single SMS message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the SMS message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsDto'
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+    delete:
+      summary: Delete a single SMS message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the SMS message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+
+  /merchant/crm/messages:
+    get:
+      summary: Get all messages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageDto'
+        '204':
+          description: No content
+      tags:
+        - CRM
+
+  /merchant/crm/message:
+    post:
+      summary: Create a new message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+  /message/{id}:
+    get:
+      summary: Get a single message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDto'
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+    delete:
+      summary: Delete a single message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - CRM
 
 
 
-#//==================================================================================================
+#//==================================================================================================FINANCE
   /merchant/finance/outcomes:
     get:
       tags:
@@ -1262,9 +1419,43 @@ paths:
         "400":
           description: "Bad Request"
 
-
+#//==================================================================================================SCHEMAS
 components:
   schemas:
+    SmsDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        messageId:
+          type: "integer"
+          format: "long"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        status:
+          type: "string"
+
+    MessageDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        content:
+          type: "string"
+        time:
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        smss:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SmsDto"
+
     OrderDto:
       type: "object"
       properties:

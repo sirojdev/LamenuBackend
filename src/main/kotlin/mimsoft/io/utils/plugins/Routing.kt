@@ -27,6 +27,10 @@ fun Application.configureRouting() {
             routeToLogin()
             routeToAddress()
 
+            swaggerUI(path = "docs/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {
+                version = "4.15.5"
+            }
+
         }
 
         swaggerUI(path = "swagger/user", swaggerFile = "openapi/user.yaml") {
@@ -42,9 +46,7 @@ fun Application.configureRouting() {
         swaggerUI(path = "swagger/admin", swaggerFile = "openapi/admin/merchant.yaml") {
             version = "4.15.5"
         }
-        swaggerUI(path = "swagger/merchant/staff", swaggerFile = "openapi/merchant/staff.yaml") {
-            version = "4.15.5"
-        }
+
     }
 }
 

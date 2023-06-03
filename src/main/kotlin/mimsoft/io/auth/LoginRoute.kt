@@ -45,7 +45,7 @@ fun Route.routeToLogin() {
 
         val generated = generator.generate()
 
-        smsService.send(loginRequest.phone, code = generated.code)
+//        smsService.send(loginRequest.phone, code = generated.code)
 
         val deviceId = DeviceController.add(
             DeviceTable(
