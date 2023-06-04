@@ -1,8 +1,8 @@
-package mimsoft.io.features.label
+package mimsoft.io.features.badge
 
 import mimsoft.io.utils.TextModel
 
-data class LabelDto(
+data class BadgeDto(
     var id: Long? = null,
     val name: TextModel? = null,
     val textColor: String? = null,

@@ -1,12 +1,13 @@
 package mimsoft.io.features.message
 
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
+import mimsoft.io.features.client.repository.UserRepository
+import mimsoft.io.features.client.repository.UserRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.features.sms.SmsService
+import mimsoft.io.services.sms.SmsSenderService
 import java.sql.Timestamp
 
 object MessageService {
@@ -14,6 +15,8 @@ object MessageService {
     val repository: BaseRepository = DBManager
     val mapper: MessageMapper = MessageMapper
     private val smsService: SmsService = SmsService
+    private val smsSender: SmsSenderService = SmsSenderService
+    private val userRepository: UserRepository = UserRepositoryImpl
     suspend fun getAll(): List<MessageDto?> {
         val messages = repository.getData(MessageTable::class, tableName = "message")
             .map { MessageMapper.toDto(it as MessageTable) }
@@ -30,10 +33,30 @@ object MessageService {
     }
 
     suspend fun post(messageDto: MessageDto?): Long? {
-        return repository.postData(
+
+
+        val messageId = repository.postData(
             MessageTable::class,
-            MessageMapper.toTable(messageDto?.copy(time = Timestamp(System.currentTimeMillis()).toString())),
-            tableName = "message")
+            mapper.toTable(messageDto?.copy(time = Timestamp(System.currentTimeMillis()).toString())),
+            tableName = "message"
+        )
+
+
+        coroutineScope {
+            messageDto?.smss?.forEach {
+                launch {
+                    userRepository.get(it?.clientId ?: 0)?.phone?.let { it1 ->
+                        smsSender.send(
+                            phone = it1,
+                            content = messageDto.content,
+                            merchantId = messageDto.merchantId
+                        )
+                    }
+                    smsService.post(it?.copy(messageId = messageId))
+                }
+            }
+        }
+        return messageId
     }
 
     suspend fun update(messageDto: MessageDto?): Boolean {
