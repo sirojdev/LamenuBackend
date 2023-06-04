@@ -6,7 +6,7 @@ import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.services.sms.SmsProvider
-import mimsoft.io.services.sms.providers.EskizProvider
+import mimsoft.io.services.sms.providers.eskiz.EskizProvider
 import mimsoft.io.services.sms.providers.PlayMobileProvider
 import mimsoft.io.utils.MERCHANT_ID_NULL
 import mimsoft.io.utils.OK
@@ -19,14 +19,17 @@ object SmsGatewayService {
     val mapper = SmsGatewayMapper
 
     suspend fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
-        return when (smsGatewayDto?.selected) {
+        val merchantId = smsGatewayDto?.merchantId ?: return null
+        return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
                 key = smsGatewayDto.playMobileKey,
-                serviceId = smsGatewayDto.playMobileServiceId.toString()
+                serviceId = smsGatewayDto.playMobileServiceId,
+                merchantId = smsGatewayDto.merchantId
             )
             SMSGatewaySelected.ESKIZ.name -> EskizProvider(
                 key = smsGatewayDto.playMobileKey,
-                serviceId = smsGatewayDto.playMobileServiceId.toString()
+                serviceId = smsGatewayDto.playMobileServiceId,
+                merchantId = smsGatewayDto.merchantId
             )
             else -> null
         }
@@ -40,9 +43,9 @@ object SmsGatewayService {
                 if (rs.next()) {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
-                            eskizId = rs.getLong("eskiz_id"),
+                            eskizId = rs.getString("eskiz_id"),
                             eskizToken = rs.getString("eskiz_token"),
-                            playMobileServiceId = rs.getLong("play_mobile_service_id"),
+                            playMobileServiceId = rs.getString("play_mobile_service_id"),
                             playMobileKey = rs.getString("play_mobile_key"),
                             selected = rs.getString("selected")
                         )
