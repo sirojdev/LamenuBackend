@@ -6,57 +6,53 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.routeToRoom(){
-    val roomService : RoomRepository = RoomService
+fun Route.routeToRoom() {
+    val roomService: RoomRepository = RoomService
     val roomMapper = RoomMapper
-    get("rooms"){
-        val rooms = roomService.getAll().map { RoomMapper.toRoomDto(it) }
-        if(rooms.isEmpty()){
+    get("rooms") {
+        val rooms = roomService.getAll().map { roomMapper.toRoomDto(it) }
+        if (rooms.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }else call.respond(rooms)
+        } else call.respond(rooms)
     }
 
-    get("room/{id}"){
+    get("room/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
-        if(id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = RoomMapper.toRoomDto(roomService.get(id))
-        if(room == null){
+        val room = roomMapper.toRoomDto(roomService.get(id))
+        if (room == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
         call.respond(room)
     }
 
-    post ("room"){
+    post("room") {
         val room = call.receive<RoomDto>()
-        roomService.add(RoomMapper.toRoomTable(room))
+        roomService.add(roomMapper.toRoomTable(room))
         call.respond(HttpStatusCode.OK)
     }
 
-    put ("room"){
+    put("room") {
         val room = call.receive<RoomDto>()
-        roomService.update(RoomMapper.toRoomTable(room))
+        roomService.update(roomMapper.toRoomTable(room))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("room"){
+    delete("room") {
         val roomDto = call.receive<RoomDto>()
         val id = roomDto.id
-        if(id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
         roomService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
-
-
-
-
 
 
 }

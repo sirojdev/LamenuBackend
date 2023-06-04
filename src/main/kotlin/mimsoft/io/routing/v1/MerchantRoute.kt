@@ -1,4 +1,4 @@
-package mimsoft.io.routing.merchant
+package mimsoft.io.routing.v1
 
 import io.ktor.server.routing.*
 import mimsoft.io.entities.client.user.routeToUser

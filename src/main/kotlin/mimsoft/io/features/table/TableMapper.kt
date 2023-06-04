@@ -1,24 +1,29 @@
 package mimsoft.io.features.table
 
+import mimsoft.io.entities.table.TableTable
+
 object TableMapper {
     fun toTableTable(tableDto: TableDto?): TableTable? {
         return if (tableDto == null) null
         else TableTable(
             id = tableDto.id,
             name = tableDto.name,
-            roomId = tableDto.roomId,
             qr = tableDto.qr,
-            restaurantId = tableDto.restaurantId
+            roomId = tableDto.roomId,
+            branchId = tableDto.branchId,
+            merchantId = tableDto.merchantId
         )
     }
+
     fun toTableDto(tableTable: TableTable?): TableDto? {
-        return if(tableTable == null) null
+        return if (tableTable == null) null
         else TableDto(
             id = tableTable.id,
             name = tableTable.name,
             roomId = tableTable.roomId,
             qr = tableTable.qr,
-            restaurantId = tableTable.restaurantId
+            branchId = tableTable.branchId,
+            merchantId = tableTable.merchantId
         )
     }
 

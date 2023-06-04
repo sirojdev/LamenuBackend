@@ -1,6 +1,7 @@
 package mimsoft.io.features.table
 
-import mimsoft.io.features.table.TableTable
+import mimsoft.io.entities.table.TableTable
+
 
 interface TableRepository {
     suspend fun getAll(): List<TableTable?>

@@ -1,23 +1,31 @@
 package mimsoft.io.features.badge
 
+import mimsoft.io.utils.TextModel
+
 object BadgeMapper {
 
     fun toDto(badgeTable: BadgeTable?): BadgeDto? {
-        return if (badgeTable==null) null
+        return if (badgeTable == null) null
         else BadgeDto(
             id = badgeTable.id,
-            name = badgeTable.name,
+            name = TextModel(
+                uz = badgeTable.nameUz,
+                ru = badgeTable.nameRu,
+                eng = badgeTable.nameEng
+            ),
             textColor = badgeTable.textColor,
             bgColor = badgeTable.bgColor,
-            icon = badgeTable.icon,
+            icon = badgeTable.icon
         )
     }
 
     fun toTable(badgeDto: BadgeDto?): BadgeTable? {
-        return if (badgeDto==null) null
-            else BadgeTable(
+        return if (badgeDto == null) null
+        else BadgeTable(
             id = badgeDto.id,
-            name = badgeDto.name,
+            nameUz = badgeDto.name?.uz,
+            nameRu = badgeDto.name?.ru,
+            nameEng = badgeDto.name?.eng,
             textColor = badgeDto.textColor,
             bgColor = badgeDto.bgColor,
             icon = badgeDto.icon,

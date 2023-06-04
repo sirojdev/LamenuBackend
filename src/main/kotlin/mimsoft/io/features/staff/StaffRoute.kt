@@ -11,7 +11,7 @@ import mimsoft.io.utils.*
 
 fun Route.routeToStaff() {
 
-    route("staffs") {
+    route("staff") {
 
         get {
             val staffs = StaffService.getAll()

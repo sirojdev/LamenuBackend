@@ -1,4 +1,4 @@
-package mimsoft.io.features.table
+package mimsoft.io.entities.table
 import java.sql.Timestamp
 const val TABLE_TABLE_NAME = "tables"
 data class TableTable(
@@ -6,7 +6,8 @@ data class TableTable(
         val name: String? = null,
         val roomId: Long? = null,
         val qr: String? = null,
-        val restaurantId: Long? = null,
+        val branchId: Long? = null,
+        val merchantId: Long? = null,
         var deleted: Boolean? = null,
         var created: Timestamp? = null,
         var updated: Timestamp? = null

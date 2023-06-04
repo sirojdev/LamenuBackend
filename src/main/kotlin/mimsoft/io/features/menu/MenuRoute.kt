@@ -6,7 +6,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.repository.CategoryRepository
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
 import mimsoft.io.features.product.ProductMapper
@@ -28,6 +27,4 @@ fun Route.routeToMenu() {
         )
         call.respond(HttpStatusCode.OK, menus)
     }
-
-
 }

@@ -6,17 +6,18 @@ object RoomMapper {
         else RoomTable(
             id = roomDto.id,
             name = roomDto.name,
-            flatId = roomDto.flatId,
-            restaurantId = roomDto.restaurantId
+            branchId = 0,
+            merchantId = 0
         )
     }
+
     fun toRoomDto(roomTable: RoomTable?): RoomDto? {
-        return if(roomTable == null) null
+        return if (roomTable == null) null
         else RoomDto(
             id = roomTable.id,
             name = roomTable.name,
-            flatId = roomTable.flatId,
-            restaurantId = roomTable.restaurantId
+            branchId = roomTable.branchId,
+            merchantId = roomTable.merchantId
         )
     }
 

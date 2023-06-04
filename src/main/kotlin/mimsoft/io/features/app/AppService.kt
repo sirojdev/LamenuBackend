@@ -1,7 +1,11 @@
-package mimsoft.io.features.app
+package mimsoft.io.entities.app
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.app.APP_TABLE_NAME
+import mimsoft.io.features.app.AppDto
+import mimsoft.io.features.app.AppMapper
+import mimsoft.io.features.app.AppTable
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -32,7 +36,7 @@ object AppService {
     }
 
     suspend fun add(appDto: AppDto?): ResponseModel {
-        val checkMerchant = merchant.get(appDto?.merchantId)
+        val checkMerchant = get(appDto?.merchantId)
         if(checkMerchant != null) update(appDto = appDto)
         return ResponseModel(
             body = repository.postData(
@@ -51,14 +55,17 @@ object AppService {
                 "selected = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${appDto?.merchantId} and not deleted "
-        repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
-                this.setString(1, appDto?.googleToken)
-                this.setString(2, appDto?.appleToken)
-                this.setString(3, appDto?.telegramBotToken)
-                this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
-                this.closeOnCompletion()
-            }.execute()
+        withContext(Dispatchers.IO){
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, appDto?.googleToken)
+                    this.setString(2, appDto?.appleToken)
+                    this.setString(3, appDto?.telegramBotToken)
+                    this.setString(4, appDto?.selected)
+                    this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
         }
         return true
     }

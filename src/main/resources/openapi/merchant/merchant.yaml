@@ -643,22 +643,22 @@ paths:
           description: "Bad Request"
 
 
-#  /merchant/settings/posters:
-#    get:
-#      tags:
-#        - Posters
-#      description: "Returns a list of all posters"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: "array"
-#                items:
-#                  $ref: "#/components/schemas/PosterDto"
-#        "204":
-#          description: "No Content"
+  #  /merchant/settings/posters:
+  #    get:
+  #      tags:
+  #        - Posters
+  #      description: "Returns a list of all posters"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/PosterDto"
+  #        "204":
+  #          description: "No Content"
   /merchant/settings/poster:
     post:
       tags:
@@ -674,20 +674,20 @@ paths:
       responses:
         "200":
           description: "OK"
-#    put:
-#      tags:
-#        - Posters
-#      description: "Adds a new poster"
-#      requestBody:
-#        description: "A JSON object containing updated poster information"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/PosterDto"
-#      responses:
-#        "200":
-#          description: "OK"
+  #    put:
+  #      tags:
+  #        - Posters
+  #      description: "Adds a new poster"
+  #      requestBody:
+  #        description: "A JSON object containing updated poster information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/PosterDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
   /merchant/settings/poster/{id}:
     get:
       tags:
@@ -711,39 +711,39 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#    delete:
-#      tags:
-#        - Posters
-#      description: "Deletes a product by its ID"
-#      parameters:
-#        - name: "id"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      responses:
-#        "200":
-#          description: "OK"
-#        "400":
-#          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Posters
+  #      description: "Deletes a product by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
 
-#  /merchant/settings/apps:
-#    get:
-#      tags:
-#        - Apps
-#      description: "Returns a list of all apps"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: "array"
-#                items:
-#                  $ref: "#/components/schemas/AppDto"
-#        "204":
-#          description: "No Content"
+  #  /merchant/settings/apps:
+  #    get:
+  #      tags:
+  #        - Apps
+  #      description: "Returns a list of all apps"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/AppDto"
+  #        "204":
+  #          description: "No Content"
   /merchant/settings/app:
     post:
       tags:
@@ -759,20 +759,20 @@ paths:
       responses:
         "200":
           description: "OK"
-#    put:
-#      tags:
-#        - Apps
-#      description: "Adds a new app"
-#      requestBody:
-#        description: "A JSON object containing updated app information"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/AppDto"
-#      responses:
-#        "200":
-#          description: "OK"
+  #    put:
+  #      tags:
+  #        - Apps
+  #      description: "Adds a new app"
+  #      requestBody:
+  #        description: "A JSON object containing updated app information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/AppDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
   /merchant/settings/app/{id}:
     get:
       tags:
@@ -796,39 +796,39 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#    delete:
-#      tags:
-#        - Apps
-#      description: "Deletes app by its ID"
-#      parameters:
-#        - name: "id"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      responses:
-#        "200":
-#          description: "OK"
-#        "400":
-#          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Apps
+  #      description: "Deletes app by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
 
-#  /merchant/settings/payments:
-#    get:
-#      tags:
-#        - Payments
-#      description: "Returns a list of all payments"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: "array"
-#                items:
-#                  $ref: "#/components/schemas/PaymentDto"
-#        "204":
-#          description: "No Content"
+  #  /merchant/settings/payments:
+  #    get:
+  #      tags:
+  #        - Payments
+  #      description: "Returns a list of all payments"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/PaymentDto"
+  #        "204":
+  #          description: "No Content"
   /merchant/settings/payment:
     post:
       tags:
@@ -844,20 +844,20 @@ paths:
       responses:
         "200":
           description: "OK"
-#    put:
-#      tags:
-#        - Payments
-#      description: "Adds a new payment"
-#      requestBody:
-#        description: "A JSON object containing updated payment information"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/PaymentDto"
-#      responses:
-#        "200":
-#          description: "OK"
+  #    put:
+  #      tags:
+  #        - Payments
+  #      description: "Adds a new payment"
+  #      requestBody:
+  #        description: "A JSON object containing updated payment information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/PaymentDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
   /merchant/settings/payment/{id}:
     get:
       tags:
@@ -881,39 +881,39 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#    delete:
-#      tags:
-#        - Settings
-#      description: "Deletes payment by its ID"
-#      parameters:
-#        - name: "id"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      responses:
-#        "200":
-#          description: "OK"
-#        "400":
-#          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Settings
+  #      description: "Deletes payment by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
 
-#  /merchant/settings/sms-gateways:
-#    get:
-#      tags:
-#        - Sms Gateways
-#      description: "Returns a list of all sms-gateways"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: "array"
-#                items:
-#                  $ref: "#/components/schemas/SmsGatewayDto"
-#        "204":
-#          description: "No Content"
+  #  /merchant/settings/sms-gateways:
+  #    get:
+  #      tags:
+  #        - Sms Gateways
+  #      description: "Returns a list of all sms-gateways"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/SmsGatewayDto"
+  #        "204":
+  #          description: "No Content"
   /merchant/settings/sms-getway:
     post:
       tags:
@@ -929,20 +929,20 @@ paths:
       responses:
         "200":
           description: "OK"
-#    put:
-#      tags:
-#        - Sms Gateways
-#      description: "Adds a new sms"
-#      requestBody:
-#        description: "A JSON object containing updated sms information"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/SmsGatewayDto"
-#      responses:
-#        "200":
-#          description: "OK"
+  #    put:
+  #      tags:
+  #        - Sms Gateways
+  #      description: "Adds a new sms"
+  #      requestBody:
+  #        description: "A JSON object containing updated sms information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/SmsGatewayDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
   /merchant/settings/sms-getway/{id}:
     get:
       tags:
@@ -966,39 +966,39 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#    delete:
-#      tags:
-#        - Sms Gateways
-#      description: "Deletes sms by its ID"
-#      parameters:
-#        - name: "id"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      responses:
-#        "200":
-#          description: "OK"
-#        "400":
-#          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Sms Gateways
+  #      description: "Deletes sms by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
 
-#  /merchant/settings/telephonies:
-#    get:
-#      tags:
-#        - Telephony
-#      description: "Returns a list of all telephonies"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: "array"
-#                items:
-#                  $ref: "#/components/schemas/TelephonyDto"
-#        "204":
-#          description: "No Content"
+  #  /merchant/settings/telephonies:
+  #    get:
+  #      tags:
+  #        - Telephony
+  #      description: "Returns a list of all telephonies"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/TelephonyDto"
+  #        "204":
+  #          description: "No Content"
   /merchant/settings/telephony:
     post:
       tags:
@@ -1014,20 +1014,20 @@ paths:
       responses:
         "200":
           description: "OK"
-#    put:
-#      tags:
-#        - Telephony
-#      description: "Adds a new telephony"
-#      requestBody:
-#        description: "A JSON object containing updated telephony information"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/TelephonyDto"
-#      responses:
-#        "200":
-#          description: "OK"
+  #    put:
+  #      tags:
+  #        - Telephony
+  #      description: "Adds a new telephony"
+  #      requestBody:
+  #        description: "A JSON object containing updated telephony information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/TelephonyDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
   /merchant/settings/telephony/{id}:
     get:
       tags:
@@ -1051,40 +1051,40 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#    delete:
-#      tags:
-#        - Telephony
-#      description: "Deletes telephony by its ID"
-#      parameters:
-#        - name: "id"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      responses:
-#        "200":
-#          description: "OK"
-#        "400":
-#          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Telephony
+  #      description: "Deletes telephony by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
 
 
-#  /merchant/settings/deliveries:
-#    get:
-#      tags:
-#        - Delivery
-#      description: "Returns a list of all deliveries"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: "array"
-#                items:
-#                  $ref: "#/components/schemas/DeliveryDto"
-#        "204":
-#          description: "No Content"
+  #  /merchant/settings/deliveries:
+  #    get:
+  #      tags:
+  #        - Delivery
+  #      description: "Returns a list of all deliveries"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/DeliveryDto"
+  #        "204":
+  #          description: "No Content"
   /merchant/settings/delivery:
     post:
       tags:
@@ -1100,20 +1100,20 @@ paths:
       responses:
         "200":
           description: "OK"
-#    put:
-#      tags:
-#        - Delivery
-#      description: "Adds a new delivery"
-#      requestBody:
-#        description: "A JSON object containing updated delivery information"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/DeliveryDto"
-#      responses:
-#        "200":
-#          description: "OK"
+  #    put:
+  #      tags:
+  #        - Delivery
+  #      description: "Adds a new delivery"
+  #      requestBody:
+  #        description: "A JSON object containing updated delivery information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/DeliveryDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
   /merchant/settings/delivery/{id}:
     get:
       tags:
@@ -1137,22 +1137,22 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#    delete:
-#      tags:
-#        - Settings
-#      description: "Deletes delivery by merchant Id"
-#      parameters:
-#        - name: "id"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      responses:
-#        "200":
-#          description: "OK"
-#        "400":
-#          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Settings
+  #      description: "Deletes delivery by merchant Id"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
 
   /merchant/settings/badge:
     post:
@@ -1198,7 +1198,7 @@ paths:
         "400":
           description: "Bad Request"
 
-#//==================================================================================================CRM
+  #//==================================================================================================CRM
 
   /merchant/crm/badge:
     post:
@@ -1403,7 +1403,7 @@ paths:
 
 
 
-#//==================================================================================================FINANCE
+  #//==================================================================================================FINANCE
   /merchant/finance/outcomes:
     get:
       tags:
@@ -1535,8 +1535,8 @@ components:
         content:
           type: "string"
         time:
-            type: "string"
-            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
         smss:
           type: "array"
           items:

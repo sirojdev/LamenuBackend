@@ -5,11 +5,11 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ALREADY_EXISTS
 import mimsoft.io.utils.MERCHANT_ID_NULL
 import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
+
 object DeliveryService {
     val repository: BaseRepository = DBManager
     val merchant = MerchantRepositoryImp
@@ -17,7 +17,7 @@ object DeliveryService {
 
     suspend fun get(merchantId: Long?): DeliveryDto? {
         val query = "select * from $DELIVERY_TABLE_NAME where merchant_id = $merchantId and deleted = false"
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -30,14 +30,14 @@ object DeliveryService {
                             selected = rs.getString("selected")
                         )
                     )
-                }else return@withContext null
+                } else return@withContext null
             }
         }
     }
 
     suspend fun add(deliveryDto: DeliveryDto?): ResponseModel {
         if (deliveryDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(deliveryDto.merchantId)
+        val checkMerchant = get(deliveryDto.merchantId)
         if (checkMerchant != null) update(deliveryDto = deliveryDto)
         return ResponseModel(
             body = repository.postData(
@@ -61,7 +61,7 @@ object DeliveryService {
             val rs = it.prepareStatement(query).apply {
                 this.setString(1, deliveryDto?.yandexToken)
                 this.setString(2, deliveryDto?.expressToken)
-                this.setString(2, deliveryDto?.selected)
+                this.setString(3, deliveryDto?.selected)
                 this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()

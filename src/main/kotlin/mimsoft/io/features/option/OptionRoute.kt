@@ -5,21 +5,12 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.serialization.descriptors.setSerialDescriptor
 import mimsoft.io.features.option.repository.OptionRepository
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
-import mimsoft.io.utils.TextModel
-
-
-
 
 fun Route.routeToOption() {
-
     val optionRepository: OptionRepository = OptionRepositoryImpl
-
-    route("options") {
+    route("option") {
         get {
             val options = optionRepository.getAll()
             if (options.isEmpty()) {
