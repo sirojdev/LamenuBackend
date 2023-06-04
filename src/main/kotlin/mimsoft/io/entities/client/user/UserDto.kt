@@ -1,14 +1,14 @@
-package mimsoft.io.features.client
+package mimsoft.io.entities.client.user
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
+
 import mimsoft.io.features.badge.BadgeDto
-import java.sql.Timestamp
+
 
 
 data class UserDto(
     val id: Long? = null,
     val badge: BadgeDto? = null,
+    val merchantId: Long? = null,
     val phone: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,

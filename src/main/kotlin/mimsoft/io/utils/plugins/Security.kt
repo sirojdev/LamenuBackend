@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
-import mimsoft.io.auth.LoginPrincipal
+import mimsoft.io.entities.client.auth.LoginPrincipal
 import mimsoft.io.utils.LaPrincipal
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.Role
@@ -57,11 +57,13 @@ fun Application.configureSecurity() {
                 val deviceId = credential.payload.getClaim("deviceId").asLong()
                 val phone = credential.payload.getClaim("phone").asString()
                 val hash = credential.payload.getClaim("hash").asLong()
-                if (deviceId != null && hash != null && phone != null) {
+                val merchantId = credential.payload.getClaim("merchantId").asLong()
+                if (deviceId != null && hash != null && phone != null && merchantId != null) {
                     LoginPrincipal(
                         deviceId = deviceId,
                         phone = phone,
-                        hash = hash
+                        hash = hash,
+                        merchantId = merchantId
                     )
                 } else {
                     null

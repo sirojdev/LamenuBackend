@@ -8,39 +8,58 @@ import java.util.UUID
 
 object SessionRepository {
 
-    suspend fun auth(session: SessionTable): Boolean {
-        expireOtherSession(deviceId = session.deviceId)
-        val upsert =
-            "with upsert as (\n" + "    " +
-                    "update session set\n" +
-                    "        updated = ?,\n" +
-                    "        device_id = ${session.deviceId}, \n" +
-                    "        stuff_id = ${session.stuffId}, \n" +
-                    "        user_id = ${session.userId} \n" +
-                    "        where uuid = ? and not is_expired " +
-                    "        returning *)\n" +
-                    "insert\n" +
-                    "into session (created, device_id, stuff_id, user_id,  uuid)\n" +
-                    "select ?, ${session.deviceId}, ${session.stuffId}, ${session.userId}, ?\n" +
-                    "where not exists(select * from upsert);"
+    suspend fun auth(session: SessionTable): SessionTable? {
+        expireOtherSession(deviceId = session.deviceId, merchantId = session.merchantId)
+        val upsert = """
+            with upsert as (
+                update session set
+                    updated = ?,
+                    device_id = ${session.deviceId},
+                    user_id = ${session.userId},
+                    stuff_id = ${session.stuffId},
+                    merchant_id = ${session.merchantId},
+                    where uuid = ? and not is_expired
+                    returning *)
+            insert
+            into session (created, uuid, device_id, user_id, stuff_id, merchant_id)
+            select ?, ?, ${session.deleted}, ${session.userId}, ${session.stuffId}, ${session.merchantId}
+            where not exists (select * from upsert) returning *
+        """.trimIndent()
 
         return withContext(Dispatchers.IO) {
             var x = 0
             DBManager.connection().use {
-                it.prepareStatement(upsert).apply {
+                val rs = it.prepareStatement(upsert).apply {
                     this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     this.setString(++x, session.uuid)
                     this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     this.setString(++x, session.uuid)
                     this.closeOnCompletion()
-                }.execute()
-                return@withContext true
+                }.executeQuery()
+
+                if (rs.next()) {
+                    SessionTable(
+                        id = rs.getLong("id"),
+                        phone = rs.getString("phone"),
+                        uuid = rs.getString("uuid"),
+                        deviceId = rs.getLong("device_id"),
+                        userId = rs.getLong("user_id"),
+                        stuffId = rs.getLong("stuff_id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        role = rs.getString("role"),
+                        updated = rs.getTimestamp("updated"),
+                        created = rs.getTimestamp("created"),
+                        isExpired = rs.getBoolean("is_expired"),
+                        deleted = rs.getBoolean("deleted")
+                    )
+                }
+                else null
             }
         }
     }
 
-    private suspend fun expireOtherSession(deviceId: Long?): Boolean {
-        val query = "update session set is_expired = true, updated = ? where device_id = $deviceId"
+    private suspend fun expireOtherSession(deviceId: Long?, merchantId: Long?): Boolean {
+        val query = "update session set is_expired = true, updated = ? where device_id = $deviceId and merchant_id = $merchantId"
 
         return withContext(Dispatchers.IO) {
             DBManager.connection().use {

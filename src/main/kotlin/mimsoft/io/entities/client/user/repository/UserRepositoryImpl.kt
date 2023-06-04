@@ -1,13 +1,12 @@
-package mimsoft.io.features.client.repository
+package mimsoft.io.entities.client.user.repository
 
-import mimsoft.io.features.client.USER_TABLE_NAME
-import mimsoft.io.features.client.UserDto
-import mimsoft.io.features.client.UserMapper
-import mimsoft.io.features.client.UserTable
+import mimsoft.io.entities.client.user.USER_TABLE_NAME
+import mimsoft.io.entities.client.user.UserDto
+import mimsoft.io.entities.client.user.UserMapper
+import mimsoft.io.entities.client.user.UserTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.*
-import mimsoft.io.utils.plugins.GSON
 
 object UserRepositoryImpl : UserRepository {
 
@@ -22,11 +21,12 @@ object UserRepositoryImpl : UserRepository {
             .firstOrNull().let { mapper.toUserDto(it as UserTable) }
 
 
-    override suspend fun get(phone: String?): UserDto? {
+    override suspend fun get(phone: String?, merchantId: Long?): UserDto? {
         return DBManager.getPageData(
             dataClass = UserTable::class,
             tableName = USER_TABLE_NAME,
-            where = mapOf("phone" to phone as Any)
+            where = mapOf("phone" to phone as Any,
+                "merchant_id" to merchantId as Any)
         )?.data?.firstOrNull()?.let { mapper.toUserDto(it) }
     }
 
@@ -41,7 +41,7 @@ object UserRepositoryImpl : UserRepository {
             )
         }
 
-        val oldUser = get(userDto?.phone)
+        val oldUser = get(userDto?.phone, userDto?.merchantId)
 
         if (oldUser != null) return ResponseModel(
             httpStatus = ALREADY_EXISTS
@@ -68,7 +68,7 @@ object UserRepositoryImpl : UserRepository {
             )
         }
 
-        val oldUser = get(userDto?.phone)
+        val oldUser = get(userDto?.phone, userDto?.merchantId)
 
         if (oldUser != null) return ResponseModel(
             httpStatus = ALREADY_EXISTS

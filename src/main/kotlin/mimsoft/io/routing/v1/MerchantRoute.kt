@@ -1,10 +1,10 @@
 package mimsoft.io.routing.merchant
 
 import io.ktor.server.routing.*
+import mimsoft.io.entities.client.user.routeToUser
 import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.category.routeToCategory
-import mimsoft.io.features.client.routeToUser
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat

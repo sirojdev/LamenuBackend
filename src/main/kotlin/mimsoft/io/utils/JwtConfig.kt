@@ -34,7 +34,7 @@ object JwtConfig {
             .withExpiresAt(getExpiration(validate))
             .sign(algorithmAccess)
     }
-    fun generateRefreshToken(entityId: Long?, uuid: String? = null, roles: List<Role?>?): String = JWT.create()
+    fun generateRefreshToken(entityId: Long?, uuid: String? = null, roles: List<Role?>? = null): String = JWT.create()
         .withSubject("refresh")
         .withIssuer(issuer)
         .withClaim("entityId", entityId)
@@ -43,9 +43,10 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityRefresh))
         .sign(algorithmRefresh)
 
-    fun generateLoginToken(deviceId: Long?, phone: String?, hash: GeneratorModel?): String = JWT.create()
+    fun generateLoginToken(deviceId: Long?, phone: String?, merchantId: Long?, hash: GeneratorModel?): String = JWT.create()
         .withSubject("auth")
         .withIssuer(issuer)
+        .withClaim("merchantId", merchantId)
         .withClaim("deviceId", deviceId)
         .withClaim("phone", phone)
         .withClaim("hash", hash?.hash)

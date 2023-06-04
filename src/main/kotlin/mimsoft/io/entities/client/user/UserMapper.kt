@@ -1,10 +1,8 @@
-package mimsoft.io.features.client
+package mimsoft.io.entities.client.user
 
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
 import mimsoft.io.features.badge.BadgeDto
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
 
 object UserMapper {
     fun toUserTable(userDto: UserDto?): UserTable? {
@@ -14,6 +12,7 @@ object UserMapper {
             UserTable(
                 id = userDto.id,
                 badgeId = userDto.badge?.id,
+                merchantId = userDto.merchantId,
                 phone = userDto.phone,
                 firstName = userDto.firstName,
                 lastName = userDto.lastName,
@@ -28,6 +27,7 @@ object UserMapper {
             UserDto(
                 id = userTable.id,
                 badge = BadgeDto(id = userTable.badgeId),
+                merchantId = userTable.merchantId,
                 phone = userTable.phone,
                 firstName = userTable.firstName,
                 lastName = userTable.lastName,

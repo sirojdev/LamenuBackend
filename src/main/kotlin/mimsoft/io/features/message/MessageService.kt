@@ -2,8 +2,8 @@ package mimsoft.io.features.message
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import mimsoft.io.features.client.repository.UserRepository
-import mimsoft.io.features.client.repository.UserRepositoryImpl
+import mimsoft.io.entities.client.user.repository.UserRepository
+import mimsoft.io.entities.client.user.repository.UserRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.features.sms.SmsService

@@ -1,21 +1,28 @@
-package mimsoft.io.features.order.repository
+package mimsoft.io.entities.order.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.order.ORDER_TABLE_NAME
+import mimsoft.io.features.order.OrderDto
+import mimsoft.io.features.order.OrderMapper
 import mimsoft.io.features.order.OrderTable
+import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderTypeEnums
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.OrderStatus
 
 object OrderRepositoryImpl : OrderRepository {
 
+    val repository: BaseRepository = DBManager
+    val mapper = OrderMapper
+
     override suspend fun getLiveOrders(
         type: String?,
         limit: Int?,
         offset: Int?
-    ): DataPage<OrderTable>? {
+    ): DataPage<OrderDto?> {
         val query = """
             SELECT * FROM $ORDER_TABLE_NAME
             WHERE not deleted """
@@ -64,7 +71,7 @@ object OrderRepositoryImpl : OrderRepository {
                         )
                     )
                 }
-                return@withContext DataPage(data = data, total = data.size) ?:null
+                return@withContext DataPage(data = data.map { mapper.toDto(it) }, total = data.size)
 
             }
         }
@@ -75,7 +82,7 @@ object OrderRepositoryImpl : OrderRepository {
         type: String?,
         limit: Int?,
         offset: Int?
-    ): DataPage<OrderTable>? {
+    ): DataPage<OrderDto?>? {
 
         val where = mutableMapOf<String, Any>()
         when{
@@ -89,20 +96,33 @@ object OrderRepositoryImpl : OrderRepository {
             where = where,
             limit = limit,
             offset = offset
-        )
+        )?.let {
+            DataPage(
+                data = it.data.map { mapper.toDto(it) },
+                total = it.total
+            )
+        }
     }
 
-    override suspend fun get(id: Long?): OrderTable? {
+    override suspend fun getByUserId(userId: Long?): List<OrderDto?> {
+        return repository.getPageData(
+            OrderDto::class,
+            where = mapOf("user_id" to userId as Any),
+            tableName = ORDER_TABLE_NAME
+        )?.data?.map { mapper.toDto(it as OrderTable) }?: emptyList()
+    }
+
+    override suspend fun get(id: Long?): OrderDto? {
         return DBManager.getData(OrderTable::class, id = id, tableName = ORDER_TABLE_NAME)
-            .firstOrNull() as? OrderTable
+            .firstOrNull().let { mapper.toDto(it as OrderTable) }
     }
 
-    override suspend fun add(orderTable: OrderTable?): Long? {
-        return DBManager.postData(OrderTable::class, orderTable, ORDER_TABLE_NAME)
+    override suspend fun add(orderDto: OrderDto?): Long? {
+        return DBManager.postData(OrderTable::class, mapper.toTable(orderDto), ORDER_TABLE_NAME)
     }
 
-    override suspend fun update(orderTable: OrderTable?): Boolean {
-        return DBManager.updateData(OrderTable::class, orderTable, ORDER_TABLE_NAME)
+    override suspend fun update(orderDto: OrderDto?): Boolean {
+        return DBManager.updateData(OrderTable::class, mapper.toTable(orderDto), ORDER_TABLE_NAME)
     }
 
     override suspend fun delete(id: Long?): Boolean {
