@@ -9,7 +9,7 @@ object Generator {
         val code = if (!static)
             Random.nextLong(10000, 100000)
         else 12345
-        val hash = 1000L/*encode(now * 100000 + code)*/
+        val hash = 12345L/*encode(now * 100000 + code)*/
 
         return GeneratorModel(
             code = code,

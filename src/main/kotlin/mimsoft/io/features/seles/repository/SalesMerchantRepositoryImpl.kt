@@ -1,4 +1,4 @@
-package mimsoft.io.admin.repository
+package mimsoft.io.entities.seles.repository
 
 import SalesMerchantInterface
 import mimsoft.io.features.seles.SALES_MERCHANT_TABLE_NAME

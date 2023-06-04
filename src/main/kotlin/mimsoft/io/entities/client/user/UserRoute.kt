@@ -1,4 +1,4 @@
-package mimsoft.io.features.client
+package mimsoft.io.entities.client.user
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,13 +6,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.config.timestampValidator
-import mimsoft.io.features.client.repository.UserRepository
-import mimsoft.io.features.client.repository.UserRepositoryImpl
+import mimsoft.io.entities.client.user.repository.UserRepositoryImpl
 import mimsoft.io.utils.OK
 
 fun Route.routeToUser() {
 
-    val userRepository: UserRepository = UserRepositoryImpl
+    val userRepository = UserRepositoryImpl
 
     get("users") {
         val users = userRepository.getAll()

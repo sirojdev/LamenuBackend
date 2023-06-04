@@ -5,8 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.entities.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.repository.Mapper
 
 fun Route.routeToOrder() {
@@ -17,7 +17,7 @@ fun Route.routeToOrder() {
     get("live") {
         val type = call.parameters["type"]
         val orders = repository.getLiveOrders(type = type.toString())
-        val orderDto = orders?.data?.map { mapper.toDto(it) }
+        val orderDto = orders?.data
         if(orderDto == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -27,12 +27,11 @@ fun Route.routeToOrder() {
 
     get("history") {
         val orders = repository.getAll()
-        val orderDto = orders?.data?.map { mapper.toDto(it) }
-        if(orderDto == null) {
+        if(orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond(HttpStatusCode.OK, orderDto)
+        call.respond(HttpStatusCode.OK, orders)
     }
 
     get("/orders") {
@@ -40,7 +39,7 @@ fun Route.routeToOrder() {
         val type = call.parameters["type"]
         val limit = call.parameters["limit"]?.toIntOrNull()
         val offset = call.parameters["offset"]?.toIntOrNull()
-        val orders = repository.getAll(status, type, limit, offset)?.data?.map{ mapper.toDto(it) }
+        val orders = repository.getAll(status, type, limit, offset)?.data
         if (orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -54,7 +53,7 @@ fun Route.routeToOrder() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val order = Mapper.toDto<OrderTable, OrderDto>(repository.get(id))
+        val order = repository.get(id)
         if (order != null) {
             call.respond(HttpStatusCode.OK, order)
         } else {
@@ -64,13 +63,13 @@ fun Route.routeToOrder() {
 
     post("/order/create") {
         val order = call.receive<OrderDto>()
-        val id = repository.add(Mapper.toTable<OrderDto, OrderTable>(order))
+        val id = repository.add(order)
         call.respond(HttpStatusCode.OK, OrderId(id))
     }
 
     put("/order") {
         val order = call.receive<OrderDto>()
-        repository.update(Mapper.toTable<OrderDto, OrderTable>(order))
+        repository.update(order)
         call.respond(HttpStatusCode.OK)
     }
 
