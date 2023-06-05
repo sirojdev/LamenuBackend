@@ -16,7 +16,7 @@ fun Route.routeToPoster(){
     put ("poster"){
         val merchantId = 1L
         val poster = call.receive<PosterDto>()
-        PosterService.update(poster.copy(merchantId = merchantId))
+        PosterService.add(poster.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 }

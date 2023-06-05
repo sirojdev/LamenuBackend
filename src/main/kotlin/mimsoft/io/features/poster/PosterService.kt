@@ -3,6 +3,10 @@ package mimsoft.io.features.poster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
+import mimsoft.io.features.sms_gateway.SmsGatewayDto
+import mimsoft.io.features.sms_gateway.SmsGatewayService
+import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.MERCHANT_ID_NULL
@@ -32,18 +36,25 @@ object PosterService {
         }
     }
 
-/*    suspend fun add(posterDto: PosterDto?): ResponseModel {
-        if (posterDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
+
+    suspend fun add(posterDto: PosterDto): ResponseModel {
         val checkMerchant = get(posterDto.merchantId)
-        if (checkMerchant != null) update(posterDto = posterDto)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = PosterTable::class,
-                dataObject = mapper.toPosterTable(posterDto), tableName = POSTER_TABLE
-            ),
-            httpStatus = OK
-        )
-    }*/
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(posterDto = posterDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = PosterTable::class,
+                    dataObject = mapper.toPosterTable(posterDto),
+                    tableName = POSTER_TABLE
+                ) != null),
+                OK
+            )
+        }
+    }
 
     fun update(posterDto: PosterDto?): Boolean {
         val query = "update $POSTER_TABLE set " +
