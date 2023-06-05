@@ -7,7 +7,7 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.services.sms.SmsProvider
 import mimsoft.io.services.sms.providers.eskiz.EskizProvider
-import mimsoft.io.services.sms.providers.PlayMobileProvider
+import mimsoft.io.services.sms.providers.playMobail.PlayMobileProvider
 import mimsoft.io.utils.MERCHANT_ID_NULL
 import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
@@ -27,8 +27,8 @@ object SmsGatewayService {
                 merchantId = smsGatewayDto.merchantId
             )
             SMSGatewaySelected.ESKIZ.name -> EskizProvider(
-                key = smsGatewayDto.playMobileKey,
-                serviceId = smsGatewayDto.playMobileServiceId,
+                password = smsGatewayDto.eskizToken,
+                email = smsGatewayDto.eskizId,
                 merchantId = smsGatewayDto.merchantId
             )
             else -> null
