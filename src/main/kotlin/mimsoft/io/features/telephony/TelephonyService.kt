@@ -38,35 +38,25 @@ object TelephonyService {
         }
     }
 
-    suspend fun add(telephonyDto: TelephonyDto?): ResponseModel {
-        if (telephonyDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(telephonyDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(ALREADY_EXISTS)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = TelephonyTable::class,
-                dataObject = mapper.toTelephonyTable(telephonyDto), tableName = TELEPHONY_TABLE_NAME
-            ),
-            OK
-        )
-    }
 
-    suspend fun update(telephonyDto: TelephonyDto?): Boolean {
+    fun update(telephonyDto: TelephonyDto?): Boolean {
         val query = "update $TELEPHONY_TABLE_NAME set " +
                 "online_pbx_token = ? , " +
+                "selected = ? , " +
                 "updated = ? \n" +
                 "where merchant_id = ${telephonyDto?.merchantId} and not deleted "
         repository.connection().use {
             val rs = it.prepareStatement(query).apply {
                 this.setString(1, telephonyDto?.onlinePbxToken)
-                this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
+                this.setString(2, telephonyDto?.selected)
+                this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()
         }
         return true
     }
 
-    suspend fun delete(merchantId: Long?): Boolean {
+    fun delete(merchantId: Long?): Boolean {
         val query = "update $TELEPHONY_TABLE_NAME set deleted = true where merchant_id = $merchantId"
         repository.connection().use {val rs = it.prepareStatement(query).execute()}
         return true

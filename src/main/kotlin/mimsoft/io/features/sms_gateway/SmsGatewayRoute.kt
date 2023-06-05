@@ -9,15 +9,15 @@ import io.ktor.server.routing.*
 fun Route.routeToSmsGateways() {
 
     get("sms-gateway") {
-        val merchantId = 2L
+        val merchantId = 1L
         val sms = SmsGatewayService.get(merchantId = merchantId) ?: SmsGatewayDto()
         call.respond(sms)
     }
 
-    post("sms-gateway") {
-        val merchantId = 2L
+    put("sms-gateway") {
+        val merchantId = 1L
         val table = call.receive<SmsGatewayDto>()
-        SmsGatewayService.add(table.copy(merchantId = merchantId))
+        SmsGatewayService.update(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 

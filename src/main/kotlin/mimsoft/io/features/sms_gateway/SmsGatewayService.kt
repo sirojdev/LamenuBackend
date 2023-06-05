@@ -55,7 +55,7 @@ object SmsGatewayService {
         }
     }
 
-    suspend fun add(smsGatewayDto: SmsGatewayDto?): ResponseModel {
+/*    suspend fun add(smsGatewayDto: SmsGatewayDto?): ResponseModel {
         if (smsGatewayDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(smsGatewayDto.merchantId)
         if (checkMerchant != null) update(smsGatewayDto = smsGatewayDto)
@@ -66,7 +66,7 @@ object SmsGatewayService {
             ),
             OK
         )
-    }
+    }*/
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
         val query = "update $SMS_GATEWAY_TABLE set " +

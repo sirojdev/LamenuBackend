@@ -7,6 +7,7 @@ object TelephonyMapper {
             id = telephonyDto.id,
             merchantId = telephonyDto.merchantId,
             onlinePbxToken = telephonyDto.onlinePbxToken,
+            selected = telephonyDto.selected
         )
     }
 
@@ -15,7 +16,8 @@ object TelephonyMapper {
         else TelephonyDto(
             id = telephonyTable.id,
             merchantId = telephonyTable.merchantId,
-            onlinePbxToken = telephonyTable.onlinePbxToken
+            onlinePbxToken = telephonyTable.onlinePbxToken,
+            selected = telephonyTable.selected
         )
     }
 }
