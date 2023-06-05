@@ -22,8 +22,8 @@ object SmsGatewayService {
         val merchantId = smsGatewayDto?.merchantId ?: return null
         return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
-                key = smsGatewayDto.playMobileKey,
-                serviceId = smsGatewayDto.playMobileServiceId,
+                password = smsGatewayDto.playMobileKey,
+                username = smsGatewayDto.playMobileServiceId,
                 merchantId = smsGatewayDto.merchantId
             )
             SMSGatewaySelected.ESKIZ.name -> EskizProvider(
