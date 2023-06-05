@@ -20,6 +20,7 @@ object SmsGatewayService {
 
     suspend fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
         val merchantId = smsGatewayDto?.merchantId ?: return null
+        println("\nselected-->${smsGatewayDto.selected}")
         return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
                 password = smsGatewayDto.playMobileKey,
@@ -43,6 +44,7 @@ object SmsGatewayService {
                 if (rs.next()) {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
+                            merchantId = rs.getLong("merchant_id"),
                             eskizId = rs.getString("eskiz_id"),
                             eskizToken = rs.getString("eskiz_token"),
                             playMobileServiceId = rs.getString("play_mobile_service_id"),

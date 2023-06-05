@@ -57,7 +57,7 @@ class PlayMobileProvider(val merchantId: Long?, val username: String?, val passw
             println("response-->$response")
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    return "OK"
+                    return "DONE"
                 }
                 HttpStatusCode.Unauthorized -> {
                     return "Unauthorized"
