@@ -20,7 +20,7 @@ fun Route.routeToTelephony(){
     put ("telephony"){
         val telephony = call.receive<TelephonyDto>()
         val merchantId = 1L
-        TelephonyService.update(telephony.copy(merchantId = merchantId))
+        TelephonyService.add(telephony.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 

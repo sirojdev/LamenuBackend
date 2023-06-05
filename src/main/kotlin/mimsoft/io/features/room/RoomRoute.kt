@@ -41,14 +41,14 @@ fun Route.routeToRoom() {
     }
 
     put("room") {
+        val merchantId = 1L
         val room = call.receive<RoomDto>()
-        roomService.update(roomMapper.toRoomTable(room))
+        roomService.update(roomMapper.toRoomTable(room.copy(merchantId = merchantId)))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("room") {
-        val roomDto = call.receive<RoomDto>()
-        val id = roomDto.id
+    delete("room/{id}") {
+        val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
@@ -56,6 +56,4 @@ fun Route.routeToRoom() {
         roomService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
-
-
 }
