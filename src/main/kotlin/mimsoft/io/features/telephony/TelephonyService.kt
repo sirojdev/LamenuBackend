@@ -3,6 +3,10 @@ package mimsoft.io.features.telephony
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
+import mimsoft.io.features.sms_gateway.SmsGatewayDto
+import mimsoft.io.features.sms_gateway.SmsGatewayService
+import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ALREADY_EXISTS
@@ -37,6 +41,26 @@ object TelephonyService {
             }
         }
     }
+
+    suspend fun add(telephonyDto: TelephonyDto): ResponseModel {
+        val checkMerchant = get(telephonyDto.merchantId)
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(telephonyDto = telephonyDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = TelephonyTable::class,
+                    dataObject = mapper.toTelephonyTable(telephonyDto),
+                    tableName = TELEPHONY_TABLE_NAME
+                ) != null),
+                OK
+            )
+        }
+    }
+
 
 
     fun update(telephonyDto: TelephonyDto?): Boolean {

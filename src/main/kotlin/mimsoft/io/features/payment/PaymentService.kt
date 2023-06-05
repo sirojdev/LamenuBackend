@@ -3,6 +3,10 @@ package mimsoft.io.features.payment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
+import mimsoft.io.features.sms_gateway.SmsGatewayDto
+import mimsoft.io.features.sms_gateway.SmsGatewayService
+import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ALREADY_EXISTS
@@ -37,18 +41,24 @@ object PaymentService {
         }
     }
 
-    /*suspend fun add(paymentDto: PaymentDto?): ResponseModel {
-        if (paymentDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(paymentDto.merchantId)
-        if (checkMerchant != null) update(paymentDto = paymentDto)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = PaymentTable::class,
-                dataObject = mapper.toPaymentTable(paymentDto), tableName = PAYMENT_TABLE_NAME
-            ),
-            OK
-        )
-    }*/
+    suspend fun add(paymentDto: PaymentDto): ResponseModel {
+        val checkMerchant = get(paymentDto.merchantId)
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(paymentDto = paymentDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = PaymentTable::class,
+                    dataObject = mapper.toPaymentTable(paymentDto),
+                    tableName = PAYMENT_TABLE_NAME
+                ) != null),
+                OK
+            )
+        }
+    }
 
     suspend fun update(paymentDto: PaymentDto?): Boolean {
         val query = "update $PAYMENT_TABLE_NAME set " +

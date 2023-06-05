@@ -12,15 +12,15 @@ fun Route.routeToSmsGateways() {
     val smsSenderService = SmsSenderService
 
     get("sms-gateway") {
-        val merchantId = 1L
+        val merchantId = 2L
         val sms = SmsGatewayService.get(merchantId = merchantId) ?: SmsGatewayDto()
         call.respond(sms)
     }
 
     put("sms-gateway") {
-        val merchantId = 1L
+        val merchantId = 2L
         val table = call.receive<SmsGatewayDto>()
-        SmsGatewayService.update(table.copy(merchantId = merchantId))
+        SmsGatewayService.add(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 

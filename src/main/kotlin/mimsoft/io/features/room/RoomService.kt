@@ -5,9 +5,6 @@ import mimsoft.io.repository.DBManager
 object RoomService : RoomRepository {
     val repository: BaseRepository = DBManager
 
-    override suspend fun getAll(): List<RoomTable?> =
-        DBManager.getData(dataClass = RoomTable::class, tableName = ROOM_TABLE_NAME).filterIsInstance<RoomTable?>()
-
     override suspend fun get(id: Long?): RoomTable?  =
         DBManager.getData(dataClass = RoomTable::class, id = id, tableName = ROOM_TABLE_NAME).firstOrNull() as RoomTable?
 

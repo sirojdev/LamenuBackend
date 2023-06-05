@@ -27,11 +27,13 @@ object SmsGatewayService {
                 username = smsGatewayDto.playMobileServiceId,
                 merchantId = smsGatewayDto.merchantId
             )
+
             SMSGatewaySelected.ESKIZ.name -> EskizProvider(
                 password = smsGatewayDto.eskizToken,
                 email = smsGatewayDto.eskizId,
                 merchantId = smsGatewayDto.merchantId
             )
+
             else -> null
         }
     }
@@ -57,18 +59,24 @@ object SmsGatewayService {
         }
     }
 
-/*    suspend fun add(smsGatewayDto: SmsGatewayDto?): ResponseModel {
-        if (smsGatewayDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(smsGatewayDto.merchantId)
-        if (checkMerchant != null) update(smsGatewayDto = smsGatewayDto)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = SmsGatewayTable::class,
-                dataObject = mapper.toSmsGatewaysTable(smsGatewayDto), tableName = SMS_GATEWAY_TABLE
-            ),
-            OK
-        )
-    }*/
+    suspend fun add(smsGatewayDto: SmsGatewayDto): ResponseModel {
+        val checkMerchant = get(smsGatewayDto.merchantId)
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(smsGatewayDto = smsGatewayDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = SmsGatewayTable::class,
+                    dataObject = mapper.toSmsGatewaysTable(smsGatewayDto),
+                    tableName = SMS_GATEWAY_TABLE
+                ) != null),
+                OK
+            )
+        }
+    }
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
         val query = "update $SMS_GATEWAY_TABLE set " +
