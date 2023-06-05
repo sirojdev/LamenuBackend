@@ -32,14 +32,17 @@ fun Route.routeToTable(){
     }
 
     post ("table"){
+        val merchantId = 1L
         val table = call.receive<TableDto>()
-        tableService.add(TableMapper.toTableTable(table))
+        val toTable = TableMapper.toTableTable(table)
+        tableService.add(toTable?.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
     put ("table"){
+        val merchantId = 1L
         val table = call.receive<TableDto>()
-        tableService.update(TableMapper.toTableTable(table))
+        tableService.update(TableMapper.toTableTable(table.copy(merchantId = merchantId)))
         call.respond(HttpStatusCode.OK)
     }
 

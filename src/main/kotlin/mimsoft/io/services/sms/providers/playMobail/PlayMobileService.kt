@@ -1,4 +1,4 @@
-package mimsoft.io.services.playMobail
+package mimsoft.io.services.sms.providers.playMobail
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName

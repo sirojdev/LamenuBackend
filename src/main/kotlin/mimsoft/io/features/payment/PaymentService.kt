@@ -37,7 +37,7 @@ object PaymentService {
         }
     }
 
-    suspend fun add(paymentDto: PaymentDto?): ResponseModel {
+    /*suspend fun add(paymentDto: PaymentDto?): ResponseModel {
         if (paymentDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(paymentDto.merchantId)
         if (checkMerchant != null) update(paymentDto = paymentDto)
@@ -48,7 +48,7 @@ object PaymentService {
             ),
             OK
         )
-    }
+    }*/
 
     suspend fun update(paymentDto: PaymentDto?): Boolean {
         val query = "update $PAYMENT_TABLE_NAME set " +

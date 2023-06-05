@@ -32,7 +32,7 @@ object PosterService {
         }
     }
 
-    suspend fun add(posterDto: PosterDto?): ResponseModel {
+/*    suspend fun add(posterDto: PosterDto?): ResponseModel {
         if (posterDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
         val checkMerchant = get(posterDto.merchantId)
         if (checkMerchant != null) update(posterDto = posterDto)
@@ -43,7 +43,7 @@ object PosterService {
             ),
             httpStatus = OK
         )
-    }
+    }*/
 
     fun update(posterDto: PosterDto?): Boolean {
         val query = "update $POSTER_TABLE set " +

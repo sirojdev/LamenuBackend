@@ -1,16 +1,15 @@
 openapi: 3.0.3
 info:
-  description: Lamenu documentation for Staffs
-  title: Lamenu documentation for Staffs
+  description: Lamenu documentation Merchant allows to you view the schema of Merchant
+    Lamenu project
+  title: Lamenu documentation Merchant
   version: 1.0.0
 servers:
-- url: http://0.0.0.0:8181/api/v1/
-- url: http://188.166.167.80:8181/api/v1/
+- url: http://0.0.0.0:9000/api/v1/
+- url: http://188.166.167.80:9000/api/v1/
 tags:
 - description: Login endpoints
   name: Auth
-- description: Endpoints related to user
-  name: Users
 - description: Endpoints related to branch
   name: Branches
 - description: Endpoints related to category
@@ -25,316 +24,10 @@ tags:
   name: Options
 - description: Endpoints related to product
   name: Products
-- description: Endpoints related to restaurant
-  name: Restaurants
+- description: Endpoints related to outcomes
+  name: Outcomes
 paths:
-  /staff/auth:
-    post:
-      description: Via this endpoint you can get auth token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StaffDto'
-        description: This object must contain only deviceUuid:unique and phone
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/LoginResponse'
-                type: array
-          description: OK
-      tags:
-      - Auth
-      x-contentType: application/json
-      x-accepts: application/json
-  /staff/users:
-    get:
-      description: Returns a list of all users
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/UserDto'
-                type: array
-          description: OK
-        "204":
-          description: No content
-      tags:
-      - Users
-      x-accepts: application/json
-  /staff/user:
-    post:
-      description: Creates a new user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserDto'
-        description: A JSON object containing user information
-        required: true
-      responses:
-        "200":
-          description: OK
-      tags:
-      - Users
-      x-contentType: application/json
-      x-accepts: application/json
-    put:
-      description: Updates an existing user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserDto'
-        description: A JSON object containing updated user information
-        required: true
-      responses:
-        "200":
-          description: OK
-      tags:
-      - Users
-      x-contentType: application/json
-      x-accepts: application/json
-  /staff/user/{id}:
-    delete:
-      description: Deletes a user by its ID
-      parameters:
-      - explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-        style: simple
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad request
-      tags:
-      - Users
-      x-accepts: application/json
-    get:
-      description: Returns a user by its ID
-      parameters:
-      - explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserDto'
-          description: OK
-        "204":
-          description: No content
-        "400":
-          description: Bad request
-      tags:
-      - Users
-      x-accepts: application/json
-  /staff/branches:
-    get:
-      description: Returns a list of all branches
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/BranchDto'
-                type: array
-          description: OK
-        "204":
-          description: No Content
-      tags:
-      - Branches
-      x-accepts: application/json
-  /staff/branch:
-    post:
-      description: Adds a new branch
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BranchDto'
-        description: A JSON object containing updated branch information
-        required: true
-      responses:
-        "200":
-          description: OK
-      tags:
-      - Branches
-      x-contentType: application/json
-      x-accepts: application/json
-    put:
-      description: Updates an existing branch
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BranchDto'
-        description: A JSON object containing updated branch information
-        required: true
-      responses:
-        "200":
-          description: OK
-      tags:
-      - Branches
-      x-contentType: application/json
-      x-accepts: application/json
-  /staff/branch/{id}:
-    delete:
-      description: Deletes a branch by its ID
-      parameters:
-      - explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          format: int64
-          type: integer
-        style: simple
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-      tags:
-      - Branches
-      x-accepts: application/json
-    get:
-      description: Returns a branch by its ID
-      parameters:
-      - explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          format: int64
-          type: integer
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BranchDto'
-          description: OK
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-      tags:
-      - Branches
-      x-accepts: application/json
-  /staff/categories:
-    get:
-      description: Returns a list of all catecories
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/CategoryDto'
-                type: array
-          description: OK
-        "204":
-          description: No Content
-      tags:
-      - Categories
-      x-accepts: application/json
-  /staff/category:
-    post:
-      description: Adds a new category
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CategoryDto'
-        description: A JSON object containing updated category information
-        required: true
-      responses:
-        "200":
-          description: OK
-      tags:
-      - Categories
-      x-contentType: application/json
-      x-accepts: application/json
-    put:
-      description: Adds a new category
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CategoryDto'
-        description: A JSON object containing updated category information
-        required: true
-      responses:
-        "200":
-          description: OK
-      tags:
-      - Categories
-      x-contentType: application/json
-      x-accepts: application/json
-  /staff/category/{id}:
-    delete:
-      description: Deletes a category by its ID
-      parameters:
-      - explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          format: int64
-          type: integer
-        style: simple
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-      tags:
-      - Categories
-      x-accepts: application/json
-    get:
-      description: Returns a category by its ID
-      parameters:
-      - explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          format: int64
-          type: integer
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CategoryDto'
-          description: OK
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-      tags:
-      - Categories
-      x-accepts: application/json
-  /staff/extras:
+  /merchant/settings/extras:
     get:
       description: Returns a list of all extras
       responses:
@@ -351,7 +44,7 @@ paths:
       tags:
       - Extras
       x-accepts: application/json
-  /staff/extra:
+  /merchant/settings/extra:
     post:
       description: Adds a new extra
       requestBody:
@@ -384,7 +77,7 @@ paths:
       - Extras
       x-contentType: application/json
       x-accepts: application/json
-  /staff/extra/{id}:
+  /merchant/settings/extra/{id}:
     delete:
       description: Deletes a extra by its ID
       parameters:
@@ -429,7 +122,197 @@ paths:
       tags:
       - Extras
       x-accepts: application/json
-  /staff/lables:
+  /merchant/settings/branches:
+    get:
+      description: Returns a list of all branches
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BranchDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Branches
+      x-accepts: application/json
+  /merchant/settings/branch:
+    post:
+      description: Adds a new branch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchDto'
+        description: A JSON object containing updated branch information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Branches
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Updates an existing branch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchDto'
+        description: A JSON object containing updated branch information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Branches
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/branch/{id}:
+    delete:
+      description: Deletes a branch by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Branches
+      x-accepts: application/json
+    get:
+      description: Returns a branch by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Branches
+      x-accepts: application/json
+  /merchant/settings/categories:
+    get:
+      description: Returns a list of all categories
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Categories
+      x-accepts: application/json
+  /merchant/settings/category:
+    post:
+      description: Adds a new category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDto'
+        description: A JSON object containing updated category information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Categories
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Adds a new category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDto'
+        description: A JSON object containing updated category information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Categories
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/category/{id}:
+    delete:
+      description: Deletes a category by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      tags:
+      - Categories
+      x-accepts: application/json
+    get:
+      description: Returns a category by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Categories
+      x-accepts: application/json
+  /merchant/settings/labels:
     get:
       description: Returns a list of all lables
       responses:
@@ -446,7 +329,7 @@ paths:
       tags:
       - Labels
       x-accepts: application/json
-  /staff/staff/lable:
+  /merchant/settings/label:
     post:
       description: Adds a new lable
       requestBody:
@@ -479,7 +362,7 @@ paths:
       - Labels
       x-contentType: application/json
       x-accepts: application/json
-  /staff/lable/{id}:
+  /merchant/settings/label/{id}:
     delete:
       description: Deletes a lable by its ID
       parameters:
@@ -524,7 +407,7 @@ paths:
       tags:
       - Labels
       x-accepts: application/json
-  /staff/menus:
+  /merchant/settings/menus:
     get:
       description: Returns a list of all menus
       responses:
@@ -543,7 +426,7 @@ paths:
       tags:
       - Menus
       x-accepts: application/json
-  /staff/menu:
+  /merchant/settings/menu:
     post:
       description: Adds a new menu
       requestBody:
@@ -580,7 +463,7 @@ paths:
       - Menus
       x-contentType: application/json
       x-accepts: application/json
-  /staff/menu/{id}:
+  /merchant/settings/menu/{id}:
     delete:
       description: Deletes a menu by its ID
       parameters:
@@ -629,7 +512,7 @@ paths:
       tags:
       - Menus
       x-accepts: application/json
-  /staff/options:
+  /merchant/settings/options:
     get:
       description: Returns a list of all option
       responses:
@@ -646,7 +529,7 @@ paths:
       tags:
       - Options
       x-accepts: application/json
-  /staff/option:
+  /merchant/settings/option:
     post:
       description: Adds a new option
       requestBody:
@@ -679,7 +562,7 @@ paths:
       - Options
       x-contentType: application/json
       x-accepts: application/json
-  /staff/option/{id}:
+  /merchant/settings/option/{id}:
     delete:
       description: Deletes a option by its ID
       parameters:
@@ -724,7 +607,7 @@ paths:
       tags:
       - Options
       x-accepts: application/json
-  /staff/products:
+  /merchant/settings/products:
     get:
       description: Returns a list of all products
       responses:
@@ -741,7 +624,7 @@ paths:
       tags:
       - Products
       x-accepts: application/json
-  /staff/product:
+  /merchant/settings/product:
     post:
       description: Adds a new product
       requestBody:
@@ -774,7 +657,7 @@ paths:
       - Products
       x-contentType: application/json
       x-accepts: application/json
-  /staff/product/{id}:
+  /merchant/settings/product/{id}:
     delete:
       description: Deletes a product by its ID
       parameters:
@@ -819,59 +702,581 @@ paths:
       tags:
       - Products
       x-accepts: application/json
-  /staff/restaurants:
+  /merchant/settings/poster:
+    post:
+      description: Adds a new poster
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PosterDto'
+        description: A JSON object containing updated poster information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/poster/{id}:
     get:
-      description: Returns a list of all Restaurants
+      description: Returns a poster by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PosterDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/settings/app:
+    post:
+      description: Adds a new app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppDto'
+        description: A JSON object containing updated app information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/app/{id}:
+    get:
+      description: Returns a app by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/settings/payment:
+    post:
+      description: Adds a new payment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentDto'
+        description: A JSON object containing updated payment information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/payment/{id}:
+    get:
+      description: Returns a payment by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/settings/sms-getway:
+    post:
+      description: Adds a new sms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsGatewayDto'
+        description: A JSON object containing updated sms information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/sms-getway/{id}:
+    get:
+      description: Returns a sms by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsGatewayDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/settings/telephony:
+    post:
+      description: Adds a new telephony
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelephonyDto'
+        description: A JSON object containing updated telephony information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/telephony/{id}:
+    get:
+      description: Returns a telephony by its ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelephonyDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/settings/delivery:
+    post:
+      description: Adds a new delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+        description: A JSON object containing updated delivery information
+        required: true
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/delivery/{id}:
+    get:
+      description: Returns a delivery by merchant ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/settings/badge:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchDto'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: OK
+        "400":
+          description: Bad request
+      summary: Create a new B
+      tags:
+      - Settings
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/settings/badge/{id}:
+    get:
+      description: Returns a badge by ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - Settings
+      x-accepts: application/json
+  /merchant/crm/badge:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BadgeDto'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: OK
+        "400":
+          description: Bad request
+      summary: Create a new B
+      tags:
+      - CRM
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/crm/badge/{id}:
+    get:
+      description: Returns a badge by ID
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadgeDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      tags:
+      - CRM
+      x-accepts: application/json
+  /merchant/crm/smss:
+    get:
       responses:
         "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/RestaurantDto'
+                  $ref: '#/components/schemas/SmsDto'
+                type: array
+          description: OK
+        "204":
+          description: No content
+      summary: Get all SMS messages
+      tags:
+      - CRM
+      x-accepts: application/json
+  /merchant/crm/sms:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsDto'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: OK
+        "400":
+          description: Bad request
+      summary: Create a new SMS message
+      tags:
+      - CRM
+      x-contentType: application/json
+      x-accepts: application/json
+  /merchant/crm/sms/{id}:
+    delete:
+      parameters:
+      - description: The ID of the SMS message
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+      summary: Delete a single SMS message by ID
+      tags:
+      - CRM
+      x-accepts: application/json
+    get:
+      parameters:
+      - description: The ID of the SMS message
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsDto'
+          description: OK
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+      summary: Get a single SMS message by ID
+      tags:
+      - CRM
+      x-accepts: application/json
+  /merchant/crm/messages:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MessageDto'
+                type: array
+          description: OK
+        "204":
+          description: No content
+      summary: Get all messages
+      tags:
+      - CRM
+      x-accepts: application/json
+  /merchant/crm/message:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageDto'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: OK
+        "400":
+          description: Bad request
+      summary: Create a new message
+      tags:
+      - CRM
+      x-contentType: application/json
+      x-accepts: application/json
+  /message/{id}:
+    delete:
+      parameters:
+      - description: The ID of the message
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+      summary: Delete a single message by ID
+      tags:
+      - CRM
+      x-accepts: application/json
+    get:
+      parameters:
+      - description: The ID of the message
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDto'
+          description: OK
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+      summary: Get a single message by ID
+      tags:
+      - CRM
+      x-accepts: application/json
+  /merchant/finance/outcomes:
+    get:
+      description: Returns a list of all Outcomes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OutcomeDto'
                 type: array
           description: OK
         "204":
           description: No Content
       tags:
-      - Restaurants
+      - Outcomes
       x-accepts: application/json
-  /staff/restaurant:
+  /merchant/finance/outcome:
     post:
-      description: Adds a new restaurant
+      description: Adds a new outcome
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RestaurantDto'
-        description: A JSON object containing updated product information
+              $ref: '#/components/schemas/OutcomeDto'
+        description: A JSON object containing updated outcome information
         required: true
       responses:
         "200":
           description: OK
       tags:
-      - Restaurants
+      - Outcomes
       x-contentType: application/json
       x-accepts: application/json
     put:
-      description: Update the restaurant
+      description: Update the outcomes
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RestaurantDto'
+              $ref: '#/components/schemas/OutcomeDto'
         description: A JSON object containing updated product information
         required: true
       responses:
         "200":
           description: OK
       tags:
-      - Restaurants
+      - Outcomes
       x-contentType: application/json
       x-accepts: application/json
-  /staff/restaurant/{id}:
+  /merchant/finance/outcome/{id}:
     delete:
-      description: Deletes a restaurant by its ID
+      description: Deletes a outcome by its ID
       parameters:
       - explode: false
         in: path
@@ -887,10 +1292,10 @@ paths:
         "400":
           description: Bad Request
       tags:
-      - Restaurants
+      - Outcomes
       x-accepts: application/json
     get:
-      description: Returns a restaurant by its ID
+      description: Returns a outcome by its ID
       parameters:
       - explode: false
         in: path
@@ -905,83 +1310,132 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RestaurantDto'
+                $ref: '#/components/schemas/OutcomeDto'
           description: OK
         "204":
           description: No Content
         "400":
           description: Bad Request
       tags:
-      - Restaurants
+      - Outcomes
       x-accepts: application/json
 components:
-  
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    UserDto:
+    BadgeDto:
       example:
-        firstName: firstName
-        lastName: lastName
-        image: image
-        birthDay: birthDay
-        phone: phone
+        bgColor: bgColor
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        icon: icon
         id: 0
+        textColor: textColor
       properties:
         id:
           format: long
           type: integer
-        phone:
+        name:
+          $ref: '#/components/schemas/TextModel'
+        textColor:
           type: string
-        firstName:
+        bgColor:
           type: string
-        lastName:
+        icon:
           type: string
-        image:
-          type: string
-        birthDay:
+      type: object
+    SmsDto:
+      example:
+        clientId: 6
+        messageId: 1
+        id: 0
+        time: time
+        status: status
+      properties:
+        id:
+          format: long
+          type: integer
+        clientId:
+          format: long
+          type: integer
+        messageId:
+          format: long
+          type: integer
+        time:
           format: yyyy-MM-dd hh:mm:ss.SSSSSS
           type: string
-      type: object
-    BranchDto:
-      example:
-        address: address
-        latitude: 1.4658129805029452
-        name:
-          ru: ru
-          uz: uz
-          en: en
-        id: 0
-        longitude: 6.027456183070403
-      properties:
-        id:
-          format: long
-          type: integer
-        name:
-          $ref: '#/components/schemas/TextModel'
-        longitude:
-          type: number
-        latitude:
-          type: number
-        address:
+        status:
           type: string
       type: object
-    CategoryDto:
+    MessageDto:
       example:
-        image: image
-        name:
-          ru: ru
-          uz: uz
-          en: en
         id: 0
+        time: time
+        content: content
+        smss:
+        - clientId: 6
+          messageId: 1
+          id: 0
+          time: time
+          status: status
+        - clientId: 6
+          messageId: 1
+          id: 0
+          time: time
+          status: status
+      properties:
+        id:
+          format: long
+          type: integer
+        content:
+          type: string
+        time:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        smss:
+          items:
+            $ref: '#/components/schemas/SmsDto'
+          type: array
+      type: object
+    OrderDto:
+      properties:
+        id:
+          format: long
+          type: integer
+        type:
+          $ref: '#/components/schemas/OrderType'
+        status:
+          type: string
+        createdAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        updatedAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        deliveredAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        deliveryAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        totalPrice:
+          format: double
+          type: number
+        totalDiscount:
+          format: double
+          type: number
+        comment:
+          type: string
+      type: object
+    OrderType:
       properties:
         id:
           format: long
           type: integer
         name:
-          $ref: '#/components/schemas/TextModel'
-        image:
           type: string
       type: object
     ExtraDto:
@@ -990,11 +1444,11 @@ components:
         name:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         description:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         id: 0
       properties:
         id:
@@ -1014,7 +1468,7 @@ components:
         name:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         icon: icon
         menuId: 6
         id: 0
@@ -1040,7 +1494,7 @@ components:
         name:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         id: 0
       properties:
         id:
@@ -1056,11 +1510,11 @@ components:
         name:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         description:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         id: 0
       properties:
         id:
@@ -1082,13 +1536,13 @@ components:
         name:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         costPrice: 1
         menuId: 6
         description:
           ru: ru
           uz: uz
-          en: en
+          eng: eng
         id: 0
       properties:
         id:
@@ -1107,31 +1561,57 @@ components:
           format: double
           type: integer
       type: object
-    LoginRequest:
+    MerchantDto:
       properties:
-        deviceUuid:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        logo:
+          type: string
+        domain:
+          type: string
+        subdomain:
           type: string
         phone:
           type: string
-        code:
+        password:
+          type: string
+      type: object
+    OutcomeDto:
+      example:
+        outcomeType:
+          merchantId: 2
+          name: name
+          id: 5
+        merchantId: 6
+        name: name
+        staff:
+          firstName: firstName
+          lastName: lastName
+          birthDay: birthDay
+          image: image
+          password: password
+          merchantId: 5
+          phone: phone
+          comment: comment
+          id: 1
+          position: position
+        id: 0
+      properties:
+        id:
           format: long
           type: integer
-      type: object
-    LoginResponse:
-      example:
-        regToken: regToken
-        loginToken: loginToken
-        accessToken: accessToken
-        refreshToken: refreshToken
-      properties:
-        loginToken:
+        merchantId:
+          format: long
+          type: integer
+        name:
           type: string
-        accessToken:
-          type: string
-        refreshToken:
-          type: string
-        regToken:
-          type: string
+        staff:
+          $ref: '#/components/schemas/StaffDto'
+        outcomeType:
+          $ref: '#/components/schemas/OutcomeTypeDto'
       type: object
     StaffDto:
       example:
@@ -1140,27 +1620,19 @@ components:
         birthDay: birthDay
         image: image
         password: password
-        id: 0
-        position:
-          roles:
-          - delivery: true
-            name: name
-            id: 1
-            menu: true
-            staffId: 5
-          - delivery: true
-            name: name
-            id: 1
-            menu: true
-            staffId: 5
-          name: name
-          id: 6
-        username: username
+        merchantId: 5
+        phone: phone
+        comment: comment
+        id: 1
+        position: position
       properties:
         id:
           format: long
           type: integer
-        username:
+        merchantId:
+          format: long
+          type: integer
+        phone:
           type: string
         password:
           type: string
@@ -1173,64 +1645,69 @@ components:
           type: string
         image:
           type: string
+        comment:
+          type: string
         position:
-          $ref: '#/components/schemas/PositionDto'
+          type: string
       type: object
-    PositionDto:
+    OutcomeTypeDto:
       example:
-        roles:
-        - delivery: true
-          name: name
-          id: 1
-          menu: true
-          staffId: 5
-        - delivery: true
-          name: name
-          id: 1
-          menu: true
-          staffId: 5
+        merchantId: 2
         name: name
-        id: 6
+        id: 5
       properties:
         id:
           format: long
           type: integer
+        merchantId:
+          format: long
+          type: integer
         name:
           type: string
-        roles:
-          items:
-            $ref: '#/components/schemas/RoleDto'
-          type: array
       type: object
-    RoleDto:
+    TextModel:
       example:
-        delivery: true
-        name: name
-        id: 1
-        menu: true
-        staffId: 5
+        ru: ru
+        uz: uz
+        eng: eng
       properties:
-        id:
-          format: long
-          type: integer
-        name:
+        uz:
           type: string
-        staffId:
-          format: long
-          type: integer
-        menu:
-          type: boolean
-        delivery:
-          type: boolean
+        ru:
+          type: string
+        eng:
+          type: string
       type: object
-    RestaurantDto:
+    BranchDto:
       example:
-        domain: domain
+        address: address
+        latitude: 1.4658129805029452
         name:
           ru: ru
           uz: uz
-          en: en
-        logo: logo
+          eng: eng
+        id: 0
+        longitude: 6.027456183070403
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        longitude:
+          type: number
+        latitude:
+          type: number
+        address:
+          type: string
+      type: object
+    CategoryDto:
+      example:
+        image: image
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
         id: 0
       properties:
         id:
@@ -1238,26 +1715,152 @@ components:
           type: integer
         name:
           $ref: '#/components/schemas/TextModel'
-        logo:
-          type: string
-        domain:
+        image:
           type: string
       type: object
-    TextModel:
+    PosterDto:
       example:
-        ru: ru
-        uz: uz
-        en: en
+        joinPosterApiKey: joinPosterApiKey
+        rKeeperClientId: 1
+        merchantId: 6
+        id: 0
+        rKeeperClientSecret: rKeeperClientSecret
       properties:
-        uz:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        joinPosterApiKey:
           type: string
-        ru:
-          type: string
-        en:
+        rKeeperClientId:
+          format: long
+          type: integer
+        rKeeperClientSecret:
           type: string
       type: object
-
-
+    AppDto:
+      example:
+        merchantId: 6
+        telegramBotToken: telegramBotToken
+        appleToken: appleToken
+        id: 0
+        googleToken: googleToken
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        googleToken:
+          type: string
+        appleToken:
+          type: string
+        telegramBotToken:
+          type: string
+      type: object
+    PaymentDto:
+      example:
+        paymeSecret: paymeSecret
+        clickKey: clickKey
+        apelsinMerchantId: 5
+        clickServiceId: 5
+        merchantId: 6
+        apelsinMerchantToken: apelsinMerchantToken
+        id: 0
+        paymeMerchantId: 1
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        paymeMerchantId:
+          format: long
+          type: integer
+        paymeSecret:
+          type: string
+        apelsinMerchantId:
+          format: long
+          type: integer
+        apelsinMerchantToken:
+          type: string
+        clickServiceId:
+          format: long
+          type: integer
+        clickKey:
+          type: string
+      type: object
+    SmsGatewayDto:
+      example:
+        eskizId: 1
+        playMobileKey: playMobileKey
+        merchantId: 6
+        id: 0
+        eskizToken: eskizToken
+        playMobileServiceId: 5
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        eskizId:
+          format: long
+          type: integer
+        eskizToken:
+          type: string
+        playMobileServiceId:
+          format: long
+          type: integer
+        playMobileKey:
+          type: string
+      type: object
+    TelephonyDto:
+      example:
+        merchantId: 6
+        onlinePbxToken: onlinePbxToken
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        onlinePbxToken:
+          type: string
+      type: object
+    DeliveryDto:
+      example:
+        yandexToken: yandexToken
+        expressToken: expressToken
+        merchantId: 6
+        yandexClientId: 1
+        id: 0
+        expressId: 5
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        yandexClientId:
+          format: long
+          type: integer
+        yandexToken:
+          type: string
+        expressId:
+          format: long
+          type: integer
+        expressToken:
+          type: string
+      type: object
   securitySchemes:
     bearerAuth:
       bearerFormat: JWT

@@ -1,7 +1,9 @@
 package mimsoft.io.features.room
 
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 object RoomService : RoomRepository {
+    val repository: BaseRepository = DBManager
 
     override suspend fun getAll(): List<RoomTable?> =
         DBManager.getData(dataClass = RoomTable::class, tableName = ROOM_TABLE_NAME).filterIsInstance<RoomTable?>()

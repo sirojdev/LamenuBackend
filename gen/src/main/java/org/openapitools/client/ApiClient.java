@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation for Staffs
- * Lamenu documentation for Staffs
+ * Lamenu documentation Merchant
+ * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -54,7 +54,7 @@ import org.openapitools.client.auth.ApiKeyAuth;
 
 public class ApiClient {
 
-    private String basePath = "http://0.0.0.0:8181/api/v1";
+    private String basePath = "http://0.0.0.0:9000/api/v1";
     private boolean debugging = false;
     private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
     private Map<String, String> defaultCookieMap = new HashMap<String, String>();
@@ -140,7 +140,7 @@ public class ApiClient {
     /**
      * Set base path
      *
-     * @param basePath Base path of the URL (e.g http://0.0.0.0:8181/api/v1
+     * @param basePath Base path of the URL (e.g http://0.0.0.0:9000/api/v1
      * @return An instance of OkHttpClient
      */
     public ApiClient setBasePath(String basePath) {
@@ -149,7 +149,7 @@ public class ApiClient {
     }
 
     /**
-     * Get HTTP merchant
+     * Get HTTP client
      *
      * @return An instance of OkHttpClient
      */
@@ -158,7 +158,7 @@ public class ApiClient {
     }
 
     /**
-     * Set HTTP merchant, which must never be null.
+     * Set HTTP client, which must never be null.
      *
      * @param newHttpClient An instance of OkHttpClient
      * @return Api Client
@@ -182,7 +182,7 @@ public class ApiClient {
      * Set JSON
      *
      * @param json JSON object
-     * @return Api merchant
+     * @return Api client
      */
     public ApiClient setJSON(JSON json) {
         this.json = json;
@@ -239,7 +239,7 @@ public class ApiClient {
     }
 
     /**
-     * Configure merchant keys to use for authorization in an SSL session.
+     * Configure client keys to use for authorization in an SSL session.
      * Use null to reset to default.
      *
      * @param managers The KeyManagers to use
@@ -418,7 +418,7 @@ public class ApiClient {
     }
 
     /**
-     * Check that whether debugging is enabled for this API merchant.
+     * Check that whether debugging is enabled for this API client.
      *
      * @return True if debugging is enabled, false otherwise.
      */
@@ -427,7 +427,7 @@ public class ApiClient {
     }
 
     /**
-     * Enable/disable debugging for this API merchant.
+     * Enable/disable debugging for this API client.
      *
      * @param debugging To enable (true) or disable (false) debugging
      * @return ApiClient
@@ -487,7 +487,7 @@ public class ApiClient {
      * {@link Integer#MAX_VALUE}.
      *
      * @param connectionTimeout connection timeout in milliseconds
-     * @return Api merchant
+     * @return Api client
      */
     public ApiClient setConnectTimeout(int connectionTimeout) {
         httpClient = httpClient.newBuilder().connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS).build();
@@ -509,7 +509,7 @@ public class ApiClient {
      * {@link Integer#MAX_VALUE}.
      *
      * @param readTimeout read timeout in milliseconds
-     * @return Api merchant
+     * @return Api client
      */
     public ApiClient setReadTimeout(int readTimeout) {
         httpClient = httpClient.newBuilder().readTimeout(readTimeout, TimeUnit.MILLISECONDS).build();
@@ -531,7 +531,7 @@ public class ApiClient {
      * {@link Integer#MAX_VALUE}.
      *
      * @param writeTimeout connection timeout in milliseconds
-     * @return Api merchant
+     * @return Api client
      */
     public ApiClient setWriteTimeout(int writeTimeout) {
         httpClient = httpClient.newBuilder().writeTimeout(writeTimeout, TimeUnit.MILLISECONDS).build();

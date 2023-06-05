@@ -9,8 +9,10 @@ import io.ktor.server.routing.*
 fun Route.routeToRoom() {
     val roomService: RoomRepository = RoomService
     val roomMapper = RoomMapper
+
     get("rooms") {
-        val rooms = roomService.getAll().map { roomMapper.toRoomDto(it) }
+        val merchantId = 1L
+        val rooms = roomService.getByMerchantId(merchantId)
         if (rooms.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -32,8 +34,9 @@ fun Route.routeToRoom() {
     }
 
     post("room") {
+        val merchantId = 1L
         val room = call.receive<RoomDto>()
-        roomService.add(roomMapper.toRoomTable(room))
+        roomService.add(roomMapper.toRoomTable(room.copy(merchantId = merchantId)))
         call.respond(HttpStatusCode.OK)
     }
 

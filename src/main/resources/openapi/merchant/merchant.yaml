@@ -4,12 +4,11 @@ info:
   description: "Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project"
   version: "1.0.0"
 servers:
-  - url: 'http://0.0.0.0:9000/api/v1/'
+  - url: 'http://127.0.0.1:9000/v1/'
   - url: 'http://188.166.167.80:9000/api/v1/'
 
 tags:
-  - name: Auth
-    description: Login endpoints
+
 
   - name: Branches
     description: Endpoints related to branch
@@ -22,6 +21,9 @@ tags:
 
   - name: Labels
     description: Endpoints related to label
+
+  - name: Staff
+    description: Endpoints related to staff
 
   - name: Menus
     description: Endpoints related to menu
@@ -1154,55 +1156,25 @@ paths:
   #        "400":
   #          description: "Bad Request"
 
-  /merchant/settings/badge:
-    post:
-      summary: Create a new B
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BranchDto'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: integer
-        '400':
-          description: Bad request
-      tags:
-        - Settings
 
-  /merchant/settings/badge/{id}:
+  /merchant/settings/badges:
     get:
       tags:
         - Settings
-      description: "Returns a badge by ID"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
+      description: "Returns a list of all badges"
       responses:
         "200":
           description: "OK"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BranchDto"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BadgeDto"
         "204":
           description: "No Content"
-        "400":
-          description: "Bad Request"
-
-  #//==================================================================================================CRM
-
-  /merchant/crm/badge:
+  /merchant/settings/badge:
     post:
-      summary: Create a new B
       requestBody:
         content:
           application/json:
@@ -1218,13 +1190,28 @@ paths:
         '400':
           description: Bad request
       tags:
-        - CRM
+        - Settings
 
-  /merchant/crm/badge/{id}:
+    put:
+      tags:
+        - Settings
+      description: "Update badge"
+      requestBody:
+        description: "A JSON object containing updated badge's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /merchant/settings/badge/{id}:
     get:
       tags:
-        - CRM
-      description: "Returns a badge by ID"
+        - Settings
+      description: "Returns a badge by id"
       parameters:
         - name: "id"
           in: "path"
@@ -1243,7 +1230,24 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
+    delete:
+      tags:
+        - Settings
+      description: "Deletes badge by its id"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
 
+  #//==================================================================================================CRM
   /merchant/crm/smss:
     get:
       summary: Get all SMS messages
@@ -1507,6 +1511,9 @@ components:
           type: string
         icon:
           type: string
+        menuId:
+          type: integer
+          format: "long"
 
     SmsDto:
       type: object

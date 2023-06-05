@@ -10,15 +10,15 @@ fun Route.routeToPayment(){
 
 
     get("payment"){
-        val merchantId = 2L
+        val merchantId = 1L
         val payment = PaymentService.get(merchantId = merchantId)?: PaymentDto()
         call.respond(payment)
     }
 
-    post ("payment"){
-        val merchantId = 2L
+    put ("payment"){
+        val merchantId = 1L
         val table = call.receive<PaymentDto>()
-        PaymentService.add(table.copy(merchantId = merchantId))
+        PaymentService.update(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 

@@ -9,7 +9,7 @@ import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.services.sms.SmsProvider
 
-class EskizProvider(val merchantId: Long, val serviceId: String?, val key: String?) : SmsProvider {
+class EskizProvider(val merchantId: Long, val email: String?, val password: String?) : SmsProvider {
 
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -32,8 +32,8 @@ class EskizProvider(val merchantId: Long, val serviceId: String?, val key: Strin
             contentType(ContentType.Application.Json)
             setBody(
                 EskizAccount(
-                    password = key,
-                    email = serviceId
+                    password = password,
+                    email = email
                 )
             )
         }
@@ -117,6 +117,5 @@ class EskizProvider(val merchantId: Long, val serviceId: String?, val key: Strin
 
         return "ERROR"
     }
-
 
 }

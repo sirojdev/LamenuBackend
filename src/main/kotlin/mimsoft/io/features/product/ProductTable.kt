@@ -4,17 +4,17 @@ import java.sql.Timestamp
 
 const val PRODUCT_TABLE_NAME = "product"
 data class ProductTable(
-    var id: Long? = null,
-    var menuId: Long? = null,
-    var nameUz: String? = null,
-    var nameRu: String? = null,
-    var nameEng: String? = null,
-    var descriptionUz: String? = null,
-    var descriptionRu: String? = null,
-    var descriptionEng: String? = null,
-    var image: String? = null,
-    var costPrice: Double? = null,
-    var deleted: Boolean? = null,
-    var created: Timestamp? = null,
-    var updated: Timestamp? = null
+    val id: Long? = null,
+    val menuId: Long? = null,
+    val nameUz: String? = null,
+    val nameRu: String? = null,
+    val nameEng: String? = null,
+    val descriptionUz: String? = null,
+    val descriptionRu: String? = null,
+    val descriptionEng: String? = null,
+    val image: String? = null,
+    val costPrice: Double? = null,
+    val deleted: Boolean? = null,
+    val created: Timestamp? = null,
+    val updated: Timestamp? = null
 )

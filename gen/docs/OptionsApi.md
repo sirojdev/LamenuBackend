@@ -1,19 +1,19 @@
 # OptionsApi
 
-All URIs are relative to *http://0.0.0.0:8181/api/v1*
+All URIs are relative to *http://0.0.0.0:9000/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**staffOptionIdDelete**](OptionsApi.md#staffOptionIdDelete) | **DELETE** /staff/option/{id} | 
-[**staffOptionIdGet**](OptionsApi.md#staffOptionIdGet) | **GET** /staff/option/{id} | 
-[**staffOptionPost**](OptionsApi.md#staffOptionPost) | **POST** /staff/option | 
-[**staffOptionPut**](OptionsApi.md#staffOptionPut) | **PUT** /staff/option | 
-[**staffOptionsGet**](OptionsApi.md#staffOptionsGet) | **GET** /staff/options | 
+[**merchantSettingsOptionIdDelete**](OptionsApi.md#merchantSettingsOptionIdDelete) | **DELETE** /merchant/settings/option/{id} | 
+[**merchantSettingsOptionIdGet**](OptionsApi.md#merchantSettingsOptionIdGet) | **GET** /merchant/settings/option/{id} | 
+[**merchantSettingsOptionPost**](OptionsApi.md#merchantSettingsOptionPost) | **POST** /merchant/settings/option | 
+[**merchantSettingsOptionPut**](OptionsApi.md#merchantSettingsOptionPut) | **PUT** /merchant/settings/option | 
+[**merchantSettingsOptionsGet**](OptionsApi.md#merchantSettingsOptionsGet) | **GET** /merchant/settings/options | 
 
 
-<a name="staffOptionIdDelete"></a>
-# **staffOptionIdDelete**
-> staffOptionIdDelete(id)
+<a name="merchantSettingsOptionIdDelete"></a>
+# **merchantSettingsOptionIdDelete**
+> merchantSettingsOptionIdDelete(id)
 
 
 
@@ -31,14 +31,14 @@ import org.openapitools.client.api.OptionsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.staffOptionIdDelete(id);
+      apiInstance.merchantSettingsOptionIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#staffOptionIdDelete");
+      System.err.println("Exception when calling OptionsApi#merchantSettingsOptionIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffOptionIdGet"></a>
-# **staffOptionIdGet**
-> OptionDto staffOptionIdGet(id)
+<a name="merchantSettingsOptionIdGet"></a>
+# **merchantSettingsOptionIdGet**
+> OptionDto merchantSettingsOptionIdGet(id)
 
 
 
@@ -93,15 +93,15 @@ import org.openapitools.client.api.OptionsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      OptionDto result = apiInstance.staffOptionIdGet(id);
+      OptionDto result = apiInstance.merchantSettingsOptionIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#staffOptionIdGet");
+      System.err.println("Exception when calling OptionsApi#merchantSettingsOptionIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffOptionPost"></a>
-# **staffOptionPost**
-> staffOptionPost(optionDto)
+<a name="merchantSettingsOptionPost"></a>
+# **merchantSettingsOptionPost**
+> merchantSettingsOptionPost(optionDto)
 
 
 
@@ -157,14 +157,14 @@ import org.openapitools.client.api.OptionsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     OptionDto optionDto = new OptionDto(); // OptionDto | A JSON object containing updated option information
     try {
-      apiInstance.staffOptionPost(optionDto);
+      apiInstance.merchantSettingsOptionPost(optionDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#staffOptionPost");
+      System.err.println("Exception when calling OptionsApi#merchantSettingsOptionPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffOptionPut"></a>
-# **staffOptionPut**
-> staffOptionPut(optionDto)
+<a name="merchantSettingsOptionPut"></a>
+# **merchantSettingsOptionPut**
+> merchantSettingsOptionPut(optionDto)
 
 
 
@@ -218,14 +218,14 @@ import org.openapitools.client.api.OptionsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     OptionDto optionDto = new OptionDto(); // OptionDto | A JSON object containing updated option information
     try {
-      apiInstance.staffOptionPut(optionDto);
+      apiInstance.merchantSettingsOptionPut(optionDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#staffOptionPut");
+      System.err.println("Exception when calling OptionsApi#merchantSettingsOptionPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffOptionsGet"></a>
-# **staffOptionsGet**
-> List&lt;OptionDto&gt; staffOptionsGet()
+<a name="merchantSettingsOptionsGet"></a>
+# **merchantSettingsOptionsGet**
+> List&lt;OptionDto&gt; merchantSettingsOptionsGet()
 
 
 
@@ -279,14 +279,14 @@ import org.openapitools.client.api.OptionsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     OptionsApi apiInstance = new OptionsApi(defaultClient);
     try {
-      List<OptionDto> result = apiInstance.staffOptionsGet();
+      List<OptionDto> result = apiInstance.merchantSettingsOptionsGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling OptionsApi#staffOptionsGet");
+      System.err.println("Exception when calling OptionsApi#merchantSettingsOptionsGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

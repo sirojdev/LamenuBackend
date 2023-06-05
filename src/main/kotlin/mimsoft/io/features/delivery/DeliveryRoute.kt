@@ -8,15 +8,15 @@ import io.ktor.server.routing.*
 
 fun Route.routeToDelivery(){
     get("delivery"){
-        val merchantId = 4L
+        val merchantId = 1L
         val delivery = DeliveryService.get(merchantId = merchantId)?: DeliveryDto()
         call.respond(delivery)
     }
 
-    post ("delivery"){
-        val merchantId = 4L
+    put ("delivery"){
+        val merchantId = 1L
         val table = call.receive<DeliveryDto>()
-        DeliveryService.add(table.copy(merchantId = merchantId))
+        DeliveryService.update(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 }

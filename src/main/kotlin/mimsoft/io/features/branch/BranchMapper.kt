@@ -13,7 +13,8 @@ object BranchMapper {
                 nameEng = branchDto.name?.eng,
                 longitude = branchDto.longitude,
                 latitude = branchDto.latitude,
-                address = branchDto.address
+                address = branchDto.address,
+                merchantId = branchDto.merchantId
             )
         }
     }
@@ -29,7 +30,8 @@ object BranchMapper {
             ),
             longitude = branchTable.longitude,
             latitude = branchTable.latitude,
-            address = branchTable.address
+            address = branchTable.address,
+            merchantId = branchTable.merchantId
         )
     }
 }

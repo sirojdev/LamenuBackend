@@ -1,23 +1,23 @@
 # CategoriesApi
 
-All URIs are relative to *http://0.0.0.0:8181/api/v1*
+All URIs are relative to *http://0.0.0.0:9000/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**staffCategoriesGet**](CategoriesApi.md#staffCategoriesGet) | **GET** /staff/categories | 
-[**staffCategoryIdDelete**](CategoriesApi.md#staffCategoryIdDelete) | **DELETE** /staff/category/{id} | 
-[**staffCategoryIdGet**](CategoriesApi.md#staffCategoryIdGet) | **GET** /staff/category/{id} | 
-[**staffCategoryPost**](CategoriesApi.md#staffCategoryPost) | **POST** /staff/category | 
-[**staffCategoryPut**](CategoriesApi.md#staffCategoryPut) | **PUT** /staff/category | 
+[**merchantSettingsCategoriesGet**](CategoriesApi.md#merchantSettingsCategoriesGet) | **GET** /merchant/settings/categories | 
+[**merchantSettingsCategoryIdDelete**](CategoriesApi.md#merchantSettingsCategoryIdDelete) | **DELETE** /merchant/settings/category/{id} | 
+[**merchantSettingsCategoryIdGet**](CategoriesApi.md#merchantSettingsCategoryIdGet) | **GET** /merchant/settings/category/{id} | 
+[**merchantSettingsCategoryPost**](CategoriesApi.md#merchantSettingsCategoryPost) | **POST** /merchant/settings/category | 
+[**merchantSettingsCategoryPut**](CategoriesApi.md#merchantSettingsCategoryPut) | **PUT** /merchant/settings/category | 
 
 
-<a name="staffCategoriesGet"></a>
-# **staffCategoriesGet**
-> List&lt;CategoryDto&gt; staffCategoriesGet()
+<a name="merchantSettingsCategoriesGet"></a>
+# **merchantSettingsCategoriesGet**
+> List&lt;CategoryDto&gt; merchantSettingsCategoriesGet()
 
 
 
-Returns a list of all catecories
+Returns a list of all categories
 
 ### Example
 ```java
@@ -31,14 +31,14 @@ import org.openapitools.client.api.CategoriesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     try {
-      List<CategoryDto> result = apiInstance.staffCategoriesGet();
+      List<CategoryDto> result = apiInstance.merchantSettingsCategoriesGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#staffCategoriesGet");
+      System.err.println("Exception when calling CategoriesApi#merchantSettingsCategoriesGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -70,9 +70,9 @@ No authorization required
 **200** | OK |  -  |
 **204** | No Content |  -  |
 
-<a name="staffCategoryIdDelete"></a>
-# **staffCategoryIdDelete**
-> staffCategoryIdDelete(id)
+<a name="merchantSettingsCategoryIdDelete"></a>
+# **merchantSettingsCategoryIdDelete**
+> merchantSettingsCategoryIdDelete(id)
 
 
 
@@ -90,14 +90,14 @@ import org.openapitools.client.api.CategoriesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.staffCategoryIdDelete(id);
+      apiInstance.merchantSettingsCategoryIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#staffCategoryIdDelete");
+      System.err.println("Exception when calling CategoriesApi#merchantSettingsCategoryIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -132,9 +132,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffCategoryIdGet"></a>
-# **staffCategoryIdGet**
-> CategoryDto staffCategoryIdGet(id)
+<a name="merchantSettingsCategoryIdGet"></a>
+# **merchantSettingsCategoryIdGet**
+> CategoryDto merchantSettingsCategoryIdGet(id)
 
 
 
@@ -152,15 +152,15 @@ import org.openapitools.client.api.CategoriesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      CategoryDto result = apiInstance.staffCategoryIdGet(id);
+      CategoryDto result = apiInstance.merchantSettingsCategoryIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#staffCategoryIdGet");
+      System.err.println("Exception when calling CategoriesApi#merchantSettingsCategoryIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -196,9 +196,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffCategoryPost"></a>
-# **staffCategoryPost**
-> staffCategoryPost(categoryDto)
+<a name="merchantSettingsCategoryPost"></a>
+# **merchantSettingsCategoryPost**
+> merchantSettingsCategoryPost(categoryDto)
 
 
 
@@ -216,14 +216,14 @@ import org.openapitools.client.api.CategoriesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     CategoryDto categoryDto = new CategoryDto(); // CategoryDto | A JSON object containing updated category information
     try {
-      apiInstance.staffCategoryPost(categoryDto);
+      apiInstance.merchantSettingsCategoryPost(categoryDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#staffCategoryPost");
+      System.err.println("Exception when calling CategoriesApi#merchantSettingsCategoryPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -257,9 +257,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffCategoryPut"></a>
-# **staffCategoryPut**
-> staffCategoryPut(categoryDto)
+<a name="merchantSettingsCategoryPut"></a>
+# **merchantSettingsCategoryPut**
+> merchantSettingsCategoryPut(categoryDto)
 
 
 
@@ -277,14 +277,14 @@ import org.openapitools.client.api.CategoriesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     CategoriesApi apiInstance = new CategoriesApi(defaultClient);
     CategoryDto categoryDto = new CategoryDto(); // CategoryDto | A JSON object containing updated category information
     try {
-      apiInstance.staffCategoryPut(categoryDto);
+      apiInstance.merchantSettingsCategoryPut(categoryDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling CategoriesApi#staffCategoryPut");
+      System.err.println("Exception when calling CategoriesApi#merchantSettingsCategoryPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

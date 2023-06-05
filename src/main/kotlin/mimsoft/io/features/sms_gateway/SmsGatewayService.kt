@@ -7,7 +7,7 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.services.sms.SmsProvider
 import mimsoft.io.services.sms.providers.eskiz.EskizProvider
-import mimsoft.io.services.sms.providers.PlayMobileProvider
+import mimsoft.io.services.sms.providers.playMobail.PlayMobileProvider
 import mimsoft.io.utils.MERCHANT_ID_NULL
 import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
@@ -20,15 +20,16 @@ object SmsGatewayService {
 
     suspend fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
         val merchantId = smsGatewayDto?.merchantId ?: return null
+        println("\nselected-->${smsGatewayDto.selected}")
         return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
-                key = smsGatewayDto.playMobileKey,
-                serviceId = smsGatewayDto.playMobileServiceId,
+                password = smsGatewayDto.playMobileKey,
+                username = smsGatewayDto.playMobileServiceId,
                 merchantId = smsGatewayDto.merchantId
             )
             SMSGatewaySelected.ESKIZ.name -> EskizProvider(
-                key = smsGatewayDto.playMobileKey,
-                serviceId = smsGatewayDto.playMobileServiceId,
+                password = smsGatewayDto.eskizToken,
+                email = smsGatewayDto.eskizId,
                 merchantId = smsGatewayDto.merchantId
             )
             else -> null
@@ -43,6 +44,7 @@ object SmsGatewayService {
                 if (rs.next()) {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
+                            merchantId = rs.getLong("merchant_id"),
                             eskizId = rs.getString("eskiz_id"),
                             eskizToken = rs.getString("eskiz_token"),
                             playMobileServiceId = rs.getString("play_mobile_service_id"),
@@ -55,7 +57,7 @@ object SmsGatewayService {
         }
     }
 
-    suspend fun add(smsGatewayDto: SmsGatewayDto?): ResponseModel {
+/*    suspend fun add(smsGatewayDto: SmsGatewayDto?): ResponseModel {
         if (smsGatewayDto?.merchantId == null) return ResponseModel(MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(smsGatewayDto.merchantId)
         if (checkMerchant != null) update(smsGatewayDto = smsGatewayDto)
@@ -66,7 +68,7 @@ object SmsGatewayService {
             ),
             OK
         )
-    }
+    }*/
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
         val query = "update $SMS_GATEWAY_TABLE set " +

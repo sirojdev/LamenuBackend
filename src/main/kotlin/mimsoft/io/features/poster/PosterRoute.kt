@@ -13,10 +13,10 @@ fun Route.routeToPoster(){
         call.respond(poster)
     }
 
-    post ("poster"){
+    put ("poster"){
         val merchantId = 1L
-        val table = call.receive<PosterDto>()
-        PosterService.add(table.copy(merchantId = merchantId))
+        val poster = call.receive<PosterDto>()
+        PosterService.update(poster.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 }

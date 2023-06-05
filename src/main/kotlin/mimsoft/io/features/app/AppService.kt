@@ -35,7 +35,7 @@ object AppService {
         }
     }
 
-    suspend fun add(appDto: AppDto?): ResponseModel {
+/*    suspend fun add(appDto: AppDto?): ResponseModel {
         val checkMerchant = get(appDto?.merchantId)
         if(checkMerchant != null) update(appDto = appDto)
         return ResponseModel(
@@ -45,7 +45,7 @@ object AppService {
             ),
             httpStatus = OK
         )
-    }
+    }*/
 
     suspend fun update(appDto: AppDto?): Boolean {
         val query = "update $APP_TABLE_NAME set " +
