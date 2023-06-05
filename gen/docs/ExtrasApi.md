@@ -1,19 +1,19 @@
 # ExtrasApi
 
-All URIs are relative to *http://0.0.0.0:8181/api/v1*
+All URIs are relative to *http://0.0.0.0:9000/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**staffExtraIdDelete**](ExtrasApi.md#staffExtraIdDelete) | **DELETE** /staff/extra/{id} | 
-[**staffExtraIdGet**](ExtrasApi.md#staffExtraIdGet) | **GET** /staff/extra/{id} | 
-[**staffExtraPost**](ExtrasApi.md#staffExtraPost) | **POST** /staff/extra | 
-[**staffExtraPut**](ExtrasApi.md#staffExtraPut) | **PUT** /staff/extra | 
-[**staffExtrasGet**](ExtrasApi.md#staffExtrasGet) | **GET** /staff/extras | 
+[**merchantSettingsExtraIdDelete**](ExtrasApi.md#merchantSettingsExtraIdDelete) | **DELETE** /merchant/settings/extra/{id} | 
+[**merchantSettingsExtraIdGet**](ExtrasApi.md#merchantSettingsExtraIdGet) | **GET** /merchant/settings/extra/{id} | 
+[**merchantSettingsExtraPost**](ExtrasApi.md#merchantSettingsExtraPost) | **POST** /merchant/settings/extra | 
+[**merchantSettingsExtraPut**](ExtrasApi.md#merchantSettingsExtraPut) | **PUT** /merchant/settings/extra | 
+[**merchantSettingsExtrasGet**](ExtrasApi.md#merchantSettingsExtrasGet) | **GET** /merchant/settings/extras | 
 
 
-<a name="staffExtraIdDelete"></a>
-# **staffExtraIdDelete**
-> staffExtraIdDelete(id)
+<a name="merchantSettingsExtraIdDelete"></a>
+# **merchantSettingsExtraIdDelete**
+> merchantSettingsExtraIdDelete(id)
 
 
 
@@ -31,14 +31,14 @@ import org.openapitools.client.api.ExtrasApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.staffExtraIdDelete(id);
+      apiInstance.merchantSettingsExtraIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#staffExtraIdDelete");
+      System.err.println("Exception when calling ExtrasApi#merchantSettingsExtraIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffExtraIdGet"></a>
-# **staffExtraIdGet**
-> ExtraDto staffExtraIdGet(id)
+<a name="merchantSettingsExtraIdGet"></a>
+# **merchantSettingsExtraIdGet**
+> ExtraDto merchantSettingsExtraIdGet(id)
 
 
 
@@ -93,15 +93,15 @@ import org.openapitools.client.api.ExtrasApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      ExtraDto result = apiInstance.staffExtraIdGet(id);
+      ExtraDto result = apiInstance.merchantSettingsExtraIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#staffExtraIdGet");
+      System.err.println("Exception when calling ExtrasApi#merchantSettingsExtraIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffExtraPost"></a>
-# **staffExtraPost**
-> staffExtraPost(extraDto)
+<a name="merchantSettingsExtraPost"></a>
+# **merchantSettingsExtraPost**
+> merchantSettingsExtraPost(extraDto)
 
 
 
@@ -157,14 +157,14 @@ import org.openapitools.client.api.ExtrasApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     ExtraDto extraDto = new ExtraDto(); // ExtraDto | A JSON object containing updated extra information
     try {
-      apiInstance.staffExtraPost(extraDto);
+      apiInstance.merchantSettingsExtraPost(extraDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#staffExtraPost");
+      System.err.println("Exception when calling ExtrasApi#merchantSettingsExtraPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffExtraPut"></a>
-# **staffExtraPut**
-> staffExtraPut(extraDto)
+<a name="merchantSettingsExtraPut"></a>
+# **merchantSettingsExtraPut**
+> merchantSettingsExtraPut(extraDto)
 
 
 
@@ -218,14 +218,14 @@ import org.openapitools.client.api.ExtrasApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     ExtraDto extraDto = new ExtraDto(); // ExtraDto | A JSON object containing updated extra information
     try {
-      apiInstance.staffExtraPut(extraDto);
+      apiInstance.merchantSettingsExtraPut(extraDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#staffExtraPut");
+      System.err.println("Exception when calling ExtrasApi#merchantSettingsExtraPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffExtrasGet"></a>
-# **staffExtrasGet**
-> List&lt;ExtraDto&gt; staffExtrasGet()
+<a name="merchantSettingsExtrasGet"></a>
+# **merchantSettingsExtrasGet**
+> List&lt;ExtraDto&gt; merchantSettingsExtrasGet()
 
 
 
@@ -279,14 +279,14 @@ import org.openapitools.client.api.ExtrasApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ExtrasApi apiInstance = new ExtrasApi(defaultClient);
     try {
-      List<ExtraDto> result = apiInstance.staffExtrasGet();
+      List<ExtraDto> result = apiInstance.merchantSettingsExtrasGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ExtrasApi#staffExtrasGet");
+      System.err.println("Exception when calling ExtrasApi#merchantSettingsExtrasGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

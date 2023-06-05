@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation for Staffs
- * Lamenu documentation for Staffs
+ * Lamenu documentation Merchant
+ * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class ProductsApi {
     }
 
     /**
-     * Build call for staffProductIdDelete
+     * Build call for merchantSettingsProductIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/staff/product/{id}"
+        String localVarPath = "/merchant/settings/product/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class ProductsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffProductIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsProductIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling staffProductIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling merchantSettingsProductIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffProductIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void staffProductIdDelete(Long id) throws ApiException {
-        staffProductIdDeleteWithHttpInfo(id);
+    public void merchantSettingsProductIdDelete(Long id) throws ApiException {
+        merchantSettingsProductIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> staffProductIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = staffProductIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> merchantSettingsProductIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsProductIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffProductIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffProductIdGet
+     * Build call for merchantSettingsProductIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/staff/product/{id}"
+        String localVarPath = "/merchant/settings/product/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class ProductsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffProductIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsProductIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling staffProductIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling merchantSettingsProductIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffProductIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ProductDto staffProductIdGet(Long id) throws ApiException {
-        ApiResponse<ProductDto> localVarResp = staffProductIdGetWithHttpInfo(id);
+    public ProductDto merchantSettingsProductIdGet(Long id) throws ApiException {
+        ApiResponse<ProductDto> localVarResp = merchantSettingsProductIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<ProductDto> staffProductIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = staffProductIdGetValidateBeforeCall(id, null);
+    public ApiResponse<ProductDto> merchantSettingsProductIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsProductIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<ProductDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class ProductsApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductIdGetAsync(Long id, final ApiCallback<ProductDto> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductIdGetAsync(Long id, final ApiCallback<ProductDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffProductIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<ProductDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffProductPost
+     * Build call for merchantSettingsProductPost
      * @param productDto A JSON object containing updated product information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductPostCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductPostCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = productDto;
 
         // create path and map variables
-        String localVarPath = "/staff/product";
+        String localVarPath = "/merchant/settings/product";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -329,15 +329,15 @@ public class ProductsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffProductPostValidateBeforeCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsProductPostValidateBeforeCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'productDto' is set
         if (productDto == null) {
-            throw new ApiException("Missing the required parameter 'productDto' when calling staffProductPost(Async)");
+            throw new ApiException("Missing the required parameter 'productDto' when calling merchantSettingsProductPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffProductPostCall(productDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductPostCall(productDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void staffProductPost(ProductDto productDto) throws ApiException {
-        staffProductPostWithHttpInfo(productDto);
+    public void merchantSettingsProductPost(ProductDto productDto) throws ApiException {
+        merchantSettingsProductPostWithHttpInfo(productDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> staffProductPostWithHttpInfo(ProductDto productDto) throws ApiException {
-        okhttp3.Call localVarCall = staffProductPostValidateBeforeCall(productDto, null);
+    public ApiResponse<Void> merchantSettingsProductPostWithHttpInfo(ProductDto productDto) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsProductPostValidateBeforeCall(productDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductPostAsync(ProductDto productDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductPostAsync(ProductDto productDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffProductPostValidateBeforeCall(productDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductPostValidateBeforeCall(productDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffProductPut
+     * Build call for merchantSettingsProductPut
      * @param productDto A JSON object containing updated product information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductPutCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductPutCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = productDto;
 
         // create path and map variables
-        String localVarPath = "/staff/product";
+        String localVarPath = "/merchant/settings/product";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -436,15 +436,15 @@ public class ProductsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffProductPutValidateBeforeCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsProductPutValidateBeforeCall(ProductDto productDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'productDto' is set
         if (productDto == null) {
-            throw new ApiException("Missing the required parameter 'productDto' when calling staffProductPut(Async)");
+            throw new ApiException("Missing the required parameter 'productDto' when calling merchantSettingsProductPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffProductPutCall(productDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductPutCall(productDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void staffProductPut(ProductDto productDto) throws ApiException {
-        staffProductPutWithHttpInfo(productDto);
+    public void merchantSettingsProductPut(ProductDto productDto) throws ApiException {
+        merchantSettingsProductPutWithHttpInfo(productDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> staffProductPutWithHttpInfo(ProductDto productDto) throws ApiException {
-        okhttp3.Call localVarCall = staffProductPutValidateBeforeCall(productDto, null);
+    public ApiResponse<Void> merchantSettingsProductPutWithHttpInfo(ProductDto productDto) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsProductPutValidateBeforeCall(productDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class ProductsApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductPutAsync(ProductDto productDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductPutAsync(ProductDto productDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffProductPutValidateBeforeCall(productDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsProductPutValidateBeforeCall(productDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffProductsGet
+     * Build call for merchantSettingsProductsGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class ProductsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductsGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductsGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/staff/products";
+        String localVarPath = "/merchant/settings/products";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +543,10 @@ public class ProductsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffProductsGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsProductsGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = staffProductsGetCall(_callback);
+        okhttp3.Call localVarCall = merchantSettingsProductsGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class ProductsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<ProductDto> staffProductsGet() throws ApiException {
-        ApiResponse<List<ProductDto>> localVarResp = staffProductsGetWithHttpInfo();
+    public List<ProductDto> merchantSettingsProductsGet() throws ApiException {
+        ApiResponse<List<ProductDto>> localVarResp = merchantSettingsProductsGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class ProductsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<ProductDto>> staffProductsGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = staffProductsGetValidateBeforeCall(null);
+    public ApiResponse<List<ProductDto>> merchantSettingsProductsGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsProductsGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<ProductDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class ProductsApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffProductsGetAsync(final ApiCallback<List<ProductDto>> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsProductsGetAsync(final ApiCallback<List<ProductDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffProductsGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = merchantSettingsProductsGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<ProductDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

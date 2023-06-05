@@ -3,6 +3,7 @@ package mimsoft.io.routing.v1
 import io.ktor.server.routing.*
 import mimsoft.io.entities.client.user.routeToUser
 import mimsoft.io.features.app.routeToApp
+import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.category.routeToCategory
 import mimsoft.io.features.delivery.routeToDelivery
@@ -51,6 +52,7 @@ fun Route.routeToMerchant() {
             routeToDelivery()
             outcomeTypeRoute()
             routeToUser()
+            routeToBadge()
         }
 
         route("finance") {

@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation for Staffs
- * Lamenu documentation for Staffs
+ * Lamenu documentation Merchant
+ * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,7 +55,7 @@ public class ExtrasApi {
     }
 
     /**
-     * Build call for staffExtraIdDelete
+     * Build call for merchantSettingsExtraIdDelete
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -67,11 +67,11 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/staff/extra/{id}"
+        String localVarPath = "/merchant/settings/extra/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -99,15 +99,15 @@ public class ExtrasApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffExtraIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsExtraIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling staffExtraIdDelete(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling merchantSettingsExtraIdDelete(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffExtraIdDeleteCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraIdDeleteCall(id, _callback);
         return localVarCall;
 
     }
@@ -124,8 +124,8 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public void staffExtraIdDelete(Long id) throws ApiException {
-        staffExtraIdDeleteWithHttpInfo(id);
+    public void merchantSettingsExtraIdDelete(Long id) throws ApiException {
+        merchantSettingsExtraIdDeleteWithHttpInfo(id);
     }
 
     /**
@@ -141,8 +141,8 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> staffExtraIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = staffExtraIdDeleteValidateBeforeCall(id, null);
+    public ApiResponse<Void> merchantSettingsExtraIdDeleteWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsExtraIdDeleteValidateBeforeCall(id, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -160,14 +160,14 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffExtraIdDeleteValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraIdDeleteValidateBeforeCall(id, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffExtraIdGet
+     * Build call for merchantSettingsExtraIdGet
      * @param id  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -180,11 +180,11 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/staff/extra/{id}"
+        String localVarPath = "/merchant/settings/extra/{id}"
             .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
@@ -212,15 +212,15 @@ public class ExtrasApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffExtraIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsExtraIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling staffExtraIdGet(Async)");
+            throw new ApiException("Missing the required parameter 'id' when calling merchantSettingsExtraIdGet(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffExtraIdGetCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraIdGetCall(id, _callback);
         return localVarCall;
 
     }
@@ -239,8 +239,8 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ExtraDto staffExtraIdGet(Long id) throws ApiException {
-        ApiResponse<ExtraDto> localVarResp = staffExtraIdGetWithHttpInfo(id);
+    public ExtraDto merchantSettingsExtraIdGet(Long id) throws ApiException {
+        ApiResponse<ExtraDto> localVarResp = merchantSettingsExtraIdGetWithHttpInfo(id);
         return localVarResp.getData();
     }
 
@@ -258,8 +258,8 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<ExtraDto> staffExtraIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = staffExtraIdGetValidateBeforeCall(id, null);
+    public ApiResponse<ExtraDto> merchantSettingsExtraIdGetWithHttpInfo(Long id) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsExtraIdGetValidateBeforeCall(id, null);
         Type localVarReturnType = new TypeToken<ExtraDto>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -279,15 +279,15 @@ public class ExtrasApi {
         <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraIdGetAsync(Long id, final ApiCallback<ExtraDto> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraIdGetAsync(Long id, final ApiCallback<ExtraDto> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffExtraIdGetValidateBeforeCall(id, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraIdGetValidateBeforeCall(id, _callback);
         Type localVarReturnType = new TypeToken<ExtraDto>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffExtraPost
+     * Build call for merchantSettingsExtraPost
      * @param extraDto A JSON object containing updated extra information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -298,11 +298,11 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraPostCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraPostCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = extraDto;
 
         // create path and map variables
-        String localVarPath = "/staff/extra";
+        String localVarPath = "/merchant/settings/extra";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -329,15 +329,15 @@ public class ExtrasApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffExtraPostValidateBeforeCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsExtraPostValidateBeforeCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'extraDto' is set
         if (extraDto == null) {
-            throw new ApiException("Missing the required parameter 'extraDto' when calling staffExtraPost(Async)");
+            throw new ApiException("Missing the required parameter 'extraDto' when calling merchantSettingsExtraPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffExtraPostCall(extraDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraPostCall(extraDto, _callback);
         return localVarCall;
 
     }
@@ -353,8 +353,8 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void staffExtraPost(ExtraDto extraDto) throws ApiException {
-        staffExtraPostWithHttpInfo(extraDto);
+    public void merchantSettingsExtraPost(ExtraDto extraDto) throws ApiException {
+        merchantSettingsExtraPostWithHttpInfo(extraDto);
     }
 
     /**
@@ -369,8 +369,8 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> staffExtraPostWithHttpInfo(ExtraDto extraDto) throws ApiException {
-        okhttp3.Call localVarCall = staffExtraPostValidateBeforeCall(extraDto, null);
+    public ApiResponse<Void> merchantSettingsExtraPostWithHttpInfo(ExtraDto extraDto) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsExtraPostValidateBeforeCall(extraDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -387,14 +387,14 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraPostAsync(ExtraDto extraDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraPostAsync(ExtraDto extraDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffExtraPostValidateBeforeCall(extraDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraPostValidateBeforeCall(extraDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffExtraPut
+     * Build call for merchantSettingsExtraPut
      * @param extraDto A JSON object containing updated extra information (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -405,11 +405,11 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraPutCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraPutCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = extraDto;
 
         // create path and map variables
-        String localVarPath = "/staff/extra";
+        String localVarPath = "/merchant/settings/extra";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -436,15 +436,15 @@ public class ExtrasApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffExtraPutValidateBeforeCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsExtraPutValidateBeforeCall(ExtraDto extraDto, final ApiCallback _callback) throws ApiException {
         
         // verify the required parameter 'extraDto' is set
         if (extraDto == null) {
-            throw new ApiException("Missing the required parameter 'extraDto' when calling staffExtraPut(Async)");
+            throw new ApiException("Missing the required parameter 'extraDto' when calling merchantSettingsExtraPut(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffExtraPutCall(extraDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraPutCall(extraDto, _callback);
         return localVarCall;
 
     }
@@ -460,8 +460,8 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public void staffExtraPut(ExtraDto extraDto) throws ApiException {
-        staffExtraPutWithHttpInfo(extraDto);
+    public void merchantSettingsExtraPut(ExtraDto extraDto) throws ApiException {
+        merchantSettingsExtraPutWithHttpInfo(extraDto);
     }
 
     /**
@@ -476,8 +476,8 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> staffExtraPutWithHttpInfo(ExtraDto extraDto) throws ApiException {
-        okhttp3.Call localVarCall = staffExtraPutValidateBeforeCall(extraDto, null);
+    public ApiResponse<Void> merchantSettingsExtraPutWithHttpInfo(ExtraDto extraDto) throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsExtraPutValidateBeforeCall(extraDto, null);
         return localVarApiClient.execute(localVarCall);
     }
 
@@ -494,14 +494,14 @@ public class ExtrasApi {
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtraPutAsync(ExtraDto extraDto, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtraPutAsync(ExtraDto extraDto, final ApiCallback<Void> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffExtraPutValidateBeforeCall(extraDto, _callback);
+        okhttp3.Call localVarCall = merchantSettingsExtraPutValidateBeforeCall(extraDto, _callback);
         localVarApiClient.executeAsync(localVarCall, _callback);
         return localVarCall;
     }
     /**
-     * Build call for staffExtrasGet
+     * Build call for merchantSettingsExtrasGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -512,11 +512,11 @@ public class ExtrasApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtrasGetCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtrasGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/staff/extras";
+        String localVarPath = "/merchant/settings/extras";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -543,10 +543,10 @@ public class ExtrasApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffExtrasGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call merchantSettingsExtrasGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = staffExtrasGetCall(_callback);
+        okhttp3.Call localVarCall = merchantSettingsExtrasGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +563,8 @@ public class ExtrasApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<ExtraDto> staffExtrasGet() throws ApiException {
-        ApiResponse<List<ExtraDto>> localVarResp = staffExtrasGetWithHttpInfo();
+    public List<ExtraDto> merchantSettingsExtrasGet() throws ApiException {
+        ApiResponse<List<ExtraDto>> localVarResp = merchantSettingsExtrasGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +580,8 @@ public class ExtrasApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<ExtraDto>> staffExtrasGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = staffExtrasGetValidateBeforeCall(null);
+    public ApiResponse<List<ExtraDto>> merchantSettingsExtrasGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = merchantSettingsExtrasGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<ExtraDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +599,9 @@ public class ExtrasApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffExtrasGetAsync(final ApiCallback<List<ExtraDto>> _callback) throws ApiException {
+    public okhttp3.Call merchantSettingsExtrasGetAsync(final ApiCallback<List<ExtraDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffExtrasGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = merchantSettingsExtrasGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<ExtraDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

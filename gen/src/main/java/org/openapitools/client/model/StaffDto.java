@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation for Staffs
- * Lamenu documentation for Staffs
+ * Lamenu documentation Merchant
+ * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -23,20 +23,23 @@ import com.google.gson.stream.JsonWriter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.IOException;
-import org.openapitools.client.model.PositionDto;
 
 /**
  * StaffDto
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-05-24T18:10:16.083903480+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-05T15:02:42.878903600+05:00[Asia/Tashkent]")
 public class StaffDto {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)
   private Integer id;
 
-  public static final String SERIALIZED_NAME_USERNAME = "username";
-  @SerializedName(SERIALIZED_NAME_USERNAME)
-  private String username;
+  public static final String SERIALIZED_NAME_MERCHANT_ID = "merchantId";
+  @SerializedName(SERIALIZED_NAME_MERCHANT_ID)
+  private Integer merchantId;
+
+  public static final String SERIALIZED_NAME_PHONE = "phone";
+  @SerializedName(SERIALIZED_NAME_PHONE)
+  private String phone;
 
   public static final String SERIALIZED_NAME_PASSWORD = "password";
   @SerializedName(SERIALIZED_NAME_PASSWORD)
@@ -58,9 +61,13 @@ public class StaffDto {
   @SerializedName(SERIALIZED_NAME_IMAGE)
   private String image;
 
+  public static final String SERIALIZED_NAME_COMMENT = "comment";
+  @SerializedName(SERIALIZED_NAME_COMMENT)
+  private String comment;
+
   public static final String SERIALIZED_NAME_POSITION = "position";
   @SerializedName(SERIALIZED_NAME_POSITION)
-  private PositionDto position;
+  private String position;
 
 
   public StaffDto id(Integer id) {
@@ -86,26 +93,49 @@ public class StaffDto {
   }
 
 
-  public StaffDto username(String username) {
+  public StaffDto merchantId(Integer merchantId) {
     
-    this.username = username;
+    this.merchantId = merchantId;
     return this;
   }
 
    /**
-   * Get username
-   * @return username
+   * Get merchantId
+   * @return merchantId
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public String getUsername() {
-    return username;
+  public Integer getMerchantId() {
+    return merchantId;
   }
 
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setMerchantId(Integer merchantId) {
+    this.merchantId = merchantId;
+  }
+
+
+  public StaffDto phone(String phone) {
+    
+    this.phone = phone;
+    return this;
+  }
+
+   /**
+   * Get phone
+   * @return phone
+  **/
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
+
+  public String getPhone() {
+    return phone;
+  }
+
+
+  public void setPhone(String phone) {
+    this.phone = phone;
   }
 
 
@@ -224,7 +254,30 @@ public class StaffDto {
   }
 
 
-  public StaffDto position(PositionDto position) {
+  public StaffDto comment(String comment) {
+    
+    this.comment = comment;
+    return this;
+  }
+
+   /**
+   * Get comment
+   * @return comment
+  **/
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
+
+  public String getComment() {
+    return comment;
+  }
+
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
+
+  public StaffDto position(String position) {
     
     this.position = position;
     return this;
@@ -237,12 +290,12 @@ public class StaffDto {
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public PositionDto getPosition() {
+  public String getPosition() {
     return position;
   }
 
 
-  public void setPosition(PositionDto position) {
+  public void setPosition(String position) {
     this.position = position;
   }
 
@@ -257,18 +310,20 @@ public class StaffDto {
     }
     StaffDto staffDto = (StaffDto) o;
     return Objects.equals(this.id, staffDto.id) &&
-        Objects.equals(this.username, staffDto.username) &&
+        Objects.equals(this.merchantId, staffDto.merchantId) &&
+        Objects.equals(this.phone, staffDto.phone) &&
         Objects.equals(this.password, staffDto.password) &&
         Objects.equals(this.firstName, staffDto.firstName) &&
         Objects.equals(this.lastName, staffDto.lastName) &&
         Objects.equals(this.birthDay, staffDto.birthDay) &&
         Objects.equals(this.image, staffDto.image) &&
+        Objects.equals(this.comment, staffDto.comment) &&
         Objects.equals(this.position, staffDto.position);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, username, password, firstName, lastName, birthDay, image, position);
+    return Objects.hash(id, merchantId, phone, password, firstName, lastName, birthDay, image, comment, position);
   }
 
 
@@ -277,12 +332,14 @@ public class StaffDto {
     StringBuilder sb = new StringBuilder();
     sb.append("class StaffDto {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    username: ").append(toIndentedString(username)).append("\n");
+    sb.append("    merchantId: ").append(toIndentedString(merchantId)).append("\n");
+    sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
     sb.append("    password: ").append(toIndentedString(password)).append("\n");
     sb.append("    firstName: ").append(toIndentedString(firstName)).append("\n");
     sb.append("    lastName: ").append(toIndentedString(lastName)).append("\n");
     sb.append("    birthDay: ").append(toIndentedString(birthDay)).append("\n");
     sb.append("    image: ").append(toIndentedString(image)).append("\n");
+    sb.append("    comment: ").append(toIndentedString(comment)).append("\n");
     sb.append("    position: ").append(toIndentedString(position)).append("\n");
     sb.append("}");
     return sb.toString();

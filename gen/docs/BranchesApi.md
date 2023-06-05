@@ -1,19 +1,19 @@
 # BranchesApi
 
-All URIs are relative to *http://0.0.0.0:8181/api/v1*
+All URIs are relative to *http://0.0.0.0:9000/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**staffBranchIdDelete**](BranchesApi.md#staffBranchIdDelete) | **DELETE** /staff/branch/{id} | 
-[**staffBranchIdGet**](BranchesApi.md#staffBranchIdGet) | **GET** /staff/branch/{id} | 
-[**staffBranchPost**](BranchesApi.md#staffBranchPost) | **POST** /staff/branch | 
-[**staffBranchPut**](BranchesApi.md#staffBranchPut) | **PUT** /staff/branch | 
-[**staffBranchesGet**](BranchesApi.md#staffBranchesGet) | **GET** /staff/branches | 
+[**merchantSettingsBranchIdDelete**](BranchesApi.md#merchantSettingsBranchIdDelete) | **DELETE** /merchant/settings/branch/{id} | 
+[**merchantSettingsBranchIdGet**](BranchesApi.md#merchantSettingsBranchIdGet) | **GET** /merchant/settings/branch/{id} | 
+[**merchantSettingsBranchPost**](BranchesApi.md#merchantSettingsBranchPost) | **POST** /merchant/settings/branch | 
+[**merchantSettingsBranchPut**](BranchesApi.md#merchantSettingsBranchPut) | **PUT** /merchant/settings/branch | 
+[**merchantSettingsBranchesGet**](BranchesApi.md#merchantSettingsBranchesGet) | **GET** /merchant/settings/branches | 
 
 
-<a name="staffBranchIdDelete"></a>
-# **staffBranchIdDelete**
-> staffBranchIdDelete(id)
+<a name="merchantSettingsBranchIdDelete"></a>
+# **merchantSettingsBranchIdDelete**
+> merchantSettingsBranchIdDelete(id)
 
 
 
@@ -31,14 +31,14 @@ import org.openapitools.client.api.BranchesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.staffBranchIdDelete(id);
+      apiInstance.merchantSettingsBranchIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#staffBranchIdDelete");
+      System.err.println("Exception when calling BranchesApi#merchantSettingsBranchIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffBranchIdGet"></a>
-# **staffBranchIdGet**
-> BranchDto staffBranchIdGet(id)
+<a name="merchantSettingsBranchIdGet"></a>
+# **merchantSettingsBranchIdGet**
+> BranchDto merchantSettingsBranchIdGet(id)
 
 
 
@@ -93,15 +93,15 @@ import org.openapitools.client.api.BranchesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      BranchDto result = apiInstance.staffBranchIdGet(id);
+      BranchDto result = apiInstance.merchantSettingsBranchIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#staffBranchIdGet");
+      System.err.println("Exception when calling BranchesApi#merchantSettingsBranchIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffBranchPost"></a>
-# **staffBranchPost**
-> staffBranchPost(branchDto)
+<a name="merchantSettingsBranchPost"></a>
+# **merchantSettingsBranchPost**
+> merchantSettingsBranchPost(branchDto)
 
 
 
@@ -157,14 +157,14 @@ import org.openapitools.client.api.BranchesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     BranchDto branchDto = new BranchDto(); // BranchDto | A JSON object containing updated branch information
     try {
-      apiInstance.staffBranchPost(branchDto);
+      apiInstance.merchantSettingsBranchPost(branchDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#staffBranchPost");
+      System.err.println("Exception when calling BranchesApi#merchantSettingsBranchPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffBranchPut"></a>
-# **staffBranchPut**
-> staffBranchPut(branchDto)
+<a name="merchantSettingsBranchPut"></a>
+# **merchantSettingsBranchPut**
+> merchantSettingsBranchPut(branchDto)
 
 
 
@@ -218,14 +218,14 @@ import org.openapitools.client.api.BranchesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     BranchDto branchDto = new BranchDto(); // BranchDto | A JSON object containing updated branch information
     try {
-      apiInstance.staffBranchPut(branchDto);
+      apiInstance.merchantSettingsBranchPut(branchDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#staffBranchPut");
+      System.err.println("Exception when calling BranchesApi#merchantSettingsBranchPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffBranchesGet"></a>
-# **staffBranchesGet**
-> List&lt;BranchDto&gt; staffBranchesGet()
+<a name="merchantSettingsBranchesGet"></a>
+# **merchantSettingsBranchesGet**
+> List&lt;BranchDto&gt; merchantSettingsBranchesGet()
 
 
 
@@ -279,14 +279,14 @@ import org.openapitools.client.api.BranchesApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     BranchesApi apiInstance = new BranchesApi(defaultClient);
     try {
-      List<BranchDto> result = apiInstance.staffBranchesGet();
+      List<BranchDto> result = apiInstance.merchantSettingsBranchesGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling BranchesApi#staffBranchesGet");
+      System.err.println("Exception when calling BranchesApi#merchantSettingsBranchesGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

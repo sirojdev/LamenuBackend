@@ -1,19 +1,19 @@
 # ProductsApi
 
-All URIs are relative to *http://0.0.0.0:8181/api/v1*
+All URIs are relative to *http://0.0.0.0:9000/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**staffProductIdDelete**](ProductsApi.md#staffProductIdDelete) | **DELETE** /staff/product/{id} | 
-[**staffProductIdGet**](ProductsApi.md#staffProductIdGet) | **GET** /staff/product/{id} | 
-[**staffProductPost**](ProductsApi.md#staffProductPost) | **POST** /staff/product | 
-[**staffProductPut**](ProductsApi.md#staffProductPut) | **PUT** /staff/product | 
-[**staffProductsGet**](ProductsApi.md#staffProductsGet) | **GET** /staff/products | 
+[**merchantSettingsProductIdDelete**](ProductsApi.md#merchantSettingsProductIdDelete) | **DELETE** /merchant/settings/product/{id} | 
+[**merchantSettingsProductIdGet**](ProductsApi.md#merchantSettingsProductIdGet) | **GET** /merchant/settings/product/{id} | 
+[**merchantSettingsProductPost**](ProductsApi.md#merchantSettingsProductPost) | **POST** /merchant/settings/product | 
+[**merchantSettingsProductPut**](ProductsApi.md#merchantSettingsProductPut) | **PUT** /merchant/settings/product | 
+[**merchantSettingsProductsGet**](ProductsApi.md#merchantSettingsProductsGet) | **GET** /merchant/settings/products | 
 
 
-<a name="staffProductIdDelete"></a>
-# **staffProductIdDelete**
-> staffProductIdDelete(id)
+<a name="merchantSettingsProductIdDelete"></a>
+# **merchantSettingsProductIdDelete**
+> merchantSettingsProductIdDelete(id)
 
 
 
@@ -31,14 +31,14 @@ import org.openapitools.client.api.ProductsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.staffProductIdDelete(id);
+      apiInstance.merchantSettingsProductIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#staffProductIdDelete");
+      System.err.println("Exception when calling ProductsApi#merchantSettingsProductIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -73,9 +73,9 @@ No authorization required
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffProductIdGet"></a>
-# **staffProductIdGet**
-> ProductDto staffProductIdGet(id)
+<a name="merchantSettingsProductIdGet"></a>
+# **merchantSettingsProductIdGet**
+> ProductDto merchantSettingsProductIdGet(id)
 
 
 
@@ -93,15 +93,15 @@ import org.openapitools.client.api.ProductsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      ProductDto result = apiInstance.staffProductIdGet(id);
+      ProductDto result = apiInstance.merchantSettingsProductIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#staffProductIdGet");
+      System.err.println("Exception when calling ProductsApi#merchantSettingsProductIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -137,9 +137,9 @@ No authorization required
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffProductPost"></a>
-# **staffProductPost**
-> staffProductPost(productDto)
+<a name="merchantSettingsProductPost"></a>
+# **merchantSettingsProductPost**
+> merchantSettingsProductPost(productDto)
 
 
 
@@ -157,14 +157,14 @@ import org.openapitools.client.api.ProductsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     ProductDto productDto = new ProductDto(); // ProductDto | A JSON object containing updated product information
     try {
-      apiInstance.staffProductPost(productDto);
+      apiInstance.merchantSettingsProductPost(productDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#staffProductPost");
+      System.err.println("Exception when calling ProductsApi#merchantSettingsProductPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -198,9 +198,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffProductPut"></a>
-# **staffProductPut**
-> staffProductPut(productDto)
+<a name="merchantSettingsProductPut"></a>
+# **merchantSettingsProductPut**
+> merchantSettingsProductPut(productDto)
 
 
 
@@ -218,14 +218,14 @@ import org.openapitools.client.api.ProductsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     ProductDto productDto = new ProductDto(); // ProductDto | A JSON object containing updated product information
     try {
-      apiInstance.staffProductPut(productDto);
+      apiInstance.merchantSettingsProductPut(productDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#staffProductPut");
+      System.err.println("Exception when calling ProductsApi#merchantSettingsProductPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,9 +259,9 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffProductsGet"></a>
-# **staffProductsGet**
-> List&lt;ProductDto&gt; staffProductsGet()
+<a name="merchantSettingsProductsGet"></a>
+# **merchantSettingsProductsGet**
+> List&lt;ProductDto&gt; merchantSettingsProductsGet()
 
 
 
@@ -279,14 +279,14 @@ import org.openapitools.client.api.ProductsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
 
     ProductsApi apiInstance = new ProductsApi(defaultClient);
     try {
-      List<ProductDto> result = apiInstance.staffProductsGet();
+      List<ProductDto> result = apiInstance.merchantSettingsProductsGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ProductsApi#staffProductsGet");
+      System.err.println("Exception when calling ProductsApi#merchantSettingsProductsGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());

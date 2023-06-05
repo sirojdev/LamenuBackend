@@ -6,8 +6,8 @@ object RoomMapper {
         else RoomTable(
             id = roomDto.id,
             name = roomDto.name,
-            branchId = 0,
-            merchantId = 0
+            branchId = roomDto.branchId,
+            merchantId = roomDto.merchantId
         )
     }
 

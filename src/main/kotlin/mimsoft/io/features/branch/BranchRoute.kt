@@ -36,14 +36,16 @@ fun Route.routeToBranch() {
     }
 
     post("branch") {
+        val merchantId = 1L
         val branch = call.receive<BranchDto>()
-        val id = branchService.add(branch)
+        val id = branchService.add(branch.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK, BranchId(id))
     }
 
     put("branch") {
+        val merchantId = 1L
         val branch = call.receive<BranchDto>()
-        branchService.update(branch)
+        branchService.update(branch.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 

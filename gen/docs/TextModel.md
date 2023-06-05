@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **uz** | **String** |  |  [optional]
 **ru** | **String** |  |  [optional]
-**en** | **String** |  |  [optional]
+**eng** | **String** |  |  [optional]
 
 
 

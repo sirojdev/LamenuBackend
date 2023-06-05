@@ -11,7 +11,7 @@ fun Route.routeToBadge() {
     val badgeService = BadgeService
 
     get("badges") {
-        val badges = BadgeService.getAll()
+        val badges = badgeService.getAll()
         call.respond(badges.ifEmpty { HttpStatusCode.NoContent })
     }
 
@@ -21,19 +21,19 @@ fun Route.routeToBadge() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val badge = BadgeService.get(id)
+        val badge = badgeService.get(id)
         call.respond(badge?: HttpStatusCode.NoContent)
     }
 
     post("badge") {
         val badge = call.receive<BadgeDto>()
-        val id = BadgeService.add(badge)
+        val id = badgeService.add(badge)
         call.respond(id?: HttpStatusCode.InternalServerError)
     }
 
     put("badge") {
         val badge = call.receive<BadgeDto>()
-        val updated = BadgeService.update(badge)
+        val updated = badgeService.update(badge)
         call.respond(if (updated) HttpStatusCode.OK else HttpStatusCode.InternalServerError)
     }
 
@@ -43,7 +43,7 @@ fun Route.routeToBadge() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        BadgeService.delete(id)
+        badgeService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
 }

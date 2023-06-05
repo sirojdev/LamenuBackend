@@ -8,4 +8,5 @@ data class BadgeDto(
     val textColor: String? = null,
     val bgColor: String? = null,
     val icon: String? = null,
+    val menuId: Long? = null
 )

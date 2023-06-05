@@ -1,19 +1,19 @@
 # MenusApi
 
-All URIs are relative to *http://0.0.0.0:8181/api/v1*
+All URIs are relative to *http://0.0.0.0:9000/api/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**staffMenuIdDelete**](MenusApi.md#staffMenuIdDelete) | **DELETE** /staff/menu/{id} | 
-[**staffMenuIdGet**](MenusApi.md#staffMenuIdGet) | **GET** /staff/menu/{id} | 
-[**staffMenuPost**](MenusApi.md#staffMenuPost) | **POST** /staff/menu | 
-[**staffMenuPut**](MenusApi.md#staffMenuPut) | **PUT** /staff/menu | 
-[**staffMenusGet**](MenusApi.md#staffMenusGet) | **GET** /staff/menus | 
+[**merchantSettingsMenuIdDelete**](MenusApi.md#merchantSettingsMenuIdDelete) | **DELETE** /merchant/settings/menu/{id} | 
+[**merchantSettingsMenuIdGet**](MenusApi.md#merchantSettingsMenuIdGet) | **GET** /merchant/settings/menu/{id} | 
+[**merchantSettingsMenuPost**](MenusApi.md#merchantSettingsMenuPost) | **POST** /merchant/settings/menu | 
+[**merchantSettingsMenuPut**](MenusApi.md#merchantSettingsMenuPut) | **PUT** /merchant/settings/menu | 
+[**merchantSettingsMenusGet**](MenusApi.md#merchantSettingsMenusGet) | **GET** /merchant/settings/menus | 
 
 
-<a name="staffMenuIdDelete"></a>
-# **staffMenuIdDelete**
-> staffMenuIdDelete(id)
+<a name="merchantSettingsMenuIdDelete"></a>
+# **merchantSettingsMenuIdDelete**
+> merchantSettingsMenuIdDelete(id)
 
 
 
@@ -32,7 +32,7 @@ import org.openapitools.client.api.MenusApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
     
     // Configure HTTP bearer authorization: bearerAuth
     HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
@@ -41,9 +41,9 @@ public class Example {
     MenusApi apiInstance = new MenusApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      apiInstance.staffMenuIdDelete(id);
+      apiInstance.merchantSettingsMenuIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#staffMenuIdDelete");
+      System.err.println("Exception when calling MenusApi#merchantSettingsMenuIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -78,9 +78,9 @@ null (empty response body)
 **200** | OK |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffMenuIdGet"></a>
-# **staffMenuIdGet**
-> MenuDto staffMenuIdGet(id)
+<a name="merchantSettingsMenuIdGet"></a>
+# **merchantSettingsMenuIdGet**
+> MenuDto merchantSettingsMenuIdGet(id)
 
 
 
@@ -99,7 +99,7 @@ import org.openapitools.client.api.MenusApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
     
     // Configure HTTP bearer authorization: bearerAuth
     HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
@@ -108,10 +108,10 @@ public class Example {
     MenusApi apiInstance = new MenusApi(defaultClient);
     Long id = 56L; // Long | 
     try {
-      MenuDto result = apiInstance.staffMenuIdGet(id);
+      MenuDto result = apiInstance.merchantSettingsMenuIdGet(id);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#staffMenuIdGet");
+      System.err.println("Exception when calling MenusApi#merchantSettingsMenuIdGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -147,9 +147,9 @@ Name | Type | Description  | Notes
 **204** | No Content |  -  |
 **400** | Bad Request |  -  |
 
-<a name="staffMenuPost"></a>
-# **staffMenuPost**
-> staffMenuPost(menuDto)
+<a name="merchantSettingsMenuPost"></a>
+# **merchantSettingsMenuPost**
+> merchantSettingsMenuPost(menuDto)
 
 
 
@@ -168,7 +168,7 @@ import org.openapitools.client.api.MenusApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
     
     // Configure HTTP bearer authorization: bearerAuth
     HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
@@ -177,9 +177,9 @@ public class Example {
     MenusApi apiInstance = new MenusApi(defaultClient);
     MenuDto menuDto = new MenuDto(); // MenuDto | A JSON object containing updated menu information
     try {
-      apiInstance.staffMenuPost(menuDto);
+      apiInstance.merchantSettingsMenuPost(menuDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#staffMenuPost");
+      System.err.println("Exception when calling MenusApi#merchantSettingsMenuPost");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -213,9 +213,9 @@ null (empty response body)
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffMenuPut"></a>
-# **staffMenuPut**
-> staffMenuPut(menuDto)
+<a name="merchantSettingsMenuPut"></a>
+# **merchantSettingsMenuPut**
+> merchantSettingsMenuPut(menuDto)
 
 
 
@@ -234,7 +234,7 @@ import org.openapitools.client.api.MenusApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
     
     // Configure HTTP bearer authorization: bearerAuth
     HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
@@ -243,9 +243,9 @@ public class Example {
     MenusApi apiInstance = new MenusApi(defaultClient);
     MenuDto menuDto = new MenuDto(); // MenuDto | A JSON object containing updated menu information
     try {
-      apiInstance.staffMenuPut(menuDto);
+      apiInstance.merchantSettingsMenuPut(menuDto);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#staffMenuPut");
+      System.err.println("Exception when calling MenusApi#merchantSettingsMenuPut");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -279,9 +279,9 @@ null (empty response body)
 |-------------|-------------|------------------|
 **200** | OK |  -  |
 
-<a name="staffMenusGet"></a>
-# **staffMenusGet**
-> List&lt;MenuDto&gt; staffMenusGet()
+<a name="merchantSettingsMenusGet"></a>
+# **merchantSettingsMenusGet**
+> List&lt;MenuDto&gt; merchantSettingsMenusGet()
 
 
 
@@ -300,7 +300,7 @@ import org.openapitools.client.api.MenusApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://0.0.0.0:8181/api/v1");
+    defaultClient.setBasePath("http://0.0.0.0:9000/api/v1");
     
     // Configure HTTP bearer authorization: bearerAuth
     HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
@@ -308,10 +308,10 @@ public class Example {
 
     MenusApi apiInstance = new MenusApi(defaultClient);
     try {
-      List<MenuDto> result = apiInstance.staffMenusGet();
+      List<MenuDto> result = apiInstance.merchantSettingsMenusGet();
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling MenusApi#staffMenusGet");
+      System.err.println("Exception when calling MenusApi#merchantSettingsMenusGet");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
