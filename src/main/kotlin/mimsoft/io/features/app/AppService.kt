@@ -7,9 +7,14 @@ import mimsoft.io.features.app.AppDto
 import mimsoft.io.features.app.AppMapper
 import mimsoft.io.features.app.AppTable
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
+import mimsoft.io.features.sms_gateway.SmsGatewayDto
+import mimsoft.io.features.sms_gateway.SmsGatewayService
+import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.*
+import okhttp3.internal.applyConnectionSpec
 import java.sql.Timestamp
 object AppService {
     val repository: BaseRepository = DBManager
@@ -35,17 +40,24 @@ object AppService {
         }
     }
 
-/*    suspend fun add(appDto: AppDto?): ResponseModel {
-        val checkMerchant = get(appDto?.merchantId)
-        if(checkMerchant != null) update(appDto = appDto)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = AppTable::class,
-                dataObject = mapper.toAppTable(appDto), tableName = APP_TABLE_NAME
-            ),
-            httpStatus = OK
-        )
-    }*/
+    suspend fun add(appDto: AppDto): ResponseModel {
+        val checkMerchant = get(appDto.merchantId)
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(appDto = appDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = AppTable::class,
+                    dataObject = mapper.toAppTable(appDto),
+                    tableName = APP_TABLE_NAME
+                ) != null),
+                OK
+            )
+        }
+    }
 
     suspend fun update(appDto: AppDto?): Boolean {
         val query = "update $APP_TABLE_NAME set " +

@@ -17,7 +17,7 @@ fun Route.routeToApp() {
     put("app") {
         val merchantId = 1L
         val app = call.receive<AppDto>()
-        AppService.update(app.copy(merchantId = merchantId))
+        AppService.add(app.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 }
