@@ -26,7 +26,7 @@ class PlayMobileProvider(val merchantId: Long?, val username: String?, val passw
     }
     override suspend fun send(phone: String, content: String?): String {
 
-        if (username==null || password==null) return "USERNAME OR PASSWORD IS NULL"
+        if (username==null || password==null) return "ERROR"
 
         val messageBody = PlayMobileSMSModel(
             messages = arrayListOf(
@@ -53,7 +53,6 @@ class PlayMobileProvider(val merchantId: Long?, val username: String?, val passw
                 )
             }
 
-            println("response-->$response")
             when (response.status) {
                 HttpStatusCode.OK -> {
                     return "DONE"
@@ -71,8 +70,3 @@ class PlayMobileProvider(val merchantId: Long?, val username: String?, val passw
         return "ERROR"
     }
 }
-
-//suspend fun main() {
-//    PlayMobileProvider(1, "itunity", "cv23K6V5eP")
-//        .send("998994277599", "test message")
-//}
