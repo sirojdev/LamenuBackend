@@ -8,6 +8,8 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.services.sms.SmsProvider
 import mimsoft.io.services.sms.providers.eskiz.EskizProvider
 import mimsoft.io.services.sms.providers.playMobail.PlayMobileProvider
+import mimsoft.io.utils.OK
+import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
 object SmsGatewayService {
@@ -15,7 +17,7 @@ object SmsGatewayService {
     val merchant = MerchantRepositoryImp
     val mapper = SmsGatewayMapper
 
-    suspend fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
+    fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
         val merchantId = smsGatewayDto?.merchantId ?: return null
         return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
