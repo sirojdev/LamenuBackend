@@ -9,5 +9,8 @@ data class  MerchantDto(
     var name: TextModel? = null,
     var phone: String? = null,
     var password: String? = null,
-    var isActive: Boolean? = null
-)
+    var isActive: Boolean? = null,
+    val accessToken : String? = null,
+
+
+    )
