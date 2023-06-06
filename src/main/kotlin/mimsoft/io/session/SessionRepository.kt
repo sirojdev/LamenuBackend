@@ -9,7 +9,8 @@ import java.util.UUID
 object SessionRepository {
 
     suspend fun auth(session: SessionTable): SessionTable? {
-        expireOtherSession(deviceId = session.deviceId, merchantId = session.merchantId)
+        if (session.deviceId != null)
+            expireOtherSession(deviceId = session.deviceId, merchantId = session.merchantId)
         val upsert = """
             with upsert as (
                 update session set
@@ -17,7 +18,7 @@ object SessionRepository {
                     device_id = ${session.deviceId},
                     user_id = ${session.userId},
                     stuff_id = ${session.stuffId},
-                    merchant_id = ${session.merchantId},
+                    merchant_id = ${session.merchantId} 
                     where uuid = ? and not is_expired
                     returning *)
             insert
@@ -52,14 +53,14 @@ object SessionRepository {
                         isExpired = rs.getBoolean("is_expired"),
                         deleted = rs.getBoolean("deleted")
                     )
-                }
-                else null
+                } else null
             }
         }
     }
 
     private suspend fun expireOtherSession(deviceId: Long?, merchantId: Long?): Boolean {
-        val query = "update session set is_expired = true, updated = ? where device_id = $deviceId and merchant_id = $merchantId"
+        val query = "update session set is_expired = true, updated = ? where device_id = $deviceId " +
+                "and merchant_id = $merchantId"
 
         return withContext(Dispatchers.IO) {
             DBManager.connection().use {
@@ -73,10 +74,30 @@ object SessionRepository {
         }
     }
 
-     suspend fun getAll(): List<SessionTable?> =
-         DBManager.getData(dataClass = SessionTable::class, tableName = SESSION_TABLE_NAME)
-            .filterIsInstance<SessionTable?>()
+    suspend fun getMerchantByUUID(uuid: String?): SessionTable? {
+        val query = "select * from session s inner join merchant m on m.id = s.merchant_id " +
+                "where uuid = ? and not is_expired and not m.deleted and not s.deleted"
+        return withContext(Dispatchers.IO) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, uuid)
+                    this.closeOnCompletion()
+                }.executeQuery()
 
+                return@withContext if (rs.next()) {
+                    SessionTable(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        userId = rs.getLong("user_id")
+                    )
+                } else null
+            }
+        }
+    }
+
+    suspend fun getAll(): List<SessionTable?> =
+        DBManager.getData(dataClass = SessionTable::class, tableName = SESSION_TABLE_NAME)
+            .filterIsInstance<SessionTable?>()
 
 
     suspend fun get(id: Long?): SessionTable? =
@@ -89,24 +110,24 @@ object SessionRepository {
             tableName = SESSION_TABLE_NAME,
             where = mapOf(
                 "phone" to phone as Any,
-                "device_id" to deviceId as Any)
+                "device_id" to deviceId as Any
+            )
         )?.data?.firstOrNull()
     }
 
 
-
-     suspend fun add(sessionTable: SessionTable?): Long? =
+    suspend fun add(sessionTable: SessionTable?): Long? =
         DBManager.postData(dataClass = SessionTable::class, dataObject = sessionTable, tableName = SESSION_TABLE_NAME)
 
 
-     suspend fun update(sessionTable: SessionTable?): Boolean =
+    suspend fun update(sessionTable: SessionTable?): Boolean =
         DBManager.updateData(dataClass = SessionTable::class, dataObject = sessionTable, tableName = SESSION_TABLE_NAME)
 
 
-     suspend fun delete(id: Long?): Boolean =
+    suspend fun delete(id: Long?): Boolean =
         DBManager.deleteData(tableName = SESSION_TABLE_NAME, whereValue = id)
 
-    suspend fun refresh(uuid: String?) = withContext(Dispatchers.IO) {
+    suspend fun expire(uuid: String?) = withContext(Dispatchers.IO) {
         val query = "update session set is_expired=true, updated=? where uuid=?"
         DBManager.connection().use {
             it.prepareStatement(query).apply {
@@ -117,5 +138,5 @@ object SessionRepository {
         }
     }
 
-    fun generateUuid() = UUID.randomUUID().toString()+"+"+Timestamp(System.currentTimeMillis()).toString()
+    fun generateUuid() = UUID.randomUUID().toString() + "+" + System.currentTimeMillis()
 }

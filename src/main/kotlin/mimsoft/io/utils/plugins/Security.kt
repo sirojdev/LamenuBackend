@@ -6,9 +6,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
 import mimsoft.io.entities.client.auth.LoginPrincipal
+import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.Role
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Application.configureSecurity() {
 
@@ -86,6 +88,27 @@ fun Application.configureSecurity() {
                 } else {
                     null
                 }
+            }
+        }
+
+        jwt("merchant") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierMerchant)
+            validate { cr ->
+                val merchantId = cr.payload.getClaim("merchantId").asLong()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                if (merchantId != null && uuid != null) {
+                    val session = SessionRepository.getMerchantByUUID(uuid)
+
+                    if (session != null && session.merchantId == merchantId) {
+                        MerchantPrincipal(
+                            merchantId = session.merchantId,
+                            uuid = uuid
+                        )
+                    } else {
+                        null
+                    }
+                } else null
             }
         }
     }

@@ -12,19 +12,31 @@ object JwtConfig {
     private const val secretRefresh = "lamenu_refrsh+64981lkmLK"
     private const val secretLogin = "lamenu_device+hgch654LKl"
 
+    private const val secretMerchant = "LaMenuMerchant-r42gweRt"
+
     private const val validityAccessUser = 36_000_000L // 10 hours
     private const val validityRefresh = 2_592_000_000 // 1 month
     private const val validityLogin = 180_000L // 1 month
+
 
     private val algorithmAccess = Algorithm.HMAC512(secretAccess)
     private val algorithmRefresh = Algorithm.HMAC512(secretRefresh)
     private val algorithmLogin = Algorithm.HMAC512(secretLogin)
 
+    private val algorithmMerchant = Algorithm.HMAC512(secretMerchant)
+
     val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
     val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
     val verifierLogin: JWTVerifier = JWT.require(algorithmLogin).withIssuer(issuer).build()
 
-    fun generateAccessToken(entityId: Long?, forUser: Boolean? = true, uuid: String? = null, roles: List<Role?>? = null): String {
+    val verifierMerchant: JWTVerifier = JWT.require(algorithmMerchant).withIssuer(issuer).build()
+
+    fun generateAccessToken(
+        entityId: Long?,
+        forUser: Boolean? = true,
+        uuid: String? = null,
+        roles: List<Role?>? = null
+    ): String {
         val validate = if (forUser == true) validityAccessUser else validityRefresh
         return JWT.create()
             .withSubject("access")
@@ -34,6 +46,7 @@ object JwtConfig {
             .withExpiresAt(getExpiration(validate))
             .sign(algorithmAccess)
     }
+
     fun generateRefreshToken(entityId: Long?, uuid: String? = null, roles: List<Role?>? = null): String = JWT.create()
         .withSubject("refresh")
         .withIssuer(issuer)
@@ -43,15 +56,16 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityRefresh))
         .sign(algorithmRefresh)
 
-    fun generateLoginToken(deviceId: Long?, phone: String?, merchantId: Long?, hash: GeneratorModel?): String = JWT.create()
-        .withSubject("auth")
-        .withIssuer(issuer)
-        .withClaim("merchantId", merchantId)
-        .withClaim("deviceId", deviceId)
-        .withClaim("phone", phone)
-        .withClaim("hash", hash?.hash)
-        .withExpiresAt(getExpiration(validityLogin))
-        .sign(algorithmLogin)
+    fun generateLoginToken(deviceId: Long?, phone: String?, merchantId: Long?, hash: GeneratorModel?): String =
+        JWT.create()
+            .withSubject("auth")
+            .withIssuer(issuer)
+            .withClaim("merchantId", merchantId)
+            .withClaim("deviceId", deviceId)
+            .withClaim("phone", phone)
+            .withClaim("hash", hash?.hash)
+            .withExpiresAt(getExpiration(validityLogin))
+            .sign(algorithmLogin)
 
     fun generateRegToken(deviceId: Long?, phone: String?): String = JWT.create()
         .withSubject("reg")
@@ -61,6 +75,14 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityLogin))
         .sign(algorithmLogin)
 
-    private fun getExpiration(validate: Long)  = Date(System.currentTimeMillis() + validate)
+    fun generateMerchantToken(merchantId: Long?, uuid: String?): String = JWT.create()
+        .withSubject("merchant")
+        .withIssuer(issuer)
+        .withClaim("merchantId", merchantId)
+        .withClaim("uuid", uuid)
+        .withExpiresAt(getExpiration(validityAccessUser))
+        .sign(algorithmMerchant)
+
+    private fun getExpiration(validate: Long) = Date(System.currentTimeMillis() + validate)
 
 }

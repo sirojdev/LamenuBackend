@@ -10,7 +10,7 @@ data class  MerchantDto(
     var phone: String? = null,
     var password: String? = null,
     var isActive: Boolean? = null,
-    val accessToken : String? = null,
+    val token : String? = null,
 
 
     )

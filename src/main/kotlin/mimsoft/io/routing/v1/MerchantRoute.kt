@@ -1,5 +1,6 @@
 package mimsoft.io.routing.v1
 
+import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import mimsoft.io.entities.client.user.routeToUser
 import mimsoft.io.features.app.routeToApp
@@ -10,6 +11,7 @@ import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
 import mimsoft.io.features.label.routeToLabel
+import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
@@ -30,30 +32,35 @@ import mimsoft.io.features.telegram_bot.routeToBot
 fun Route.routeToMerchant() {
 
     route("merchant") {
+        merchantAuthRoute()
 
-        route("settings") {
-            routeToStaff()
-            routeToBranch()
-            routeToCategory()
-            routeToExtra()
-            routeToLabel()
-            routeToOption()
-            routeToProduct()
-            routeToOrder()
-            routeToTable()
-            routeToRoom()
-            routeToFlat()
-            routeToBot()
-            routeToPoster()
-            routeToApp()
-            routeToPayment()
-            routeToSmsGateways()
-            routeToTelephony()
-            routeToDelivery()
-            outcomeTypeRoute()
-            routeToUser()
-            routeToBadge()
+        authenticate("merchant") {
+
+            route("settings") {
+                routeToStaff()
+                routeToBranch()
+                routeToCategory()
+                routeToExtra()
+                routeToLabel()
+                routeToOption()
+                routeToProduct()
+                routeToOrder()
+                routeToTable()
+                routeToRoom()
+                routeToFlat()
+                routeToBot()
+                routeToPoster()
+                routeToApp()
+                routeToPayment()
+                routeToSmsGateways()
+                routeToTelephony()
+                routeToDelivery()
+                outcomeTypeRoute()
+                routeToUser()
+                routeToBadge()
+            }
         }
+
 
         route("finance") {
             routeToOutcome()

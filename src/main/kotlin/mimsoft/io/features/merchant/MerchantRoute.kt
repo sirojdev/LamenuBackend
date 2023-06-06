@@ -13,6 +13,7 @@ fun Route.merchantRoute() {
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
     route("merchant") {
 
+
         get("info") {
             val sub = call.parameters["sub"]
             if (sub == null) {
