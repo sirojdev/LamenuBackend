@@ -1,4 +1,4 @@
-package mimsoft.io.entities.client.auth
+package mimsoft.io.client.auth
 
 import io.ktor.server.auth.*
 

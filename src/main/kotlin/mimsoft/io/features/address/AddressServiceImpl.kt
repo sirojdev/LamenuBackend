@@ -5,24 +5,24 @@ import mimsoft.io.repository.DBManager
 object AddressServiceImpl : AddressService {
 
     private val repository: BaseRepository = DBManager
-    private val mapper = mimsoft.io.features.address.AddressMapper
+    private val mapper = AddressMapper
 
-    override suspend fun getAll(): List<mimsoft.io.features.address.AddressDto?> =
+    override suspend fun getAll(): List<AddressDto?> =
         repository.getData(dataClass = AddressTable::class, tableName = "address")
             .filterIsInstance<AddressTable?>().map { mapper.toAddressDto(it) }
 
-    override suspend fun get(id: Long?): mimsoft.io.features.address.AddressDto?  =
+    override suspend fun get(id: Long?): AddressDto?  =
         repository.getData(dataClass = AddressTable::class, id = id, tableName = "address")
             .firstOrNull().let { mapper.toAddressDto(it as AddressTable) }
 
-    override suspend fun add(addressDto: mimsoft.io.features.address.AddressDto?): Long? =
+    override suspend fun add(addressDto: AddressDto?): Long? =
         repository.postData(
             dataClass = AddressTable::class,
             dataObject = mapper.toAddressTable(addressDto),
             tableName = "address")
 
 
-    override suspend fun update(addressDto: mimsoft.io.features.address.AddressDto?): Boolean =
+    override suspend fun update(addressDto: AddressDto?): Boolean =
         repository.updateData(
             dataClass = AddressTable::class,
             dataObject = mapper.toAddressTable(addressDto),
