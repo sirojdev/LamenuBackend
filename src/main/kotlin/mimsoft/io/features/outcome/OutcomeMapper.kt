@@ -7,13 +7,16 @@ object OutcomeMapper {
         return if (outcomeDto == null) null
         else {
             val staff = StaffService.get(outcomeDto.staff?.phone)
-            val outcomeType = OutcomeTypeService.get(outcomeDto.outcomeType?.merchantId)
+            val outcomeType = outcomeDto.outcomeType?.id?.let { outcomeDto.merchantId?.let { it1 ->
+                OutcomeTypeService.get(
+                    it1, it)
+            } }
             OutcomeTable(
                 id = outcomeDto.id,
                 merchantId = outcomeDto.merchantId,
                 name = outcomeDto.name,
                 staffId = staff?.id,
-                outcomeTypeId = outcomeType?.merchantId
+                outcomeTypeId = outcomeType?.id
             )
         }
 
@@ -23,7 +26,7 @@ object OutcomeMapper {
         return if (outcomeTable == null) null
         else {
             val staffDto = StaffService.get(outcomeTable.staffId)
-            val outcomeTypeDto = OutcomeTypeService.get(outcomeTable.outcomeTypeId)
+            val outcomeTypeDto = OutcomeTypeService.getById(outcomeTable.outcomeTypeId)
             OutcomeDto(
                 id = outcomeTable.id,
                 merchantId = outcomeTable.merchantId,

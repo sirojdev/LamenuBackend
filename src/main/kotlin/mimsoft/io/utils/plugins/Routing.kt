@@ -32,6 +32,9 @@ fun Application.configureRouting() {
             swaggerUI(path = "swagger/admin", swaggerFile = "openapi/admin/merchant.yaml") {
                 version = "4.15.5"
             }
+            swaggerUI(path = "docs/client", swaggerFile = "openapi/client/client-swagger.yaml") {
+                version = "4.15.5"
+            }
         }
 
 

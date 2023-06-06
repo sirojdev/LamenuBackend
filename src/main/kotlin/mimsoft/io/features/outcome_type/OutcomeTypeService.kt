@@ -3,6 +3,9 @@ package mimsoft.io.features.outcome_type
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.outcome.OutcomeTable
+import mimsoft.io.features.payment.*
+import mimsoft.io.features.room.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ALREADY_EXISTS
@@ -16,12 +19,46 @@ object OutcomeTypeService {
     val merchant = MerchantRepositoryImp
     val mapper = OutcomeTypeMapper
 
-    suspend fun getAll(): List<OutcomeTypeTable?> {
-        return repository.getData(dataClass = OutcomeTypeTable::class, tableName = OUTCOME_TYPE_TABLE)
-            .filterIsInstance<OutcomeTypeTable?>()
+    suspend fun getByMerchantId(merchantId: Long): List<OutcomeTypeDto?> {
+        val query = "select * from $OUTCOME_TYPE_TABLE where merchant_id = $merchantId and deleted = false"
+        return withContext(Dispatchers.IO) {
+            val outcomeTypes = arrayListOf<OutcomeTypeDto?>()
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    val room = mapper.toOutcomeTypeDto(
+                        OutcomeTypeTable(
+                            id = rs.getLong("id"),
+                            name = rs.getString("name"),
+                            merchantId = rs.getLong("merchant_id")
+                        )
+                    )
+                    outcomeTypes.add(room)
+                }
+                return@withContext outcomeTypes
+            }
+        }
     }
 
-    suspend fun get(merchantId: Long?): OutcomeTypeDto? {
+    suspend fun get(merchantId: Long, id: Long): OutcomeTypeDto? {
+        val query = "select * from $OUTCOME_TYPE_TABLE where id = $id and merchant_id = $merchantId and deleted = false"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    return@withContext mapper.toOutcomeTypeDto(
+                        OutcomeTypeTable(
+                            id = rs.getLong("id"),
+                            merchantId = rs.getLong("merchant_id"),
+                            name = rs.getString("name")
+                        )
+                    )
+                } else return@withContext null
+            }
+        }
+    }
+
+    suspend fun getOneByMerchantId(merchantId: Long): OutcomeTypeDto? {
         val query = "select * from $OUTCOME_TYPE_TABLE where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -39,17 +76,23 @@ object OutcomeTypeService {
         }
     }
 
-    suspend fun add(outcomeTypeDto: OutcomeTypeDto?): ResponseModel {
-        if (outcomeTypeDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
-        val checkMerchant = merchant.get(outcomeTypeDto.merchantId)
-        if (checkMerchant != null) return ResponseModel(httpStatus = ALREADY_EXISTS)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = OutcomeTypeTable::class,
-                dataObject = mapper.toOutcomeTypeTable(outcomeTypeDto), tableName = OUTCOME_TYPE_TABLE
-            ),
-            httpStatus = OK
-        )
+    suspend fun add(outcomeTypeDto: OutcomeTypeDto): ResponseModel {
+        val checkMerchant = outcomeTypeDto.merchantId?.let { getOneByMerchantId(it) }
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(outcomeTypeDto = outcomeTypeDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = OutcomeTypeTable::class,
+                    dataObject = mapper.toOutcomeTypeTable(outcomeTypeDto),
+                    tableName = OUTCOME_TYPE_TABLE
+                ) != null),
+                OK
+            )
+        }
     }
 
     suspend fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
@@ -67,9 +110,26 @@ object OutcomeTypeService {
         return true
     }
 
-    suspend fun delete(merchantId: Long?): Boolean {
-        val query = "update $OUTCOME_TYPE_TABLE set deleted = true where merchant_id = $merchantId"
+    suspend fun delete(merchantId: Long?, id: Long?): Boolean {
+        val query = "update $OUTCOME_TYPE_TABLE set deleted = true where merchant_id = $merchantId and id = $id"
         repository.connection().use { val rs = it.prepareStatement(query).execute() }
         return true
     }
+
+    suspend fun getById(id: Long?): OutcomeTypeDto? {
+        val query = "select * from $OUTCOME_TYPE_TABLE where id = $id and deleted = false"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    return@withContext mapper.toOutcomeTypeDto(
+                        OutcomeTypeTable(
+                            id = rs.getLong("id"),
+                            merchantId = rs.getLong("merchant_id"),
+                            name = rs.getString("name")
+                        )
+                    )
+                } else return@withContext null
+            }
+        }    }
 }

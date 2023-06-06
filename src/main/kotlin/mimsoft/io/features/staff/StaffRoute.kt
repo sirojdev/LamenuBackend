@@ -34,7 +34,6 @@ fun Route.routeToStaff() {
 
 
         post {
-            val principal = call.principal<LaPrincipal>()
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
             if (statusTimestamp.httpStatus != OK) {

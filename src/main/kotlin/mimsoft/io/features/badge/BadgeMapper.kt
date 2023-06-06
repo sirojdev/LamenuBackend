@@ -16,7 +16,7 @@ object BadgeMapper {
             textColor = badgeTable.textColor,
             bgColor = badgeTable.bgColor,
             icon = badgeTable.icon,
-            menuId = badgeTable.menuId
+            merchantId = badgeTable.merchantId
         )
     }
 
@@ -30,7 +30,7 @@ object BadgeMapper {
             textColor = badgeDto.textColor,
             bgColor = badgeDto.bgColor,
             icon = badgeDto.icon,
-            menuId = badgeDto.menuId
+            merchantId = badgeDto.merchantId
         )
     }
 
