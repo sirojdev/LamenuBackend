@@ -3,28 +3,29 @@ package mimsoft.io.features.address
 import com.google.gson.Gson
 
 object AddressMapper {
-    fun toAddressTable(addressDto: mimsoft.io.features.address.AddressDto?): mimsoft.io.features.address.AddressTable? {
+    fun toAddressTable(addressDto: AddressDto?): AddressTable? {
+        val details = Gson().toJson(addressDto?.details)
         return if (addressDto == null) null
-        else mimsoft.io.features.address.AddressTable(
+        else AddressTable(
             id = addressDto.id,
             type = addressDto.type?.name,
             name = addressDto.name,
-            details = addressDto.details.toString(),
+            details = details,
             description = addressDto.description,
             latitude = addressDto.latitude,
             longitude = addressDto.longitude
         )
     }
 
-    fun toAddressDto(addressTable: mimsoft.io.features.address.AddressTable?): mimsoft.io.features.address.AddressDto? {
+    fun toAddressDto(addressTable: AddressTable?): AddressDto? {
         return if (addressTable == null) null
         else {
             val jsonString = addressTable.details
 
-            val tableDetails = Gson().fromJson(jsonString, mimsoft.io.features.address.Details::class.java)
-            mimsoft.io.features.address.AddressDto(
+            val tableDetails = Gson().fromJson(jsonString, Details::class.java)
+            AddressDto(
                 id = addressTable.id,
-                type = addressTable.type?.let { mimsoft.io.features.address.AddressType.valueOf(it) },
+                type = addressTable.type?.let { AddressType.valueOf(it) },
                 name = addressTable.name,
                 details = tableDetails,
                 description = addressTable.description,

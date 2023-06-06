@@ -2,11 +2,7 @@ package mimsoft.io.features.badge
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.outcome_type.OUTCOME_TYPE_TABLE
-import mimsoft.io.features.outcome_type.OutcomeTypeDto
-import mimsoft.io.features.outcome_type.OutcomeTypeService
-import mimsoft.io.features.outcome_type.OutcomeTypeTable
-import mimsoft.io.features.sms_gateway.*
+import mimsoft.io.features.sms_gateway.SmsGatewayService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.OK
@@ -89,7 +85,7 @@ object BadgeService {
                 "where merchant_id = ${badge?.merchantId} and not deleted "
         withContext(Dispatchers.IO) {
             SmsGatewayService.repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     this.setString(1, badge?.name?.uz)
                     this.setString(2, badge?.name?.ru)
                     this.setString(3, badge?.name?.eng)
@@ -107,7 +103,11 @@ object BadgeService {
     suspend fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $BADGE_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {
+                it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.execute()
+            }
         }
         return true
     }
