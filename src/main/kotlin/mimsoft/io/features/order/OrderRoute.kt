@@ -5,9 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.entities.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
-import mimsoft.io.repository.Mapper
 
 fun Route.routeToOrder() {
 

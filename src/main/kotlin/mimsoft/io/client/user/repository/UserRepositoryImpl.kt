@@ -1,9 +1,9 @@
-package mimsoft.io.entities.client.user.repository
+package mimsoft.io.client.user.repository
 
-import mimsoft.io.entities.client.user.USER_TABLE_NAME
-import mimsoft.io.entities.client.user.UserDto
-import mimsoft.io.entities.client.user.UserMapper
-import mimsoft.io.entities.client.user.UserTable
+import mimsoft.io.client.user.USER_TABLE_NAME
+import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.UserMapper
+import mimsoft.io.client.user.UserTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.*

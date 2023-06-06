@@ -1,6 +1,6 @@
-package mimsoft.io.entities.client.user.repository
+package mimsoft.io.client.user.repository
 
-import mimsoft.io.entities.client.user.UserDto
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.utils.ResponseModel
 
 interface UserRepository {
