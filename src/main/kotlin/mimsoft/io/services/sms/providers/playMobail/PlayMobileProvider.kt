@@ -42,7 +42,6 @@ class PlayMobileProvider(val merchantId: Long?, val username: String?, val passw
             )
         )
 
-        println("message--> ${GSON.toJson(messageBody)}")
 
         try {
             val response = client.post(sendSmsUrl) {

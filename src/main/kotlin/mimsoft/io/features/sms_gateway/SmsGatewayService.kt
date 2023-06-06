@@ -8,9 +8,6 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.services.sms.SmsProvider
 import mimsoft.io.services.sms.providers.eskiz.EskizProvider
 import mimsoft.io.services.sms.providers.playMobail.PlayMobileProvider
-import mimsoft.io.utils.MERCHANT_ID_NULL
-import mimsoft.io.utils.OK
-import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
 object SmsGatewayService {
@@ -20,17 +17,16 @@ object SmsGatewayService {
 
     suspend fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
         val merchantId = smsGatewayDto?.merchantId ?: return null
-        println("\nselected-->${smsGatewayDto.selected}")
         return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
-                password = smsGatewayDto.playMobileKey,
-                username = smsGatewayDto.playMobileServiceId,
+                password = smsGatewayDto.playMobilePassword,
+                username = smsGatewayDto.playMobileUsername,
                 merchantId = smsGatewayDto.merchantId
             )
 
             SMSGatewaySelected.ESKIZ.name -> EskizProvider(
-                password = smsGatewayDto.eskizToken,
-                email = smsGatewayDto.eskizId,
+                password = smsGatewayDto.eskizPassword,
+                email = smsGatewayDto.eskizEmail,
                 merchantId = smsGatewayDto.merchantId
             )
 
@@ -47,10 +43,10 @@ object SmsGatewayService {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
                             merchantId = rs.getLong("merchant_id"),
-                            eskizId = rs.getString("eskiz_id"),
-                            eskizToken = rs.getString("eskiz_token"),
-                            playMobileServiceId = rs.getString("play_mobile_service_id"),
-                            playMobileKey = rs.getString("play_mobile_key"),
+                            eskizUsername = rs.getString("eskiz_id"),
+                            eskizPassword = rs.getString("eskiz_token"),
+                            playMobileUsername = rs.getString("play_mobile_service_id"),
+                            playMobilePassword = rs.getString("play_mobile_key"),
                             selected = rs.getString("selected")
                         )
                     )
@@ -80,9 +76,9 @@ object SmsGatewayService {
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
         val query = "update $SMS_GATEWAY_TABLE set " +
-                "eskiz_id = ${smsGatewayDto?.eskizId}, " +
+                "eskiz_id = ${smsGatewayDto?.eskizEmail}, " +
                 "eskiz_token = ?, " +
-                "play_mobile_service_id = ${smsGatewayDto?.playMobileServiceId}, " +
+                "play_mobile_service_id = ${smsGatewayDto?.playMobileUsername}, " +
                 "play_mobile_key = ?, " +
                 "selected = ?, " +
                 "updated = ? \n" +
@@ -90,8 +86,8 @@ object SmsGatewayService {
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
-                    this.setString(1, smsGatewayDto?.eskizToken)
-                    this.setString(2, smsGatewayDto?.playMobileKey)
+                    this.setString(1, smsGatewayDto?.eskizPassword)
+                    this.setString(2, smsGatewayDto?.playMobilePassword)
                     this.setString(3, smsGatewayDto?.selected)
                     this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()

@@ -6,10 +6,10 @@ object SmsGatewayMapper {
         else SmsGatewayTable(
             id = smsGatewaysDto.id,
             merchantId = smsGatewaysDto.merchantId,
-            eskizId = smsGatewaysDto.eskizId,
-            eskizToken = smsGatewaysDto.eskizToken,
-            playMobileServiceId = smsGatewaysDto.playMobileServiceId,
-            playMobileKey = smsGatewaysDto.playMobileKey,
+            eskizUsername = smsGatewaysDto.eskizEmail,
+            eskizPassword = smsGatewaysDto.eskizPassword,
+            playMobileUsername = smsGatewaysDto.playMobileUsername,
+            playMobilePassword = smsGatewaysDto.playMobilePassword,
             selected = smsGatewaysDto.selected
         )
     }
@@ -19,10 +19,10 @@ object SmsGatewayMapper {
         else SmsGatewayDto(
             id = smsGatewaysTable.id,
             merchantId = smsGatewaysTable.merchantId,
-            eskizId = smsGatewaysTable.eskizId,
-            eskizToken = smsGatewaysTable.eskizToken,
-            playMobileServiceId = smsGatewaysTable.playMobileServiceId,
-            playMobileKey = smsGatewaysTable.playMobileKey,
+            eskizEmail = smsGatewaysTable.eskizUsername,
+            eskizPassword = smsGatewaysTable.eskizPassword,
+            playMobileUsername = smsGatewaysTable.playMobileUsername,
+            playMobilePassword = smsGatewaysTable.playMobilePassword,
             selected = smsGatewaysTable.selected
         )
     }

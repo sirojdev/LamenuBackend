@@ -8,9 +8,7 @@ object SmsSenderService {
     suspend fun send(merchantId: Long?, phone: String, content: String?): String? {
 
         val merchant = smsGateway.get(merchantId)
-        println("merchant-->${GSON.toJson(merchant)}")
         val provider = smsGateway.getProvider(merchant)
-        println("\nprovider-->$provider")
         return provider?.send(phone = phone, content = content)
     }
 }

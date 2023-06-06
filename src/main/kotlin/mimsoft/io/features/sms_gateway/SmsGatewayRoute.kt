@@ -27,9 +27,7 @@ fun Route.routeToSmsGateways() {
     post("sms-gateway-test") {
         val merchantId = 1L
         val phone = call.receive<Phone01>()
-        println("\nphone-->$phone")
         val status = smsSenderService.send(merchantId = merchantId, phone = phone.phone.toString(), "test message")
-        println("\nstatus-->$status")
         if (status == "DONE") {
             call.respond(HttpStatusCode.OK)
             return@post
