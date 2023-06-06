@@ -1,4 +1,4 @@
-package mimsoft.io.entities.client.user
+package mimsoft.io.client.user
 
 
 import mimsoft.io.features.badge.BadgeDto

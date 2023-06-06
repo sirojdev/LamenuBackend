@@ -9,7 +9,7 @@ servers:
 
 tags:
   - name: Merchants
-    description:  Endpoints related to merchants
+    description: Endpoints related to merchants
 paths:
 
   /admin/merchants:

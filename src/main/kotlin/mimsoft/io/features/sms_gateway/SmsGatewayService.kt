@@ -45,10 +45,10 @@ object SmsGatewayService {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
                             merchantId = rs.getLong("merchant_id"),
-                            eskizUsername = rs.getString("eskiz_id"),
-                            eskizPassword = rs.getString("eskiz_token"),
-                            playMobileUsername = rs.getString("play_mobile_service_id"),
-                            playMobilePassword = rs.getString("play_mobile_key"),
+                            eskizUsername = rs.getString("eskiz_email"),
+                            eskizPassword = rs.getString("eskiz_password"),
+                            playMobileUsername = rs.getString("play_mobile_username"),
+                            playMobilePassword = rs.getString("play_mobile_password"),
                             selected = rs.getString("selected")
                         )
                     )
@@ -77,21 +77,21 @@ object SmsGatewayService {
     }
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
-        val query = "update $SMS_GATEWAY_TABLE set " +
-                "eskiz_id = ${smsGatewayDto?.eskizEmail}, " +
-                "eskiz_token = ?, " +
-                "play_mobile_service_id = ${smsGatewayDto?.playMobileUsername}, " +
-                "play_mobile_key = ?, " +
-                "selected = ?, " +
-                "updated = ? \n" +
-                "where merchant_id = ${smsGatewayDto?.merchantId} and not deleted "
         withContext(Dispatchers.IO) {
+            val query = "update $SMS_GATEWAY_TABLE set " +
+                    "eskiz_email = ?, " +
+                    "eskiz_password = ?, " +
+                    "play_mobile_username = ?, " +
+                    "play_mobile_password = ?, " +
+                    "updated = ? \n" +
+                    "where merchant_id = ${smsGatewayDto?.merchantId} and not deleted "
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
-                    this.setString(1, smsGatewayDto?.eskizPassword)
-                    this.setString(2, smsGatewayDto?.playMobilePassword)
-                    this.setString(3, smsGatewayDto?.selected)
-                    this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
+                    this.setString(1, smsGatewayDto?.eskizEmail)
+                    this.setString(2, smsGatewayDto?.eskizPassword)
+                    this.setString(3, smsGatewayDto?.playMobileUsername)
+                    this.setString(4, smsGatewayDto?.playMobilePassword)
+                    this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
                 }.execute()
             }

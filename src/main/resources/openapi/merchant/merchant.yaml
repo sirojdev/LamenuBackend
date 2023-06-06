@@ -10,38 +10,373 @@ servers:
 tags:
 
 
+  - name: Settings/Integrations
+    description: Endpoints related to category
+
+  - name: Settings/Menus
+    description: Endpoints related to menus
+
+  - name: Settings/DineIn
+    description: Endpoints related to dine in
+
   - name: Branches
     description: Endpoints related to branch
 
-  - name: Categories
-    description: Endpoints related to category
-
-  - name: Extras
-    description: Endpoints related to extra
-
-  - name: Labels
-    description: Endpoints related to label
+  - name: OutcomeType
+    description: Endpoints related to outcome type
 
   - name: Staff
     description: Endpoints related to staff
 
-  - name: Menus
-    description: Endpoints related to menu
-
-  - name: Options
-    description: Endpoints related to option
-
-  - name: Products
-    description: Endpoints related to product
-
-  - name: Outcomes
-    description: Endpoints related to outcomes
 paths:
+
+  /merchant/settings/staff:
+    get:
+      tags:
+        - Staff
+      description: "Returns a list of all staff"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/StaffDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Staff
+      description: "Adds a new staff"
+      requestBody:
+        description: "A JSON object containing updated outcome staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Staff
+      description: "Adds a new staff"
+      requestBody:
+        description: "A JSON object containing updated staff's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/staff/{id}:
+    get:
+      tags:
+        - Staff
+      description: "Returns a staff by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Staff
+      description: "Deletes a staff by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/outcome_types:
+    get:
+      tags:
+        - OutcomeType
+      description: "Returns a list of all outcomr types"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OutcomeTypeDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/outcome_type:
+    post:
+      tags:
+        - OutcomeType
+      description: "Adds a new outcome"
+      requestBody:
+        description: "A JSON object containing updated outcome type's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeTypeDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - OutcomeType
+      description: "Adds a new outcome type"
+      requestBody:
+        description: "A JSON object containing updated outcome type's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeTypeDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/outcome_type/{id}:
+    get:
+      tags:
+        - OutcomeType
+      description: "Returns a outcome type by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutcomeTypeDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - OutcomeType
+      description: "Deletes a outcome type by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/rooms:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a list of all rooms"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RoomDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/room:
+    post:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new room"
+      requestBody:
+        description: "A JSON object containing updated room's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new room"
+      requestBody:
+        description: "A JSON object containing updated room's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/room/{id}:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a room by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/DineIn
+      description: "Deletes a room by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/tables:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a list of all tables"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TableDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/table:
+    post:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new table"
+      requestBody:
+        description: "A JSON object containing updated table's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new table"
+      requestBody:
+        description: "A JSON object containing updated table's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/table/{id}:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a table by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/DineIn
+      description: "Deletes a table by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
 
   /merchant/settings/extras:
     get:
       tags:
-        - Extras
+        - Settings/Menus
       description: "Returns a list of all extras"
       responses:
         "200":
@@ -57,7 +392,7 @@ paths:
   /merchant/settings/extra:
     post:
       tags:
-        - Extras
+        - Settings/Menus
       description: "Adds a new extra"
       requestBody:
         description: "A JSON object containing updated extra information"
@@ -71,7 +406,7 @@ paths:
           description: "OK"
     put:
       tags:
-        - Extras
+        - Settings/Menus
       description: "Adds a new extra"
       requestBody:
         description: "A JSON object containing updated extra information"
@@ -86,7 +421,7 @@ paths:
   /merchant/settings/extra/{id}:
     get:
       tags:
-        - Extras
+        - Settings/Menus
       description: "Returns a extra by its ID"
       parameters:
         - name: "id"
@@ -108,7 +443,7 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - Extras
+        - Settings/Menus
       description: "Deletes a extra by its ID"
       parameters:
         - name: "id"
@@ -211,7 +546,7 @@ paths:
   /merchant/settings/categories:
     get:
       tags:
-        - Categories
+        - Settings/Menus
       description: "Returns a list of all categories"
       responses:
         "200":
@@ -227,7 +562,7 @@ paths:
   /merchant/settings/category:
     post:
       tags:
-        - Categories
+        - Settings/Menus
       description: "Adds a new category"
       requestBody:
         description: "A JSON object containing updated category information"
@@ -241,7 +576,7 @@ paths:
           description: "OK"
     put:
       tags:
-        - Categories
+        - Settings/Menus
       description: "Adds a new category"
       requestBody:
         description: "A JSON object containing updated category information"
@@ -256,7 +591,7 @@ paths:
   /merchant/settings/category/{id}:
     get:
       tags:
-        - Categories
+        - Settings/Menus
       description: "Returns a category by its ID"
       parameters:
         - name: "id"
@@ -278,7 +613,7 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - Categories
+        - Settings/Menus
       description: "Deletes a category by its ID"
       parameters:
         - name: "id"
@@ -296,7 +631,7 @@ paths:
   /merchant/settings/labels:
     get:
       tags:
-        - Labels
+        - Settings/Menus
       description: "Returns a list of all lables"
       responses:
         "200":
@@ -312,7 +647,7 @@ paths:
   /merchant/settings/label:
     post:
       tags:
-        - Labels
+        - Settings/Menus
       description: "Adds a new lable"
       requestBody:
         description: "A JSON object containing updated lable information"
@@ -326,7 +661,7 @@ paths:
           description: "OK"
     put:
       tags:
-        - Labels
+        - Settings/Menus
       description: "Adds a new lable"
       requestBody:
         description: "A JSON object containing updated lable information"
@@ -341,7 +676,7 @@ paths:
   /merchant/settings/label/{id}:
     get:
       tags:
-        - Labels
+        - Settings/Menus
       description: "Returns a lable by its ID"
       parameters:
         - name: "id"
@@ -363,7 +698,7 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - Labels
+        - Settings/Menus
       description: "Deletes a lable by its ID"
       parameters:
         - name: "id"
@@ -378,191 +713,10 @@ paths:
         "400":
           description: "Bad Request"
 
-  /merchant/settings/menus:
-    get:
-      tags:
-        - Menus
-      description: "Returns a list of all menus"
-      security:
-        - bearerAuth: [ ]
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/MenuDto"
-        "204":
-          description: "No Content"
-  /merchant/settings/menu:
-    post:
-      tags:
-        - Menus
-      description: "Adds a new menu"
-      security:
-        - bearerAuth: [ ]
-      requestBody:
-        description: "A JSON object containing updated menu information"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MenuDto"
-      responses:
-        "200":
-          description: "OK"
-    put:
-      tags:
-        - Menus
-      description: "Adds a new menu"
-      security:
-        - bearerAuth: [ ]
-      requestBody:
-        description: "A JSON object containing updated menu information"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MenuDto"
-      responses:
-        "200":
-          description: "OK"
-  /merchant/settings/menu/{id}:
-    get:
-      tags:
-        - Menus
-      description: "Returns a menu by its ID"
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MenuDto"
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
-    delete:
-      tags:
-        - Menus
-      description: "Deletes a menu by its ID"
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-        "400":
-          description: "Bad Request"
-
-  /merchant/settings/options:
-    get:
-      tags:
-        - Options
-      description: "Returns a list of all option"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/OptionDto"
-        "204":
-          description: "No Content"
-  /merchant/settings/option:
-    post:
-      tags:
-        - Options
-      description: "Adds a new option"
-      requestBody:
-        description: "A JSON object containing updated option information"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OptionDto"
-      responses:
-        "200":
-          description: "OK"
-    put:
-      tags:
-        - Options
-      description: "Adds a new option"
-      requestBody:
-        description: "A JSON object containing updated option information"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OptionDto"
-      responses:
-        "200":
-          description: "OK"
-  /merchant/settings/option/{id}:
-    get:
-      tags:
-        - Options
-      description: "Returns a option by its ID"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OptionDto"
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
-    delete:
-      tags:
-        - Options
-      description: "Deletes a option by its ID"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-        "400":
-          description: "Bad Request"
-
-
   /merchant/settings/products:
     get:
       tags:
-        - Products
+        - Settings/Menus
       description: "Returns a list of all products"
       responses:
         "200":
@@ -578,7 +732,7 @@ paths:
   /merchant/settings/product:
     post:
       tags:
-        - Products
+        - Settings/Menus
       description: "Adds a new product"
       requestBody:
         description: "A JSON object containing updated product information"
@@ -592,7 +746,7 @@ paths:
           description: "OK"
     put:
       tags:
-        - Products
+        - Settings/Menus
       description: "Adds a new product"
       requestBody:
         description: "A JSON object containing updated product information"
@@ -607,7 +761,7 @@ paths:
   /merchant/settings/product/{id}:
     get:
       tags:
-        - Products
+        - Settings/Menus
       description: "Returns a product by its ID"
       parameters:
         - name: "id"
@@ -629,7 +783,7 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - Products
+        - Settings/Menus
       description: "Deletes a product by its ID"
       parameters:
         - name: "id"
@@ -643,6 +797,92 @@ paths:
           description: "OK"
         "400":
           description: "Bad Request"
+
+  /merchant/settings/options:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a list of all option"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OptionDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/option:
+    post:
+      tags:
+        - Settings/Menus
+      description: "Adds a new option"
+      requestBody:
+        description: "A JSON object containing updated option information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptionDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/Menus
+      description: "Adds a new option"
+      requestBody:
+        description: "A JSON object containing updated option information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptionDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/option/{id}:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a option by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OptionDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Menus
+      description: "Deletes a option by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
 
 
   #  /merchant/settings/posters:
@@ -664,7 +904,7 @@ paths:
   /merchant/settings/poster:
     post:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Adds a new poster"
       requestBody:
         description: "A JSON object containing updated poster information"
@@ -693,7 +933,7 @@ paths:
   /merchant/settings/poster/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a poster by its ID"
       parameters:
         - name: "id"
@@ -749,7 +989,7 @@ paths:
   /merchant/settings/app:
     post:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Adds a new app"
       requestBody:
         description: "A JSON object containing updated app information"
@@ -778,7 +1018,7 @@ paths:
   /merchant/settings/app/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a app by its ID"
       parameters:
         - name: "id"
@@ -834,7 +1074,7 @@ paths:
   /merchant/settings/payment:
     post:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Adds a new payment"
       requestBody:
         description: "A JSON object containing updated payment information"
@@ -863,7 +1103,7 @@ paths:
   /merchant/settings/payment/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a payment by its ID"
       parameters:
         - name: "id"
@@ -885,7 +1125,7 @@ paths:
           description: "Bad Request"
   #    delete:
   #      tags:
-  #        - Settings
+  #        - Settings/Integrations
   #      description: "Deletes payment by its ID"
   #      parameters:
   #        - name: "id"
@@ -919,7 +1159,7 @@ paths:
   /merchant/settings/sms-getway:
     post:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Adds a new sms"
       requestBody:
         description: "A JSON object containing updated sms information"
@@ -948,7 +1188,7 @@ paths:
   /merchant/settings/sms-getway/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a sms by its ID"
       parameters:
         - name: "id"
@@ -1004,7 +1244,7 @@ paths:
   /merchant/settings/telephony:
     post:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Adds a new telephony"
       requestBody:
         description: "A JSON object containing updated telephony information"
@@ -1033,7 +1273,7 @@ paths:
   /merchant/settings/telephony/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a telephony by its ID"
       parameters:
         - name: "id"
@@ -1090,7 +1330,7 @@ paths:
   /merchant/settings/delivery:
     post:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Adds a new delivery"
       requestBody:
         description: "A JSON object containing updated delivery information"
@@ -1119,7 +1359,7 @@ paths:
   /merchant/settings/delivery/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a delivery by merchant ID"
       parameters:
         - name: "id"
@@ -1160,7 +1400,7 @@ paths:
   /merchant/settings/badges:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a list of all badges"
       responses:
         "200":
@@ -1190,11 +1430,11 @@ paths:
         '400':
           description: Bad request
       tags:
-        - Settings
+        - Settings/Integrations
 
     put:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Update badge"
       requestBody:
         description: "A JSON object containing updated badge's information"
@@ -1206,11 +1446,10 @@ paths:
       responses:
         "200":
           description: "OK"
-
   /merchant/settings/badge/{id}:
     get:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Returns a badge by id"
       parameters:
         - name: "id"
@@ -1232,7 +1471,7 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - Settings
+        - Settings/Integrations
       description: "Deletes badge by its id"
       parameters:
         - name: "id"
@@ -1411,7 +1650,7 @@ paths:
   /merchant/finance/outcomes:
     get:
       tags:
-        - Outcomes
+        - Finance/Outcomes
       description: "Returns a list of all Outcomes"
       responses:
         "200":
@@ -1427,7 +1666,7 @@ paths:
   /merchant/finance/outcome:
     post:
       tags:
-        - Outcomes
+        - Finance/Outcomes
       description: "Adds a new outcome"
       requestBody:
         description: "A JSON object containing updated outcome information"
@@ -1441,7 +1680,7 @@ paths:
           description: "OK"
     put:
       tags:
-        - Outcomes
+        - Finance/Outcomes
       description: "Update the outcomes"
       requestBody:
         description: "A JSON object containing updated product information"
@@ -1456,7 +1695,7 @@ paths:
   /merchant/finance/outcome/{id}:
     get:
       tags:
-        - Outcomes
+        - Finance/Outcomes
       description: "Returns a outcome by its ID"
       parameters:
         - name: "id"
@@ -1478,7 +1717,7 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - Outcomes
+        - Finance/Outcomes
       description: "Deletes a outcome by its ID"
       parameters:
         - name: "id"
@@ -1884,6 +2123,42 @@ components:
           format: "long"
         expressToken:
           type: "string"
+
+    RoomDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        branchId:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+
+    TableDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        qr:
+          type: "string"
+        name:
+          type: "string"
+        roomId:
+          type: "integer"
+          format: "long"
+        branchId:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+
 
 
   securitySchemes:
