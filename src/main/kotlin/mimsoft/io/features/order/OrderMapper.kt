@@ -15,7 +15,7 @@ object OrderMapper {
             OrderDto(
                 id = orderTable.id,
                 status = orderTable.status,
-                type = OrderType.valueOf(orderTable.type?:OrderType.TAKEAWAY.name),
+                type = orderTable.type?: OrderType.DELIVERY.name,
             )
         else null
     }
@@ -47,7 +47,7 @@ object OrderMapper {
                 id = orderDto.id,
                 userId = user?.id,
                 userPhone = user?.phone,
-                type = orderDto.type?.name,
+                type = orderDto.type,
                 products = productsJson,
                 status = orderDto.status,
                 addLat = address?.latitude,

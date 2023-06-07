@@ -13,7 +13,8 @@ data class ProductTable(
     val descriptionRu: String? = null,
     val descriptionEng: String? = null,
     val image: String? = null,
-    val costPrice: Double? = null,
+    val active: Boolean? = null,
+    val costPrice: Long? = null,
     val deleted: Boolean? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null
