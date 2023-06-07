@@ -219,6 +219,7 @@ object DBManager: BaseRepository {
                     }
                     println("\nparameters-->${parameters.forEach { (t, u) ->  println("${t.name} $u") }}")
                     val instance = constructor.callBy(parameters)
+                    println("\ninstance-->${instance}")
                     resultList.add(instance)
                 }
             }

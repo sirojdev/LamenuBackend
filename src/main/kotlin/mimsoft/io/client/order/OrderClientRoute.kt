@@ -17,8 +17,9 @@ fun Route.routeToOrderClient() {
     val orderService: OrderRepository = OrderRepositoryImpl
 
     get("orders") {
+        val userId = call.parameters["userId"]?.toLongOrNull()
         val principal = call.principal<LaPrincipal>()
-        val orders = orderService.getByUserId(principal?.id)
+        val orders = orderService.getByUserId(principal?.id?: userId)
         call.respond(orders.ifEmpty { HttpStatusCode.NoContent })
     }
 
