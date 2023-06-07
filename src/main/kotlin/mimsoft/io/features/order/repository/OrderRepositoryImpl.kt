@@ -28,6 +28,7 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.*
+import mimsoft.io.utils.plugins.GSON
 import java.sql.Timestamp
 
 object OrderRepositoryImpl : OrderRepository {
@@ -194,9 +195,10 @@ object OrderRepositoryImpl : OrderRepository {
             from orders o
             left join order_price op on o.id = op.order_id
             where not o.deleted
-            and op.deleted
-            and not o.user_id = $userId
+            and not op.deleted
+            and o.user_id = $userId
         """.trimIndent()
+        println("query: $query")
 
         val orderWrappers = mutableListOf<OrderWrapper>()
 
@@ -259,7 +261,7 @@ object OrderRepositoryImpl : OrderRepository {
                                 longitude = addLong,
                                 description = addDesc
                             ),
-                            products = Gson().fromJson(products, object : TypeToken<List<ProductDto>>() {}.type),
+                            products = Gson().fromJson(products, object : TypeToken<List<CartItem?>>() {}.type),
                             price = OrderPriceDto(
                                 id = priceId,
                                 deliveryPrice = deliveryPrice,
@@ -357,6 +359,7 @@ object OrderRepositoryImpl : OrderRepository {
         if (order.user?.id == null) return ResponseModel(httpStatus = USER_NULL)
 
         val user = userRepo.get(order.user.id)?: return ResponseModel(httpStatus = USER_NOT_FOUND)
+        println("user: ${GSON.toJson(user)}")
         val address: AddressDto?
 
         if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
@@ -435,7 +438,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(2, activeProducts.price?.productPrice ?: 0L)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.executeQuery()
+                }.execute()
 
                 return@withContext ResponseModel(
                     httpStatus = OK,
@@ -467,10 +470,11 @@ object OrderRepositoryImpl : OrderRepository {
                 return ResponseModel(httpStatus = BAD_PRODUCT_ITEM)
         }
 
-        val sortedProducts = products?.filterNotNull()?.sortedWith(compareBy { it?.product?.id })
+        val sortedProducts = products?.filterNotNull()?.sortedWith(compareBy { it.product?.id })
+        val readyProducts = arrayListOf<CartItem>()
 
         val query = """
-            select * from products
+            select * from product
             where not deleted and active
             and id in (${sortedProducts?.joinToString { it.product?.id.toString() }})
             order by id
@@ -500,20 +504,22 @@ object OrderRepositoryImpl : OrderRepository {
                         costPrice = statement.getLong("cost_price")
                     )
 
-                    totalPrice += productTable.costPrice?:0L
-
                     sortedProducts?.forEach { cartItem ->
                         if (cartItem.product?.id == productTable.id) {
+                            totalPrice += productTable.costPrice?.times(cartItem.count?.toLong()?:0L) ?: 0L
                             cartItem.product = productMapper.toProductDto(productTable)
+                            readyProducts.add(cartItem)
                         }
                     }
                 }
+                readyProducts.ifEmpty {
+                    return@withContext ResponseModel(httpStatus = PRODUCT_NOT_FOUND) }
             }
         }
 
         return ResponseModel(
             body = OrderWrapper(
-                products = sortedProducts,
+                products = readyProducts,
                 price = OrderPriceDto(
                     productPrice = totalPrice
                 )

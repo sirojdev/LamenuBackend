@@ -30,6 +30,7 @@ val USER_NOT_FOUND = HttpStatusCode(18, "user not found")
 val ADDRESS_NOT_FOUND = HttpStatusCode(19, "address not found")
 val WRONG_ADDRESS_INFO = HttpStatusCode(20, "wrong address info")
 val ORDER_NOT_FOUND = HttpStatusCode(21, "order not found")
+val PRODUCT_NOT_FOUND = HttpStatusCode(22, "product not found")
 
 
 
