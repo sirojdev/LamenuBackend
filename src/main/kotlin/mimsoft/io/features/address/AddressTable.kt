@@ -11,8 +11,6 @@ data class AddressTable(
     val description: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val create: Timestamp? = null,
-    val update: Timestamp? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null

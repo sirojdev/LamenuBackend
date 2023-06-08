@@ -20,6 +20,17 @@ val UNDEFINED = HttpStatusCode(9, "Look at the status")
 val OK = HttpStatusCode(200, "OK")
 val ID_NULL = HttpStatusCode(10, "id must not be null")
 val MERCHANT_ID_NULL = HttpStatusCode(11, "merchant id must not be null")
+val ORDER_NULL = HttpStatusCode(12, "order type in order must not be null")
+val USER_NULL = HttpStatusCode(13, "user must not be null")
+val ADDRESS_NULL = HttpStatusCode(14, "address must not be null")
+val PRODUCTS_NULL = HttpStatusCode(15, "products must not be null")
+val BAD_PRODUCT_ITEM = HttpStatusCode(16, "in product cart item id, count must not be null")
+val SOME_THING_WRONG = HttpStatusCode(17, "something went wrong")
+val USER_NOT_FOUND = HttpStatusCode(18, "user not found")
+val ADDRESS_NOT_FOUND = HttpStatusCode(19, "address not found")
+val WRONG_ADDRESS_INFO = HttpStatusCode(20, "wrong address info")
+val ORDER_NOT_FOUND = HttpStatusCode(21, "order not found")
+val PRODUCT_NOT_FOUND = HttpStatusCode(22, "product not found")
 
 
 

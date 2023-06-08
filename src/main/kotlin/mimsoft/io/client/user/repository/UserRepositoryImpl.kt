@@ -13,7 +13,7 @@ object UserRepositoryImpl : UserRepository {
     val repository: BaseRepository = DBManager
     val mapper = UserMapper
     override suspend fun getAll(): List<UserDto?> =
-        DBManager.getData(dataClass = UserTable::class, tableName = USER_TABLE_NAME)
+        repository.getData(dataClass = UserTable::class, tableName = USER_TABLE_NAME)
             .filterIsInstance<UserTable?>().map { mapper.toUserDto(it) }
 
     override suspend fun get(id: Long?): UserDto? =
@@ -31,6 +31,7 @@ object UserRepositoryImpl : UserRepository {
     }
 
     override suspend fun add(userDto: UserDto?): ResponseModel {
+        println("\nuser add")
         when {
             userDto?.phone == null -> return ResponseModel(
                 httpStatus = PHONE_NULL
@@ -39,8 +40,13 @@ object UserRepositoryImpl : UserRepository {
             userDto.firstName == null -> return ResponseModel(
                 httpStatus = FIRSTNAME_NULL
             )
+
+            userDto.merchantId == null -> return ResponseModel(
+                httpStatus = MERCHANT_ID_NULL
+            )
         }
 
+        println("\nuser add 2")
         val oldUser = get(userDto?.phone, userDto?.merchantId)
 
         if (oldUser != null) return ResponseModel(

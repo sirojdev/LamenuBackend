@@ -217,7 +217,9 @@ object DBManager: BaseRepository {
                         val columnName = parameter.name?.let { camelToSnakeCase(it) }
                         resultSet.getObject(columnName)
                     }
+                    println("\nparameters-->${parameters.forEach { (t, u) ->  println("${t.name} $u") }}")
                     val instance = constructor.callBy(parameters)
+                    println("\ninstance-->${instance}")
                     resultList.add(instance)
                 }
             }
@@ -246,11 +248,7 @@ object DBManager: BaseRepository {
                     val value = propertyInstance?.call(dataObject)
 //
                     when (property.returnType.toString()) {
-                        "kotlin.String?" -> statement.setString(index + 1, value as? String)
-                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as? Boolean == null)
-                        "kotlin.Double?" -> (value as? Double)?.let { statement.setDouble(index + 1, it) }
-                        "kotlin.Int?" -> (value as? Int)?.let { statement.setInt(index + 1, it) }
-                        "kotlin.Long?" -> (value as? Long)?.let { statement.setLong(index + 1, it) }
+
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "created") {
                                 statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
@@ -260,7 +258,7 @@ object DBManager: BaseRepository {
                             }
                         }
 
-                        else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
+                        else -> statement.setObject(index + 1, value)
                     }
                 }
 
@@ -303,11 +301,6 @@ object DBManager: BaseRepository {
                     val value = propertyInstance?.call(dataObject)
 //
                     when (property.returnType.toString()) {
-                        "kotlin.String?" -> statement.setString(index + 1, value as? String)
-                        "kotlin.Boolean?" -> statement.setBoolean(index + 1, value as? Boolean == null)
-                        "kotlin.Double?" -> (value as? Double)?.let { statement.setDouble(index + 1, it) }
-                        "kotlin.Int?" -> (value as? Int)?.let { statement.setInt(index + 1, it) }
-                        "kotlin.Long?" -> (value as? Long)?.let { statement.setLong(index + 1, it) }
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "updated") {
                                 statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
@@ -317,7 +310,7 @@ object DBManager: BaseRepository {
                             }
                         }
 
-                        else -> throw IllegalArgumentException("Unsupported data type: ${property.returnType}")
+                        else -> statement.setObject(index + 1, value)
                     }
                 }
 

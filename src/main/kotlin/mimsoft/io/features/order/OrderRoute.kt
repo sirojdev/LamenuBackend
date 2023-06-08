@@ -7,6 +7,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
+import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.utils.SOME_THING_WRONG
 
 fun Route.routeToOrder() {
 
@@ -61,9 +63,12 @@ fun Route.routeToOrder() {
     }
 
     post("/order/create") {
-        val order = call.receive<OrderDto>()
-        val id = repository.add(order)
-        call.respond(HttpStatusCode.OK, OrderId(id))
+        val order = call.receive<OrderWrapper>()
+        val status = repository.add(order)
+        call.respond(
+            status?.httpStatus?: SOME_THING_WRONG,
+            status?.body?: "Something went wrong"
+        )
     }
 
     put("/order") {
@@ -76,17 +81,12 @@ fun Route.routeToOrder() {
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {
             val deleted = repository.delete(id)
-            if (deleted) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError)
-            }
+            call.respond(
+                deleted?.httpStatus?: SOME_THING_WRONG,
+                deleted?.body?: "Something went wrong"
+            )
         } else {
             call.respond(HttpStatusCode.BadRequest)
         }
     }
 }
-
-data class OrderId(
-    val id: Long? = null
-)

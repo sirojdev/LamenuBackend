@@ -2,29 +2,42 @@ package mimsoft.io.features.order.repository
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.repository.UserRepository
+import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
+import mimsoft.io.features.address.AddressService
+import mimsoft.io.features.address.AddressServiceImpl
 import mimsoft.io.features.order.ORDER_TABLE_NAME
 import mimsoft.io.features.order.OrderDto
 import mimsoft.io.features.order.OrderMapper
 import mimsoft.io.features.order.OrderTable
 import mimsoft.io.features.order.price.OrderPriceDto
 import mimsoft.io.features.order.price.OrderPriceTable
+import mimsoft.io.features.order.utils.CartItem
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.product.ProductMapper
+import mimsoft.io.features.product.ProductTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
-import mimsoft.io.utils.OrderStatus
+import mimsoft.io.utils.*
+import mimsoft.io.utils.plugins.GSON
+import java.sql.Timestamp
 
 object OrderRepositoryImpl : OrderRepository {
 
-    val repository: BaseRepository = DBManager
-    val mapper = OrderMapper
+    private val repository: BaseRepository = DBManager
+    private val orderMapper = OrderMapper
+    private val productMapper = ProductMapper
+    private val userRepo: UserRepository = UserRepositoryImpl
+    private val addressService: AddressService = AddressServiceImpl
 
     override suspend fun getLiveOrders(
         type: String?,
@@ -102,7 +115,7 @@ object OrderRepositoryImpl : OrderRepository {
                         OrderWrapper(
                             order = OrderDto(
                                 id = orderId,
-                                type = OrderType.valueOf(rType),
+                                type = rType,
                                 status = status
                             ),
                             details = OrderDetails(
@@ -143,17 +156,45 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun getAll(
+        search: String?,
+        merchantId: Long?,
         status: String?,
         type: String?,
         limit: Int?,
         offset: Int?
     ): DataPage<OrderDto?>? {
 
-        val where = mutableMapOf<String, Any>()
-        when {
-            status != null -> where["status"] = status
-            type != null -> where["type"] = type
+        val query = """
+            select *
+            from orders o
+            left join users u on o.user_id = u.id
+            left join order_price op on o.id = op.order_id
+            where not o.deleted
+            and not u.deleted
+            and not op.deleted
+        """.trimIndent()
+
+        if (search != null) {
+            val s = search.lowercase()
+            query.plus(
+                """
+                and (
+                    lower(u.name) like '%$s%'
+                    or lower(u.phone) like '%$s%'
+                    or lower(o.id) like '%$s%'
+                )
+                """.trimIndent()
+            )
         }
+        if (merchantId != null) query.plus(" and o.merchant_id = $merchantId ")
+        if (status != null) query.plus(" and o.status = ? ")
+        if (type != null) query.plus(" and o.type = ? ")
+
+
+        /*val where = mutableMapOf<String, Any>()
+        if (merchantId != null) where["merchant_id"] = merchantId
+        if (status != null) where["status"] = status
+        if (type != null) where["type"] = type
 
         return DBManager.getPageData(
             OrderTable::class,
@@ -163,10 +204,11 @@ object OrderRepositoryImpl : OrderRepository {
             offset = offset
         )?.let {
             DataPage(
-                data = it.data.map { mapper.toDto(it) },
+                data = it.data.map { orderMapper.toDto(it) },
                 total = it.total
             )
-        }
+        }*/
+        return null
     }
 
     override suspend fun getByUserId(userId: Long?): List<OrderWrapper?> {
@@ -179,9 +221,10 @@ object OrderRepositoryImpl : OrderRepository {
             from orders o
             left join order_price op on o.id = op.order_id
             where not o.deleted
-            and op.deleted
-            and not o.user_id = $userId
+            and not op.deleted
+            and o.user_id = $userId
         """.trimIndent()
+        println("query: $query")
 
         val orderWrappers = mutableListOf<OrderWrapper>()
 
@@ -223,7 +266,7 @@ object OrderRepositoryImpl : OrderRepository {
                         OrderWrapper(
                             order = OrderDto(
                                 id = orderId,
-                                type = OrderType.valueOf(type),
+                                type = type,
                                 status = status
                             ),
                             details = OrderDetails(
@@ -244,7 +287,7 @@ object OrderRepositoryImpl : OrderRepository {
                                 longitude = addLong,
                                 description = addDesc
                             ),
-                            products = Gson().fromJson(products, object : TypeToken<List<ProductDto>>() {}.type),
+                            products = Gson().fromJson(products, object : TypeToken<List<CartItem?>>() {}.type),
                             price = OrderPriceDto(
                                 id = priceId,
                                 deliveryPrice = deliveryPrice,
@@ -262,7 +305,7 @@ object OrderRepositoryImpl : OrderRepository {
         return orderWrappers
     }
 
-    override suspend fun get(id: Long?): OrderWrapper? {
+    override suspend fun get(id: Long?): OrderWrapper {
         val query = """
             select 
             o.id  o_id,
@@ -320,12 +363,12 @@ object OrderRepositoryImpl : OrderRepository {
         }
 
         return OrderWrapper(
-            order = orderTable?.let { mapper.toDto(it) },
+            order = orderTable?.let { orderMapper.toDto(it) },
             user = UserDto(
                 id = orderTable?.userId,
                 phone = orderTable?.userPhone
             ),
-            details = mapper.toDetails(orderPriceTable, orderTable),
+            details = orderMapper.toDetails(orderPriceTable, orderTable),
             address = orderTable?.let {
                 AddressDto(
                     latitude = it.addLat,
@@ -337,15 +380,178 @@ object OrderRepositoryImpl : OrderRepository {
         )
     }
 
-    override suspend fun add(orderDto: OrderDto?): Long? {
-        return DBManager.postData(OrderTable::class, mapper.toTable(orderDto), ORDER_TABLE_NAME)
+    override suspend fun add(order: OrderWrapper?): ResponseModel {
+        if (order?.order == null) return ResponseModel(httpStatus = ORDER_NULL)
+        if (order.user?.id == null) return ResponseModel(httpStatus = USER_NULL)
+
+        val user = userRepo.get(order.user.id)?: return ResponseModel(httpStatus = USER_NOT_FOUND)
+        println("user: ${GSON.toJson(user)}")
+        val address: AddressDto?
+
+        if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
+            return ResponseModel(httpStatus = ADDRESS_NULL)
+        else {
+            address = addressService.get(order.address?.id)?: return ResponseModel(httpStatus = ADDRESS_NOT_FOUND)
+
+            if (address.latitude == null || address.longitude == null)
+                return ResponseModel(httpStatus = WRONG_ADDRESS_INFO)
+        }
+
+
+        if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = PRODUCTS_NULL)
+
+        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+
+        val queryOrder = """
+            insert into orders (
+                user_id,
+                user_phone,
+                type,
+                products,
+                status,
+                add_lat,
+                add_long,
+                add_desc,
+                created_at,
+                comment
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            ) returning id
+        """.trimIndent()
+
+        val queryPrice = """
+            insert into order_price (
+                order_id,
+                product_price,
+                created
+            ) values (
+                ?,
+                ?,
+                ?
+            )
+        """.trimIndent()
+
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val statementOrder = it.prepareStatement(queryOrder).apply {
+                    setLong(1, order.user.id)
+                    setString(2, user.phone)
+                    setString(3, order.order.type)
+                    setString(4, Gson().toJson(activeProducts.products))
+                    setString(5, OrderStatus.OPEN.name)
+                    setDouble(6, address.latitude)
+                    setDouble(7, address.longitude)
+                    setString(8, address.description)
+                    setTimestamp(9, Timestamp(System.currentTimeMillis()))
+                    setString(10, order.details?.comment)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val orderId = if(statementOrder.next()) statementOrder.getLong("id")
+                else return@withContext ResponseModel(httpStatus = SOME_THING_WRONG)
+
+                val statementPrice = it.prepareStatement(queryPrice).apply {
+                    setLong(1, orderId)
+                    setLong(2, activeProducts.price?.productPrice ?: 0L)
+                    setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+
+                return@withContext ResponseModel(
+                    httpStatus = OK,
+                    body = orderId
+                )
+            }
+        }
+
     }
 
     override suspend fun update(orderDto: OrderDto?): Boolean {
-        return DBManager.updateData(OrderTable::class, mapper.toTable(orderDto), ORDER_TABLE_NAME)
+        return DBManager.updateData(OrderTable::class, orderMapper.toTable(orderDto), ORDER_TABLE_NAME)
     }
 
-    override suspend fun delete(id: Long?): Boolean {
-        return DBManager.deleteData("orders", whereValue = id)
+    override suspend fun delete(id: Long?): ResponseModel {
+        val order = get(id).order?: return ResponseModel(httpStatus = ORDER_NOT_FOUND)
+        if (order.status != OrderStatus.OPEN.name)
+            return ResponseModel(httpStatus = HttpStatusCode.Forbidden)
+
+        return ResponseModel(
+            body = repository.deleteData("orders", whereValue = id),
+            httpStatus = OK)
+    }
+
+    suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
+
+        products?.forEach {
+            if (it?.product?.id == null || it.count == null)
+                return ResponseModel(httpStatus = BAD_PRODUCT_ITEM)
+        }
+
+        val sortedProducts = products?.filterNotNull()?.sortedWith(compareBy { it.product?.id })
+        val readyProducts = arrayListOf<CartItem>()
+
+        val query = """
+            select * from product
+            where not deleted and active
+            and id in (${sortedProducts?.joinToString { it.product?.id.toString() }})
+            order by id
+        """.trimIndent()
+
+        var totalPrice = 0L
+
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val statement = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                while (statement.next()) {
+
+                    val productTable = ProductTable(
+                        id = statement.getLong("id"),
+                        menuId = statement.getLong("menu_id"),
+                        nameUz = statement.getString("name_uz"),
+                        nameRu = statement.getString("name_ru"),
+                        nameEng = statement.getString("name_eng"),
+                        descriptionUz = statement.getString("description_uz"),
+                        descriptionRu = statement.getString("description_ru"),
+                        descriptionEng = statement.getString("description_eng"),
+                        image = statement.getString("image"),
+                        active = statement.getBoolean("active"),
+                        costPrice = statement.getLong("cost_price")
+                    )
+
+                    sortedProducts?.forEach { cartItem ->
+                        if (cartItem.product?.id == productTable.id) {
+                            totalPrice += productTable.costPrice?.times(cartItem.count?.toLong()?:0L) ?: 0L
+                            cartItem.product = productMapper.toProductDto(productTable)
+                            readyProducts.add(cartItem)
+                        }
+                    }
+                }
+                readyProducts.ifEmpty {
+                    return@withContext ResponseModel(httpStatus = PRODUCT_NOT_FOUND) }
+            }
+        }
+
+        return ResponseModel(
+            body = OrderWrapper(
+                products = readyProducts,
+                price = OrderPriceDto(
+                    productPrice = totalPrice
+                )
+            ),
+            httpStatus = OK
+        )
+
     }
 }

@@ -18,6 +18,7 @@ object AddressMapper {
     }
 
     fun toAddressDto(addressTable: AddressTable?): AddressDto? {
+        println("\ntoAddressDto: $addressTable")
         return if (addressTable == null) null
         else {
             val jsonString = addressTable.details
