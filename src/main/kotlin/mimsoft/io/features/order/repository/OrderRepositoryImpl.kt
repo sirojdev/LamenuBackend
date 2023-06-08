@@ -40,7 +40,6 @@ object OrderRepositoryImpl : OrderRepository {
     private val addressService: AddressService = AddressServiceImpl
 
     override suspend fun getLiveOrders(
-        merchantId: Long?,
         type: String?,
         limit: Int?,
         offset: Int?
@@ -54,7 +53,7 @@ object OrderRepositoryImpl : OrderRepository {
             op.*
             from orders o
             left join order_price op on o.id = op.order_id
-            where not o.deleted and merchant_id = $merchantId 
+            where not o.deleted
             and not op.deleted""".trimIndent()
 
         when (type) {
@@ -157,6 +156,7 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun getAll(
+        search: String?,
         merchantId: Long?,
         status: String?,
         type: String?,
@@ -164,12 +164,37 @@ object OrderRepositoryImpl : OrderRepository {
         offset: Int?
     ): DataPage<OrderDto?>? {
 
-        val where = mutableMapOf<String, Any>()
-        where["merchant_id"] = merchantId as Any
-        when {
-            status != null -> where["status"] = status
-            type != null -> where["type"] = type
+        val query = """
+            select *
+            from orders o
+            left join users u on o.user_id = u.id
+            left join order_price op on o.id = op.order_id
+            where not o.deleted
+            and not u.deleted
+            and not op.deleted
+        """.trimIndent()
+
+        if (search != null) {
+            val s = search.lowercase()
+            query.plus(
+                """
+                and (
+                    lower(u.name) like '%$s%'
+                    or lower(u.phone) like '%$s%'
+                    or lower(o.id) like '%$s%'
+                )
+                """.trimIndent()
+            )
         }
+        if (merchantId != null) query.plus(" and o.merchant_id = $merchantId ")
+        if (status != null) query.plus(" and o.status = ? ")
+        if (type != null) query.plus(" and o.type = ? ")
+
+
+        /*val where = mutableMapOf<String, Any>()
+        if (merchantId != null) where["merchant_id"] = merchantId
+        if (status != null) where["status"] = status
+        if (type != null) where["type"] = type
 
         return DBManager.getPageData(
             OrderTable::class,
@@ -182,7 +207,8 @@ object OrderRepositoryImpl : OrderRepository {
                 data = it.data.map { orderMapper.toDto(it) },
                 total = it.total
             )
-        }
+        }*/
+        return null
     }
 
     override suspend fun getByUserId(userId: Long?): List<OrderWrapper?> {

@@ -53,7 +53,7 @@ fun Route.routeToOrderClient() {
         val status = orderService.delete(id)
         call.respond(
             status?.httpStatus?: SOME_THING_WRONG,
-            status?.body?: "Something went wrong")
+            status?.body?: status?.httpStatus?.description?: "Something went wrong")
 
     }
 }

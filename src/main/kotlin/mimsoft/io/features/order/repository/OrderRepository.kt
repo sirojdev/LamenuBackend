@@ -8,14 +8,14 @@ import mimsoft.io.utils.ResponseModel
 interface OrderRepository {
 
     suspend fun getLiveOrders(
-        merchantId: Long?,
         type: String? = null,
         limit: Int? = null,
         offset: Int? = null,
     ): DataPage<OrderWrapper?>?
 
     suspend fun getAll(
-        merchantId: Long?,
+        search: String? = null,
+        merchantId: Long? = null,
         status: String? = null,
         type: String? = null,
         limit: Int? = null,
@@ -24,7 +24,10 @@ interface OrderRepository {
 
     suspend fun getByUserId(userId: Long?): List<OrderWrapper?>
 
-    suspend fun get(id: Long?): OrderWrapper?
+    suspend fun get(
+        id: Long?
+
+    ): OrderWrapper?
     suspend fun add(order: OrderWrapper?): ResponseModel?
     suspend fun update(orderDto: OrderDto?): Boolean
     suspend fun delete(id: Long?): ResponseModel?
