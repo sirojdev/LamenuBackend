@@ -11,10 +11,12 @@ object AddressServiceImpl : AddressService {
         repository.getData(dataClass = AddressTable::class, tableName = "address")
             .filterIsInstance<AddressTable?>().map { mapper.toAddressDto(it) }
 
-    override suspend fun get(id: Long?): AddressDto?  =
-        repository.getData(dataClass = AddressTable::class, id = id, tableName = "address")
-            .firstOrNull().let { mapper.toAddressDto(it as AddressTable) }
+    override suspend fun get(id: Long?): AddressDto? {
+        val data = repository.getData(dataClass = AddressTable::class, id = id, tableName = "address")
 
+        println("\nget: $data")
+        return mapper.toAddressDto(data.firstOrNull() as AddressTable?)
+    }
     override suspend fun add(addressDto: AddressDto?): Long? =
         repository.postData(
             dataClass = AddressTable::class,

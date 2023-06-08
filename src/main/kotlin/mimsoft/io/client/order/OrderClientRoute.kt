@@ -8,8 +8,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.order.OrderDto
+import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.LaPrincipal
+import mimsoft.io.utils.SOME_THING_WRONG
 
 fun Route.routeToOrderClient() {
 
@@ -34,13 +35,24 @@ fun Route.routeToOrderClient() {
 
     post("order") {
         val principal = call.principal<LaPrincipal>()
-        val order = call.receive<OrderDto>()
+        val order = call.receive<OrderWrapper>()
 
-        val id = orderService.add(order)
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@post
-        }
-        call.respond(HttpStatusCode.Created, id)
+        val status = orderService.add(order)
+
+        call.respond(
+            status?.httpStatus?: SOME_THING_WRONG,
+            status?.body?:
+            status?.httpStatus?.description?:
+            SOME_THING_WRONG.description)
+    }
+
+    delete("order/{id}") {
+        val principal = call.principal<LaPrincipal>()
+        val id = call.parameters["id"]?.toLongOrNull()
+        val status = orderService.delete(id)
+        call.respond(
+            status?.httpStatus?: SOME_THING_WRONG,
+            status?.body?: "Something went wrong")
+
     }
 }

@@ -5,5 +5,6 @@ import io.ktor.server.routing.*
 fun Route.routeToClient() {
     route("client") {
         routeToMenu()
+
     }
 }

@@ -8,5 +8,6 @@ data class ProductDto(
     val name: TextModel? = null,
     val description: TextModel? = null,
     val image: String? = null,
-    val costPrice: Double? = null,
+    val costPrice: Long? = null,
+    val active: Boolean? = null,
 )
