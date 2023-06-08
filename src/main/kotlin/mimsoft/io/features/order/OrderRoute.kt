@@ -2,6 +2,7 @@ package mimsoft.io.features.order
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,6 +10,7 @@ import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.SOME_THING_WRONG
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToOrder() {
 
@@ -36,11 +38,14 @@ fun Route.routeToOrder() {
     }
 
     get("/orders") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val search = call.parameters["search"]
         val status = call.parameters["status"]
         val type = call.parameters["type"]
         val limit = call.parameters["limit"]?.toIntOrNull()
         val offset = call.parameters["offset"]?.toIntOrNull()
-        val orders = repository.getAll(status, type, limit, offset)?.data
+        val orders = repository.getAll(search, merchantId, status, type, limit, offset)?.data
         if (orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get

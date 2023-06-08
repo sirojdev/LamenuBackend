@@ -518,7 +518,6 @@ object OrderRepositoryImpl : OrderRepository {
 
                     val productTable = ProductTable(
                         id = statement.getLong("id"),
-                        menuId = statement.getLong("menu_id"),
                         nameUz = statement.getString("name_uz"),
                         nameRu = statement.getString("name_ru"),
                         nameEng = statement.getString("name_eng"),

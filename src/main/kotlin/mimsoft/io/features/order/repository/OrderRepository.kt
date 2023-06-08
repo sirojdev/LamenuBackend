@@ -15,7 +15,7 @@ interface OrderRepository {
 
     suspend fun getAll(
         search: String? = null,
-        merchantId: Long? = null,
+        merchantId: Long?= null,
         status: String? = null,
         type: String? = null,
         limit: Int? = null,

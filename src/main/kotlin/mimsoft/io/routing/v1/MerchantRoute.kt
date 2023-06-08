@@ -2,7 +2,6 @@ package mimsoft.io.routing.v1
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
-import mimsoft.io.client.user.routeToUser
 import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
@@ -12,6 +11,8 @@ import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
+import mimsoft.io.features.merchant.order.routeToMerchantOrder
+import mimsoft.io.features.merchant.user.routeToUserUser
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
