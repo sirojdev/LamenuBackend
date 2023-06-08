@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.client.user.repository.UserRepository
+import io.ktor.util.reflect.*
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.utils.OK
@@ -38,6 +38,7 @@ fun Route.routeToUser() {
     }
 
     post("user") {
+        println("\nuser post")
         try {
             val user = call.receive<UserDto>()
 
@@ -49,8 +50,11 @@ fun Route.routeToUser() {
             }
 
             val status = userRepository.add(user)
+            println("status: $status")
 
-            call.respond(status.httpStatus, status)
+            call.respond(
+                status.httpStatus,
+                status.body?: status.httpStatus.description)
         }catch (e: Exception) {
             e.printStackTrace()
             call.respond(HttpStatusCode.BadRequest)
