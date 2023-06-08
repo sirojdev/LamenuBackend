@@ -12,6 +12,7 @@ import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
+import mimsoft.io.features.merchant.order.routeToMerchantOrder
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
@@ -59,6 +60,8 @@ fun Route.routeToMerchant() {
                 routeToUser()
                 routeToBadge()
             }
+
+            routeToMerchantOrder()
         }
 
 

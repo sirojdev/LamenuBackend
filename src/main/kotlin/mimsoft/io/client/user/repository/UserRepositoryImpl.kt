@@ -13,7 +13,7 @@ object UserRepositoryImpl : UserRepository {
     val repository: BaseRepository = DBManager
     val mapper = UserMapper
     override suspend fun getAll(): List<UserDto?> =
-        DBManager.getData(dataClass = UserTable::class, tableName = USER_TABLE_NAME)
+        repository.getData(dataClass = UserTable::class, tableName = USER_TABLE_NAME)
             .filterIsInstance<UserTable?>().map { mapper.toUserDto(it) }
 
     override suspend fun get(id: Long?): UserDto? =

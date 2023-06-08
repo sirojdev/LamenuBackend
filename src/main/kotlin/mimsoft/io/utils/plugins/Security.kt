@@ -111,5 +111,16 @@ fun Application.configureSecurity() {
                 } else null
             }
         }
+
+        /*basic(name = "payme") {
+            realm = "Server"
+            validate { credentials ->
+                if (credentials.password == PAYME_PASSWORD) {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
+        }*/
     }
 }
