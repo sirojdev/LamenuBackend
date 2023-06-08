@@ -12,6 +12,7 @@ data class ExtraTable(
     val descriptionUz: String? = null,
     val descriptionRu: String? = null,
     val descriptionEng: String? = null,
+    val merchantId: Long? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,
     var updated: Timestamp? = null

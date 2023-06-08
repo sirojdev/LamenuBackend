@@ -5,7 +5,7 @@ const val SMS_GATEWAY_TABLE = "sms_gateway"
 data class SmsGatewayTable(
     val id: Long? = null,
     val merchantId: Long? = null,
-    val eskizUsername: String? = null,
+    val eskizEmail: String? = null,
     val eskizPassword: String? = null,
     val playMobileUsername: String? = null,
     val playMobilePassword: String? = null,

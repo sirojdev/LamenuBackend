@@ -19,7 +19,7 @@ object OutcomeTypeService {
     val merchant = MerchantRepositoryImp
     val mapper = OutcomeTypeMapper
 
-    suspend fun getByMerchantId(merchantId: Long): List<OutcomeTypeDto?> {
+    suspend fun getByMerchantId(merchantId: Long?): List<OutcomeTypeDto?> {
         val query = "select * from $OUTCOME_TYPE_TABLE where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO) {
             val outcomeTypes = arrayListOf<OutcomeTypeDto?>()
@@ -40,7 +40,7 @@ object OutcomeTypeService {
         }
     }
 
-    suspend fun get(merchantId: Long, id: Long): OutcomeTypeDto? {
+    suspend fun get(merchantId: Long?, id: Long): OutcomeTypeDto? {
         val query = "select * from $OUTCOME_TYPE_TABLE where id = $id and merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -110,7 +110,7 @@ object OutcomeTypeService {
         return true
     }
 
-    suspend fun delete(merchantId: Long?, id: Long?): Boolean {
+    fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $OUTCOME_TYPE_TABLE set deleted = true where merchant_id = $merchantId and id = $id"
         repository.connection().use { val rs = it.prepareStatement(query).execute() }
         return true

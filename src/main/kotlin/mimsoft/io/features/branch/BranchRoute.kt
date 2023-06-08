@@ -2,11 +2,13 @@ package mimsoft.io.features.branch
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.branch.repository.BranchService
 import mimsoft.io.features.branch.repository.BranchServiceImpl
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToBranch() {
 
@@ -36,14 +38,16 @@ fun Route.routeToBranch() {
     }
 
     post("branch") {
-        val merchantId = 1L
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val branch = call.receive<BranchDto>()
         val id = branchService.add(branch.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK, BranchId(id))
     }
 
     put("branch") {
-        val merchantId = 1L
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val branch = call.receive<BranchDto>()
         branchService.update(branch.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)

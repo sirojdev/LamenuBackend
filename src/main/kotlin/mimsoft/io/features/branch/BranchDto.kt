@@ -6,6 +6,8 @@ import mimsoft.io.utils.TextModel
 
 data class BranchDto(
     val id: Long? = null,
+    val open: String? = null,
+    val close: String? = null,
     val merchantId: Long? = null,
     val name: TextModel? = null,
     val longitude: Double? = null,

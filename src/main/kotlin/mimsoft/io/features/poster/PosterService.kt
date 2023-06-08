@@ -28,7 +28,8 @@ object PosterService {
                             joinPosterApiKey = rs.getString("join_poster_api_key"),
                             rKeeperClientId = rs.getLong("r_keeper_client_id"),
                             rKeeperClientSecret = rs.getString("r_keeper_client_secret"),
-                            selected = rs.getString("selected")
+                            selected = rs.getString("selected"),
+                            jowiApiKey = rs.getString("jowi_api_key")
                         )
                     )
                 }else return@withContext null
@@ -62,6 +63,7 @@ object PosterService {
                 "r_keeper_client_id = ${posterDto?.rKeeperClientId}," +
                 "r_keeper_client_secret = ?, " +
                 "selected = ?, " +
+                "jowi_api_key = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${posterDto?.merchantId} and not deleted "
         repository.connection().use {
@@ -69,7 +71,8 @@ object PosterService {
                 this.setString(1, posterDto?.joinPosterApiKey)
                 this.setString(2, posterDto?.rKeeperClientSecret)
                 this.setString(3, posterDto?.selected)
-                this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
+                this.setString(4, posterDto?.jowiApiKey)
+                this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()
         }

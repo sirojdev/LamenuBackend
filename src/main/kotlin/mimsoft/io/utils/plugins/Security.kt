@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
-import mimsoft.io.entities.client.auth.LoginPrincipal
+import mimsoft.io.client.auth.LoginPrincipal
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
 import mimsoft.io.utils.JwtConfig

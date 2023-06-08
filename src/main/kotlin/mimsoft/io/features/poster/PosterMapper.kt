@@ -9,7 +9,8 @@ object PosterMapper {
             joinPosterApiKey = posterDto.joinPosterApiKey,
             rKeeperClientId = posterDto.rKeeperClientId,
             rKeeperClientSecret = posterDto.rKeeperClientSecret,
-            selected = posterDto.selected
+            selected = posterDto.selected,
+            jowiApiKey = posterDto.jowiApiKey
         )
     }
 
@@ -21,7 +22,8 @@ object PosterMapper {
             joinPosterApiKey = posterTable.joinPosterApiKey,
             rKeeperClientId = posterTable.rKeeperClientId,
             rKeeperClientSecret = posterTable.rKeeperClientSecret,
-            selected = posterTable.selected
+            selected = posterTable.selected,
+            jowiApiKey = posterTable.jowiApiKey
         )
     }
 }

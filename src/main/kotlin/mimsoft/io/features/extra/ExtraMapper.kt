@@ -11,6 +11,7 @@ object ExtraMapper {
             nameRu = extraDto.name?.ru,
             nameEng = extraDto.name?.eng,
             price = extraDto.price,
+            merchantId = extraDto.merchantId,
             descriptionUz = extraDto.description?.uz,
             descriptionRu = extraDto.description?.ru,
             descriptionEng = extraDto.description?.eng
@@ -27,6 +28,7 @@ object ExtraMapper {
                 eng = extraTable.nameEng
             ),
             price = extraTable.price,
+            merchantId = extraTable.merchantId,
             description = TextModel(
                 uz = extraTable.descriptionUz,
                 ru = extraTable.descriptionRu,

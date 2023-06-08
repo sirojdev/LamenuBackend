@@ -4,7 +4,8 @@ import mimsoft.io.utils.TextModel
 
 data class ExtraDto(
     var id: Long? = null,
+    var merchantId: Long? = null,
     val name: TextModel? = null,
     val price: Double? = null,
-    val description: TextModel? = null,
+    val description: TextModel? = null
 )

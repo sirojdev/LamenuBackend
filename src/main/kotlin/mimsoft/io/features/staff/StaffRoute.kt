@@ -17,7 +17,7 @@ fun Route.routeToStaff() {
         get {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val staffs = StaffService.getAll()
+            val staffs = StaffService.getAll(merchantId = merchantId)
             call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
         }
 
@@ -29,7 +29,7 @@ fun Route.routeToStaff() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val staff = StaffService.get(id = id)
+            val staff = StaffService.get(id = id, merchantId = merchantId)
             if (staff == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -47,7 +47,7 @@ fun Route.routeToStaff() {
                 call.respond(statusTimestamp)
                 return@post
             }
-            val status = StaffService.add(staff)
+            val status = StaffService.add(staff.copy(merchantId = merchantId))
             call.respond(status.httpStatus, status)
         }
 
@@ -60,7 +60,7 @@ fun Route.routeToStaff() {
                 call.respond(statusTimestamp)
                 return@put
             }
-            val status = StaffService.update(staff)
+            val status = StaffService.update(staff.copy(merchantId = merchantId))
             call.respond(status.httpStatus, status)
         }
 
@@ -73,7 +73,7 @@ fun Route.routeToStaff() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            val staff = StaffService.delete(id = id)
+            val staff = StaffService.delete(id = id, merchantId = merchantId)
             call.respond(staff)
         }
 

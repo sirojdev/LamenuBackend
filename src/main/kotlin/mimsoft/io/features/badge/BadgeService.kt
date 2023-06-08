@@ -13,7 +13,7 @@ object BadgeService {
     private val repository: BaseRepository = DBManager
     private val mapper = BadgeMapper
 
-    suspend fun getAll(merchantId: Long): List<BadgeDto?> {
+    suspend fun getAll(merchantId: Long?): List<BadgeDto?> {
         val query = "select * from $BADGE_TABLE_NAME where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO) {
             val badges = arrayListOf<BadgeDto?>()
@@ -82,7 +82,7 @@ object BadgeService {
                 "bg_color = ?, " +
                 "icon = ?, " +
                 "updated = ? \n" +
-                "where merchant_id = ${badge?.merchantId} and not deleted "
+                "where merchant_id = ${badge?.merchantId} and id = ${badge?.id} and not deleted "
         withContext(Dispatchers.IO) {
             SmsGatewayService.repository.connection().use {
                 it.prepareStatement(query).apply {
@@ -101,7 +101,8 @@ object BadgeService {
     }
 
     suspend fun delete(merchantId: Long?, id: Long?): Boolean {
-        val query = "update $BADGE_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
+        val query = "update $BADGE_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId"
+        println("\n$query")
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {

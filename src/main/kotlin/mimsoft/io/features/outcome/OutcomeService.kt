@@ -59,7 +59,7 @@ object OutcomeService {
     }
 
     suspend fun update(outcomeDto: OutcomeDto?): Boolean {
-        val staff = StaffService.get(outcomeDto?.staff?.phone)
+        val staff = StaffService.getByPhone(outcomeDto?.staff?.phone)
         val outcomeType = OutcomeTypeService.getById(outcomeDto?.outcomeType?.id)
         val query = "update $OUTCOME_TABLE_NAME set " +
                 "name = ? , " +

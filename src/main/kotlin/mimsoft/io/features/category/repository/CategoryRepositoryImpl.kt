@@ -12,33 +12,51 @@ object CategoryRepositoryImpl : CategoryRepository {
     val repository: BaseRepository = DBManager
     val mapper = CategoryMapper
 
-    override suspend fun getAll(): List<CategoryDto?> {
-        val data = repository.getData(
+    override suspend fun getAllByMerchant(merchantId: Long?): List<CategoryDto?> {
+        val data = repository.getPageData(
             dataClass = CategoryTable::class,
-            tableName = CATEGORY_TABLE_NAME)
-        return data.filterIsInstance<CategoryTable?>().map { mapper.toCategoryDto(it) }
+            where = mapOf("merchant_id" to merchantId as Any),
+            tableName = "category"
+        )?.data
+
+        return data?.map { mapper.toCategoryDto(it) } ?: emptyList()
     }
 
-    override suspend fun get(id: Long?): CategoryDto? =
-        DBManager.getData(
+
+    override suspend fun get(id: Long?, merchantId: Long?): CategoryDto? {
+        val data = repository.getPageData(
             dataClass = CategoryTable::class,
-            id = id, tableName = CATEGORY_TABLE_NAME)
-            .firstOrNull().let { mapper.toCategoryDto(it as? CategoryTable) }
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "id" to id as Any
+            ),
+            tableName = CATEGORY_TABLE_NAME
+        )?.data?.firstOrNull()
+        return mapper.toCategoryDto(data)
+    }
 
     override suspend fun add(categoryDto: CategoryDto?): Long? =
-        DBManager.postData(dataClass = CategoryTable::class,
-            dataObject = mapper.toCategoryTable(categoryDto),
-            tableName = CATEGORY_TABLE_NAME)
-
-
-    override suspend fun update(categoryDto: CategoryDto?): Boolean =
-        DBManager.updateData(
+        DBManager.postData(
             dataClass = CategoryTable::class,
             dataObject = mapper.toCategoryTable(categoryDto),
-            tableName = CATEGORY_TABLE_NAME)
+            tableName = CATEGORY_TABLE_NAME
+        )
 
+
+    override suspend fun update(categoryDto: CategoryDto?): Boolean{
+         repository.updateData(
+            dataClass = CategoryTable::class,
+            dataObject = mapper.toCategoryTable(categoryDto),
+            tableName = CATEGORY_TABLE_NAME,
+            idColumn = "id"
+        )
+        return true
+    }
 
     override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = CATEGORY_TABLE_NAME, whereValue = id)
+        repository.deleteData(tableName = CATEGORY_TABLE_NAME, whereValue = id)
 
+    override suspend fun getAll(): List<CategoryDto?> {
+        TODO("Not yet implemented")
+    }
 }

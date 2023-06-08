@@ -45,7 +45,7 @@ object SmsGatewayService {
                     return@withContext SmsGatewayMapper.toSmsGatewayDto(
                         SmsGatewayTable(
                             merchantId = rs.getLong("merchant_id"),
-                            eskizUsername = rs.getString("eskiz_email"),
+                            eskizEmail = rs.getString("eskiz_email"),
                             eskizPassword = rs.getString("eskiz_password"),
                             playMobileUsername = rs.getString("play_mobile_username"),
                             playMobilePassword = rs.getString("play_mobile_password"),

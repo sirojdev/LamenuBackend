@@ -8,6 +8,8 @@ data class BranchTable(
     val nameUz: String? = null,
     val nameRu: String? = null,
     val nameEng: String? = null,
+    val open: String? = null,
+    val close: String? = null,
     val longitude: Double? = null,
     val latitude: Double? = null,
     val address: String? = null,

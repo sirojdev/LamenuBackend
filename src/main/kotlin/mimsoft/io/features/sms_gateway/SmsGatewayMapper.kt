@@ -6,7 +6,7 @@ object SmsGatewayMapper {
         else SmsGatewayTable(
             id = smsGatewaysDto.id,
             merchantId = smsGatewaysDto.merchantId,
-            eskizUsername = smsGatewaysDto.eskizEmail,
+            eskizEmail = smsGatewaysDto.eskizEmail,
             eskizPassword = smsGatewaysDto.eskizPassword,
             playMobileUsername = smsGatewaysDto.playMobileUsername,
             playMobilePassword = smsGatewaysDto.playMobilePassword,
@@ -19,7 +19,7 @@ object SmsGatewayMapper {
         else SmsGatewayDto(
             id = smsGatewaysTable.id,
             merchantId = smsGatewaysTable.merchantId,
-            eskizEmail = smsGatewaysTable.eskizUsername,
+            eskizEmail = smsGatewaysTable.eskizEmail,
             eskizPassword = smsGatewaysTable.eskizPassword,
             playMobileUsername = smsGatewaysTable.playMobileUsername,
             playMobilePassword = smsGatewaysTable.playMobilePassword,

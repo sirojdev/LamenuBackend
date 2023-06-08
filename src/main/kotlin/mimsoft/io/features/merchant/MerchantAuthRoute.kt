@@ -30,7 +30,5 @@ fun Route.merchantAuthRoute() {
             call.respond(HttpStatusCode.OK)
         }
     }
-
-
 }
 
