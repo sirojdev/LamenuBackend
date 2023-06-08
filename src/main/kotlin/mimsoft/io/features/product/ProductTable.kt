@@ -5,7 +5,7 @@ import java.sql.Timestamp
 const val PRODUCT_TABLE_NAME = "product"
 data class ProductTable(
     val id: Long? = null,
-    val menuId: Long? = null,
+    val merchantId: Long? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
     val nameEng: String? = null,

@@ -14,6 +14,7 @@ import mimsoft.io.utils.MERCHANT_ID_NULL
 import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
+
 object PaymentService {
     val repository: BaseRepository = DBManager
     val merchant = MerchantRepositoryImp
@@ -21,7 +22,7 @@ object PaymentService {
 
     suspend fun get(merchantId: Long?): PaymentDto? {
         val query = "select * from $PAYMENT_TABLE_NAME where merchant_id = $merchantId and deleted = false"
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -36,7 +37,7 @@ object PaymentService {
                             selected = rs.getString("selected")
                         )
                     )
-                }else return@withContext null
+                } else return@withContext null
             }
         }
     }
@@ -68,20 +69,22 @@ object PaymentService {
                 "apelsin_merchant_token = ?, " +
                 "click_service_id = ${paymentDto?.clickServiceId}, " +
                 "click_key = ?, " +
-                "selected = ?, "+
+                "selected = ?, " +
                 "updated = ? \n" +
                 "where merchant_id = ${paymentDto?.merchantId} and not deleted "
-        repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
-                this.setString(1, paymentDto?.paymeSecret)
-                this.setString(2, paymentDto?.apelsinMerchantToken)
-                this.setString(3, paymentDto?.clickKey)
-                this.setString(4, paymentDto?.selected)
-                this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
-                this.closeOnCompletion()
-            }.execute()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, paymentDto?.paymeSecret)
+                    this.setString(2, paymentDto?.apelsinMerchantToken)
+                    this.setString(3, paymentDto?.clickKey)
+                    this.setString(4, paymentDto?.selected)
+                    this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
+            true
         }
-        return true
     }
 
 }

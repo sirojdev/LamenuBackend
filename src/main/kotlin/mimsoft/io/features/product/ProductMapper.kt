@@ -6,7 +6,7 @@ object ProductMapper {
     fun toProductTable(productDto: ProductDto?): ProductTable? {
         return if (productDto == null) null else ProductTable(
             id = productDto.id,
-            menuId = productDto.menuId,
+            merchantId = productDto.merchantId,
             nameUz = productDto.name?.uz,
             nameRu = productDto.name?.ru,
             nameEng = productDto.name?.eng,
@@ -22,7 +22,7 @@ object ProductMapper {
         return if (productTable == null) null
         else ProductDto(
             id = productTable.id,
-            menuId = productTable.menuId,
+            merchantId = productTable.merchantId,
             name = TextModel(
                 uz = productTable.nameUz,
                 ru = productTable.nameRu,

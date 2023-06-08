@@ -2,11 +2,13 @@ package mimsoft.io.features.order
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToOrder() {
 
@@ -14,8 +16,10 @@ fun Route.routeToOrder() {
     val mapper = OrderMapper
 
     get("live") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val type = call.parameters["type"]
-        val orders = repository.getLiveOrders(type = type.toString())
+        val orders = repository.getLiveOrders(type = type.toString(), merchantId = merchantId)
         val orderDto = orders?.data
         if(orderDto == null) {
             call.respond(HttpStatusCode.NoContent)
@@ -25,7 +29,9 @@ fun Route.routeToOrder() {
     }
 
     get("history") {
-        val orders = repository.getAll()
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val orders = repository.getAll(merchantId=merchantId)
         if(orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -34,11 +40,13 @@ fun Route.routeToOrder() {
     }
 
     get("/orders") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val status = call.parameters["status"]
         val type = call.parameters["type"]
         val limit = call.parameters["limit"]?.toIntOrNull()
         val offset = call.parameters["offset"]?.toIntOrNull()
-        val orders = repository.getAll(status, type, limit, offset)?.data
+        val orders = repository.getAll(merchantId = merchantId, status, type, limit, offset)?.data
         if (orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -47,6 +55,7 @@ fun Route.routeToOrder() {
     }
 
     get("/order/{id}") {
+
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)

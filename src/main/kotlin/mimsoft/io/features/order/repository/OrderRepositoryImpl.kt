@@ -27,6 +27,7 @@ object OrderRepositoryImpl : OrderRepository {
     val mapper = OrderMapper
 
     override suspend fun getLiveOrders(
+        merchantId: Long?,
         type: String?,
         limit: Int?,
         offset: Int?
@@ -40,7 +41,7 @@ object OrderRepositoryImpl : OrderRepository {
             op.*
             from orders o
             left join order_price op on o.id = op.order_id
-            where not o.deleted
+            where not o.deleted and merchant_id = $merchantId 
             and not op.deleted""".trimIndent()
 
         when (type) {
@@ -143,6 +144,7 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun getAll(
+        merchantId: Long?,
         status: String?,
         type: String?,
         limit: Int?,
@@ -150,6 +152,7 @@ object OrderRepositoryImpl : OrderRepository {
     ): DataPage<OrderDto?>? {
 
         val where = mutableMapOf<String, Any>()
+        where["merchant_id"] = merchantId as Any
         when {
             status != null -> where["status"] = status
             type != null -> where["type"] = type

@@ -8,10 +8,9 @@ import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.staff.StaffTable
 
 interface CategoryRepository {
-    suspend fun getAllByMerchant(merchantId: Long?): List<CategoryDto?>
-    suspend fun getAll(): List<CategoryDto?>
+    suspend fun getAll(merchantId: Long?): List<CategoryDto?>
     suspend fun get(id: Long?, merchantId: Long?): CategoryDto?
     suspend fun add(categoryDto: CategoryDto?): Long?
-    suspend fun update(categoryDto: CategoryDto?): Boolean
-    suspend fun delete(id: Long?): Boolean
+    suspend fun update(dto: CategoryDto): Boolean
+    suspend fun delete(id: Long?, merchantId: Long?): Boolean
 }

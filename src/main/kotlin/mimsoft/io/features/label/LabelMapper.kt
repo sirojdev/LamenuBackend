@@ -6,6 +6,7 @@ object LabelMapper {
     fun toLabelTable(labelDto: LabelDto?): LabelTable? {
         return if (labelDto == null) null else LabelTable(
             id = labelDto.id,
+            merchantId = labelDto.merchantId,
             nameUz = labelDto.name?.uz,
             nameRu = labelDto.name?.ru,
             nameEng = labelDto.name?.eng,
@@ -24,6 +25,7 @@ object LabelMapper {
                 ru = labelTable.nameRu,
                 eng = labelTable.nameEng
             ),
+            merchantId = labelTable.merchantId,
             textColor = labelTable.textColor,
             bgColor = labelTable.bgColor,
             icon = labelTable.icon

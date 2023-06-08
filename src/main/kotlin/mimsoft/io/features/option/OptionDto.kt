@@ -4,6 +4,7 @@ import mimsoft.io.utils.TextModel
 
 data class OptionDto(
     var id: Long? = null,
+    var merchantId: Long? = null,
     val parentId: Long? = null,
     val productId : Long? = null,
     var options: List<OptionDto?>? = null,

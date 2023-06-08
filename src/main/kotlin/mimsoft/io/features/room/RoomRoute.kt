@@ -2,17 +2,20 @@ package mimsoft.io.features.room
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToRoom() {
     val roomService: RoomRepository = RoomService
     val roomMapper = RoomMapper
 
     get("rooms") {
-        val merchantId = 1L
-        val rooms = roomService.getByMerchantId(merchantId)
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val rooms = roomService.getAll(merchantId)
         if (rooms.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -20,12 +23,14 @@ fun Route.routeToRoom() {
     }
 
     get("room/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = roomMapper.toRoomDto(roomService.get(id))
+        val room = roomService.get(id=id, merchantId=merchantId)
         if (room == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -34,26 +39,30 @@ fun Route.routeToRoom() {
     }
 
     post("room") {
-        val merchantId = 1L
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val room = call.receive<RoomDto>()
         roomService.add(roomMapper.toRoomTable(room.copy(merchantId = merchantId)))
         call.respond(HttpStatusCode.OK)
     }
 
     put("room") {
-        val merchantId = 1L
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val room = call.receive<RoomDto>()
-        roomService.update(roomMapper.toRoomTable(room.copy(merchantId = merchantId)))
+        roomService.update(room.copy(merchantId=merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("room/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        roomService.delete(id)
+        roomService.delete(id=id, merchantId=merchantId)
         call.respond(HttpStatusCode.OK)
     }
 }

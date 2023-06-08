@@ -4,8 +4,13 @@ info:
   description: "Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project"
   version: "1.0.0"
 servers:
-  - url: 'http://127.0.0.1:9000/v1/'
-  - url: 'http://188.166.167.80:9000/api/v1/'
+  - url: 'http://0.0.0.0:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+
 
 tags:
 

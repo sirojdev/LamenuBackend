@@ -7,12 +7,14 @@ import mimsoft.io.repository.DataPage
 interface OrderRepository {
 
     suspend fun getLiveOrders(
+        merchantId: Long?,
         type: String? = null,
         limit: Int? = null,
         offset: Int? = null,
     ): DataPage<OrderWrapper?>?
 
     suspend fun getAll(
+        merchantId: Long?,
         status: String? = null,
         type: String? = null,
         limit: Int? = null,

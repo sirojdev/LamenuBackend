@@ -2,15 +2,19 @@ package mimsoft.io.features.table
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToTable(){
     val tableService : TableRepository = TableService
     val tableMapper = TableMapper
     get("tables"){
-        val tables = tableService.getAll().map { TableMapper.toTableDto(it) }
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val tables = tableService.getAll(merchantId=merchantId).map { tableMapper.toTableDto(it) }
         if(tables.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -18,12 +22,14 @@ fun Route.routeToTable(){
     }
 
     get("table/{id}"){
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val table = TableMapper.toTableDto(tableService.get(id))
+        val table = TableMapper.toTableDto(tableService.get(id=id, merchantId=merchantId))
         if(table == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -32,7 +38,8 @@ fun Route.routeToTable(){
     }
 
     post ("table"){
-        val merchantId = 1L
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val table = call.receive<TableDto>()
         val toTable = TableMapper.toTableTable(table)
         tableService.add(toTable?.copy(merchantId = merchantId))
@@ -40,19 +47,22 @@ fun Route.routeToTable(){
     }
 
     put ("table"){
-        val merchantId = 1L
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val table = call.receive<TableDto>()
-        tableService.update(TableMapper.toTableTable(table.copy(merchantId = merchantId)))
+        tableService.update(table.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("table/{id}"){
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        tableService.delete(id)
+        tableService.delete(id=id, merchantId=merchantId)
         call.respond(HttpStatusCode.OK)
     }
 

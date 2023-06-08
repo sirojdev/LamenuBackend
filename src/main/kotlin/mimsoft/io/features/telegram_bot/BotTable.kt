@@ -9,7 +9,7 @@ data class BotTable(
     val tgToken: String? = null,
     val tgUsername: String? = null,
     val groupId: String? = null,
-    val merchantId: String? = null,
+    val merchantId: Long? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null

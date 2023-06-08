@@ -2,15 +2,20 @@ package mimsoft.io.features.telegram_bot
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.MerchantPrincipal
+
 fun Route.routeToBot() {
     val botService: BotRepository = BotService
     val botMapper = BotMapper
     get("bots") {
-        val bots = botService.getAll().map {
-            BotMapper.toBotDto(it)
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val bots = botService.getAll(merchantId=merchantId).map {
+            botMapper.toBotDto(it)
         }
         if (bots.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
@@ -19,12 +24,14 @@ fun Route.routeToBot() {
     }
 
     get("bot/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val bot = BotMapper.toBotDto(botService.get(id))
+        val bot = botMapper.toBotDto(botService.get(id=id, merchantId=merchantId))
         if(bot == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -32,26 +39,31 @@ fun Route.routeToBot() {
         call.respond(bot)
     }
 
-
     post("bot") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val table = call.receive<BotDto>()
-        botService.add(BotMapper.toBotTable(table))
+        botService.add(botMapper.toBotTable(table.copy(merchantId=merchantId)))
         call.respond(HttpStatusCode.OK)
     }
 
     put("bot") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val table = call.receive<BotDto>()
-        botService.update(BotMapper.toBotTable(table))
+        botService.update((table.copy(merchantId=merchantId)))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("bot/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        botService.delete(id)
+        botService.delete(id=id, merchantId=merchantId)
         call.respond(HttpStatusCode.OK)
     }
 }

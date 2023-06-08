@@ -2,17 +2,22 @@ package mimsoft.io.features.label
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.label.repository.LabelRepository
 import mimsoft.io.features.label.repository.LabelRepositoryImpl
+import mimsoft.io.utils.principal.MerchantPrincipal
+import kotlin.collections.map
 
 fun Route.routeToLabel() {
 
     val labelRepository: LabelRepository = LabelRepositoryImpl
     get("/labels") {
-        val labels = labelRepository.getAll().map { LabelMapper.toLabelDto(it) }
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val labels = labelRepository.getAll(merchantId = merchantId).map { LabelMapper.toLabelDto(it) }
         if (labels.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -21,12 +26,14 @@ fun Route.routeToLabel() {
     }
 
     get("/label/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val label = LabelMapper.toLabelDto(labelRepository.get(id))
+        val label = LabelMapper.toLabelDto(labelRepository.get(id = id, merchantId = merchantId))
         if (label != null) {
             call.respond(HttpStatusCode.OK, label)
         } else {
@@ -35,21 +42,27 @@ fun Route.routeToLabel() {
     }
 
     post("/label") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val label = call.receive<LabelDto>()
-        val id = labelRepository.add(LabelMapper.toLabelTable(label))
+        val id = labelRepository.add(LabelMapper.toLabelTable(label.copy(merchantId = merchantId)))
         call.respond(HttpStatusCode.OK, LabelId(id))
     }
 
     put("/label") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val label = call.receive<LabelDto>()
-        labelRepository.update(LabelMapper.toLabelTable(label))
+        labelRepository.update(label.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("/label/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {
-            val deleted = labelRepository.delete(id)
+            val deleted = labelRepository.delete(id = id, merchantId = merchantId)
             if (deleted) {
                 call.respond(HttpStatusCode.OK)
             } else {

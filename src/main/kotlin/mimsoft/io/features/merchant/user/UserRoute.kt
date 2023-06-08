@@ -1,21 +1,27 @@
-package mimsoft.io.client.user
+package mimsoft.io.features.merchant.user
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.UserMapper
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.utils.OK
+import mimsoft.io.utils.principal.MerchantPrincipal
 
-fun Route.routeToUser() {
+fun Route.routeToUserUser() {
 
-    val userRepository: UserRepository = UserRepositoryImpl
+    val userRepository : UserRepository = UserRepositoryImpl
 
     get("users") {
-        val users = userRepository.getAll()
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val users = userRepository.getAll(merchantId = merchantId).map { UserMapper.toUserDto(it) }
         if (users.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -24,12 +30,14 @@ fun Route.routeToUser() {
     }
 
     get("user/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val user = userRepository.get(id)
+        val user = userRepository.get(id=id, merchantId=merchantId)
         if (user==null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -38,6 +46,8 @@ fun Route.routeToUser() {
     }
 
     post("user") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         try {
             val user = call.receive<UserDto>()
 
@@ -48,7 +58,7 @@ fun Route.routeToUser() {
                 return@post
             }
 
-            val status = userRepository.add(user)
+            val status = userRepository.add(user.copy(merchantId=merchantId))
 
             call.respond(status.httpStatus, status)
         }catch (e: Exception) {
@@ -58,8 +68,9 @@ fun Route.routeToUser() {
     }
 
     put("user") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val user = call.receive<UserDto>()
-
         val statusTimestamp = timestampValidator(user.birthDay)
 
         if (statusTimestamp.httpStatus != OK){
@@ -67,18 +78,20 @@ fun Route.routeToUser() {
             return@put
         }
 
-        val status = userRepository.update(user)
+        val status = userRepository.update(user.copy(merchantId = merchantId))
 
         call.respond(status.httpStatus, status)
     }
 
     delete("user/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null){
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        userRepository.delete(id)
+        userRepository.delete(id=id, merchantId = merchantId)
         call.respond(HttpStatusCode.OK)
     }
 }

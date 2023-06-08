@@ -17,7 +17,7 @@ fun Route.routeToCategory() {
     get("categories") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val categories = categoryRepository.getAllByMerchant(merchantId = merchantId)
+        val categories = categoryRepository.getAll(merchantId = merchantId)
         if (categories.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -64,7 +64,7 @@ fun Route.routeToCategory() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        categoryRepository.delete(id)
+        categoryRepository.delete(id = id, merchantId = merchantId)
         call.respond(HttpStatusCode.OK)
     }
 }

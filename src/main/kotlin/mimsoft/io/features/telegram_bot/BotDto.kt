@@ -5,5 +5,5 @@ data class BotDto(
     val tgToken : String? = null,
     val tgUsername : String? = null,
     val groupId : String? = null,
-    val merchantId : String? = null
+    val merchantId : Long? = null
     )

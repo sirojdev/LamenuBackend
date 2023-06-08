@@ -1,22 +1,68 @@
 package mimsoft.io.features.telegram_bot
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import mimsoft.io.features.staff.StaffService
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import java.sql.Timestamp
 
 object BotService : BotRepository {
+    private val repository: BaseRepository = DBManager
+    override suspend fun getAll(merchantId: Long?): List<BotTable?> {
+        val data = repository.getPageData(
+            dataClass = BotTable::class,
+            where = mapOf("merchant_id" to merchantId as Any),
+            tableName = "category"
+        )?.data
 
-    override suspend fun getAll(): List<BotTable?> =
-        DBManager.getData(dataClass = BotTable::class, tableName = TELEGRAM_BOT_TABLE_NAME).filterIsInstance<BotTable?>()
+        return data ?: emptyList()
+    }
+    override suspend fun get(id: Long?, merchantId: Long?): BotTable? {
+        val data = repository.getPageData(
+            dataClass = BotTable::class,
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "id" to id as Any
+            ),
+            tableName = TELEGRAM_BOT_TABLE_NAME
+        )?.data?.firstOrNull()
+        return data
 
-    override suspend fun get(id: Long?): BotTable? =
-        DBManager.getData(dataClass = BotTable::class, id = id, tableName = TELEGRAM_BOT_TABLE_NAME)
-            .firstOrNull() as BotTable?
-
+    }
     override suspend fun add(botTable: BotTable?): Long? =
         DBManager.postData(dataClass = BotTable::class, dataObject = botTable, tableName = TELEGRAM_BOT_TABLE_NAME)
 
-    override suspend fun update(botTable: BotTable?): Boolean =
-        DBManager.updateData(dataClass = BotTable::class, dataObject = botTable, tableName = TELEGRAM_BOT_TABLE_NAME)
+    override suspend fun update(dto: BotDto): Boolean {
+        val merchantId = dto.merchantId
+        val query = """
+            UPDATE $TELEGRAM_BOT_TABLE_NAME 
+            SET
+                tg_token = ?,
+                tg_username = ?,
+                group_id = ?,
+                updated = ?
+            WHERE id = ? and merchant_id = $merchantId and not deleted 
+        """.trimIndent()
 
-    override suspend fun delete(id: Long?): Boolean =
-        DBManager.deleteData(tableName = TELEGRAM_BOT_TABLE_NAME, whereValue = id)
+        withContext(Dispatchers.IO) {
+            StaffService.repository.connection().use {
+                it.prepareStatement(query).use { ti ->
+                    ti.setString(1, dto.tgToken)
+                    ti.setString(2, dto.tgUsername)
+                    ti.setString(3, dto.groupId)
+                    ti.setTimestamp(4, Timestamp(System.currentTimeMillis()))
+                    ti.executeUpdate()
+                }
+            }
+        }
+        return true
+    }
+    override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
+        val query = "update $TELEGRAM_BOT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
+        withContext(Dispatchers.IO) {
+            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        }
+        return true
+    }
 }

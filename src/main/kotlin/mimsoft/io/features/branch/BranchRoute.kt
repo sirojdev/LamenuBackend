@@ -15,7 +15,9 @@ fun Route.routeToBranch() {
     val branchService: BranchService = BranchServiceImpl
 
     get("branches") {
-        val branches = branchService.getAll()
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val branches = branchService.getAll(merchantId = merchantId)
         if (branches.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -24,12 +26,14 @@ fun Route.routeToBranch() {
     }
 
     get("branch/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val branch = branchService.get(id)
+        val branch = branchService.get(id=id, merchantId = merchantId)
         if (branch==null){
             call.respond(HttpStatusCode.NoContent)
             return@get
