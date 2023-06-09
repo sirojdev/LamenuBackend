@@ -4,7 +4,12 @@ info:
   description: Title
   version: 1.0.0
 servers:
-  - url: 'https'
+  - url: 'http://0.0.0.0:9000/v1'
+    description: 'Local server'
+  - url: 'https://188.166.167.80:9000/v1'
+    description: 'Production server'
+  - url: 'https://api.lamenu.uz/v1'
+    description: 'Domain server'
 paths:
 
 components:

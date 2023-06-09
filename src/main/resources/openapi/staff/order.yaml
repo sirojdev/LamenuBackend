@@ -4,8 +4,12 @@ info:
   description: Order
   version: 1.0.0
 servers:
-  - url: 'http://0.0.0.0:8181/api/v1/'
-  - url: 'http://188.166.167.80:8181/api/v1/'
+  - url: 'http://0.0.0.0:9000/v1'
+    description: 'Local server'
+  - url: 'https://188.166.167.80:9000/v1'
+    description: 'Production server'
+  - url: 'https://api.lamenu.uz/v1'
+    description: 'Domain server'
 paths:
   /staff/orders:
     get:
