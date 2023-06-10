@@ -22,6 +22,7 @@ object DBManager: BaseRepository {
 //        createTable(tableName = "role", dataClass = Role::class)
 //        createTable(tableName = "staff", dataClass = StaffTable::class)
     }
+    val databaseDispatcher = Dispatchers.IO
 
     private val dataSource = createDataSource()
 
