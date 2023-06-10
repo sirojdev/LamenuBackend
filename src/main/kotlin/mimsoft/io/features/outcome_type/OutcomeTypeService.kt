@@ -1,5 +1,6 @@
 package mimsoft.io.features.outcome_type
 
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
@@ -77,22 +78,13 @@ object OutcomeTypeService {
     }
 
     suspend fun add(outcomeTypeDto: OutcomeTypeDto): ResponseModel {
-        val checkMerchant = outcomeTypeDto.merchantId?.let { getOneByMerchantId(it) }
-        return if (checkMerchant != null)
-            ResponseModel(
-                body = update(outcomeTypeDto = outcomeTypeDto),
-                httpStatus = OK
-            )
-        else {
-            ResponseModel(
-                body = (repository.postData(
-                    dataClass = OutcomeTypeTable::class,
-                    dataObject = mapper.toOutcomeTypeTable(outcomeTypeDto),
-                    tableName = OUTCOME_TYPE_TABLE
-                ) != null),
-                OK
-            )
-        }
+        return ResponseModel(
+            repository.postData(
+                dataClass = OutcomeTypeTable::class,
+                dataObject = mapper.toOutcomeTypeTable(outcomeTypeDto),
+                tableName = OUTCOME_TYPE_TABLE
+            ), HttpStatusCode.OK
+        )
     }
 
     suspend fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
@@ -131,5 +123,6 @@ object OutcomeTypeService {
                     )
                 } else return@withContext null
             }
-        }    }
+        }
+    }
 }

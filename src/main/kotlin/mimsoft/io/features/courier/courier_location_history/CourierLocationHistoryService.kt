@@ -1,0 +1,59 @@
+package mimsoft.io.features.courier.courier_location_history
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import mimsoft.io.features.badge.BADGE_TABLE_NAME
+import mimsoft.io.features.badge.BadgeDto
+import mimsoft.io.features.badge.BadgeService
+import mimsoft.io.features.badge.BadgeTable
+import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
+import mimsoft.io.features.sms_gateway.SmsGatewayDto
+import mimsoft.io.features.sms_gateway.SmsGatewayService
+import mimsoft.io.features.sms_gateway.SmsGatewayTable
+import mimsoft.io.repository.BaseRepository
+import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.MERCHANT_ID_NULL
+import mimsoft.io.utils.OK
+import mimsoft.io.utils.ResponseModel
+import java.sql.Timestamp
+
+object CourierLocationHistoryService {
+    val repository: BaseRepository = DBManager
+    val mapper = CourierLocationHistoryMapper
+    suspend fun add(dto: CourierLocationHistoryDto): ResponseModel {
+        return ResponseModel(
+            body = (repository.postData(
+                dataClass = CourierLocationHistoryTable::class,
+                dataObject = mapper.toTable(dto),
+                tableName = COURIER_LOCATION_HISTORY_SERVICE
+            ) != null),
+            OK
+        )
+    }
+
+    suspend fun getByStaffId(staffId: Long?): CourierLocationHistoryDto? {
+        val query = "select * from $COURIER_LOCATION_HISTORY_SERVICE where staff_id = $staffId order by time desc limit 1"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    return@withContext mapper.toDto(
+                        CourierLocationHistoryTable(
+                            id = rs.getLong("id"),
+                            merchantId = rs.getLong("merchant_id"),
+                            longitude = rs.getDouble("longitude"),
+                            latitude = rs.getDouble("latitude"),
+                            time = rs.getTimestamp("time"),
+                            staffId = rs.getLong("staff_id")
+                        )
+                    )
+                } else return@withContext null
+            }
+        }
+    }
+}
+
+
+
+

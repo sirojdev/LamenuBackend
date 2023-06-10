@@ -40,8 +40,8 @@ fun Route.outcomeTypeRoute() {
     post ("outcome_type"){
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val outcomeTypee = call.receive<OutcomeTypeDto>()
-        OutcomeTypeService.add(outcomeTypee.copy(merchantId = merchantId))
+        val outcomeType = call.receive<OutcomeTypeDto>()
+        OutcomeTypeService.add(outcomeType.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 

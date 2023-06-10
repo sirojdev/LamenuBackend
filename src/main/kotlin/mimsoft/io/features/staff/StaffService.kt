@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
+import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
 import mimsoft.io.features.outcome.OUTCOME_TABLE_NAME
 import mimsoft.io.features.outcome.OutcomeService
 import mimsoft.io.repository.BaseRepository
@@ -33,14 +34,14 @@ object StaffService {
         }
 
         return ResponseModel(
-            body = repository.getPageData(
+            body = mapper.toDto(repository.getPageData(
                 dataClass = StaffTable::class,
                 tableName = STAFF_TABLE_NAME,
                 where = mapOf(
-                    "username" to staff?.phone as Any,
+                    "phone" to staff?.phone as Any,
                     "password" to staff.password as Any
                 )
-            )?.data?.firstOrNull(),
+            )?.data?.firstOrNull()),
         )
     }
 
@@ -203,6 +204,62 @@ object StaffService {
     }
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
+    suspend fun getAllCourier(merchantId: Long?): List<StaffDto?> {
+        val query =
+            "select * from $STAFF_TABLE_NAME where position = 'courier' and merchant_id = $merchantId and deleted = false"
+        return withContext(Dispatchers.IO) {
+            val staffs = arrayListOf<StaffDto?>()
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    val staff = mapper.toDto(
+                        StaffTable(
+                            id = rs.getLong("id"),
+                            merchantId = rs.getLong("merchant_id"),
+                            position = rs.getString("position"),
+                            phone = rs.getString("phone"),
+                            password = rs.getString("password"),
+                            firstName = rs.getString("first_name"),
+                            lastName = rs.getString("last_name"),
+                            birthDay = rs.getTimestamp("birth_day"),
+                            image = rs.getString("image"),
+                            comment = rs.getString("comment")
+                        )
+                    )
+                    staff?.lastLocation = CourierLocationHistoryService.getByStaffId(staff?.id)
+                    staffs.add(staff)
+                }
+                return@withContext staffs
+            }
+        }
+    }
+
+    suspend fun getCourier(id: Long, merchantId: Long?): StaffDto? {
+        val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and position = 'courier' and deleted = false"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val e: StaffTable?
+                if (rs.next()) {
+                    e = StaffTable(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        position = rs.getString("position"),
+                        phone = rs.getString("phone"),
+                        password = rs.getString("password"),
+                        firstName = rs.getString("first_name"),
+                        lastName = rs.getString("last_name"),
+                        birthDay = rs.getTimestamp("birth_day"),
+                        image = rs.getString("image"),
+                        comment = rs.getString("comment")
+                    )
+                    val dto = mapper.toDto(e)
+                    dto?.lastLocation = CourierLocationHistoryService.getByStaffId(dto?.id)
+                    return@withContext dto
+                } else return@withContext null
+            }
+        }
+    }
 }
 
 

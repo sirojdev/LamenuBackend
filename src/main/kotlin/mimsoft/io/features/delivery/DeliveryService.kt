@@ -3,6 +3,10 @@ package mimsoft.io.features.delivery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
+import mimsoft.io.features.sms_gateway.SmsGatewayDto
+import mimsoft.io.features.sms_gateway.SmsGatewayService
+import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.MERCHANT_ID_NULL
@@ -35,17 +39,23 @@ object DeliveryService {
         }
     }
 
-    suspend fun add(deliveryDto: DeliveryDto?): ResponseModel {
-        if (deliveryDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
-        val checkMerchant = get(deliveryDto.merchantId)
-        if (checkMerchant != null) update(deliveryDto = deliveryDto)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = DeliveryTable::class,
-                dataObject = mapper.toDeliveryTable(deliveryDto), tableName = DELIVERY_TABLE_NAME
-            ),
-            httpStatus = OK
-        )
+    suspend fun add(deliveryDto: DeliveryDto): ResponseModel {
+        val checkMerchant = SmsGatewayService.get(deliveryDto.merchantId)
+        return if (checkMerchant != null)
+            ResponseModel(
+                body = update(deliveryDto = deliveryDto),
+                httpStatus = OK
+            )
+        else {
+            ResponseModel(
+                body = (repository.postData(
+                    dataClass = DeliveryTable::class,
+                    dataObject = mapper.toDeliveryTable(deliveryDto),
+                    tableName = DELIVERY_TABLE_NAME
+                ) != null),
+                OK
+            )
+        }
     }
 
     fun update(deliveryDto: DeliveryDto?): Boolean {
