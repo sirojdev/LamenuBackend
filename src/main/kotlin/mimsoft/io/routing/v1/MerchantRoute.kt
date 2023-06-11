@@ -6,6 +6,8 @@ import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.category.routeToCategory
+import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
+import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
@@ -28,14 +30,21 @@ import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.telephony.routeToTelephony
 import mimsoft.io.features.sms.routeToSms
 import mimsoft.io.features.telegram_bot.routeToBot
+import mimsoft.io.routing.merchant.routeToMerchantInfo
+import mimsoft.io.routing.merchant.routeToMerchantProfile
 
 
 fun Route.routeToMerchant() {
 
     route("merchant") {
         merchantAuthRoute()
+        routeToMerchantInfo()
+
 
         authenticate("merchant") {
+
+            routeToMerchantProfile()
+
 
             route("settings") {
                 routeToStaff()
@@ -49,16 +58,17 @@ fun Route.routeToMerchant() {
                 routeToTable()
                 routeToRoom()
                 routeToFlat()
-                routeToBot()        // +
-                routeToPoster()     // +
-                routeToApp()        // +
-                routeToPayment()    // +
-                routeToSmsGateways()// +
-                routeToTelephony()  // +
-                routeToDelivery()   // +
-                outcomeTypeRoute()  // +
+                routeToBot()
+                routeToPoster()
+                routeToApp()
+                routeToPayment()
+                routeToSmsGateways()
+                routeToTelephony()
+                routeToDelivery()
+                outcomeTypeRoute()
                 routeToUserUser()
-                routeToBadge()      // +
+                routeToBadge()
+                routeToCourier()
             }
 
             routeToMerchantOrder()

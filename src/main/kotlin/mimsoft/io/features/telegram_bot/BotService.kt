@@ -13,7 +13,7 @@ object BotService : BotRepository {
         val data = repository.getPageData(
             dataClass = BotTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
-            tableName = "category"
+            tableName = TELEGRAM_BOT_TABLE_NAME
         )?.data
 
         return data ?: emptyList()
@@ -42,7 +42,7 @@ object BotService : BotRepository {
                 tg_username = ?,
                 group_id = ?,
                 updated = ?
-            WHERE id = ? and merchant_id = $merchantId and not deleted 
+            WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted 
         """.trimIndent()
 
         withContext(Dispatchers.IO) {

@@ -1,5 +1,6 @@
 package mimsoft.io.features.outcome_type
 
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
@@ -87,6 +88,7 @@ object OutcomeTypeService {
                 ResponseModel.OK
             )
         }
+
     }
 
     suspend fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
@@ -125,5 +127,6 @@ object OutcomeTypeService {
                     )
                 } else return@withContext null
             }
-        }    }
+        }
+    }
 }

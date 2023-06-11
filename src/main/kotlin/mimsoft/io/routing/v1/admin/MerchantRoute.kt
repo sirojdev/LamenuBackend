@@ -2,6 +2,7 @@ package mimsoft.io.routing.v1.admin
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,27 +10,12 @@ import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.merchant.MerchantMapper
 import mimsoft.io.features.merchant.repository.MerchantInterface
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.merchantRoute() {
-
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
+
     route("merchant") {
-
-
-        get("info") {
-            val sub = call.parameters["sub"]
-            if (sub == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
-            }
-            val merchant = merchantRepository.getInfo(sub)
-            if (merchant != null) {
-                call.respond(HttpStatusCode.OK, merchant)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
-
         get {
             val restaurants = merchantRepository.getAll().map { MerchantMapper.toMerchantDto(it) }
             if (restaurants.isEmpty()) {
