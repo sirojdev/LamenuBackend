@@ -7,6 +7,7 @@ import mimsoft.io.features.address.routeToAddress
 import mimsoft.io.routing.v1.client.routeToClientAuth
 import mimsoft.io.client.menu.routeToMenu
 import mimsoft.io.client.table.routeToClientTable
+import mimsoft.io.features.book.routeToBook
 
 fun Route.clientRouting() {
 
@@ -21,5 +22,6 @@ fun Route.clientRouting() {
         routeToClientBranches()
         routeToAddress()
         routeToOrderClient()
+        routeToBook()
     }
 }
