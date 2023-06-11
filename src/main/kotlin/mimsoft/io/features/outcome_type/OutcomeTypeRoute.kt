@@ -15,10 +15,10 @@ fun Route.outcomeTypeRoute() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val outcomeTypes = OutcomeTypeService.getByMerchantId(merchantId = merchantId)
-        if(outcomeTypes.isEmpty()){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }else call.respond(outcomeTypes)
+            if(outcomeTypes.isEmpty()){
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }else call.respond(outcomeTypes)
     }
 
     get("outcome_type/{id}"){

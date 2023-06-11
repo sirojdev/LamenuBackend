@@ -41,6 +41,18 @@ object TableService : TableRepository {
         return data
     }
 
+    override suspend fun getByTableId(roomId: Long?, merchantId: Long?): TableTable? {
+        val data = repository.getPageData(
+            dataClass = TableTable::class,
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "room_id" to roomId as Any
+            ),
+            tableName = TABLE_TABLE_NAME
+        )?.data?.firstOrNull()
+        return data
+    }
+
     override suspend fun add(tableTable: TableTable?): Long? {
         println("\nTable ${GSON.toJson(tableTable)}}" )
         return DBManager.postData(dataClass = TableTable::class, dataObject = tableTable, tableName = TABLE_TABLE_NAME)
