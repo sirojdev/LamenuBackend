@@ -60,26 +60,24 @@ object UserRepositoryImpl : UserRepository {
     }
 
     override suspend fun add(userDto: UserDto?): ResponseModel {
-        println("\nuser add")
         when {
             userDto?.phone == null -> return ResponseModel(
-                httpStatus = PHONE_NULL
+                httpStatus = ResponseModel.PHONE_NULL
             )
 
             userDto.firstName == null -> return ResponseModel(
-                httpStatus = FIRSTNAME_NULL
+                httpStatus = ResponseModel.FIRSTNAME_NULL
             )
 
             userDto.merchantId == null -> return ResponseModel(
-                httpStatus = MERCHANT_ID_NULL
+                httpStatus = ResponseModel.MERCHANT_ID_NULL
             )
         }
 
-        println("\nuser add 2")
         val oldUser = get(userDto?.phone, userDto?.merchantId)
 
         if (oldUser != null) return ResponseModel(
-            httpStatus = ALREADY_EXISTS
+            httpStatus = ResponseModel.ALREADY_EXISTS
         )
 
         return ResponseModel(
@@ -88,18 +86,18 @@ object UserRepositoryImpl : UserRepository {
                 dataObject = mapper.toUserTable(userDto),
                 tableName = USER_TABLE_NAME
             ),
-            httpStatus = OK
+            httpStatus = ResponseModel.OK
         )
     }
 
     override suspend fun update(userDto: UserDto): ResponseModel {
         when {
             userDto.phone == null -> return ResponseModel(
-                httpStatus = PHONE_NULL
+                httpStatus = ResponseModel.PHONE_NULL
             )
 
             userDto.firstName == null -> return ResponseModel(
-                httpStatus = FIRSTNAME_NULL
+                httpStatus = ResponseModel.FIRSTNAME_NULL
             )
         }
         var query = "UPDATE $USER_TABLE_NAME " +
@@ -129,7 +127,7 @@ object UserRepositoryImpl : UserRepository {
             }
         }
         return ResponseModel(
-            httpStatus = OK
+            httpStatus = ResponseModel.OK
         )
     }
 

@@ -3,21 +3,43 @@ package mimsoft.io.rsa
 import kotlin.random.Random
 
 object Generator {
-    fun generate(static: Boolean = true): GeneratorModel {
+    private const val AC_TIME = 3 * 60000
+    private const val GONE_TIME = 600000
+    fun checkValidate(generator: GeneratorModel?): Status {
+        return if (generator != null) {
+            val time = getTime(generator)
+            val code = getCodeFromHash(generator)
+            val now = System.currentTimeMillis()
+            println("$time, $now")
 
-        val now = System.currentTimeMillis() / 1000
-        val code = if (!static)
-            Random.nextLong(10000, 100000)
-        else 12345
-        val hash = 12345L/*encode(now * 100000 + code)*/
+            return if (time < now && time + AC_TIME >= now && code == generator.code)
+                Status.ACCEPTED
+            else if (time < now && time + AC_TIME >= now)
+                Status.INVALID_CODE
+            else if (time < now && time + GONE_TIME >= now)
+                Status.GONE_CODE
+            else
+                Status.INVALID_CODE
+        } else
+            Status.INVALID_CODE
+    }
 
+    fun generate(fixed: Boolean = false): GeneratorModel {
+        val code = if (!fixed) (10000..99999).random().toLong() else 13579
+        val now = System.currentTimeMillis()
         return GeneratorModel(
             code = code,
-            hash = hash
+            hash = now * 100000 + code
         )
     }
 
-    fun validate(gen: GeneratorModel?): Status {
-        return Status.ACCEPTED
+
+    private fun getTime(generator: GeneratorModel?): Long {
+        return (generator?.hash ?: 0) / 100000
+    }
+
+
+    private fun getCodeFromHash(generator: GeneratorModel?): Long {
+        return (generator?.hash ?: 0) % 100000
     }
 }

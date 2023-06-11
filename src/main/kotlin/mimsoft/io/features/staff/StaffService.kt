@@ -21,13 +21,13 @@ object StaffService {
         when {
             staff?.password == null -> {
                 ResponseModel(
-                    httpStatus = PASSWORD_NULL,
+                    httpStatus = ResponseModel.PASSWORD_NULL,
                 )
             }
 
             staff.phone == null -> {
                 ResponseModel(
-                    httpStatus = PASSWORD_NULL
+                    httpStatus = ResponseModel.PASSWORD_NULL
                 )
             }
         }
@@ -133,20 +133,20 @@ object StaffService {
         when {
             staff?.phone == null -> {
                 ResponseModel(
-                    httpStatus = PHONE_NULL
+                    httpStatus = ResponseModel.PHONE_NULL
                 )
             }
 
             staff.password == null -> {
                 ResponseModel(
-                    httpStatus = PASSWORD_NULL
+                    httpStatus = ResponseModel.PASSWORD_NULL
                 )
             }
         }
         val oldStaff = getByPhone(staff?.phone)
 
         if (oldStaff != null) return ResponseModel(
-            httpStatus = ALREADY_EXISTS,
+            httpStatus = ResponseModel.ALREADY_EXISTS,
         )
 
         return ResponseModel(
@@ -190,7 +190,7 @@ object StaffService {
             }
         }
         return ResponseModel(
-            httpStatus = OK,
+            httpStatus = ResponseModel.OK,
         )
     }
 

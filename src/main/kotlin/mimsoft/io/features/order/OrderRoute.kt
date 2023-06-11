@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderWrapper
-import mimsoft.io.utils.SOME_THING_WRONG
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToOrder() {
@@ -71,7 +71,7 @@ fun Route.routeToOrder() {
         val order = call.receive<OrderWrapper>()
         val status = repository.add(order)
         call.respond(
-            status?.httpStatus?: SOME_THING_WRONG,
+            status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
             status?.body?: "Something went wrong"
         )
     }
@@ -87,7 +87,7 @@ fun Route.routeToOrder() {
         if (id != null) {
             val deleted = repository.delete(id)
             call.respond(
-                deleted?.httpStatus?: SOME_THING_WRONG,
+                deleted?.httpStatus?: ResponseModel.SOME_THING_WRONG,
                 deleted?.body?: "Something went wrong"
             )
         } else {

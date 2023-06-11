@@ -3,16 +3,11 @@ package mimsoft.io.features.poster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
-import mimsoft.io.features.sms_gateway.SmsGatewayDto
-import mimsoft.io.features.sms_gateway.SmsGatewayService
-import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.MERCHANT_ID_NULL
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
+
 object PosterService {
     val repository: BaseRepository = DBManager
     val merchant = MerchantRepositoryImp
@@ -43,7 +38,7 @@ object PosterService {
         return if (checkMerchant != null)
             ResponseModel(
                 body = update(posterDto = posterDto),
-                httpStatus = OK
+                httpStatus = ResponseModel.OK
             )
         else {
             ResponseModel(
@@ -52,7 +47,7 @@ object PosterService {
                     dataObject = mapper.toPosterTable(posterDto),
                     tableName = POSTER_TABLE
                 ) != null),
-                OK
+                ResponseModel.OK
             )
         }
     }

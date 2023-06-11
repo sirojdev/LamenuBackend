@@ -10,7 +10,7 @@ import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.LaPrincipal
-import mimsoft.io.utils.SOME_THING_WRONG
+import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToOrderClient() {
 
@@ -41,10 +41,10 @@ fun Route.routeToOrderClient() {
         val status = orderService.add(order)
 
         call.respond(
-            status?.httpStatus?: SOME_THING_WRONG,
+            status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
             status?.body?:
             status?.httpStatus?.description?:
-            SOME_THING_WRONG.description)
+            ResponseModel.SOME_THING_WRONG.description)
     }
 
     delete("order/{id}") {
@@ -52,7 +52,7 @@ fun Route.routeToOrderClient() {
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
         call.respond(
-            status?.httpStatus?: SOME_THING_WRONG,
+            status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
             status?.body?: status?.httpStatus?.description?: "Something went wrong")
 
     }

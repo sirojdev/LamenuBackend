@@ -5,7 +5,10 @@ import com.google.gson.reflect.TypeToken
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
+import mimsoft.io.client.device.DeviceController
+import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
+import mimsoft.io.session.SessionPrincipal
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
 import mimsoft.io.utils.JwtConfig
@@ -69,6 +72,46 @@ fun Application.configureSecurity() {
                     )
                 } else {
                     null
+                }
+            }
+        }
+        jwt("modify-user") {
+            verifier(JwtConfig.verifierUser)
+            realm = JwtConfig.issuer
+            validate {
+                with(it.payload) {
+                    val session = SessionRepository.getUserSession(sessionUuid = getClaim("uuid").asString())
+                    if (session != null && session.isExpired != true) {
+                        SessionPrincipal(
+                            id = session.id,
+                            sessionUUID = session.sessionUuid,
+                            userId = session.userId,
+                            hash = getClaim("hash").asLong(),
+                            phone = session.phone,
+                            merchantId = session.merchantId
+                        )
+                    } else null
+                }
+            }
+        }
+
+        jwt("device") {
+            verifier(JwtConfig.verifierDevice)
+            realm = JwtConfig.issuer
+            validate {
+                with(it.payload) {
+                    val device = DeviceController.getWithUUid(uuid = getClaim("uuid").asString())
+
+                    if (device != null) {
+                        DevicePrincipal(
+                            id = device.id,
+                            uuid = device.uuid,
+                            hash = getClaim("hash").asLong(),
+                            phone = getClaim("phone").asString(),
+                            merchantId = device.merchantId
+                        )
+                    } else null
+
                 }
             }
         }

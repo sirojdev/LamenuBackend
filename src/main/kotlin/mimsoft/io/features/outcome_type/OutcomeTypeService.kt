@@ -3,14 +3,8 @@ package mimsoft.io.features.outcome_type
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.features.outcome.OutcomeTable
-import mimsoft.io.features.payment.*
-import mimsoft.io.features.room.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ALREADY_EXISTS
-import mimsoft.io.utils.MERCHANT_ID_NULL
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
@@ -81,7 +75,7 @@ object OutcomeTypeService {
         return if (checkMerchant != null)
             ResponseModel(
                 body = update(outcomeTypeDto = outcomeTypeDto),
-                httpStatus = OK
+                httpStatus = ResponseModel.OK
             )
         else {
             ResponseModel(
@@ -90,7 +84,7 @@ object OutcomeTypeService {
                     dataObject = mapper.toOutcomeTypeTable(outcomeTypeDto),
                     tableName = OUTCOME_TYPE_TABLE
                 ) != null),
-                OK
+                ResponseModel.OK
             )
         }
     }

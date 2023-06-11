@@ -5,10 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.reflect.*
-import mimsoft.io.config.timestampValidator
+import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
-import mimsoft.io.utils.OK
+import mimsoft.io.config.timestampValidator
+import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToUser() {
 
@@ -44,7 +44,7 @@ fun Route.routeToUser() {
 
             val statusTimestamp = timestampValidator(user.birthDay)
 
-            if (statusTimestamp.httpStatus != OK){
+            if (statusTimestamp.httpStatus != ResponseModel.OK){
                 call.respond(statusTimestamp)
                 return@post
             }
@@ -66,7 +66,7 @@ fun Route.routeToUser() {
 
         val statusTimestamp = timestampValidator(user.birthDay)
 
-        if (statusTimestamp.httpStatus != OK){
+        if (statusTimestamp.httpStatus != ResponseModel.OK){
             call.respond(statusTimestamp)
             return@put
         }

@@ -5,8 +5,6 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.MERCHANT_ID_NULL
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
@@ -36,7 +34,7 @@ object DeliveryService {
     }
 
     suspend fun add(deliveryDto: DeliveryDto?): ResponseModel {
-        if (deliveryDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
+        if (deliveryDto?.merchantId == null) return ResponseModel(httpStatus = ResponseModel.MERCHANT_ID_NULL)
         val checkMerchant = get(deliveryDto.merchantId)
         if (checkMerchant != null) update(deliveryDto = deliveryDto)
         return ResponseModel(
@@ -44,7 +42,7 @@ object DeliveryService {
                 dataClass = DeliveryTable::class,
                 dataObject = mapper.toDeliveryTable(deliveryDto), tableName = DELIVERY_TABLE_NAME
             ),
-            httpStatus = OK
+            httpStatus = ResponseModel.OK
         )
     }
 

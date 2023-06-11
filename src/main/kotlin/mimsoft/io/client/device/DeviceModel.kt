@@ -1,8 +1,9 @@
-package mimsoft.io.app.device
+package mimsoft.io.client.device
 
 import java.sql.Timestamp
 
-data class DeviceDto(
+
+data class DeviceModel(
     val id: Long? = null,
     val merchantId: Long? = null,
     val uuid: String? = null,
@@ -15,7 +16,7 @@ data class DeviceDto(
     var token: String? = null,
     val blockedUntil: Timestamp? = null,
     val code: String? = null,
-    val action: String? = null,
+    var action: String? = null,
     val expAction: Boolean? = null,
     val phone: String? = null
 )

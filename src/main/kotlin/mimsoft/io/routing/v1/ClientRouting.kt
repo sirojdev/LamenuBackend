@@ -8,8 +8,9 @@ import mimsoft.io.routing.v1.client.routeToClientAuth
 
 fun Route.clientRouting() {
 
-
-    routeToClientAuth()
+    route("client/auth"){
+        routeToClientAuth()
+    }
 
 
     route("client") {

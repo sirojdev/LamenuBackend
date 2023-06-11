@@ -381,24 +381,24 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun add(order: OrderWrapper?): ResponseModel {
-        if (order?.order == null) return ResponseModel(httpStatus = ORDER_NULL)
-        if (order.user?.id == null) return ResponseModel(httpStatus = USER_NULL)
+        if (order?.order == null) return ResponseModel(httpStatus = ResponseModel.ORDER_NULL)
+        if (order.user?.id == null) return ResponseModel(httpStatus = ResponseModel.USER_NULL)
 
-        val user = userRepo.get(order.user.id)?: return ResponseModel(httpStatus = USER_NOT_FOUND)
-        println("user: ${GSON.toJson(user)}")
+        val user = userRepo.get(order.user.id) ?: ResponseModel.USER_NOT_FOUND
         val address: AddressDto?
 
         if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
-            return ResponseModel(httpStatus = ADDRESS_NULL)
+            return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
         else {
-            address = addressService.get(order.address?.id)?: return ResponseModel(httpStatus = ADDRESS_NOT_FOUND)
+            address = addressService.get(order.address?.id)
+                ?: return ResponseModel(httpStatus = ResponseModel.ADDRESS_NOT_FOUND)
 
             if (address.latitude == null || address.longitude == null)
-                return ResponseModel(httpStatus = WRONG_ADDRESS_INFO)
+                return ResponseModel(httpStatus = ResponseModel.WRONG_ADDRESS_INFO)
         }
 
 
-        if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = PRODUCTS_NULL)
+        if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
         val activeProducts = getOrderProducts(order.products).body as OrderWrapper
 
@@ -444,7 +444,7 @@ object OrderRepositoryImpl : OrderRepository {
             repository.connection().use {
                 val statementOrder = it.prepareStatement(queryOrder).apply {
                     setLong(1, order.user.id)
-                    setString(2, user.phone)
+                    setString(2, order.user.phone)
                     setString(3, order.order.type)
                     setString(4, Gson().toJson(activeProducts.products))
                     setString(5, OrderStatus.OPEN.name)
@@ -456,8 +456,8 @@ object OrderRepositoryImpl : OrderRepository {
                     this.closeOnCompletion()
                 }.executeQuery()
 
-                val orderId = if(statementOrder.next()) statementOrder.getLong("id")
-                else return@withContext ResponseModel(httpStatus = SOME_THING_WRONG)
+                val orderId = if (statementOrder.next()) statementOrder.getLong("id")
+                else return@withContext ResponseModel(httpStatus = ResponseModel.SOME_THING_WRONG)
 
                 val statementPrice = it.prepareStatement(queryPrice).apply {
                     setLong(1, orderId)
@@ -467,7 +467,7 @@ object OrderRepositoryImpl : OrderRepository {
                 }.execute()
 
                 return@withContext ResponseModel(
-                    httpStatus = OK,
+                    httpStatus = ResponseModel.OK,
                     body = orderId
                 )
             }
@@ -480,20 +480,21 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun delete(id: Long?): ResponseModel {
-        val order = get(id).order?: return ResponseModel(httpStatus = ORDER_NOT_FOUND)
+        val order = get(id).order ?: return ResponseModel(httpStatus = ResponseModel.ORDER_NOT_FOUND)
         if (order.status != OrderStatus.OPEN.name)
             return ResponseModel(httpStatus = HttpStatusCode.Forbidden)
 
         return ResponseModel(
             body = repository.deleteData("orders", whereValue = id),
-            httpStatus = OK)
+            httpStatus = ResponseModel.OK
+        )
     }
 
     suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
 
         products?.forEach {
             if (it?.product?.id == null || it.count == null)
-                return ResponseModel(httpStatus = BAD_PRODUCT_ITEM)
+                return ResponseModel(httpStatus = ResponseModel.BAD_PRODUCT_ITEM)
         }
 
         val sortedProducts = products?.filterNotNull()?.sortedWith(compareBy { it.product?.id })
@@ -531,14 +532,15 @@ object OrderRepositoryImpl : OrderRepository {
 
                     sortedProducts?.forEach { cartItem ->
                         if (cartItem.product?.id == productTable.id) {
-                            totalPrice += productTable.costPrice?.times(cartItem.count?.toLong()?:0L) ?: 0L
+                            totalPrice += productTable.costPrice?.times(cartItem.count?.toLong() ?: 0L) ?: 0L
                             cartItem.product = productMapper.toProductDto(productTable)
                             readyProducts.add(cartItem)
                         }
                     }
                 }
                 readyProducts.ifEmpty {
-                    return@withContext ResponseModel(httpStatus = PRODUCT_NOT_FOUND) }
+                    return@withContext ResponseModel(httpStatus = ResponseModel.PRODUCT_NOT_FOUND)
+                }
             }
         }
 
@@ -549,7 +551,7 @@ object OrderRepositoryImpl : OrderRepository {
                     productPrice = totalPrice
                 )
             ),
-            httpStatus = OK
+            httpStatus = ResponseModel.OK
         )
 
     }

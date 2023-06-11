@@ -1,16 +1,16 @@
-package mimsoft.io.app.device
+package mimsoft.io.client.device
 
-import io.ktor.client.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.JwtConfig
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 
 object DeviceController {
     private val logger = LoggerFactory.getLogger(DeviceController::class.java)
 
-    suspend fun getCode(id: Long?, merchantId : Long?): DeviceDto? {
+    suspend fun getCode(id: Long?, merchantId: Long?): DeviceModel? {
         val query = "select code, action, exp_action from device where id = $id and merchant_id = $merchantId"
         return withContext(Dispatchers.IO) {
             DBManager.connection().use {
@@ -18,7 +18,7 @@ object DeviceController {
                     this.closeOnCompletion()
                 }.executeQuery()
                 if (rs.next()) {
-                    DeviceDto(
+                    DeviceModel(
                         code = rs.getString("code"),
                         action = rs.getString("action"),
                         expAction = rs.getBoolean("exp_action")
@@ -28,13 +28,13 @@ object DeviceController {
         }
     }
 
-    suspend fun updateCode(device: DeviceDto?): Long? {
+    suspend fun updateCode(device: DeviceModel?): Long? {
         val query = "update device set " +
                 "code = ${device?.code?.toLongOrNull()} " +
                 (if (device?.action != null) ", action = ? " else "") +
                 (if (device?.expAction != null) ", exp_action = ${device.expAction}" else "") +
                 (if (device?.phone != null) " , phone = ? " else "") +
-                "where id = ${device?.id} " +
+                "where id = ${device?.id} and merchant_id = ${device?.merchantId} " +
                 "returning (select code from device where id = ${device?.id})"
 
 
@@ -56,10 +56,11 @@ object DeviceController {
         }
     }
 
-    suspend fun auth(device: DeviceDto): DeviceDto {
+    suspend fun auth(device: DeviceModel): DeviceModel {
         val upsert =
             "with upsert as (\n" + "    " +
-                    "update device set\n" + "" +
+                    "update device set\n" +
+                    "        merchant_id = ${device.merchantId}, " +
                     "        os_version = ?,\n" +
                     "        model = ?,\n" +
                     "        brand = ?,\n" +
@@ -70,10 +71,10 @@ object DeviceController {
                     "        returning *\n" +
                     ")\n" +
                     "insert\n" +
-                    "into device (os_version, model, brand, build, created_at ,ip, uuid)\n" +
-                    "select ?, ?, ?, ?, ?, ? , ? \n" + "where not exists(select * from upsert)"
+                    "into device (merchant_id, os_version, model, brand, build, created_at ,ip, uuid)\n" +
+                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ? , ? \n" + "where not exists(select * from upsert)"
         return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use { connection ->
+            DBManager.connection().use { connection ->
                 var x = 0
                 connection.prepareStatement(upsert).apply {
                     this.setString(++x, device.osVersion)
@@ -94,25 +95,31 @@ object DeviceController {
                 }.execute()
 
 
-                return@withContext device.copy(token = JWTConfig.makeDeviceToken(device.uuid))
+                return@withContext device.copy(
+                    token = JwtConfig.generateDeviceToken(
+                        uuid = device.uuid,
+                        merchantId = device.merchantId
+                    )
+                )
 
             }
         }
 
     }
 
-    suspend fun getWithUUid(uuid: String?): DeviceDto? {
+    suspend fun getWithUUid(uuid: String?): DeviceModel? {
         val query = "select * from device where uuid = ? order by id"
         return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
+            DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.setString(1, uuid)
                     this.closeOnCompletion()
                 }.executeQuery()
 
                 if (rs.next()) {
-                    DeviceDto(
+                    DeviceModel(
                         id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
                         uuid = rs.getString("uuid"),
                         osVersion = rs.getString("os_version"),
                         model = rs.getString("model"),
@@ -131,17 +138,18 @@ object DeviceController {
 
     }
 
-    suspend fun get(id: Long?): DeviceDto? {
+    suspend fun get(id: Long?): DeviceModel? {
         val query = "select * from device where id = $id"
         return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
+            DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeQuery()
 
                 if (rs.next()) {
-                    DeviceDto(
+                    DeviceModel(
                         id = rs.getLong("id"),
+                        merchantId  = rs.getLong("merchantId"),
                         uuid = rs.getString("uuid"),
                         osVersion = rs.getString("os_version"),
                         model = rs.getString("model"),
@@ -171,7 +179,7 @@ object DeviceController {
                 "    select device_id from session where session_uuid = ?\n and not is_expired " +
                 "    ) "
         withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
+            DBManager.connection().use {
                 it.prepareStatement(query).apply {
                     this.setString(1, token)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
@@ -183,102 +191,5 @@ object DeviceController {
         return true
     }
 
-
-    suspend fun getFirebaseTokens(user: UserModel?): String? {
-        val query = "select string_agg( distinct fb_token, ',') tokens \n" +
-                "from device,\n" +
-                "     session\n" +
-                "where session.device_id = device.id\n" +
-                "  and not session.is_expired\n" +
-                "  and session.user_id = ${user?.id}"
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
-
-                return@withContext if (rs.next()) {
-                    rs.getString("tokens")
-                } else null
-            }
-        }
-    }
-
-    suspend fun getFirebaseTokensWithManagers(user: UserModel?): String? {
-        val query = "select string_agg(fb_token, ',') tokens  from (\n" +
-                "select fb_token from managers m, \n" +
-                "           session s left join device d on d.id = s.device_id and not s.is_expired\n" +
-                "           where s.user_id = m.manager_id and  m.company_id = ${user?.id} and not s.is_expired and \n" +
-                "           m.company_id = ${user?.id} and length(fb_token) > 10\n" +
-                "\t\t union all\n" +
-                "select fb_token from device,\n" +
-                "                     session\n" +
-                "               where session.device_id = device.id\n" +
-                "                  and not session.is_expired\n" +
-                "                  and session.user_id = ${user?.id}\n" +
-                "\t\t\t\t  and length(fb_token) > 10 ) as A"
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
-
-                return@withContext if (rs.next()) {
-                    rs.getString("tokens")
-                } else null
-            }
-        }
-    }
-
-
-    suspend fun getFirebaseTokens(users: List<UserModel?>? = null): String? {
-
-        if (users.isNullOrEmpty())
-            return ""
-
-        val ids = users.map { it?.id }.joinToString { "$it" }
-        val query = "select string_agg( distinct fb_token, ',') tokens\n" +
-                "from device,\n" +
-                "     session\n" +
-                "where session.device_id = device.id\n" +
-                "  and not session.is_expired\n" +
-                "  and session.device_id  in ($ids)"
-
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
-                return@withContext if (rs.next()) {
-                    rs.getString("tokens")
-                } else null
-            }
-        }
-    }
-
-
-    suspend fun getManagersToken(company: UserModel?): String {
-        if (company == null)
-            return ""
-
-        val query = "select string_agg (distinct fb_token, ',') tokens\n" +
-                "   from managers m, \n" +
-                "       session s left join device d on d.id = s.device_id and not s.is_expired \n" +
-                "       where s.user_id = m.manager_id and  m.company_id = ${company.id} and not s.is_expired and\n" +
-                "       m.company_id = ${company.id} and length(fb_token) > 0"
-
-
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.getDataSource().connection.use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
-                return@withContext if (rs.next()) {
-                    rs.getString("tokens")
-                } else ""
-            }
-        }
-
-    }
 }
 

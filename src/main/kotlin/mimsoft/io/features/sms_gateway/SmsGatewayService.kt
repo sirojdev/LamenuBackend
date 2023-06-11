@@ -8,7 +8,6 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.services.sms.SmsProvider
 import mimsoft.io.services.sms.providers.eskiz.EskizProvider
 import mimsoft.io.services.sms.providers.playMobail.PlayMobileProvider
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
@@ -62,7 +61,7 @@ object SmsGatewayService {
         return if (checkMerchant != null)
             ResponseModel(
                 body = update(smsGatewayDto = smsGatewayDto),
-                httpStatus = OK
+                httpStatus = ResponseModel.OK
             )
         else {
             ResponseModel(
@@ -71,7 +70,7 @@ object SmsGatewayService {
                     dataObject = mapper.toSmsGatewaysTable(smsGatewayDto),
                     tableName = SMS_GATEWAY_TABLE
                 ) != null),
-                OK
+                ResponseModel.OK
             )
         }
     }

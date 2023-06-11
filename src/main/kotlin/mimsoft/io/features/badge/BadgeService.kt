@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.sms_gateway.SmsGatewayService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
@@ -69,7 +68,7 @@ object BadgeService {
                 dataObject = mapper.toTable(badge),
                 tableName = BADGE_TABLE_NAME
             ) != null),
-            OK
+            ResponseModel.OK
         )
     }
 
@@ -102,7 +101,6 @@ object BadgeService {
 
     suspend fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $BADGE_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId"
-        println("\n$query")
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {

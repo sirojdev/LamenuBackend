@@ -8,7 +8,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.OK
+import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToStaffAuth(){
 
@@ -19,7 +19,7 @@ fun Route.routeToStaffAuth(){
         val staff = call.receive<StaffDto>()
         val status = staffService.auth(staff)
 
-        if (status.httpStatus != OK)
+        if (status.httpStatus != ResponseModel.OK)
             call.respond(status.httpStatus, status)
         else {
             val authStaff = status.body as StaffDto?

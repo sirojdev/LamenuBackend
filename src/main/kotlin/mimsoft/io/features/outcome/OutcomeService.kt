@@ -7,9 +7,6 @@ import mimsoft.io.features.outcome_type.OutcomeTypeService
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ALREADY_EXISTS
-import mimsoft.io.utils.MERCHANT_ID_NULL
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
@@ -45,16 +42,16 @@ object OutcomeService {
     }
 
     suspend fun add(outcomeDto: OutcomeDto?): ResponseModel {
-        if (outcomeDto?.merchantId == null) return ResponseModel(httpStatus = MERCHANT_ID_NULL)
+        if (outcomeDto?.merchantId == null) return ResponseModel(httpStatus = ResponseModel.MERCHANT_ID_NULL)
         val checkMerchant = merchant.get(outcomeDto.merchantId)
-        if (checkMerchant == null) return ResponseModel(httpStatus = ALREADY_EXISTS)
+            ?: return ResponseModel(httpStatus = ResponseModel.ALREADY_EXISTS)
         return ResponseModel(
             body = repository.postData(
                 dataClass = OutcomeTable::class,
                 dataObject = mapper.toOutcomeTable(outcomeDto),
                 tableName = OUTCOME_TABLE_NAME
             ),
-            httpStatus = OK
+            httpStatus = ResponseModel.OK
         )
     }
 

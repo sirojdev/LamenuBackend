@@ -45,7 +45,7 @@ object AppService {
         return if (checkMerchant != null)
             ResponseModel(
                 body = update(appDto = appDto),
-                httpStatus = OK
+                httpStatus = ResponseModel.OK
             )
         else {
             ResponseModel(
@@ -54,7 +54,7 @@ object AppService {
                     dataObject = mapper.toAppTable(appDto),
                     tableName = APP_TABLE_NAME
                 ) != null),
-                OK
+                ResponseModel.OK
             )
         }
     }

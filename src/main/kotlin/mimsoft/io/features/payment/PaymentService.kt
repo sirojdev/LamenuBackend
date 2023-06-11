@@ -3,15 +3,8 @@ package mimsoft.io.features.payment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
-import mimsoft.io.features.sms_gateway.SmsGatewayDto
-import mimsoft.io.features.sms_gateway.SmsGatewayService
-import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.ALREADY_EXISTS
-import mimsoft.io.utils.MERCHANT_ID_NULL
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
@@ -47,7 +40,7 @@ object PaymentService {
         return if (checkMerchant != null)
             ResponseModel(
                 body = update(paymentDto = paymentDto),
-                httpStatus = OK
+                httpStatus = ResponseModel.OK
             )
         else {
             ResponseModel(
@@ -56,7 +49,7 @@ object PaymentService {
                     dataObject = mapper.toPaymentTable(paymentDto),
                     tableName = PAYMENT_TABLE_NAME
                 ) != null),
-                OK
+                ResponseModel.OK
             )
         }
     }

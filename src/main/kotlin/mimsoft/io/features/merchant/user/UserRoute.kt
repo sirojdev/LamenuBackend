@@ -11,7 +11,7 @@ import mimsoft.io.client.user.UserMapper
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
-import mimsoft.io.utils.OK
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToUserUser() {
@@ -53,7 +53,7 @@ fun Route.routeToUserUser() {
 
             val statusTimestamp = timestampValidator(user.birthDay)
 
-            if (statusTimestamp.httpStatus != OK){
+            if (statusTimestamp.httpStatus != ResponseModel.OK){
                 call.respond(statusTimestamp)
                 return@post
             }
@@ -73,7 +73,7 @@ fun Route.routeToUserUser() {
         val user = call.receive<UserDto>()
         val statusTimestamp = timestampValidator(user.birthDay)
 
-        if (statusTimestamp.httpStatus != OK){
+        if (statusTimestamp.httpStatus != ResponseModel.OK){
             call.respond(statusTimestamp)
             return@put
         }

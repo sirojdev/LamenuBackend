@@ -43,7 +43,7 @@ fun Route.routeToStaff() {
             val merchantId = pr?.merchantId
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
-            if (statusTimestamp.httpStatus != OK) {
+            if (statusTimestamp.httpStatus != ResponseModel.OK) {
                 call.respond(statusTimestamp)
                 return@post
             }
@@ -56,7 +56,7 @@ fun Route.routeToStaff() {
             val merchantId = pr?.merchantId
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
-            if (statusTimestamp.httpStatus != OK) {
+            if (statusTimestamp.httpStatus != ResponseModel.OK) {
                 call.respond(statusTimestamp)
                 return@put
             }

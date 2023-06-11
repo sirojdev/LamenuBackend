@@ -1,7 +1,5 @@
 package mimsoft.io.config
 
-import mimsoft.io.utils.INVALID_TIMESTAMP
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
@@ -15,12 +13,12 @@ fun timestampValidator(time: String?, format: String? = "yyyy-MM-dd"): ResponseM
         dateFormat?.parse(time)?.let { Timestamp(it.time) }
     }catch (e: Exception) {
         e.printStackTrace()
-        return ResponseModel(httpStatus = INVALID_TIMESTAMP)
+        return ResponseModel(httpStatus = ResponseModel.INVALID_TIMESTAMP)
     }
 
     return ResponseModel(
         body = validated,
-        httpStatus = OK
+        httpStatus = ResponseModel.OK
     )
 }
 

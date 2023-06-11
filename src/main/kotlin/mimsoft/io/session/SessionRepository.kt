@@ -138,5 +138,31 @@ object SessionRepository {
         }
     }
 
+    suspend fun getUserSession(sessionUuid: String): SessionTable? {
+        val query = "select * from session where " +
+                "session_uuid = ? and user_id is not null"
+
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, sessionUuid)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                if (rs.next()) SessionTable(
+                    id = rs.getLong("id"),
+                    uuid = rs.getString("uuid"),
+                    sessionUuid = rs.getString("session_uuid"),
+                    userId = rs.getLong("user_id"),
+                    deviceId = rs.getLong("device_id"),
+                    phone = rs.getString("phone"),
+                    isExpired = rs.getBoolean("is_expired")
+                )
+                else null
+            }
+        }
+
+    }
+
     fun generateUuid() = UUID.randomUUID().toString() + "+" + System.currentTimeMillis()
 }

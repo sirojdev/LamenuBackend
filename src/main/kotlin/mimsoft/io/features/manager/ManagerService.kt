@@ -29,12 +29,12 @@ object ManagerService {
 
     suspend fun add(managerDto: ManagerDto?): ResponseModel {
         when {
-            managerDto?.phone == null -> return ResponseModel(httpStatus = PHONE_NULL)
-            managerDto.password == null -> return ResponseModel(httpStatus = PASSWORD_NULL)
+            managerDto?.phone == null -> return ResponseModel(httpStatus = ResponseModel.PHONE_NULL)
+            managerDto.password == null -> return ResponseModel(httpStatus = ResponseModel.PASSWORD_NULL)
         }
 
         val oldManager = get(phone = managerDto?.phone)
-        if (oldManager != null) return ResponseModel(httpStatus = ALREADY_EXISTS)
+        if (oldManager != null) return ResponseModel(httpStatus = ResponseModel.ALREADY_EXISTS)
 
         return ResponseModel (
             body = repository.postData(
@@ -44,7 +44,7 @@ object ManagerService {
         )
     }
     suspend fun update(managerDto: ManagerDto?): ResponseModel {
-        if (managerDto?.id == null) return ResponseModel(httpStatus = ID_NULL)
+        if (managerDto?.id == null) return ResponseModel(httpStatus = ResponseModel.ID_NULL)
 
         val query = "update manager set first_name = ?, last_name = ? where not deleted and id = ?"
 
@@ -58,7 +58,7 @@ object ManagerService {
                 }
             }
         }
-        return ResponseModel(httpStatus = OK)
+        return ResponseModel(httpStatus = ResponseModel.OK)
     }
 
     suspend fun delete(id: Long?): Boolean =
