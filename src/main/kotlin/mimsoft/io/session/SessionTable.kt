@@ -7,7 +7,6 @@ data class SessionTable(
     val id: Long? = null,
     val phone: String? = null,
     val uuid: String? = null,
-    val sessionUuid : String? = null,
     val deviceId: Long? = null,
     val userId: Long? = null,
     val stuffId: Long? = null,

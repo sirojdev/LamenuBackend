@@ -23,7 +23,6 @@ object Mapper {
         val tableParameters = tableConstructor.parameters.associateBy { it.name }
         val tableValues = tableParameters.mapValues { (name, parameter) ->
             val propertyName = name?.replace("Uz", "")?.replace("Ru", "")?.replace("En", "")
-            println("\nmapper propertyName-->$propertyName")
             dtoClass.memberProperties.find { it.name == propertyName }?.get(dto)?.let {
                 when (it) {
 

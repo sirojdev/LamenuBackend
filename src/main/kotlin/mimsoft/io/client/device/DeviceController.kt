@@ -109,6 +109,7 @@ object DeviceController {
 
     suspend fun getWithUUid(uuid: String?): DeviceModel? {
         val query = "select * from device where uuid = ? order by id"
+        println(query)
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
@@ -120,6 +121,7 @@ object DeviceController {
                     DeviceModel(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
+                        action = rs.getString("action"),
                         uuid = rs.getString("uuid"),
                         osVersion = rs.getString("os_version"),
                         model = rs.getString("model"),
@@ -149,7 +151,7 @@ object DeviceController {
                 if (rs.next()) {
                     DeviceModel(
                         id = rs.getLong("id"),
-                        merchantId  = rs.getLong("merchantId"),
+                        merchantId = rs.getLong("merchantId"),
                         uuid = rs.getString("uuid"),
                         osVersion = rs.getString("os_version"),
                         model = rs.getString("model"),

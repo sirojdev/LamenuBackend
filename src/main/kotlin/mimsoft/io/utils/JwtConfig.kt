@@ -116,7 +116,7 @@ object JwtConfig {
         .sign(algorithmUser)
 
     fun  generateModifyToken(sessionUuid: String? ): String? = JWT.create()
-        .withSubject("modify-user")
+        .withSubject("modify")
         .withIssuer(issuer)
         .withClaim("uuid", sessionUuid)
         .withExpiresAt(getExpiration(validityLogin))

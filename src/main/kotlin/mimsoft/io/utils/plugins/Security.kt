@@ -75,22 +75,22 @@ fun Application.configureSecurity() {
                 }
             }
         }
-        jwt("modify-user") {
-            verifier(JwtConfig.verifierUser)
+
+        jwt("modify") {
+            verifier(JwtConfig.verifierLogin)
             realm = JwtConfig.issuer
             validate {
                 with(it.payload) {
-                    val session = SessionRepository.getUserSession(sessionUuid = getClaim("uuid").asString())
-                    if (session != null && session.isExpired != true) {
-                        SessionPrincipal(
-                            id = session.id,
-                            sessionUUID = session.sessionUuid,
-                            userId = session.userId,
-                            hash = getClaim("hash").asLong(),
-                            phone = session.phone,
-                            merchantId = session.merchantId
+                    val device = DeviceController.getWithUUid(uuid = getClaim("uuid").asString())
+                    if (device != null) {
+                        DevicePrincipal(
+                            id = device.id,
+                            uuid = device.uuid,
+                            phone = device.phone,
+                            merchantId = device.merchantId
                         )
                     } else null
+
                 }
             }
         }

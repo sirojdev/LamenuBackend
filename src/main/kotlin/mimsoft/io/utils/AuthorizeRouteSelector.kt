@@ -23,7 +23,6 @@ fun Route.authorize(vararg roles: Role, build: Route.() -> Unit): Route {
     authorizedRoute.intercept(ApplicationCallPipeline.Plugins) {
         val principal = this.context.authentication.principal<LaPrincipal>()
 
-        println("\nauthorize principal")
 
         if (principal == null || checkOverlap(principal.roles, roles.toList()) == true) {
             call.respond(HttpStatusCode.Forbidden, "you don't have access")

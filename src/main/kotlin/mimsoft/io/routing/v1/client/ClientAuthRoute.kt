@@ -40,7 +40,7 @@ fun Route.routeToClientAuth() {
             DeviceController.updateCode(
                 DeviceModel(
                     id = pr?.id,
-                    action = "login",
+                    action = "verify",
                     merchantId = merchantId,
                     code = gn.code.toString(),
                     phone = phone
@@ -83,7 +83,8 @@ fun Route.routeToClientAuth() {
                         id = principal?.id,
                         code = null,
                         phone = null,
-                        merchantId = principal?.merchantId
+                        merchantId = principal?.merchantId,
+                        action = "login"
                     )
                 )
                 if (oldCode != device.code?.toLongOrNull()) {
@@ -95,8 +96,7 @@ fun Route.routeToClientAuth() {
                         val sessionUuid = generateSessionUUID(uuid = principal?.uuid, id = principal?.id)
                         sessionRepository.auth(
                             SessionTable(
-                                uuid = principal?.uuid,
-                                sessionUuid = sessionUuid,
+                                uuid = sessionUuid,
                                 userId = user.id,
                                 deviceId = principal?.id
                             )
@@ -119,12 +119,12 @@ fun Route.routeToClientAuth() {
         }
     }
 
-    authenticate("modify-user") {
+    authenticate("modify") {
 
         post("sign-up") {
             val pr = call.principal<DevicePrincipal>()
             val user = call.receive<UserDto>()
-            val result = userRepository.add(user.copy(phone = pr?.phone))
+            val result = userRepository.add(user.copy(phone = pr?.phone, merchantId = pr?.merchantId))
             if (result.isOk()) {
                 DeviceController.updateCode(
                     DeviceModel(
@@ -132,7 +132,8 @@ fun Route.routeToClientAuth() {
                         merchantId = pr?.merchantId,
                         action = "",
                         code = null,
-                        phone = ""
+                        phone = "",
+                        expAction = true
                     )
                 )
                 val sessionUuid = generateSessionUUID(
@@ -142,8 +143,7 @@ fun Route.routeToClientAuth() {
 
                 SessionRepository.auth(
                     SessionTable(
-                        uuid = pr?.uuid,
-                        sessionUuid = sessionUuid,
+                        uuid = sessionUuid,
                         merchantId = pr?.merchantId,
                         userId = result.body.toString().toLongOrNull()
                     )
@@ -163,6 +163,7 @@ fun Route.routeToClientAuth() {
             }
         }
     }
+
 
 }
 

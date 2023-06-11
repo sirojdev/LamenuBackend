@@ -218,9 +218,7 @@ object DBManager: BaseRepository {
                         val columnName = parameter.name?.let { camelToSnakeCase(it) }
                         resultSet.getObject(columnName)
                     }
-                    println("\nparameters-->${parameters.forEach { (t, u) ->  println("${t.name} $u") }}")
                     val instance = constructor.callBy(parameters)
-                    println("\ninstance-->${instance}")
                     resultList.add(instance)
                 }
             }
@@ -326,7 +324,6 @@ object DBManager: BaseRepository {
 
     override suspend fun deleteData(tableName: String, where: String, whereValue: Any?): Boolean {
         val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
-        println("\nDELETE DATA --> $delete")
 
         return withContext(Dispatchers.IO) {
             connection().use { connection ->

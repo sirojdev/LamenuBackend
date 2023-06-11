@@ -140,7 +140,8 @@ object SessionRepository {
 
     suspend fun getUserSession(sessionUuid: String): SessionTable? {
         val query = "select * from session where " +
-                "session_uuid = ? and user_id is not null"
+                "uuid = ? and user_id is not null"
+
 
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
@@ -152,7 +153,6 @@ object SessionRepository {
                 if (rs.next()) SessionTable(
                     id = rs.getLong("id"),
                     uuid = rs.getString("uuid"),
-                    sessionUuid = rs.getString("session_uuid"),
                     userId = rs.getLong("user_id"),
                     deviceId = rs.getLong("device_id"),
                     phone = rs.getString("phone"),
