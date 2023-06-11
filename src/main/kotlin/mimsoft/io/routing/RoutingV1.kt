@@ -2,7 +2,6 @@ package mimsoft.io.routing
 
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.routeToUser
-import mimsoft.io.features.menu.routeToClient
 import mimsoft.io.routing.staff.routeToStaffApis
 import mimsoft.io.files.routeToFiles
 import mimsoft.io.routing.v1.routeToAdmin

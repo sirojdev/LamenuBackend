@@ -6,9 +6,6 @@ import mimsoft.io.features.branch.BRANCH_TABLE_NAME
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.branch.BranchMapper
 import mimsoft.io.features.branch.BranchTable
-import mimsoft.io.features.category.CATEGORY_TABLE_NAME
-import mimsoft.io.features.category.CategoryTable
-import mimsoft.io.features.category.repository.CategoryRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager

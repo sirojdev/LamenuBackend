@@ -37,7 +37,7 @@ object StaffService {
                 dataClass = StaffTable::class,
                 tableName = STAFF_TABLE_NAME,
                 where = mapOf(
-                    "username" to staff?.phone as Any,
+                    "phone" to staff?.phone as Any,
                     "password" to staff.password as Any
                 )
             )?.data?.firstOrNull(),

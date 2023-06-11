@@ -28,14 +28,20 @@ import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.telephony.routeToTelephony
 import mimsoft.io.features.sms.routeToSms
 import mimsoft.io.features.telegram_bot.routeToBot
+import mimsoft.io.routing.merchant.routeToMerchantInfo
+import mimsoft.io.routing.merchant.routeToMerchantProfile
 
 
 fun Route.routeToMerchant() {
 
     route("merchant") {
         merchantAuthRoute()
+        routeToMerchantInfo()
 
         authenticate("merchant") {
+
+            routeToMerchantProfile()
+
 
             route("settings") {
                 routeToStaff()

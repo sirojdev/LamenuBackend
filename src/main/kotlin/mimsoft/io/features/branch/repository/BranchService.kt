@@ -1,8 +1,6 @@
 package mimsoft.io.features.branch.repository
 
 import mimsoft.io.features.branch.BranchDto
-import mimsoft.io.features.branch.BranchId
-import mimsoft.io.features.branch.BranchTable
 
 interface BranchService {
     suspend fun getAll(merchantId: Long?): List<BranchDto?>
