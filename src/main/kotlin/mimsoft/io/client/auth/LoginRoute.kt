@@ -1,4 +1,4 @@
-package mimsoft.io.auth
+package mimsoft.io.client.auth
 
 import io.ktor.server.routing.*
 

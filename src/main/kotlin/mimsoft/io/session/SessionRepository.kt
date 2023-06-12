@@ -23,7 +23,8 @@ object SessionRepository {
                     returning *)
             insert
             into session (created, uuid, device_id, user_id, stuff_id, merchant_id)
-            select ?, ?, ${session.deleted}, ${session.userId}, ${session.stuffId}, ${session.merchantId}
+            select ?, ?, ${session.deviceId}, ${session.userId}, ${session.stuffId},
+             ${session.merchantId}
             where not exists (select * from upsert) returning *
         """.trimIndent()
 

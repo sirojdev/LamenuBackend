@@ -1,5 +1,6 @@
 package mimsoft.io.routing.v1.client
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -19,6 +20,7 @@ import mimsoft.io.services.sms.SmsSenderService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
+import mimsoft.io.utils.plugins.GSON
 import java.util.*
 
 fun Route.routeToClientAuth() {
@@ -98,7 +100,8 @@ fun Route.routeToClientAuth() {
                             SessionTable(
                                 uuid = sessionUuid,
                                 userId = user.id,
-                                deviceId = principal?.id
+                                deviceId = principal?.id,
+                                merchantId = principal?.merchantId
                             )
                         )
                         device.token = JwtConfig.generateUserToken(
@@ -123,6 +126,8 @@ fun Route.routeToClientAuth() {
 
         post("sign-up") {
             val pr = call.principal<DevicePrincipal>()
+            println("modify")
+            println(Gson().toJson(pr))
             val user = call.receive<UserDto>()
             val result = userRepository.add(user.copy(phone = pr?.phone, merchantId = pr?.merchantId))
             if (result.isOk()) {
@@ -145,6 +150,7 @@ fun Route.routeToClientAuth() {
                     SessionTable(
                         uuid = sessionUuid,
                         merchantId = pr?.merchantId,
+                        deviceId = pr?.id,
                         userId = result.body.toString().toLongOrNull()
                     )
                 )

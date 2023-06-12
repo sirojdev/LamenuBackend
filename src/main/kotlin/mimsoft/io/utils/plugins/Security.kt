@@ -8,6 +8,7 @@ import io.ktor.server.application.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
+import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.session.SessionPrincipal
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
@@ -131,6 +132,23 @@ fun Application.configureSecurity() {
                 } else {
                     null
                 }
+            }
+        }
+        jwt("user") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierUser)
+            validate { credential ->
+                val session = SessionRepository.getUserSession(
+                    sessionUuid = credential.payload.getClaim("uuid").asString()
+                )
+
+                if (session != null && session.isExpired != true) {
+                    UserPrincipal(
+                        id = session.userId,
+                        uuid = session.uuid,
+                        merchantId = credential.payload.getClaim("merchantId").asLong()
+                    )
+                } else null
             }
         }
 
