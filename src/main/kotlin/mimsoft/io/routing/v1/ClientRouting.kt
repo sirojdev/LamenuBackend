@@ -9,6 +9,7 @@ import mimsoft.io.routing.v1.client.routeToClientAuth
 import mimsoft.io.client.menu.routeToMenu
 import mimsoft.io.client.table.routeToClientTable
 import mimsoft.io.features.book.routeToBook
+import mimsoft.io.routing.v1.client.routeToClientDevice
 import mimsoft.io.routing.v1.client.routeToClientProfile
 
 fun Route.clientRouting() {
@@ -18,6 +19,7 @@ fun Route.clientRouting() {
     }
     authenticate("user") {
         route("client") {
+            routeToClientDevice()
             routeToClientProfile()
             routeToMenu()
             routeToClientTable()
