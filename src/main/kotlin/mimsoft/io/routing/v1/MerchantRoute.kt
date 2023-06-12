@@ -11,6 +11,7 @@ import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
+import mimsoft.io.features.kitchen.routeToKitchen
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
@@ -44,7 +45,8 @@ fun Route.routeToMerchant() {
         authenticate("merchant") {
 
             routeToMerchantProfile()
-
+            routeToMerchantOrder()
+            routeToKitchen()
 
             route("settings") {
                 routeToStaff()
@@ -70,8 +72,6 @@ fun Route.routeToMerchant() {
                 routeToBadge()
                 routeToCourier()
             }
-
-            routeToMerchantOrder()
         }
 
 

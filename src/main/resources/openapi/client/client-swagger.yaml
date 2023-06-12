@@ -4,7 +4,7 @@ info:
   description: "Lamenu documentation Clint allows to you view the schema of Client Lamenu project"
   version: "1.0.0"
 servers:
-  - url: 'http://0.0.0.0:9000/v1/'
+  - url: 'http://127.0.0.1:9000/v1/'
     description: 'Local server'
   - url: 'http://188.166.167.80:9000/v1/'
     description: "Host server"
@@ -17,6 +17,10 @@ tags:
 
   - name: Menus
     description: Endpoints related to menu
+
+  - name: Profile
+    description: Endpoints related to profile
+
 paths:
 
   /client/menus:
@@ -36,9 +40,76 @@ paths:
         "204":
           description: "No Content"
 
+
+  /client/profile:
+    get:
+      tags:
+        - Profile
+      description: "Returns profile by its ID"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    put:
+      tags:
+        - Profile
+      description: "Update client profile"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated profile's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /client/profile/firebase:
+    put:
+      tags:
+        - Profile
+      description: "Update client profile firebase"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated profile's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceModel"
+      responses:
+        "200":
+          description: "OK"
+
+
+
+
+
+
+
+
+
+
+
+
 #//==================================================================================================SCHEMAS
 components:
   schemas:
+
+
     MenuDto:
       type: "object"
       properties:
@@ -47,6 +118,94 @@ components:
           format: "long"
         name:
           $ref: "#/components/schemas/TextModel"
+
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        badge:
+          $ref: '#/components/schemas/BadgeDto'
+        phone:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+        token:
+          type: "string"
+
+    BadgeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: '#/components/schemas/TextModel'
+        textColor:
+          type: "string"
+        bgColor:
+          type: string
+        icon:
+          type: string
+
+    TextModel:
+      type: "object"
+      properties:
+        uz:
+          type: "string"
+        ru:
+          type: "string"
+        eng:
+          type: "string"
+
+    DeviceModel:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        uuid:
+          type: "string"
+        osVersion:
+          type: "string"
+        model:
+          type: "string"
+        brand:
+          type: "string"
+        build:
+          type: "string"
+        firebaseToken:
+          type: "string"
+        ip:
+          type: "string"
+        token:
+          type: "string"
+        blockedUntil:
+          type: "string"
+          format: "date-time"
+        code:
+          type: "string"
+        action:
+          type: "string"
+        expAction:
+          type: "boolean"
+        phone:
+          type: "string"
+
+
 
   securitySchemes:
     bearerAuth:
