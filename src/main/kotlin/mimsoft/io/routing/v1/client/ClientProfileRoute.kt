@@ -49,5 +49,11 @@ fun Route.routeToClientProfile() {
             SessionRepository.expire(pr?.uuid)
             call.respond(HttpStatusCode.OK)
         }
+
+        delete{
+            val pr = call.principal<UserPrincipal>()
+            userRepository.delete(id = pr?.id, merchantId = pr?.merchantId)
+            call.respond(HttpStatusCode.OK)
+        }
     }
 }
