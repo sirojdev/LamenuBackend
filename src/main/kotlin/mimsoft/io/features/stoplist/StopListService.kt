@@ -2,23 +2,11 @@ package mimsoft.io.features.stoplist
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.config.TIMESTAMP_FORMAT
-import mimsoft.io.config.toTimeStamp
-import mimsoft.io.entities.table.TABLE_TABLE_NAME
-import mimsoft.io.entities.table.TableTable
-import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
-import mimsoft.io.features.room.ROOM_TABLE_NAME
-import mimsoft.io.features.room.RoomDto
-import mimsoft.io.features.sms_gateway.*
-import mimsoft.io.features.staff.StaffService
-import mimsoft.io.features.staff.StaffTable
+import mimsoft.io.features.sms_gateway.SmsGatewayService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.*
-import mimsoft.io.utils.plugins.GSON
-import mimsoft.io.utils.plugins.LOGGER
+import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
-import java.util.UUID
 
 object StopListService {
     val mapper = StopListMapper
