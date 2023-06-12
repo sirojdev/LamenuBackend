@@ -12,11 +12,13 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.session.SessionRepository
+import mimsoft.io.session.SessionTable
+import mimsoft.io.utils.OK
 
 fun Route.routeToClientProfile() {
 
     val userRepository: UserRepository = UserRepositoryImpl
-
     route("profile") {
 
         get {
@@ -39,6 +41,18 @@ fun Route.routeToClientProfile() {
                 sessionUUID = pr?.uuid,
                 token = device.firebaseToken
             )
+            call.respond(HttpStatusCode.OK)
+        }
+
+        post("logout") {
+            val pr = call.principal<UserPrincipal>()
+            SessionRepository.expire(pr?.uuid)
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete{
+            val pr = call.principal<UserPrincipal>()
+            userRepository.delete(id = pr?.id, merchantId = pr?.merchantId)
             call.respond(HttpStatusCode.OK)
         }
     }
