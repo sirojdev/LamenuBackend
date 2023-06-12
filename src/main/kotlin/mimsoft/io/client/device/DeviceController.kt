@@ -178,7 +178,7 @@ object DeviceController {
                 "    set fb_token = ?,\n" +
                 "    updated_at = ? \n" +
                 "where id in (\n" +
-                "    select device_id from session where session_uuid = ?\n and not is_expired " +
+                "    select device_id from session where uuid = ?\n and not is_expired " +
                 "    ) "
         withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
