@@ -19,6 +19,7 @@ object CategoryRepositoryImpl : CategoryRepository {
     val mapper = CategoryMapper
 
     override suspend fun getAll(merchantId: Long?): List<CategoryDto?> {
+        println(merchantId)
         val data = repository.getPageData(
             dataClass = CategoryTable::class,
             where = mapOf("merchant_id" to merchantId as Any),

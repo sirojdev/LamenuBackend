@@ -17,37 +17,29 @@ fun Route.routeToClientProfile() {
 
     val userRepository: UserRepository = UserRepositoryImpl
 
-    authenticate("user") {
-        route("profile") {
+    route("profile") {
 
-            get {
-                val pr = call.principal<UserPrincipal>()
-                val user = userRepository.get(id = pr?.id, merchantId = pr?.merchantId)
-                call.respond(user ?: HttpStatusCode.NoContent)
-            }
-
-            put {
-                val pr = call.principal<UserPrincipal>()
-                val user = call.receive<UserDto>()
-                userRepository.update(user.copy(id = pr?.id, merchantId = pr?.merchantId))
-                call.respond(HttpStatusCode.OK)
-            }
-
-            put("firebase") {
-                val pr = call.principal<UserPrincipal>()
-                val device = call.receive<DeviceModel>()
-                DeviceController.editFirebase(
-                    sessionUUID = pr?.uuid,
-                    token = device.firebaseToken
-                )
-                call.respond(HttpStatusCode.OK)
-            }
-
+        get {
+            val pr = call.principal<UserPrincipal>()
+            val user = userRepository.get(id = pr?.id, merchantId = pr?.merchantId)
+            call.respond(user ?: HttpStatusCode.NoContent)
         }
 
+        put {
+            val pr = call.principal<UserPrincipal>()
+            val user = call.receive<UserDto>()
+            userRepository.update(user.copy(id = pr?.id, merchantId = pr?.merchantId))
+            call.respond(HttpStatusCode.OK)
+        }
 
-
+        put("firebase") {
+            val pr = call.principal<UserPrincipal>()
+            val device = call.receive<DeviceModel>()
+            DeviceController.editFirebase(
+                sessionUUID = pr?.uuid,
+                token = device.firebaseToken
+            )
+            call.respond(HttpStatusCode.OK)
+        }
     }
-
-
 }

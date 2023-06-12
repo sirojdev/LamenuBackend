@@ -28,6 +28,9 @@ paths:
       tags:
         - Menus
       description: "Returns a list of all menus"
+      security:
+        - bearerAuth: [ ] .
+
       responses:
         "200":
           description: "OK"

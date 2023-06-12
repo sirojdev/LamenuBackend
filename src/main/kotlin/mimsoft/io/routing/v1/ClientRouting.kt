@@ -1,5 +1,6 @@
 package mimsoft.io.routing.v1
 
+import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.branch.routeToClientBranches
 import mimsoft.io.client.order.routeToOrderClient
@@ -12,18 +13,18 @@ import mimsoft.io.routing.v1.client.routeToClientProfile
 
 fun Route.clientRouting() {
 
-    route("client/auth"){
+    route("client/auth") {
         routeToClientAuth()
     }
-
-
-    route("client") {
-        routeToClientProfile()
-        routeToMenu()
-        routeToClientTable()
-        routeToClientBranches()
-        routeToAddress()
-        routeToOrderClient()
-        routeToBook()
+    authenticate("user") {
+        route("client") {
+            routeToClientProfile()
+            routeToMenu()
+            routeToClientTable()
+            routeToClientBranches()
+            routeToAddress()
+            routeToOrderClient()
+            routeToBook()
+        }
     }
 }
