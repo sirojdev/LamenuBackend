@@ -13,7 +13,11 @@ servers:
 
 
 tags:
+  - name: Device
+    description: Endpoints related to device
 
+  - name: Auth
+    description: Endpoints related to client authentication
 
   - name: Menus
     description: Endpoints related to menu
@@ -23,13 +27,178 @@ tags:
 
 paths:
 
+  /client/device:
+    get:
+      tags:
+        - Device
+      description: "Get all client device"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+    post:
+      tags:
+        - Auth
+      description: "Auth client for device"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+  /client/device/terminate:
+    post:
+      tags:
+        - Device
+      description: "Terminate device by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/device/terminate/others:
+    post:
+      tags:
+        - Device
+      description: "Terminate other devices"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/auth/send-sms:
+    post:
+      tags:
+        - Auth
+      description: "Auth client sms"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive client's phone"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+  /client/auth/verify:
+    post:
+      tags:
+        - Auth
+      description: "Auth client verify"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive sms code"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+  /client/auth/sign-up:
+    post:
+      tags:
+        - Auth
+      description: "Auth client sign up"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive with sign up"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: "string"
+                lastName:
+                  type: "string"
+                image:
+                  type: "string"
+                birthDay:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
   /client/menus:
     get:
       tags:
         - Menus
       description: "Returns a list of all menus"
       security:
-        - bearerAuth: [ ] .
+        - bearerAuth: [ ]
 
       responses:
         "200":
@@ -42,7 +211,6 @@ paths:
                   $ref: "#/components/schemas/MenuDto"
         "204":
           description: "No Content"
-
 
   /client/profile:
     get:
@@ -78,6 +246,36 @@ paths:
       responses:
         "200":
           description: "OK"
+
+  /client/profile/logout:
+    post:
+      tags:
+        - Profile
+      description: "Profile logout"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/profile/delete:
+    post:
+      tags:
+        - Profile
+      description: "Profile delete"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
 
   /client/profile/firebase:
     put:

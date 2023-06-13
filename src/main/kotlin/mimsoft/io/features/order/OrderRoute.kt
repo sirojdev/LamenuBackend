@@ -15,13 +15,12 @@ import mimsoft.io.utils.principal.MerchantPrincipal
 fun Route.routeToOrder() {
 
     val repository: OrderRepository = OrderRepositoryImpl
-    val mapper = OrderMapper
 
     get("live") {
         val type = call.parameters["type"]
         val orders = repository.getLiveOrders(type = type.toString())
         val orderDto = orders?.data
-        if(orderDto == null) {
+        if (orderDto == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -30,7 +29,7 @@ fun Route.routeToOrder() {
 
     get("history") {
         val orders = repository.getAll()
-        if(orders == null) {
+        if (orders == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -50,7 +49,7 @@ fun Route.routeToOrder() {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond (HttpStatusCode.OK, orders)
+        call.respond(HttpStatusCode.OK, orders)
     }
 
     get("/order/{id}") {
@@ -71,8 +70,8 @@ fun Route.routeToOrder() {
         val order = call.receive<OrderWrapper>()
         val status = repository.add(order)
         call.respond(
-            status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
-            status?.body?: "Something went wrong"
+            status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
+            status?.body ?: "Something went wrong"
         )
     }
 
@@ -87,8 +86,8 @@ fun Route.routeToOrder() {
         if (id != null) {
             val deleted = repository.delete(id)
             call.respond(
-                deleted?.httpStatus?: ResponseModel.SOME_THING_WRONG,
-                deleted?.body?: "Something went wrong"
+                deleted?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
+                deleted?.body ?: "Something went wrong"
             )
         } else {
             call.respond(HttpStatusCode.BadRequest)

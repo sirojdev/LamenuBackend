@@ -39,12 +39,7 @@ object OrderRepositoryImpl : OrderRepository {
     private val userRepo: UserRepository = UserRepositoryImpl
     private val addressService: AddressService = AddressServiceImpl
 
-    override suspend fun getLiveOrders(
-        type: String?,
-        limit: Int?,
-        offset: Int?
-    ): DataPage<OrderWrapper?> {
-
+    override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?): DataPage<OrderWrapper?> {
         val query = """
             select 
             o.id  o_id,

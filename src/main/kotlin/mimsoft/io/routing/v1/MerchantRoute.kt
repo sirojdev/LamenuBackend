@@ -16,6 +16,7 @@ import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
 import mimsoft.io.features.merchant.user.routeToUserUser
+import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
@@ -47,6 +48,7 @@ fun Route.routeToMerchant() {
             routeToMerchantProfile()
             routeToMerchantOrder()
             routeToKitchen()
+            routeToMerchantBook()
 
             route("settings") {
                 routeToStaff()

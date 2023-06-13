@@ -24,7 +24,6 @@ import mimsoft.io.utils.plugins.GSON
 import java.util.*
 
 fun Route.routeToClientAuth() {
-
     val userRepository: UserRepository = UserRepositoryImpl
     val sessionRepository = SessionRepository
     authenticate("device") {
@@ -123,7 +122,6 @@ fun Route.routeToClientAuth() {
     }
 
     authenticate("modify") {
-
         post("sign-up") {
             val pr = call.principal<DevicePrincipal>()
             println("modify")
@@ -169,8 +167,6 @@ fun Route.routeToClientAuth() {
             }
         }
     }
-
-
 }
 
 fun generateSessionUUID(uuid: String?, id: Long?): String {

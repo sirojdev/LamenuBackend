@@ -1,8 +1,6 @@
 package mimsoft.io.client.user
 
-
 import mimsoft.io.features.badge.BadgeDto
-
 
 
 data class UserDto(
