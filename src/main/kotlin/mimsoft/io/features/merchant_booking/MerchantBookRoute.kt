@@ -45,9 +45,8 @@ fun Route.routeToMerchantBook() {
     post("book") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val time = Timestamp(System.currentTimeMillis())
         val book = call.receive<BookDto>()
-        val id = bookService.addMerchantBook(book.copy(merchantId = merchantId, time = time))
+        val id = bookService.addMerchantBook(book.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK, BookId(id))
     }
 

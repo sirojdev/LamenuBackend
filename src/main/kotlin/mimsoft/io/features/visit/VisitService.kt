@@ -1,9 +1,12 @@
 package mimsoft.io.features.visit
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.log.OrderLog
 import mimsoft.io.features.payment_type.PaymentTypeDto
+import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
@@ -21,10 +24,8 @@ object VisitService {
                    u.last_name  u_last_name,
                    s.position   s_position,
                    s.phone      s_phone,
-                   s.password   s_password,
                    s.first_name s_first_name,
                    s.last_name  s_last_name,
-                   s.birth_day  s_birth_day,
                    s.image      s_image,
                    s.comment    s_comment,
                    t.name       t_name,
@@ -37,7 +38,7 @@ object VisitService {
                      left join users u on visit.user_id = u.id
                      left join staff s on visit.waiter_id = s.id
                      left join tables t on visit.table_id = t.id
-                     left join payment_type p on visit.payment_type_id = p.id
+                     left join payment_type p on visit.payment_type_id = p.id 
             where visit.merchant_id = $merchantId and  visit.deleted = false
         """.trimIndent()
 
@@ -48,27 +49,30 @@ object VisitService {
                 while (rs.next()) {
                     val visit = VisitDto(
                         user = UserDto(
+                            id = rs.getLong("user_id"),
                             phone = rs.getString("u_phone"),
                             firstName = rs.getString("u_first_name"),
                             lastName = rs.getString("u_last_name"),
                         ),
                         waiter = StaffDto(
+                            id = rs.getLong("waiter_id"),
                             phone = rs.getString("s_phone"),
                             password = rs.getString("s_password"),
                             firstName = rs.getString("s_first_name"),
                             lastName = rs.getString("s_last_name"),
-                            birthDay = rs.getString("s_birth_day"),
                             image = rs.getString("s_image"),
                             position = rs.getString("s_position"),
                             comment = rs.getString("s_comment"),
                         ),
                         table = TableDto(
+                            id = rs.getLong("table_id"),
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
                             branchId = rs.getLong("t_branch_id"),
                         ),
                         payment = PaymentTypeDto(
+                            id = rs.getLong("payment_type_id"),
                             name = rs.getString("p_name"),
                             icon = rs.getString("p_icon"),
                         ),
@@ -99,10 +103,8 @@ object VisitService {
                    u.last_name  u_last_name,
                    s.position   s_position,
                    s.phone      s_phone,
-                   s.password   s_password,
                    s.first_name s_first_name,
                    s.last_name  s_last_name,
-                   s.birth_day  s_birth_day,
                    s.image      s_image,
                    s.comment    s_comment,
                    t.name       t_name,
@@ -125,33 +127,40 @@ object VisitService {
                 if (rs.next()) {
                     return@withContext VisitDto(
                         user = UserDto(
+                            id = rs.getLong("user_id"),
                             phone = rs.getString("u_phone"),
                             firstName = rs.getString("u_first_name"),
                             lastName = rs.getString("u_last_name"),
                         ),
                         waiter = StaffDto(
+                            id = rs.getLong("waiter_id"),
                             phone = rs.getString("s_phone"),
                             password = rs.getString("s_password"),
                             firstName = rs.getString("s_first_name"),
                             lastName = rs.getString("s_last_name"),
-                            birthDay = rs.getString("s_birth_day"),
                             image = rs.getString("s_image"),
                             position = rs.getString("s_position"),
                             comment = rs.getString("s_comment"),
                         ),
                         table = TableDto(
+                            id = rs.getLong("table_id"),
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
                             branchId = rs.getLong("t_branch_id"),
                         ),
                         payment = PaymentTypeDto(
+                            id = rs.getLong("payment_type_id"),
                             name = rs.getString("p_name"),
                             icon = rs.getString("p_icon"),
                         ),
                         time = rs.getTimestamp("time"),
                         status = CheckStatus.valueOf(rs.getString("status")),
-                        price = rs.getDouble("price")
+                        price = rs.getDouble("price"),
+                        orders = ObjectMapper().readValue(
+                            rs.getString("orders"),
+                            Array<OrderLog>::class.java
+                        ).toList(),
                     )
                 } else return@withContext null
             }
@@ -172,7 +181,7 @@ object VisitService {
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).use { visit ->
-                    visit.setString(1, visitDto.orders.toString())
+                    visit.setString(1, ObjectMapper().writeValueAsString(visitDto.orders))
                     visit.setTimestamp(2, visitDto.time)
                     visit.setString(3, visitDto.status.toString())
                     visit.setTimestamp(4, Timestamp(System.currentTimeMillis()))

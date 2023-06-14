@@ -1,6 +1,5 @@
 package mimsoft.io.features.merchant_booking
 
-import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.table.TableDto
 import java.sql.Timestamp
 
