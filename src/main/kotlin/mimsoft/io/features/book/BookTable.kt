@@ -12,5 +12,7 @@ data class BookTable(
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null,
+    val comment: String? = null
+
 )
 

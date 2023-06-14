@@ -46,6 +46,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
+
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
