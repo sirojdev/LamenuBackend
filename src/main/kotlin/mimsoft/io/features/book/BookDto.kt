@@ -7,5 +7,6 @@ data class BookDto(
     val merchantId: Long? = null,
     val clientId: Long? = null,
     val tableId: Long? = null,
-    val time: Timestamp? = null
+    val time: Timestamp? = null,
+    val comment: String? = null
 )

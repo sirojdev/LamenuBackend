@@ -14,7 +14,8 @@ object BookMapper {
                 merchantId = bookDto.merchantId,
                 clientId = bookDto.id,
                 tableId = bookDto.id,
-                time = bookDto.time
+                time = bookDto.time,
+                comment = bookDto.comment
             )
         }
     }
@@ -26,7 +27,8 @@ object BookMapper {
             merchantId = bookTable.merchantId,
             clientId = bookTable.clientId,
             tableId = bookTable.tableId,
-            time = bookTable.time
+            time = bookTable.time,
+            comment = bookTable.comment
         )
     }
 }
