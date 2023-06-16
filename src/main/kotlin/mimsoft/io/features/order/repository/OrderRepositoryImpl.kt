@@ -550,4 +550,8 @@ object OrderRepositoryImpl : OrderRepository {
         )
 
     }
+
+    override suspend fun getByCourierId(courierId: String, merchantId: Long?): List<OrderWrapper?> {
+        TODO("Not yet implemented")
+    }
 }

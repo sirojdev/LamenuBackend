@@ -24,11 +24,9 @@ interface OrderRepository {
 
     suspend fun getByUserId(userId: Long?): List<OrderWrapper?>
 
-    suspend fun get(
-        id: Long?
-
-    ): OrderWrapper?
+    suspend fun get(id: Long?): OrderWrapper?
     suspend fun add(order: OrderWrapper?): ResponseModel?
     suspend fun update(orderDto: OrderDto?): Boolean
     suspend fun delete(id: Long?): ResponseModel?
+    suspend fun getByCourierId(courierId: String, merchantId: Long?): List<OrderWrapper?>
 }

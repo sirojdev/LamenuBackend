@@ -19,6 +19,7 @@ import mimsoft.io.features.merchant.user.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.option.routeToOption
+import mimsoft.io.features.order.route.routeToOrderByCourierAndCollector
 import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
 import mimsoft.io.features.outcome_type.outcomeTypeRoute
@@ -32,6 +33,7 @@ import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.telephony.routeToTelephony
 import mimsoft.io.features.sms.routeToSms
 import mimsoft.io.features.telegram_bot.routeToBot
+import mimsoft.io.features.visit.routeToVisits
 import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
 
@@ -49,6 +51,8 @@ fun Route.routeToMerchant() {
             routeToMerchantOrder()
             routeToKitchen()
             routeToMerchantBook()
+            routeToVisits()
+            routeToOrderByCourierAndCollector()
 
             route("settings") {
                 routeToStaff()
