@@ -22,11 +22,9 @@ interface OrderRepository {
         offset: Int? = null,
     ): DataPage<OrderDto?>?
 
-    suspend fun getByUserId(userId: Long?): List<OrderWrapper?>
-
+    suspend fun getBySomethingId(userId: Long?=null, courierId: Long?=null, collectorId: Long?=null, merchantId: Long?=null): List<OrderWrapper?>
     suspend fun get(id: Long?): OrderWrapper?
     suspend fun add(order: OrderWrapper?): ResponseModel?
     suspend fun update(orderDto: OrderDto?): Boolean
     suspend fun delete(id: Long?): ResponseModel?
-    suspend fun getByCourierId(courierId: String, merchantId: Long?): List<OrderWrapper?>
 }

@@ -1,5 +1,6 @@
 package mimsoft.io.features.order.repository
 
+import ch.qos.logback.classic.db.names.ColumnName
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
@@ -206,7 +207,7 @@ object OrderRepositoryImpl : OrderRepository {
         return null
     }
 
-    override suspend fun getByUserId(userId: Long?): List<OrderWrapper?> {
+    override suspend fun getBySomethingId(userId: Long?, courierId: Long?, collectorId: Long?, merchantId: Long?): List<OrderWrapper?> {
         val query = """
             select 
             o.id  o_id,
@@ -216,9 +217,12 @@ object OrderRepositoryImpl : OrderRepository {
             from orders o
             left join order_price op on o.id = op.order_id
             where not o.deleted
-            and not op.deleted
-            and o.user_id = $userId
+            and not op.deleted 
         """.trimIndent()
+        if(merchantId!=null) query.plus(" and merchant_id = $merchantId")
+        if(userId!=null)query.plus("and o.user_id = $userId")
+        if(courierId != null)query.plus("and o.courier_id = $courierId")
+        if(collectorId != null)query.plus("and o.collector_id = $collectorId")
         println("query: $query")
 
         val orderWrappers = mutableListOf<OrderWrapper>()
@@ -245,6 +249,8 @@ object OrderRepositoryImpl : OrderRepository {
                     val deliveredAt = statement.getTimestamp("delivered_at")
                     val updatedAt = statement.getTimestamp("updated_at")
                     val comment = statement.getString("comment")
+                    val courierId = statement.getLong("courier_id")
+                    val collectorId = statement.getLong("collector_id")
 
 
                     val priceId = statement.getLong("op_id")
@@ -271,7 +277,9 @@ object OrderRepositoryImpl : OrderRepository {
                                 totalPrice = totalPrice,
                                 totalDiscount = totalDiscount,
                                 updatedAt = updatedAt,
-                                comment = comment
+                                comment = comment,
+                                courierId = courierId,
+                                collectorId = collectorId
                             ),
                             user = UserDto(
                                 id = rUserId,
@@ -549,9 +557,5 @@ object OrderRepositoryImpl : OrderRepository {
             httpStatus = ResponseModel.OK
         )
 
-    }
-
-    override suspend fun getByCourierId(courierId: String, merchantId: Long?): List<OrderWrapper?> {
-        TODO("Not yet implemented")
     }
 }

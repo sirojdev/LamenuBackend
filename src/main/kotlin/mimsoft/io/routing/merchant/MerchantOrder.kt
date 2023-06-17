@@ -1,4 +1,4 @@
-package mimsoft.io.features.order.route
+package mimsoft.io.routing.merchant
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -11,22 +11,17 @@ import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToOrderByCourierAndCollector() {
     val orderRepository: OrderRepository = OrderRepositoryImpl
-    get("orders"){
-
-
+    get("orders") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val courierId = call.parameters["courierId"]
-        if (courierId == null) {
+        val courierId = call.parameters["courierId"]?.toLongOrNull()
+        val collectorId = call.parameters["collectorId"]?.toLongOrNull()
+        if (courierId == null && collectorId == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val orders = orderRepository.getByCourierId(courierId = courierId, merchantId = merchantId)
-        if (orders != null) {
-            call.respond(HttpStatusCode.OK, orders)
-        } else {
-            call.respond(HttpStatusCode.NotFound)
-        }
+        val list = orderRepository.getBySomethingId(courierId = courierId, collectorId = collectorId, merchantId = merchantId)
+        call.respond(HttpStatusCode.OK, list)
+        return@get
     }
-
 }

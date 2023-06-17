@@ -6,5 +6,6 @@ import java.sql.Timestamp
 data class OrderDto(
     val id: Long? = null,
     val type: String? = null,
-    val status: String? = null
+    val status: String? = null,
+
 )

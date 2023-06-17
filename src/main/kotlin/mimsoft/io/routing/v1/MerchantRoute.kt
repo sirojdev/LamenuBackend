@@ -6,7 +6,6 @@ import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.category.routeToCategory
-import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
@@ -19,7 +18,7 @@ import mimsoft.io.features.merchant.user.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.option.routeToOption
-import mimsoft.io.features.order.route.routeToOrderByCourierAndCollector
+import mimsoft.io.routing.merchant.routeToOrderByCourierAndCollector
 import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
 import mimsoft.io.features.outcome_type.outcomeTypeRoute
@@ -44,15 +43,15 @@ fun Route.routeToMerchant() {
         merchantAuthRoute()
         routeToMerchantInfo()
 
-
         authenticate("merchant") {
 
+            routeToOrderByCourierAndCollector()
             routeToMerchantProfile()
             routeToMerchantOrder()
             routeToKitchen()
             routeToMerchantBook()
             routeToVisits()
-            routeToOrderByCourierAndCollector()
+
 
             route("settings") {
                 routeToStaff()

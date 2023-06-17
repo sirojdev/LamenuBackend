@@ -5,8 +5,7 @@ import mimsoft.io.features.product.ProductTable
 
 interface ProductRepository {
     suspend fun getAll(merchantId: Long?): List<ProductTable?>
-    suspend fun get(id: Long?, merchantId: Long?): ProductTable?
+    suspend fun get(id: Long?, merchantId: Long? = null): ProductTable?
     suspend fun add(productTable: ProductTable?): Long?
     suspend fun update(dto: ProductDto): Boolean
-    suspend fun delete(id: Long?, merchantId: Long?): Boolean
-}
+    suspend fun delete(id: Long?, merchantId: Long?): Boolean }
