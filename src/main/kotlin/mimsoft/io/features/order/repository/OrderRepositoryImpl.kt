@@ -53,8 +53,8 @@ object OrderRepositoryImpl : OrderRepository {
             and not op.deleted""".trimIndent()
 
         when (type) {
-            OrderType.DELIVERY.name -> query.plus(" and type = ? and status = in (?, ?, ?, ?, ?)")
-            OrderType.TAKEAWAY.name -> query.plus(" and type = ? and status = in (?, ?, ?, ?)")
+            OrderType.DELIVERY.name -> query.plus(" and type = ? and status = in (?, ?, ?, ?, ?) returning *")
+            OrderType.TAKEAWAY.name -> query.plus(" and type = ? and status = in (?, ?, ?, ?) returning * ")
             else -> query.plus("")
         }
 

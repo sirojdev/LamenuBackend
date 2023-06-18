@@ -16,9 +16,9 @@ object JwtConfig {
     private const val secretMerchant = "LaMenuMerchant-r42gweRt"
     private const val secretUser = "LaMenuMusernt-FsdAafF"
 
-    private const val validityAccessUser = 36_000_000L // 10 hours
-    private const val validityRefresh = 2_592_000_000 // 1 month
-    private const val validityLogin = 180_000L // 1 month
+    private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
+    private const val validityRefresh = 2_592_000_000 * 1000L// 1 month
+    private const val validityLogin = 180_000L * 1000L // 1 month
 
 
     private val algorithmAccess = Algorithm.HMAC512(secretAccess)
@@ -115,7 +115,7 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
 
-    fun  generateModifyToken(sessionUuid: String? ): String? = JWT.create()
+    fun generateModifyToken(sessionUuid: String?): String? = JWT.create()
         .withSubject("modify")
         .withIssuer(issuer)
         .withClaim("uuid", sessionUuid)

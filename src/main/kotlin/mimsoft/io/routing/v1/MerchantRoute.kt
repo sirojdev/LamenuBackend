@@ -52,6 +52,7 @@ fun Route.routeToMerchant() {
             routeToMerchantBook()
             routeToVisits()
 
+            routeToOrder()
 
             route("settings") {
                 routeToStaff()
@@ -61,7 +62,7 @@ fun Route.routeToMerchant() {
                 routeToLabel()
                 routeToOption()
                 routeToProduct()
-                routeToOrder()
+
                 routeToTable()
                 routeToRoom()
                 routeToFlat()
