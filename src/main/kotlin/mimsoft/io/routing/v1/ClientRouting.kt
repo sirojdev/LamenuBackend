@@ -18,11 +18,12 @@ fun Route.clientRouting() {
     route("client/auth") {
         routeToClientAuth()
     }
-    routeToMenu()
-    routeToClientTable()
-    routeToClientBranches()
-    authenticate("user") {
-        route("client") {
+    route("client") {
+        routeToMenu()
+        routeToClientTable()
+        routeToClientBranches()
+
+        authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
             routeToAddress()
