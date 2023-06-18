@@ -8,6 +8,7 @@ data class StaffDto(
     val image: String? = null,
     val phone: String? = null,
     val gender: String? = null,
+    val status: String? = null,
     val comment: String? = null,
     val birthDay: String? = null,
     val password: String? = null,

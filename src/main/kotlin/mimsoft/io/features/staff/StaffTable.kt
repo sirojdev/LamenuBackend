@@ -7,6 +7,7 @@ data class StaffTable(
     val id: Long? = null,
     val image: String? = null,
     val phone: String? = null,
+    val status: String? = null,
     val gender: String? = null,
     val comment: String? = null,
     val merchantId: Long? = null,

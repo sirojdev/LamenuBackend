@@ -245,6 +245,8 @@ object StaffService {
                             allOrderCount = rs.getLong("all_orders"),
                             todayOrderCount = rs.getLong("today_orders"),
                             activeOrderCount = rs.getLong("active_orders"),
+                            status = rs.getString("status")
+
                         )
                     staff.lastLocation = CourierLocationHistoryService.getByStaffId(staff.id)
                     staffs.add(staff)
@@ -272,7 +274,8 @@ object StaffService {
                         lastName = rs.getString("last_name"),
                         birthDay = rs.getTimestamp("birth_day"),
                         image = rs.getString("image"),
-                        comment = rs.getString("comment")
+                        comment = rs.getString("comment"),
+                        status = rs.getString("status")
                     )
                     val dto = mapper.toDto(e)
                     dto?.lastLocation = CourierLocationHistoryService.getByStaffId(dto?.id)
