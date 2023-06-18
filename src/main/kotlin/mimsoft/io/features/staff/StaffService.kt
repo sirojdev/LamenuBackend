@@ -207,31 +207,30 @@ object StaffService {
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
     suspend fun getAllCourier(merchantId: Long?): List<StaffDto?> {
-        val query = """select s.*,
-                A.count today_orders,
-                B.count all_orders, 
-                status.count active_orders
-                from staff s
-        left join(select courier_id, count(*)
-                   from orders
-                   where date(created_at) = current_date
-                   group by courier_id) as A on A.courier_id = s.id
-        left join (select courier_id, count(*)
-                    from orders
-                    group by courier_id) as B on B.courier_id=s.id
-        left join (select courier_id, count(*)
-                    from orders
-                    where status = 'OPEN'
-                    group by courier_id) as status on status.courier_id=s.id
-        where s.merchant_id = $merchantId   
+        val query = """select s.*, 
+                A.count today_orders, 
+                B.count all_orders,  
+                status.count active_orders 
+                from staff s 
+        left join(select courier_id, count(*) 
+                   from orders 
+                   where date(created_at) = current_date 
+                   group by courier_id) as A on A.courier_id = s.id 
+        left join (select courier_id, count(*) 
+                    from orders 
+                    group by courier_id) as B on B.courier_id=s.id 
+        left join (select courier_id, count(*) 
+                    from orders 
+                    where status = 'OPEN' 
+                    group by courier_id) as status on status.courier_id=s.id 
+        where s.merchant_id = $merchantId 
         """.trimMargin()
         return withContext(Dispatchers.IO) {
             val staffs = arrayListOf<StaffDto?>()
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 while (rs.next()) {
-                    val staff = mapper.toDto(
-                        StaffTable(
+                    val staff = StaffDto(
                             id = rs.getLong("id"),
                             merchantId = rs.getLong("merchant_id"),
                             position = rs.getString("position"),
@@ -239,12 +238,15 @@ object StaffService {
                             password = rs.getString("password"),
                             firstName = rs.getString("first_name"),
                             lastName = rs.getString("last_name"),
-                            birthDay = rs.getTimestamp("birth_day"),
+                            birthDay = rs.getTimestamp("birth_day").toString(),
                             image = rs.getString("image"),
-                            comment = rs.getString("comment")
+                            comment = rs.getString("comment"),
+                            gender = rs.getString("gender"),
+                            allOrderCount = rs.getLong("all_orders"),
+                            todayOrderCount = rs.getLong("today_orders"),
+                            activeOrderCount = rs.getLong("active_orders"),
                         )
-                    )
-                    staff?.lastLocation = CourierLocationHistoryService.getByStaffId(staff?.id)
+                    staff.lastLocation = CourierLocationHistoryService.getByStaffId(staff.id)
                     staffs.add(staff)
                 }
                 return@withContext staffs
