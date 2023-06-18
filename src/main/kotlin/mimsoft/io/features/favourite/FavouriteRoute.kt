@@ -25,8 +25,9 @@ fun Route.routeToFavourites() {
         put{
             val pr = call.principal<UserPrincipal>()
             val merchantId = pr?.merchantId
+            val clientId = pr?.id
             val favouriteDto = call.receive<FavouriteDto>()
-            favouriteService.update(favouriteDto.copy(merchantId=merchantId))
+            favouriteService.update(favouriteDto.copy(merchantId=merchantId, clientId = clientId))
             call.respond(HttpStatusCode.OK)
         }
 
@@ -34,9 +35,15 @@ fun Route.routeToFavourites() {
             val pr = call.principal<UserPrincipal>()
             val clientId = pr?.id
             val merchantId = pr?.merchantId
+            if(clientId==null && merchantId==null){
+                HttpStatusCode.NoContent
+                return@get
+            }
             val favourites = favouriteService.getAll(clientId=clientId, merchantId=merchantId)
-            ResponseModel(favourites, OK)
-            return@get
+            if(favourites.isEmpty()){
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }else call.respond(favourites)
         }
         delete("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
@@ -45,13 +52,14 @@ fun Route.routeToFavourites() {
                 return@delete
             }
             val result = favouriteService.delete(id = id)
-            ResponseModel(result, HttpStatusCode.OK)
+            call.respond(result)
         }
 
         delete {
-            val clientId = 1L
+            val pr = call.principal<UserPrincipal>()
+            val clientId = pr?.id
             val result = favouriteService.deleteAll(clientId = clientId)
-            ResponseModel(result, HttpStatusCode.OK)
+            call.respond(result)
         }
     }
 }

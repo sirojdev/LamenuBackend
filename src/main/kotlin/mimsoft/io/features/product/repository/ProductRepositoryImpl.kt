@@ -27,12 +27,21 @@ object ProductRepositoryImpl : ProductRepository {
     }
 
     override suspend fun get(id: Long?, merchantId: Long?): ProductTable? {
-        val data = repository.getPageData(
-            dataClass = ProductTable::class,
-            where = mapOf(
+        val filter = mutableMapOf<String, Any>()
+        val some = if (merchantId == null) {
+            filter["id"] = Long
+            mapOf("id" to id as Any)
+        } else {
+            filter["id"] = Long
+            filter["merchant_id"] = merchantId
+            mapOf(
                 "merchant_id" to merchantId as Any,
                 "id" to id as Any
-            ),
+            )
+        }
+        val data = repository.getPageData(
+            dataClass = ProductTable::class,
+            where = some,
             tableName = PRODUCT_TABLE_NAME
         )?.data?.firstOrNull()
         return data
@@ -73,6 +82,7 @@ object ProductRepositoryImpl : ProductRepository {
         }
         return true
     }
+
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {

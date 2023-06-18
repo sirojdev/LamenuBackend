@@ -34,14 +34,16 @@ object StaffService {
         }
 
         return ResponseModel(
-            body = mapper.toDto(repository.getPageData(
-                dataClass = StaffTable::class,
-                tableName = STAFF_TABLE_NAME,
-                where = mapOf(
-                    "phone" to staff?.phone as Any,
-                    "password" to staff.password as Any
-                )
-            )?.data?.firstOrNull()),
+            body = mapper.toDto(
+                repository.getPageData(
+                    dataClass = StaffTable::class,
+                    tableName = STAFF_TABLE_NAME,
+                    where = mapOf(
+                        "phone" to staff?.phone as Any,
+                        "password" to staff.password as Any
+                    )
+                )?.data?.firstOrNull()
+            ),
         )
     }
 
@@ -205,8 +207,24 @@ object StaffService {
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
     suspend fun getAllCourier(merchantId: Long?): List<StaffDto?> {
-        val query =
-            "select * from $STAFF_TABLE_NAME where position = 'courier' and merchant_id = $merchantId and deleted = false"
+        val query = """select s.*,
+                A.count today_orders,
+                B.count all_orders, 
+                status.count active_orders
+                from staff s
+        left join(select courier_id, count(*)
+                   from orders
+                   where date(created_at) = current_date
+                   group by courier_id) as A on A.courier_id = s.id
+        left join (select courier_id, count(*)
+                    from orders
+                    group by courier_id) as B on B.courier_id=s.id
+        left join (select courier_id, count(*)
+                    from orders
+                    where status = 'OPEN'
+                    group by courier_id) as status on status.courier_id=s.id
+        where s.merchant_id = $merchantId   
+        """.trimMargin()
         return withContext(Dispatchers.IO) {
             val staffs = arrayListOf<StaffDto?>()
             repository.connection().use {
@@ -235,7 +253,8 @@ object StaffService {
     }
 
     suspend fun getCourier(id: Long, merchantId: Long?): StaffDto? {
-        val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and position = 'courier' and deleted = false"
+        val query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and position = 'courier' and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
