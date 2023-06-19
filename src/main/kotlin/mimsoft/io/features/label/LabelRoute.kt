@@ -37,7 +37,7 @@ fun Route.routeToLabel() {
         if (label != null) {
             call.respond(HttpStatusCode.OK, label)
         } else {
-            call.respond(HttpStatusCode.NotFound)
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 

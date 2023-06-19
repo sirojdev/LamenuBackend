@@ -157,22 +157,41 @@ object OrderRepositoryImpl : OrderRepository {
         status: String?,
         type: String?,
         limit: Int?,
-        offset: Int?
+        offset: Int?,
+        courierId: Long?,
+        collectorId: Long?,
+        paymentTypeId: Long?
     ): DataPage<OrderDto?>? {
-
+        val queryCount = "select count(*) from orders o "
         val query = """
-            select *
-            from orders o
-            left join users u on o.user_id = u.id
-            left join order_price op on o.id = op.order_id
-            where not o.deleted
-            and not u.deleted
-            and not op.deleted
+            select o.id ,
+               o.user_id ,
+               u.phone u_phone,
+               u.first_name u_first_name,
+               u.last_name u_last_name,
+               pt.icon pt_icon,
+               pt.name pt_name,
+               o.product_count,
+               o.grade,
+               o.status
+               from orders o 
+            
         """.trimIndent()
 
+        val joins = """
+                     left join order_price op on o.id = op.order_id
+                     left join users u on o.user_id = u.id
+                     left join payment_type pt on o.deleted = pt.deleted
+                     left join staff cl on cl.id = o.collector_id
+                     left join staff cr on cr.id = o.courier_id
+        """.trimIndent()
+
+        val filter = """
+            where not o.deleted 
+            """.trimIndent()
         if (search != null) {
-            val s = search.lowercase()
-            query.plus(
+            val s = search.lowercase().replace('\'', '_')
+            filter.plus(
                 """
                 and (
                     lower(u.name) like '%$s%'
@@ -182,11 +201,46 @@ object OrderRepositoryImpl : OrderRepository {
                 """.trimIndent()
             )
         }
-        if (merchantId != null) query.plus(" and o.merchant_id = $merchantId ")
-        if (status != null) query.plus(" and o.status = ? ")
-        if (type != null) query.plus(" and o.type = ? ")
 
+        val stringsList = arrayListOf<Pair<Int, String>>()
+        var x = 1
+        if (merchantId != null) filter.plus(" and o.merchant_id = $merchantId ")
+        if (status != null) {
+            filter.plus(" and o.status = ? ")
+            stringsList.add(Pair(x++, status))
+        }
 
+        if (type != null) {
+            filter.plus(" and o.type = ? ")
+            stringsList.add(Pair(x++, type))
+        }
+        if (courierId != null) filter.plus(" and courier_id = $courierId")
+        if (collectorId != null) {
+            filter.plus("\t and collector_id = $collectorId \n")
+        }
+
+        queryCount.plus(joins + filter)
+        query.plus(joins + filter)
+        query.plus("order by id desc limit $limit offset $offset")
+
+        withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    stringsList.forEach { p ->
+                        this.setString(p.first, p.second)
+                    }
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val orderList = arrayListOf<OrderDto>()
+
+//                while (rs.next()){
+//                    orderList.add(
+////                        OrderDto()
+//                    )
+//                }
+            }
+        }
         /*val where = mutableMapOf<String, Any>()
         if (merchantId != null) where["merchant_id"] = merchantId
         if (status != null) where["status"] = status
@@ -207,7 +261,12 @@ object OrderRepositoryImpl : OrderRepository {
         return null
     }
 
-    override suspend fun getBySomethingId(userId: Long?, courierId: Long?, collectorId: Long?, merchantId: Long?): List<OrderWrapper?> {
+    override suspend fun getBySomethingId(
+        userId: Long?,
+        courierId: Long?,
+        collectorId: Long?,
+        merchantId: Long?
+    ): List<OrderWrapper?> {
         val query = """
             select 
             o.id  o_id,
@@ -219,10 +278,10 @@ object OrderRepositoryImpl : OrderRepository {
             where not o.deleted
             and not op.deleted 
         """.trimIndent()
-        if(merchantId!=null) query.plus(" and merchant_id = $merchantId")
-        if(userId!=null)query.plus("and o.user_id = $userId")
-        if(courierId != null)query.plus("and o.courier_id = $courierId")
-        if(collectorId != null)query.plus("and o.collector_id = $collectorId")
+        if (merchantId != null) query.plus(" and merchant_id = $merchantId")
+        if (userId != null) query.plus("and o.user_id = $userId")
+        if (courierId != null) query.plus("and o.courier_id = $courierId")
+        if (collectorId != null) query.plus("and o.collector_id = $collectorId")
         println("query: $query")
 
         val orderWrappers = mutableListOf<OrderWrapper>()

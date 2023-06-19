@@ -2,8 +2,7 @@ package mimsoft.io.features.courier.courier_location_history
 
 object CourierLocationHistoryMapper {
     fun toTable(dto: CourierLocationHistoryDto): CourierLocationHistoryTable? {
-        return if (dto == null) null
-        else CourierLocationHistoryTable(
+        return CourierLocationHistoryTable(
             id = dto.id,
             name = dto.name,
             time = dto.time,
@@ -15,10 +14,10 @@ object CourierLocationHistoryMapper {
     }
 
     fun toDto(table: CourierLocationHistoryTable): CourierLocationHistoryDto? {
-        return if (table == null) null
-        else CourierLocationHistoryDto(
+        return CourierLocationHistoryDto(
             id = table.id,
             time = table.time,
+            name = table.name,
             staffId = table.staffId,
             latitude = table.latitude,
             longitude = table.longitude,

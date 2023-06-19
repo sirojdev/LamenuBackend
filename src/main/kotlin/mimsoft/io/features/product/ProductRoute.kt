@@ -37,7 +37,7 @@ fun Route.routeToProduct() {
         if (product != null) {
             call.respond(HttpStatusCode.OK, product)
         } else {
-            call.respond(HttpStatusCode.NotFound)
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 

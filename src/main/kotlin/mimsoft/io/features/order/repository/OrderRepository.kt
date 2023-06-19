@@ -20,6 +20,10 @@ interface OrderRepository {
         type: String? = null,
         limit: Int? = null,
         offset: Int? = null,
+        courierId: Long? = null,
+        collectorId : Long? = null,
+        paymentTypeId : Long? = null,
+
     ): DataPage<OrderDto?>?
 
     suspend fun getBySomethingId(userId: Long?=null, courierId: Long?=null, collectorId: Long?=null, merchantId: Long?=null): List<OrderWrapper?>

@@ -1,6 +1,7 @@
 package mimsoft.io.features.staff
 
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
+import mimsoft.io.features.order.OrderDto
 
 data class StaffDto(
     val id: Long? = null,
@@ -8,7 +9,7 @@ data class StaffDto(
     val image: String? = null,
     val phone: String? = null,
     val gender: String? = null,
-    val status: String? = null,
+    val status: Boolean? = null,
     val comment: String? = null,
     val birthDay: String? = null,
     val password: String? = null,
@@ -18,6 +19,7 @@ data class StaffDto(
     val firstName: String? = null,
     val allOrderCount: Long? = null,
     val todayOrderCount: Long? = null,
+    val orders: List<OrderDto>? = null,
     val activeOrderCount: Long? = null,
     var lastLocation: CourierLocationHistoryDto? = null
 )
