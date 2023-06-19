@@ -21,8 +21,8 @@ object OutcomeService {
             .filterIsInstance<OutcomeTable?>()
     }
 
-    suspend fun get(merchantId: Long?): OutcomeDto? {
-        val query = "select * from $OUTCOME_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+    suspend fun get(id: Long?): OutcomeDto? {
+        val query = "select * from $OUTCOME_TABLE_NAME where id = $id and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()

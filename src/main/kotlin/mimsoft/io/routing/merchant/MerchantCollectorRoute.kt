@@ -1,4 +1,4 @@
-package mimsoft.io.features.courier
+package mimsoft.io.routing.merchant
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,20 +10,19 @@ import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 
-fun Route.routeToCourier() {
+fun Route.routeToCollector() {
     val staffService = StaffService
-    route("courier") {
-        routeToCourierLocation()
+    route("collector") {
 
         get("") {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
             println(merchantId)
-            val couriers = staffService.getAllCourier(merchantId = merchantId)
-            if (couriers.isEmpty()) {
+            val collectors = staffService.getAllCourier(merchantId = merchantId)
+            if (collectors.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
-            } else call.respond(couriers)
+            } else call.respond(collectors)
         }
 
         get("/{id}") {
@@ -34,12 +33,12 @@ fun Route.routeToCourier() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val courier = staffService.getCourier(id = id, merchantId = merchantId)
-            if (courier == null) {
+            val collector = staffService.getAll(id = id, merchantId = merchantId)
+            if (collector == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }
-            call.respond(courier)
+            call.respond(collector)
         }
     }
 }

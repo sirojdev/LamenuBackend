@@ -37,7 +37,6 @@ fun Route.routeToStaff() {
             call.respond(staff)
         }
 
-
         post {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
@@ -76,8 +75,5 @@ fun Route.routeToStaff() {
             val staff = StaffService.delete(id = id, merchantId = merchantId)
             call.respond(staff)
         }
-
     }
-
-
 }

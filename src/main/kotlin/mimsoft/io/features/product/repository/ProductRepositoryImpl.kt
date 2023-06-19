@@ -85,9 +85,11 @@ object ProductRepositoryImpl : ProductRepository {
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).execute()
+                return@withContext rs
+            }
         }
-        return true
     }
 }

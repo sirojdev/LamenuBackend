@@ -72,7 +72,8 @@ object DBManager: BaseRepository {
             generateWhereClause(where)
         }
 
-        val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause"
+
+        val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause and deleted = false "
 
         println("\nGET PAGE DATA QUERY ---> $query")
 
@@ -132,7 +133,7 @@ object DBManager: BaseRepository {
             generateWhereClause(where)
         }
 
-        val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause"
+        val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause and deleted = false"
 
         println("\nGET PAGE DATA QUERY ---> $query")
 
