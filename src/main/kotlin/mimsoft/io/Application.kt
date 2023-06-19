@@ -5,6 +5,9 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.plugins.*
+import org.telegram.telegrambots.meta.TelegramBotsApi
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 
 fun main() {
     embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
@@ -18,4 +21,6 @@ fun Application.module() {
     configureRouting()
     configureSocket()
     DBManager.init()
+    runBot()
+
 }
