@@ -28,15 +28,17 @@ class MessageController {
                 val text: String = message.text
                 if (text == "/start") {
                     start(profile,merchantId,telegramId)
+                }else{
+                    when (profile?.step) {
+                        BotUsersStep.CHOOSE_LANG -> chooseLanguage(profile, text)
+                        BotUsersStep.FREE -> generalMenu(profile, text)
+                        BotUsersStep.CLICK_CATEGORIES -> clickCategories(profile, text)
+                        BotUsersStep.EDIT -> editSettings(profile, text)
+                        BotUsersStep.EDIT_LANGUAGE -> editLanguage(profile, text)
+                        else -> {Utils.sendMsg(telegramId,Utils.getText(profile!!,BotTexts.editText).toString())}
+                    }
                 }
-                when (profile?.step) {
-                    BotUsersStep.CHOOSE_LANG -> chooseLanguage(profile, text)
-                    BotUsersStep.FREE -> generalMenu(profile, text)
-                    BotUsersStep.CLICK_CATEGORIES -> clickCategories(profile, text)
-                    BotUsersStep.EDIT -> editSettings(profile, text)
-                    BotUsersStep.EDIT_LANGUAGE -> editLanguage(profile, text)
-                    else -> {}
-                }
+
             } else if (message.hasContact()) {
 //                if (profile?.step == BotUsersStep.SEND_CONTACT) {
 //                    profile.step = BotUsersStep.FREE

@@ -40,14 +40,9 @@ class BotTexts {
             eng = "\uD83D\uDD51 History orders",
         )
         val clickMenuText = TextModel(
-            uz = "\uD83D\uDD51 Categoriya",
-            ru = "\uD83D\uDD51 Categoriya Ru",
-            eng = "\uD83D\uDD51 Categoriya EN",
-        )
-        val clickMenu = TextModel(
-            uz = "\uD83D\uDD51 Kategoriyalar",
-            ru = "\uD83D\uDD51 Categoriya Ru",
-            eng = "\uD83D\uDD51 Categoriya EN",
+            uz = "Kerakli kategoriyani tanlang",
+            ru = "Выберите нужную категорию",
+            eng = "Select the desired category",
         )
         val editText = TextModel(
             uz = "Kerakli bo'limni tanlang",
@@ -63,9 +58,9 @@ class BotTexts {
             eng = "Edit language",
         )
         val editLanguageText = TextModel(
-            uz = "Tilni tanlang",
-            ru = "viberite языка",
-            eng = "choose language",
+            uz = "Kerakli tilni tanlang",
+            ru = "Выберите нужный язык",
+            eng = "Choose the desired language",
         )
         val back = TextModel(
             uz = "⬅️ Orqaga",
@@ -73,11 +68,15 @@ class BotTexts {
             eng = "⬅️ Back",
         )
         val goodEditLanguage = TextModel(
-            uz = "Tayyor",
-            ru = "Gotovo",
-            eng = "Ready",
+            uz = "✅Tayyor",
+            ru = "✅Готово",
+            eng = "✅Ready",
         )
-
+        val nadRequest = TextModel(
+            uz = "Noto'gri buyruq",
+            ru = "Неверная команда",
+            eng = "Invalid command",
+        )
     }
 }
 
