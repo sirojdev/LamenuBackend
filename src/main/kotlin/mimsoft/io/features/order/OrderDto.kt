@@ -11,6 +11,6 @@ data class OrderDto(
     val status: String? = null,
     val courier : StaffDto? = null,
     val collector : StaffDto? = null,
-    val paymentTypeDto: PaymentTypeDto
+    val paymentTypeDto: PaymentTypeDto? = null
 
 )

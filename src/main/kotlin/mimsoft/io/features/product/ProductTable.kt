@@ -12,6 +12,8 @@ data class ProductTable(
     val descriptionUz: String? = null,
     val descriptionRu: String? = null,
     val descriptionEng: String? = null,
+    val productIntegrationId: Long? = null,
+    val categoryId: Long? = null,
     val image: String? = null,
     val active: Boolean? = null,
     val costPrice: Long? = null,

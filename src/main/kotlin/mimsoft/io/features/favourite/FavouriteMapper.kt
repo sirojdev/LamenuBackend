@@ -32,7 +32,8 @@ object FavouriteMapper {
                     eng = product?.descriptionEng,
                 ),
                 image = product?.image,
-                costPrice = product?.costPrice
+                costPrice = product?.costPrice,
+                categoryId = product?.categoryId
             )
         )
     }

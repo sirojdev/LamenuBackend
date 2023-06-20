@@ -33,7 +33,7 @@ fun Route.routeToCollector() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val collector = staffService.getAll(id = id, merchantId = merchantId)
+            val collector = staffService.get(id = id, merchantId = merchantId)
             if (collector == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get

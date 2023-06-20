@@ -8,5 +8,5 @@ data class LabelDto(
     val name: TextModel? = null,
     val textColor: String? = null,
     val bgColor: String? = null,
-    val icon: String? = null,
+    val icon: String? = null
 )

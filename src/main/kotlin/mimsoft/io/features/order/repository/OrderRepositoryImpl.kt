@@ -234,11 +234,14 @@ object OrderRepositoryImpl : OrderRepository {
 
                 val orderList = arrayListOf<OrderDto>()
 
-//                while (rs.next()){
-//                    orderList.add(
-////                        OrderDto()
-//                    )
-//                }
+                while (rs.next()){
+                    orderList.add(
+                        OrderDto(
+                            id = rs.getLong("id"),
+
+                        )
+                    )
+                }
             }
         }
         /*val where = mutableMapOf<String, Any>()
