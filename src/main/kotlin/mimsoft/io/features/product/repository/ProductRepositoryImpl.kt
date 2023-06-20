@@ -7,8 +7,11 @@ import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.lamenu_bot.dtos.BotUsersDto
+import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
 
@@ -73,11 +76,69 @@ object ProductRepositoryImpl : ProductRepository {
         }
         return true
     }
+
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
             repository.connection().use { val rs = it.prepareStatement(query).execute() }
         }
         return true
+    }
+
+    fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
+        val connection = repository.connection()
+        val sql =
+            "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
+        val prSt = connection.prepareStatement(sql)
+        val rs = prSt.executeQuery()
+        val listProduct = ArrayList<ProductDto>()
+        while (rs.next()) {
+            var product: ProductDto = ProductDto(
+                id = rs.getLong("id"),
+                name = (TextModel(
+                    uz = rs.getString("name_uz"),
+                    ru = rs.getString("name_ru"),
+                    eng = rs.getString("name_eng")
+                )
+                        )
+            )
+            listProduct.add(product)
+        }
+        return listProduct;
+
+    }
+
+    fun getByName(text: String, profile: BotUsersDto): ProductDto? {
+        var name: String = when (profile.language) {
+            Language.UZ -> "name_uz"
+            Language.RU -> "name_ru"
+            else -> "name_eng"
+        }
+        val connection = repository.connection()
+        val sql =
+            "select * from $PRODUCT_TABLE_NAME where merchant_id = ${profile.merchantId}  and   $name = ? and deleted = false and active = true"
+        val prSt = connection.prepareStatement(sql)
+        prSt.setString(1, text)
+        val rs = prSt.executeQuery()
+        if (rs.next()) {
+            return ProductDto(
+                id = rs.getLong("id"),
+                name = (TextModel(
+                    uz = rs.getString("name_uz"),
+                    ru = rs.getString("name_ru"),
+                    eng = rs.getString("name_eng")
+                )),
+                description = (
+                        TextModel(
+                            uz = rs.getString("description_uz"),
+                            ru = rs.getString("description_ru"),
+                            eng = rs.getString("description_eng")
+                        )
+                        ),
+                image = rs.getString("image"),
+                costPrice = rs.getLong("cost_price")
+            )
+        }
+        return null
     }
 }

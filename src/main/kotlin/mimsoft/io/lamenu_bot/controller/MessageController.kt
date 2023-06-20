@@ -27,15 +27,19 @@ class MessageController {
             if (message.hasText()) {
                 val text: String = message.text
                 if (text == "/start") {
-                    start(profile,merchantId,telegramId)
-                }else{
+                    start(profile, merchantId, telegramId)
+                } else {
                     when (profile?.step) {
                         BotUsersStep.CHOOSE_LANG -> chooseLanguage(profile, text)
                         BotUsersStep.FREE -> generalMenu(profile, text)
-                        BotUsersStep.CLICK_CATEGORIES -> clickCategories(profile, text)
                         BotUsersStep.EDIT -> editSettings(profile, text)
                         BotUsersStep.EDIT_LANGUAGE -> editLanguage(profile, text)
-                        else -> {Utils.sendMsg(telegramId,Utils.getText(profile!!,BotTexts.editText).toString())}
+                        BotUsersStep.CLICK_CATEGORIES -> clickCategories(profile, text)
+                        BotUsersStep.CLICK_PRODUCT -> clickProduct(profile, text)
+                        BotUsersStep.CHOOSE_PRODUCT -> chooseProduct(profile, text)
+                        else -> {
+                            Utils.badRequest(profile)
+                        }
                     }
                 }
 
@@ -47,6 +51,20 @@ class MessageController {
 //                }
             }
 
+        }
+    }
+
+    private fun chooseProduct(profile: BotUsersDto, text: String) {
+        when (text) {
+            BotTexts.back.ru, BotTexts.back.eng, BotTexts.back.uz -> menuServices.chooseProductBack(profile)
+            else -> menuServices.clickProducts(profile, text)
+        }
+    }
+
+    private fun clickProduct(profile: BotUsersDto, text: String) {
+        when (text) {
+            BotTexts.back.ru, BotTexts.back.eng, BotTexts.back.uz -> menuServices.clickProductsBack(profile)
+            else -> menuServices.clickProducts(profile, text)
         }
     }
 

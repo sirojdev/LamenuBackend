@@ -95,12 +95,11 @@ object CategoryRepositoryImpl : CategoryRepository {
         }
 
         val query =
-            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and ? = ? "
+            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and $name = ? "
         var connection = repository.connection()
         var preparedStatement = connection.prepareStatement(query)
         preparedStatement.setLong(1, profile.merchantId!!)
-        preparedStatement.setString(2, name)
-        preparedStatement.setString(3, text)
+        preparedStatement.setString(2, text)
 
         repository.connection().use {
             var rs = preparedStatement.executeQuery()

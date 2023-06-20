@@ -4,6 +4,16 @@ import mimsoft.io.utils.TextModel
 
 class BotTexts {
     companion object {
+        val addToBasket = TextModel(
+            uz = "\uD83D\uDCE5 Savatga qo'shing",
+            ru = "\uD83D\uDCE5 Добавить в корзину",
+            eng = "\uD83D\uDCE5 Add to basket",
+        )
+        val cost = TextModel(
+            uz = "Narxi",
+            ru = "цена",
+            eng = "Cost"
+        )
         val languageButton = TextModel(
             uz = "\uD83C\uDDFA\uD83C\uDDFF O'zbek tili",
             ru = "\uD83C\uDDF7\uD83C\uDDFA Русский язык",
@@ -72,7 +82,7 @@ class BotTexts {
             ru = "✅Готово",
             eng = "✅Ready",
         )
-        val nadRequest = TextModel(
+        val badRequest = TextModel(
             uz = "Noto'gri buyruq",
             ru = "Неверная команда",
             eng = "Invalid command",

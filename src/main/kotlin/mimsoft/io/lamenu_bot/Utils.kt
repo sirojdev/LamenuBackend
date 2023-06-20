@@ -36,4 +36,8 @@ object Utils {
         sendMsg.text = text
         laMenuBot.sendMsg(sendMsg)
     }
+
+    fun badRequest(profile: BotUsersDto?) {
+        sendMsg(profile?.telegramId!!, getText(profile!!, BotTexts.badRequest).toString())
+    }
 }

@@ -4,7 +4,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
+import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.lamenu_bot.BotTexts
+import mimsoft.io.lamenu_bot.LaMenuBot
 import mimsoft.io.lamenu_bot.Utils
 import mimsoft.io.lamenu_bot.controller.ButtonController
 import mimsoft.io.lamenu_bot.dtos.BotUsersDto
@@ -12,21 +15,25 @@ import mimsoft.io.lamenu_bot.dtos.BotUsersMapper
 import mimsoft.io.lamenu_bot.enums.BotUsersStep
 import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.lamenu_bot.repository.BotUsersRepositoryImpl
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
+import org.telegram.telegrambots.meta.api.objects.InputFile
 
 object MenuService {
     private var mapper = BotUsersMapper
     private var profileRepository = BotUsersRepositoryImpl
     private var categoryRepository = CategoryRepositoryImpl
     private var buttonController = ButtonController
+    private var productRepository = ProductRepositoryImpl
+    private var laMenuBot = LaMenuBot
     fun clickMenu(profile: BotUsersDto) {
         GlobalScope.launch {
             //get category by merchantID
-            var categoryList: List<CategoryDto?> = categoryRepository.getAll(profile.merchantId)
+            val categoryList: List<CategoryDto?> = categoryRepository.getAll(profile.merchantId)
             // send msg
             Utils.sendMsg(
                 profile.telegramId!!,
                 Utils.getText(profile, BotTexts.clickMenuText).toString(),
-                ButtonController.clickMenuButtons(profile, categoryList)
+                ButtonController.categoriesButtons(profile, categoryList)
             )
             profile.step = BotUsersStep.CLICK_CATEGORIES
             profileRepository.updateStep(profile)
@@ -35,10 +42,21 @@ object MenuService {
     }
 
     fun clickCategories(profile: BotUsersDto, text: String) {
-        var category = categoryRepository.getCategoryByName(profile, text)
-        //TODO get product by categories name
-
-
+        GlobalScope.launch {
+            val category = categoryRepository.getCategoryByName(profile, text)
+            if (category == null) {
+                Utils.badRequest(profile)
+            } else {
+                profile.step = BotUsersStep.CLICK_PRODUCT
+                profileRepository.updateStep(profile)
+                val productList = productRepository.getAllByCategories(profile.merchantId, category?.id)
+                Utils.sendMsg(
+                    profile.telegramId!!,
+                    Utils.getText(profile, BotTexts.badRequest).toString(),
+                    buttonController.productsButtons(profile, productList)
+                )
+            }
+        }
     }
 
     // statusi free bolsa va u setings ni bossa bu yerga keladi
@@ -80,7 +98,7 @@ object MenuService {
     }
 
     fun editLanguageBack(profile: BotUsersDto) {
-        profile.step=BotUsersStep.EDIT
+        profile.step = BotUsersStep.EDIT
         profileRepository.updateStep(profile)
         Utils.sendMsg(
             profile.telegramId!!,
@@ -90,7 +108,7 @@ object MenuService {
     }
 
     fun editBack(profile: BotUsersDto) {
-        profile.step=BotUsersStep.FREE
+        profile.step = BotUsersStep.FREE
         profileRepository.updateStep(profile)
         Utils.sendMsg(
             profile.telegramId!!,
@@ -100,13 +118,68 @@ object MenuService {
     }
 
     fun clickCategoriesBack(profile: BotUsersDto) {
-        profile.step=BotUsersStep.FREE
+        profile.step = BotUsersStep.FREE
         profileRepository.updateStep(profile)
         Utils.sendMsg(
             profile.telegramId!!,
             Utils.getText(profile, BotTexts.menuText).toString(),
             buttonController.generalButton(profile)
         )
+    }
+
+    fun clickProducts(profile: BotUsersDto, text: String) {
+        val product: ProductDto? = productRepository.getByName(text, profile)
+        if (product == null) {
+            Utils.badRequest(profile)
+        } else {
+            // update profile
+            profile.step = BotUsersStep.CHOOSE_PRODUCT
+            profileRepository.updateStep(profile)
+            // send info product
+            val sendPhoto = SendPhoto()
+            sendPhoto.setChatId(profile.telegramId!!)
+            if (product != null) {
+                sendPhoto.photo = InputFile(product.image)
+            }
+            sendPhoto.caption = getDescriptionProduct(product, profile)
+            sendPhoto.replyMarkup = buttonController.productCountButton(profile, product.id, 1);
+            sendPhoto.parseMode = "MARKDOWN"
+            laMenuBot.sendMsg(sendPhoto)
+        }
+    }
+
+    private fun getDescriptionProduct(product: ProductDto, profile: BotUsersDto): String? {
+        var description = "*" + Utils.getText(profile, product.name) + "*" + "\n"
+        description += Utils.getText(profile, product.description)
+        description += "\n"
+        description = description+"*" + Utils.getText(profile, BotTexts.cost) + "*" + " : "
+        description += product.costPrice
+        return description
+
+    }
+
+    fun clickProductsBack(profile: BotUsersDto) {
+        GlobalScope.launch {
+            profile.step = BotUsersStep.CLICK_CATEGORIES
+            profileRepository.updateStep(profile)
+            Utils.sendMsg(
+                profile.telegramId!!,
+                Utils.getText(profile, BotTexts.menuText).toString(),
+                buttonController.categoriesButtons(profile, categoryRepository.getAll(profile.merchantId))
+            )
+        }
+    }
+
+    fun chooseProductBack(profile: BotUsersDto) {
+        GlobalScope.launch {
+            profile.step = BotUsersStep.CLICK_PRODUCT
+            profileRepository.updateStep(profile)
+            Utils.sendMsg(
+                profile.telegramId!!,
+                Utils.getText(profile, BotTexts.menuText).toString(),
+                buttonController.categoriesButtons(profile, categoryRepository.getAll(profile.merchantId))
+            )
+        }
     }
 
 
