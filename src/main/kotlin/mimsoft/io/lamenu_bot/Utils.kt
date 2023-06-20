@@ -8,8 +8,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
 
 object Utils {
-   private var laMenuBot = LaMenuBot
-    public fun getText(profile: BotUsersDto, textModel: TextModel?): String? {
+    private var laMenuBot = LaMenuBot
+    fun getText(profile: BotUsersDto, textModel: TextModel?): String? {
         var result: String? = null
         when (profile.language) {
             Language.EN -> result = textModel?.eng
@@ -21,14 +21,16 @@ object Utils {
         }
         return result
     }
-    fun sendMsg(chatId:Long,text:String,button:ReplyKeyboardMarkup){
+
+    fun sendMsg(chatId: Long, text: String, button: ReplyKeyboardMarkup) {
         var sendMsg = SendMessage()
         sendMsg.setChatId(chatId)
         sendMsg.text = text
         sendMsg.replyMarkup = button
         laMenuBot.sendMsg(sendMsg)
     }
-    fun sendMsg(chatId:Long,text:String){
+
+    fun sendMsg(chatId: Long, text: String) {
         var sendMsg = SendMessage()
         sendMsg.setChatId(chatId)
         sendMsg.text = text

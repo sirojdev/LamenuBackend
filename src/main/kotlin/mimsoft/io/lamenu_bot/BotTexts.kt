@@ -49,6 +49,35 @@ class BotTexts {
             ru = "\uD83D\uDD51 Categoriya Ru",
             eng = "\uD83D\uDD51 Categoriya EN",
         )
+        val editText = TextModel(
+            uz = "Kerakli bo'limni tanlang",
+            ru = "Выберите действие:",
+            eng = "Choose action",
+        )
+        val edit = TextModel(
+
+        )
+        val editLanguage = TextModel(
+            uz = "Tilni o'zgartirish",
+            ru = "Изменение языка",
+            eng = "Edit language",
+        )
+        val editLanguageText = TextModel(
+            uz = "Tilni tanlang",
+            ru = "viberite языка",
+            eng = "choose language",
+        )
+        val back = TextModel(
+            uz = "⬅️ Orqaga",
+            ru = "⬅️ Назад",
+            eng = "⬅️ Back",
+        )
+        val goodEditLanguage = TextModel(
+            uz = "Tayyor",
+            ru = "Gotovo",
+            eng = "Ready",
+        )
+
     }
 }
 

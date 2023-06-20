@@ -58,6 +58,15 @@ object ButtonController {
         return keyboard(list)
     }
 
+    fun editLanguageButton(profile: BotUsersDto): ReplyKeyboardMarkup {
+        var back = button(Utils.getText(profile, BotTexts.back))
+        val rus = button(BotTexts.languageButton.ru)
+        val eng = button(BotTexts.languageButton.eng)
+        val uzb = button(BotTexts.languageButton.uz)
+        val list = buttonRowList(buttonRow(back,uzb), buttonRow(rus,eng))
+        return keyboard(list)
+    }
+
 
     fun generalButton(profile: BotUsersDto): ReplyKeyboardMarkup {
         val menu = button(Utils.getText(profile, BotTexts.menu))
@@ -71,17 +80,25 @@ object ButtonController {
 
     fun clickMenuButtons(profile: BotUsersDto, categoryList: List<CategoryDto?>): ReplyKeyboardMarkup {
         var rowList = ArrayList<KeyboardRow>()
-        for (x in 0..categoryList.size step 2) {
+        var backButton = button(Utils.getText(profile, BotTexts.back))
+        rowList.add((buttonRow(backButton)))
+        for (x in 0..categoryList.size - 1 step 2) {
             var row = KeyboardRow()
             val button1 = button(Utils.getText(profile, categoryList[x]?.name))
-            row = if (x < categoryList.size-1) {
+            row = if (x < categoryList.size - 1) {
                 val button2 = button(Utils.getText(profile, categoryList[x + 1]?.name))
                 buttonRow(button1, button2)
             } else {
                 buttonRow(button1)
             }
-            rowList.add((row))
+            rowList.add(row)
         }
         return keyboard(rowList)
+    }
+
+    fun settingsButton(profile: BotUsersDto): ReplyKeyboardMarkup {
+        var editLanguage = button(Utils.getText(profile, BotTexts.editLanguage))
+        var back = button(Utils.getText(profile, BotTexts.back))
+        return keyboard(buttonRowList(buttonRow(editLanguage, back)))
     }
 }

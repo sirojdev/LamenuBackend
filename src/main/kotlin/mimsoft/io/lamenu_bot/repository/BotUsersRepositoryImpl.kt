@@ -39,9 +39,12 @@ object BotUsersRepositoryImpl : BotUsersRepository {
     }
 
     override fun getByTelegramId(telegramId: Long?, merchantId: Long?): BotUsersDto? {
-        val query = "select * from $BOT_USERS_TABLE_NAME where merchant_id = $merchantId and telegram_id = $telegramId"
+        val query = "select * from $BOT_USERS_TABLE_NAME where merchant_id = ? and telegram_id = ?"
         return repository.connection().use {
-            val rs = it.prepareStatement(query).executeQuery()
+            var prSt = it.prepareStatement(query)
+            prSt.setLong(1, merchantId!!)
+            prSt.setLong(2, telegramId!!)
+            val rs = prSt.executeQuery()
             if (rs.next()) {
                 return BotUsersMapper.toBotUsersDto(
                     BotUsersTable(
@@ -68,10 +71,5 @@ object BotUsersRepositoryImpl : BotUsersRepository {
         var st = StaffService.repository.connection().prepareStatement(sql)
         st.setString(1,profile.step?.name)
         st.executeUpdate()
-//        use {
-//            it.prepareStatement(sql).use { ti ->
-//                ti.executeUpdate()
-//            }
-//        }
     }
 }

@@ -27,37 +27,15 @@ class MessageController {
             if (message.hasText()) {
                 val text: String = message.text
                 if (text == "/start") {
-                    if (profile == null) {
-                        createNewUsers(merchantId, telegramId)
-                        Utils.sendMsg(telegramId, "\uD83C\uDF10 Tilni tanlang:", ButtonController.languageButton())
-                    } else {
-                        //update profile
-                        profile.step = BotUsersStep.FREE
-                        botUsersRepository.update(mapper.toTable(profile))
-                        //send msg
-                        Utils.sendMsg(
-                            telegramId,
-                            Utils.getText(profile, BotTexts.menuText).toString(),
-                            ButtonController.generalButton(profile)
-                        )
-                    }
-                } else if (profile?.step == BotUsersStep.CHOOSE_LANG) {
-                    when (text) {
-                        BotTexts.languageButton.uz -> profile.language = Language.UZ
-                        BotTexts.languageButton.ru -> profile.language = Language.RU
-                        BotTexts.languageButton.eng -> profile.language = Language.EN
-                    }
-                    Utils.sendMsg(
-                        telegramId,
-                        Utils.getText(profile, BotTexts.menuText).toString(),
-                        buttonController.generalButton(profile)
-                    )
-                    profile.step = BotUsersStep.FREE
-                    botUsersRepository.update(mapper.toTable(profile))
-                } else if (profile?.step == BotUsersStep.FREE) {
-                    generalMenu(profile, text)
-                } else if (profile?.step == BotUsersStep.CLICK_MENU){
-
+                    start(profile,merchantId,telegramId)
+                }
+                when (profile?.step) {
+                    BotUsersStep.CHOOSE_LANG -> chooseLanguage(profile, text)
+                    BotUsersStep.FREE -> generalMenu(profile, text)
+                    BotUsersStep.CLICK_CATEGORIES -> clickCategories(profile, text)
+                    BotUsersStep.EDIT -> editSettings(profile, text)
+                    BotUsersStep.EDIT_LANGUAGE -> editLanguage(profile, text)
+                    else -> {}
                 }
             } else if (message.hasContact()) {
 //                if (profile?.step == BotUsersStep.SEND_CONTACT) {
@@ -70,63 +48,69 @@ class MessageController {
         }
     }
 
-    private fun generalMenu(profile: BotUsersDto, text: String) {
-        when (profile.language) {
-            Language.RU -> {
-                when (text) {
-                    BotTexts.history.ru -> {
-                        //TODO history
-                    }
-
-                    BotTexts.settings.ru -> {
-                        //TODO settings
-                    }
-
-                    BotTexts.menu.ru -> {
-                        menuServices.clickMenu(profile)
-                    }
-                }
-            }
-
-            Language.UZ -> {
-                when (text) {
-                    BotTexts.history.uz -> {
-
-                    }
-
-                    BotTexts.settings.uz -> {
-
-                    }
-
-                    BotTexts.menu.uz -> {
-                        menuServices.clickMenu(profile)
-                    }
-                }
-
-            }
-
-            Language.EN -> {
-                when (text) {
-                    BotTexts.history.eng -> {
-
-                    }
-
-                    BotTexts.settings.eng -> {
-
-                    }
-
-                    BotTexts.menu.eng -> {
-                        menuServices.clickMenu(profile)
-                    }
-                }
-
-            }
-
-            else -> {
-
+    private fun start(profile: BotUsersDto?, merchantId: Long, telegramId: Long) {
+        GlobalScope.launch {
+            if (profile == null) {
+                createNewUsers(merchantId, telegramId)
+                Utils.sendMsg(telegramId, "\uD83C\uDF10 Tilni tanlang:", ButtonController.languageButton())
+            } else {
+                //update profile
+                profile.step = BotUsersStep.FREE
+                botUsersRepository.update(mapper.toTable(profile))
+                //send msg
+                Utils.sendMsg(
+                    telegramId,
+                    Utils.getText(profile, BotTexts.menuText).toString(),
+                    ButtonController.generalButton(profile)
+                )
             }
         }
+    }
 
+    private fun clickCategories(profile: BotUsersDto, text: String) {
+        when (text) {
+            BotTexts.back.ru, BotTexts.back.eng, BotTexts.back.uz -> menuServices.clickCategoriesBack(profile)
+            else -> menuServices.clickCategories(profile, text)
+        }
+    }
+
+    private fun chooseLanguage(profile: BotUsersDto, text: String) {
+        GlobalScope.launch {
+            when (text) {
+                BotTexts.languageButton.uz -> profile.language = Language.UZ
+                BotTexts.languageButton.ru -> profile.language = Language.RU
+                BotTexts.languageButton.eng -> profile.language = Language.EN
+            }
+            Utils.sendMsg(
+                profile.telegramId!!,
+                Utils.getText(profile, BotTexts.menuText).toString(),
+                buttonController.generalButton(profile)
+            )
+            profile.step = BotUsersStep.FREE
+            botUsersRepository.update(mapper.toTable(profile))
+        }
+    }
+
+    private fun editLanguage(profile: BotUsersDto, text: String) {
+        when (text) {
+            BotTexts.languageButton.ru, BotTexts.languageButton.uz, BotTexts.languageButton.eng -> menuServices.chooseNewLanguage(
+                profile,
+                text
+            )
+
+            BotTexts.back.ru, BotTexts.back.uz, BotTexts.back.eng -> menuServices.editLanguageBack(profile)
+        }
+    }
+
+    private fun generalMenu(profile: BotUsersDto, text: String) {
+        when (text) {
+            BotTexts.history.ru, BotTexts.history.eng, BotTexts.history.uz -> {
+                //TODO history
+            }
+
+            BotTexts.settings.ru, BotTexts.settings.uz, BotTexts.settings.eng -> menuServices.clickSettings(profile)
+            BotTexts.menu.ru, BotTexts.menu.uz, BotTexts.menu.eng -> menuServices.clickMenu(profile)
+        }
     }
 
 
@@ -140,4 +124,14 @@ class MessageController {
         )
     }
 
+    private fun editSettings(profile: BotUsersDto, text: String) {
+        when (text) {
+            BotTexts.editLanguage.ru, BotTexts.editLanguage.eng, BotTexts.editLanguage.uz
+            -> menuServices.editLanguages(profile)
+
+            BotTexts.back.ru, BotTexts.back.eng, BotTexts.back.uz
+            -> menuServices.editBack(profile)
+        }
+    }
 }
+

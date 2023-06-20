@@ -6,9 +6,10 @@ import mimsoft.io.features.category.CATEGORY_TABLE_NAME
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
-import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.lamenu_bot.dtos.BotUsersDto
+import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
@@ -48,7 +49,7 @@ object CategoryRepositoryImpl : CategoryRepository {
             tableName = CATEGORY_TABLE_NAME
         )
 
-    override suspend fun update(dto: CategoryDto): Boolean{
+    override suspend fun update(dto: CategoryDto): Boolean {
         val merchantId = dto.merchantId
         val query = "UPDATE $CATEGORY_TABLE_NAME " +
                 "SET" +
@@ -84,5 +85,38 @@ object CategoryRepositoryImpl : CategoryRepository {
             ProductRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
         }
         return true
+    }
+
+    override fun getCategoryByName(profile: BotUsersDto, text: String): CategoryDto? {
+        var name: String = when (profile.language) {
+            Language.UZ -> "name_uz"
+            Language.RU -> "name_ru"
+            else -> "name_eng"
+        }
+
+        val query =
+            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and ? = ? "
+        var connection = repository.connection()
+        var preparedStatement = connection.prepareStatement(query)
+        preparedStatement.setLong(1, profile.merchantId!!)
+        preparedStatement.setString(2, name)
+        preparedStatement.setString(3, text)
+
+        repository.connection().use {
+            var rs = preparedStatement.executeQuery()
+            if (rs.next()) {
+                return mapper.toCategoryDto(
+                    CategoryTable(
+                        id = rs.getLong("id"),
+                        nameUz = rs.getString("name_uz"),
+                        nameRu = rs.getString("name_ru"),
+                        nameEng = rs.getString("name_eng"),
+                        merchantId = rs.getLong("merchant_id")
+                    )
+                )
+            } else return null
+        }
+
+
     }
 }
