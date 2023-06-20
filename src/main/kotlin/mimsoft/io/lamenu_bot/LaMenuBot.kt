@@ -6,6 +6,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.AnswerInlineQuery
 import org.telegram.telegrambots.meta.api.methods.send.*
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageCaption
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -52,6 +53,8 @@ object LaMenuBot : TelegramLongPollingBot() {
                 execute(message as SendAudio?)
             } else if (message is AnswerInlineQuery) {
                 execute(message as AnswerInlineQuery?)
+            }else if (message is EditMessageCaption) {
+                execute(message as EditMessageCaption?)
             }
         } catch (e: TelegramApiRequestException) {
 //            log.error(e.message)

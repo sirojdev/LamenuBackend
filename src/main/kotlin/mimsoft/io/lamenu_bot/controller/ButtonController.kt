@@ -151,18 +151,18 @@ object ButtonController {
         return keyboard(buttonRowList(buttonRow(editLanguage, back)))
     }
 
-    fun productCountButton(profile: BotUsersDto, productID: Long?, count: Long?): ReplyKeyboard? {
+    fun productCountButton(profile: BotUsersDto, productID: Long?, count: Long?): InlineKeyboardMarkup {
         return inlineKeyboard(
             inlineButtonRowList(
                 inlineButtonRow(
-                    inlineButton("-", "minus/p_id/" + profile.id + "/" + productID),
-                    inlineButton("" + count, "count/p_id/" + profile.id + "/" + productID),
-                    inlineButton("+", "plus/p_id/" + profile.id + "/" + productID),
+                    inlineButton("-", "minus/p_id/" + profile.id + "/" + productID+"/"+count),
+                    inlineButton("" + count, "count/p_id/" + profile.id + "/" + productID+"/"+count),
+                    inlineButton("+", "plus/p_id/" + profile.id + "/" + productID+"/"+count),
                 ),
                 inlineButtonRow(
                     inlineButton(
                         Utils.getText(profile, BotTexts.addToBasket).toString(),
-                        "basket/p_id/" + profile.id + "/" + productID
+                        "basket/p_id/" + profile.id + "/" + productID+"/"+count
                     )
                 )
             )

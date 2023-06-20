@@ -9,6 +9,7 @@ import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.lamenu_bot.BotTexts
 import mimsoft.io.lamenu_bot.LaMenuBot
 import mimsoft.io.lamenu_bot.Utils
+import mimsoft.io.lamenu_bot.Utils.getDescriptionProduct
 import mimsoft.io.lamenu_bot.controller.ButtonController
 import mimsoft.io.lamenu_bot.dtos.BotUsersDto
 import mimsoft.io.lamenu_bot.dtos.BotUsersMapper
@@ -52,7 +53,7 @@ object MenuService {
                 val productList = productRepository.getAllByCategories(profile.merchantId, category?.id)
                 Utils.sendMsg(
                     profile.telegramId!!,
-                    Utils.getText(profile, BotTexts.badRequest).toString(),
+                    Utils.getText(profile, BotTexts.clickMenuText).toString(),
                     buttonController.productsButtons(profile, productList)
                 )
             }
@@ -141,22 +142,14 @@ object MenuService {
             if (product != null) {
                 sendPhoto.photo = InputFile(product.image)
             }
-            sendPhoto.caption = getDescriptionProduct(product, profile)
+            sendPhoto.caption = getDescriptionProduct(product, profile,1)
             sendPhoto.replyMarkup = buttonController.productCountButton(profile, product.id, 1);
             sendPhoto.parseMode = "MARKDOWN"
             laMenuBot.sendMsg(sendPhoto)
         }
     }
 
-    private fun getDescriptionProduct(product: ProductDto, profile: BotUsersDto): String? {
-        var description = "*" + Utils.getText(profile, product.name) + "*" + "\n"
-        description += Utils.getText(profile, product.description)
-        description += "\n"
-        description = description+"*" + Utils.getText(profile, BotTexts.cost) + "*" + " : "
-        description += product.costPrice
-        return description
 
-    }
 
     fun clickProductsBack(profile: BotUsersDto) {
         GlobalScope.launch {
