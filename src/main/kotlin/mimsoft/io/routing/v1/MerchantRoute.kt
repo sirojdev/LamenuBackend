@@ -5,6 +5,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
+import mimsoft.io.features.cashback.routeToCashback
 import mimsoft.io.features.category.routeToCategory
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
@@ -77,6 +78,7 @@ fun Route.routeToMerchant() {
                 routeToUserUser()
                 routeToBadge()
                 routeToCourier()
+                routeToCashback()
             }
         }
 

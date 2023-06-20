@@ -59,7 +59,8 @@ object FavouriteService {
             p.description_ru p_description_ru, 
             p.description_eng p_description_eng, 
             p.image p_image, 
-            p.cost_price p_cost_price 
+            p.cost_price p_cost_price,
+            p.category_id p_category_id 
             from favourite 
             left join product p on favourite.product_id = p.id 
             where client_id = $clientId 
@@ -88,7 +89,8 @@ object FavouriteService {
                                 eng = rs.getString("p_description_eng")
                             ),
                             image = rs.getString("p_image"),
-                            costPrice = rs.getLong("p_cost_price")
+                            costPrice = rs.getLong("p_cost_price"),
+                            categoryId = rs.getLong("p_category_id")
                         )
                     )
                     list.add(favourite)

@@ -61,6 +61,7 @@ object ProductRepositoryImpl : ProductRepository {
                 " description_ru = ?," +
                 " description_eng = ?," +
                 " image = ? ," +
+                " category_id = ${dto.categoryId} ," +
                 " cost_price = ${dto.costPrice}," +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
