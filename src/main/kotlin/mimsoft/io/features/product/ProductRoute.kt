@@ -91,6 +91,23 @@ fun Route.routeToProduct() {
         } else
             call.respond(HttpStatusCode.OK, response)
     }
+
+    get("product/info/{id}") {
+        val pr = call.principal<MerchantPrincipal>()
+        val merchantId = pr?.merchantId
+        val id = call.parameters["id"]?.toLongOrNull()
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        val response = productRepository.getProductInfo(id = id, merchantId = merchantId)
+        if (response == null) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        } else
+            call.respond(HttpStatusCode.OK, response)
+    }
+
 }
 
 data class ProductId(

@@ -57,7 +57,7 @@ fun Route.routeToProductLabel() {
                 return@delete
             }
             val response = productLabelService.deleteProductLabel(productLabelDto.copy(merchantId = merchantId))
-            if (!response) {
+            if(!response){
                 call.respond(HttpStatusCode.NoContent)
                 return@delete
             }
