@@ -27,10 +27,24 @@ fun Route.routeToOrder() {
             }
             call.respond(HttpStatusCode.OK, orderDto)
         }
+        get("all") {
+
+            val orders = repository.getAll()
+            call.respond(orders)
+        }
+        get("live") {
+            val type = call.parameters["type"]
+            val orders = repository.getLiveOrders(type = type.toString())
+            val orderDto = orders?.data
+            if (orderDto == null) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+        }
 
         get("history") {
             val orders = repository.getAll()
-            if (orders == null) {
+            if (orders.total == 0) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }
