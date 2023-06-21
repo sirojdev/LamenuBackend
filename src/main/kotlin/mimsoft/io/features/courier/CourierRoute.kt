@@ -16,17 +16,17 @@ fun Route.routeToCourier() {
     route("courier") {
         routeToCourierLocation()
 
-        get("") {
+        get("all") {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
             println(merchantId)
-            val couriers = staffService.getAllCourier(merchantId = merchantId)
+            val couriers = staffService.getAll(merchantId = merchantId)
             if (couriers.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             } else call.respond(couriers)
         }
-
+//OrderRepositoryImpl.getAll(merchantId = merchantId, courierId = id)
         get("/{id}") {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
@@ -35,7 +35,7 @@ fun Route.routeToCourier() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val courier = OrderRepositoryImpl.getAll(merchantId = merchantId, courierId = id)
+            val courier = staffService.get(id = id, merchantId = merchantId)
             if (courier == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get

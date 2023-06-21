@@ -163,7 +163,7 @@ object OrderRepositoryImpl : OrderRepository {
         courierId: Long?,
         collectorId: Long?,
         paymentTypeId: Long?
-    ): DataPage<OrderDto?>? {
+    ): DataPage<OrderDto?> {
         val queryCount = "select count(*) from orders o "
         var query = """
             select o.id ,
@@ -224,7 +224,8 @@ object OrderRepositoryImpl : OrderRepository {
         queryCount.plus(joins + filter)
         query = query.plus(joins + filter)
         query = query.plus("order by id desc limit $limit offset $offset")
-
+        println(query)
+        println(queryCount)
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
@@ -235,14 +236,13 @@ object OrderRepositoryImpl : OrderRepository {
                 }.executeQuery()
 
                 val orderList = arrayListOf<OrderDto>()
-                val data = mutableListOf<OrderTable>()
-
                 while (rs.next()) {
                     orderList.add(
                         OrderDto(
                             id = rs.getLong("id"),
                             userId = rs.getLong("user_id"),
                             user = UserDto(
+                                id = rs.getLong("user_id"),
                                 phone = rs.getString("u_phone"),
                                 firstName = rs.getString("u_first_name"),
                                 lastName = rs.getString("u_last_name")
@@ -257,7 +257,19 @@ object OrderRepositoryImpl : OrderRepository {
                         )
                     )
                 }
-                return@use DataPage(data = orderList, total = x)
+
+                val rc = it.prepareStatement(queryCount).apply {
+                    stringsList.forEach { p ->
+                        this.setString(p.first, p.second)
+                    }
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val count = if (rc.next()) {
+                    rc.getInt("count")
+                } else 0
+
+                return@withContext DataPage(data = orderList, total = count)
 //                return@withContext DataPage(data = orderList, total = orderList.size)
 
             }
