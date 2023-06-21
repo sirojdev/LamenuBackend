@@ -1,6 +1,6 @@
 package mimsoft.io.features.product
 
-import mimsoft.io.features.product.product_integration.ProductLabelDto
+import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.utils.TextModel
 
 data class ProductDto(
@@ -12,7 +12,7 @@ data class ProductDto(
     val costPrice: Long? = null,
     val active: Boolean? = null,
     val categoryId: Long? = null,
-    val productIntegration: ProductLabelDto? = null,
+    val productIntegration: ProductIntegrationDto? = null,
     val timeCookingMin: Long? = null,
     val timeCookingMax: Long? = null,
     val deliveryEnabled: Boolean? = null

@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
+import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.principal.MerchantPrincipal
 
@@ -34,7 +35,7 @@ fun Route.routeToCourier() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val courier = staffService.getCourier(id = id, merchantId = merchantId)
+            val courier = OrderRepositoryImpl.getAll(merchantId = merchantId, courierId = id)
             if (courier == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
