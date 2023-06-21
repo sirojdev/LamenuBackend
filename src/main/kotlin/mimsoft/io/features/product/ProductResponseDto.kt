@@ -4,7 +4,7 @@ import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 
 import mimsoft.io.utils.TextModel
 
-data class ProductDto(
+data class ProductResponseDto(
     val id: Long? = null,
     val merchantId: Long? = null,
     val name: TextModel? = null,
@@ -12,7 +12,7 @@ data class ProductDto(
     val image: String? = null,
     val costPrice: Long? = null,
     val active: Boolean? = null,
-    val categoryId: Long? = null,
+    val categoryName: TextModel? = null,
     val productIntegration: ProductIntegrationDto? = null,
     val timeCookingMin: Long? = null,
     val timeCookingMax: Long? = null,
