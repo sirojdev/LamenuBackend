@@ -16,6 +16,11 @@ fun Route.routeToOrder() {
 
     val repository: OrderRepository = OrderRepositoryImpl
 
+    get("all"){
+
+        val orders = repository.getAll()
+        call.respond(orders)
+    }
     get("live") {
         val type = call.parameters["type"]
         val orders = repository.getLiveOrders(type = type.toString())

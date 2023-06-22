@@ -1,7 +1,6 @@
 package mimsoft.io.features.product
 
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
-
 import mimsoft.io.utils.TextModel
 
 data class ProductDto(

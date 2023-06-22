@@ -19,7 +19,7 @@ data class StaffDto(
     val firstName: String? = null,
     val allOrderCount: Long? = null,
     val todayOrderCount: Long? = null,
-    val orders: List<OrderDto>? = null,
+    val orders: List<OrderDto?>? = null,
     val activeOrderCount: Long? = null,
     var lastLocation: CourierLocationHistoryDto? = null
 )

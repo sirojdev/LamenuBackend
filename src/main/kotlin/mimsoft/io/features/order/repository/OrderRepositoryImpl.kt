@@ -22,9 +22,11 @@ import mimsoft.io.features.order.utils.CartItem
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -161,9 +163,9 @@ object OrderRepositoryImpl : OrderRepository {
         courierId: Long?,
         collectorId: Long?,
         paymentTypeId: Long?
-    ): DataPage<OrderDto?>? {
+    ): DataPage<OrderDto?> {
         val queryCount = "select count(*) from orders o "
-        val query = """
+        var query = """
             select o.id ,
                o.user_id ,
                u.phone u_phone,
@@ -183,11 +185,11 @@ object OrderRepositoryImpl : OrderRepository {
                      left join users u on o.user_id = u.id
                      left join payment_type pt on o.deleted = pt.deleted
                      left join staff cl on cl.id = o.collector_id
-                     left join staff cr on cr.id = o.courier_id
+                     left join staff cr on cr.id = o.courier_id 
         """.trimIndent()
 
         val filter = """
-            where not o.deleted 
+               where not o.deleted 
             """.trimIndent()
         if (search != null) {
             val s = search.lowercase().replace('\'', '_')
@@ -220,10 +222,11 @@ object OrderRepositoryImpl : OrderRepository {
         }
 
         queryCount.plus(joins + filter)
-        query.plus(joins + filter)
-        query.plus("order by id desc limit $limit offset $offset")
-
-        withContext(DBManager.databaseDispatcher) {
+        query = query.plus(joins + filter)
+        query = query.plus("order by id desc limit $limit offset $offset")
+        println(query)
+        println(queryCount)
+        return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     stringsList.forEach { p ->
@@ -233,15 +236,42 @@ object OrderRepositoryImpl : OrderRepository {
                 }.executeQuery()
 
                 val orderList = arrayListOf<OrderDto>()
-
-                while (rs.next()){
+                while (rs.next()) {
                     orderList.add(
                         OrderDto(
                             id = rs.getLong("id"),
-
+                            userId = rs.getLong("user_id"),
+                            user = UserDto(
+                                id = rs.getLong("user_id"),
+                                phone = rs.getString("u_phone"),
+                                firstName = rs.getString("u_first_name"),
+                                lastName = rs.getString("u_last_name")
+                            ),
+                            paymentTypeDto = PaymentTypeDto(
+                                icon = rs.getString("pt_icon"),
+                                name = rs.getString("pt_name")
+                            ),
+                            productCount = rs.getInt("product_count"),
+                            grade = rs.getDouble("grade"),
+                            status = rs.getString("status")
                         )
                     )
                 }
+
+                val rc = it.prepareStatement(queryCount).apply {
+                    stringsList.forEach { p ->
+                        this.setString(p.first, p.second)
+                    }
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val count = if (rc.next()) {
+                    rc.getInt("count")
+                } else 0
+
+                return@withContext DataPage(data = orderList, total = count)
+//                return@withContext DataPage(data = orderList, total = orderList.size)
+
             }
         }
         /*val where = mutableMapOf<String, Any>()
@@ -261,7 +291,6 @@ object OrderRepositoryImpl : OrderRepository {
                 total = it.total
             )
         }*/
-        return null
     }
 
     override suspend fun getBySomethingId(
