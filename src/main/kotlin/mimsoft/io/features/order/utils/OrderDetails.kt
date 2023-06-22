@@ -10,4 +10,6 @@ data class OrderDetails(
     val totalPrice: Long? = null,
     val totalDiscount: Long? = null,
     val comment: String? = null,
+    val courierId: Long? = null,
+    val collectorId: Long? = null
 )

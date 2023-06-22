@@ -7,5 +7,7 @@ class CourierLocationHistoryTable(
     val longitude: Double? = null,
     val latitude: Double? = null,
     val staffId: Long? = null,
-    val time: Timestamp? = null
+    val time: Timestamp? = null,
+    val name: String? = null
+
 )

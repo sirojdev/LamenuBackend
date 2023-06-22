@@ -10,7 +10,6 @@ import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.book.repository.BookService
 import mimsoft.io.features.book.repository.BookServiceImpl
 import mimsoft.io.utils.principal.MerchantPrincipal
-import java.sql.Timestamp
 
 fun Route.routeToMerchantBook() {
     val bookService: BookService = BookServiceImpl
@@ -22,20 +21,19 @@ fun Route.routeToMerchantBook() {
         if (books.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }
-        else call.respond(books)
+        } else call.respond(books)
     }
 
     get("book/{id}") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null) {
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val book = bookService.getMerchantBook(id=id, merchantId = merchantId)
-        if (book==null){
+        val book = bookService.getMerchantBook(id = id, merchantId = merchantId)
+        if (book == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -62,7 +60,7 @@ fun Route.routeToMerchantBook() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }

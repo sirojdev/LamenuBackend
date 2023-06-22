@@ -16,6 +16,9 @@ tags:
   - name: Auth
     description: Login endpoints
 
+  - name: DineIn
+    description: DineIn endpoints
+
   - name: Settings/Integrations
     description: Endpoints related to category
 
@@ -35,6 +38,31 @@ tags:
     description: Endpoints related to staff
 
 paths:
+  /merchant/auth:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get auth token"
+      requestBody:
+        description: "A JSON object containing staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                phone:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/MerchantDto'
 
   /staff/auth:
     post:
@@ -138,6 +166,196 @@ paths:
       tags:
         - Staff
       description: "Deletes a staff by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/books:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a list of all books"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+  /merchant/book:
+    post:
+      tags:
+        - DineIn
+      description: "Adds a new booking"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - DineIn
+      description: "Update a booking's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/book/{id}:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a book by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - DineIn
+      description: "Deletes a booking by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/visits:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a list of all visits"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/VisitDto"
+        "204":
+          description: "No Content"
+  /merchant/visit:
+    post:
+      tags:
+        - DineIn
+      description: "Adds a new visit"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing visit's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - DineIn
+      description: "Update a visit's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated visit's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/visit/{id}:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a visit by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - DineIn
+      description: "Deletes a visit by its id"
       security:
         - bearerAuth: [ ]
       parameters:
@@ -2083,6 +2301,8 @@ components:
           type: "string"
         password:
           type: "string"
+        token:
+          type: "string"
 
     OutcomeDto:
       type: "object"
@@ -2319,6 +2539,75 @@ components:
         merchantId:
           type: "integer"
           format: "long"
+
+    VisitDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        orders:
+          $ref: "#/components/schemas/OrderDto"
+        waiter:
+          $ref: "#/components/schemas/StaffDto"
+        table:
+          $ref: "#/components/schemas/TableDto"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        status:
+          type: "string"
+        payment:
+          $ref: "#/components/schemas/PaymentDto"
+        price:
+          type: "string"
+
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        badge:
+          $ref: "#/components/schemas/BadgeDto"
+        phone:
+          type: "string"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+        birthDay:
+          type: string
+          format: "yyyy-MM-dd"
+        token:
+          type: string
+
+
+
+
+
+    BookDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        tableId:
+          type: "integer"
+          format: "long"
+        time:
+          type: string
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        comment:
+          type: string
+
 
   securitySchemes:
     bearerAuth:

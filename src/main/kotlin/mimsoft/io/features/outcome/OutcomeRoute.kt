@@ -22,7 +22,7 @@ fun Route.routeToOutcome(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val outcome = OutcomeService.get(id)
+        val outcome = OutcomeService.get(id = id)
         if(outcome == null){
             call.respond(HttpStatusCode.NoContent)
             return@get

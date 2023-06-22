@@ -8,7 +8,6 @@ import io.ktor.server.routing.*
 
 fun Route.routeToAddress(){
     val addressService : AddressService = AddressServiceImpl
-    val addressMapper = AddressMapper
     get("addresses"){
         val addresses = addressService.getAll()
         if(addresses.isEmpty()){

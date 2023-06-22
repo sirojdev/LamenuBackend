@@ -91,11 +91,11 @@ object OutcomeTypeService {
 
     }
 
-    suspend fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
+    fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
         val query = "update $OUTCOME_TYPE_TABLE set " +
                 "name = ? , " +
                 "updated = ? \n" +
-                "where merchant_id = ${outcomeTypeDto?.merchantId} and not deleted "
+                "where merchant_id = ${outcomeTypeDto?.merchantId} and id = ${outcomeTypeDto?.id} and not deleted "
         repository.connection().use {
             val rs = it.prepareStatement(query).apply {
                 this.setString(1, outcomeTypeDto?.name)
