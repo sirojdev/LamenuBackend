@@ -1,6 +1,5 @@
 package mimsoft.io.features.order.repository
 
-import ch.qos.logback.classic.db.names.ColumnName
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
@@ -10,8 +9,8 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.address.AddressService
-import mimsoft.io.features.address.AddressServiceImpl
+import mimsoft.io.features.address.repository.AddressRepository
+import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.features.order.ORDER_TABLE_NAME
 import mimsoft.io.features.order.OrderDto
 import mimsoft.io.features.order.OrderMapper
@@ -26,12 +25,10 @@ import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
-import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.*
-import mimsoft.io.utils.plugins.GSON
 import java.sql.Timestamp
 
 object OrderRepositoryImpl : OrderRepository {
@@ -40,7 +37,7 @@ object OrderRepositoryImpl : OrderRepository {
     private val orderMapper = OrderMapper
     private val productMapper = ProductMapper
     private val userRepo: UserRepository = UserRepositoryImpl
-    private val addressService: AddressService = AddressServiceImpl
+    private val addressService: AddressRepository = AddressRepositoryImpl
 
     override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?): DataPage<OrderWrapper?> {
         val query = """
