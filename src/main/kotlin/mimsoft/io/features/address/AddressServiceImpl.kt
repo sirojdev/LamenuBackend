@@ -32,5 +32,4 @@ object AddressServiceImpl : AddressService {
 
     override suspend fun delete(id: Long?) : Boolean =
         repository.deleteData(tableName = "address", whereValue = id)
-
 }

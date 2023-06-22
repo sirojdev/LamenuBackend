@@ -19,5 +19,7 @@ data class OrderTable(
     val updatedAt: Timestamp? = null,
     val deleted: Boolean? = null,
     val comment: String? = null,
-    val merchantId: Long? = null
+    val merchantId: Long? = null,
+    val courierId: Long? = null,
+    val collectorId: Long? = null
 )

@@ -12,5 +12,7 @@ data class LaPrincipal(
 enum class Role {
     ADMIN,
     MANAGER_STAFFS,
-    USER
+    USER,
+    COURIER,
+    COLLECTOR
 }

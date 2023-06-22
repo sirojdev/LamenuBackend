@@ -30,6 +30,9 @@ object OrderMapper {
                 totalPrice = orderPriceTable?.totalPrice,
                 totalDiscount = orderPriceTable?.totalDiscount,
                 comment = orderTable.comment,
+                courierId = orderTable.courierId,
+                collectorId = orderTable.collectorId
+
             )
         else null
     }
@@ -57,7 +60,9 @@ object OrderMapper {
                 deliveryAt = details?.deliveryAt,
                 deliveredAt = details?.deliveredAt,
                 updatedAt = details?.updatedAt,
-                comment = details?.comment
+                comment = details?.comment,
+                courierId = details?.courierId,
+                collectorId = details?.collectorId
             )
         else null
     }

@@ -9,6 +9,7 @@ import mimsoft.io.routing.v1.client.routeToClientAuth
 import mimsoft.io.client.menu.routeToMenu
 import mimsoft.io.client.table.routeToClientTable
 import mimsoft.io.features.book.routeToBook
+import mimsoft.io.features.favourite.routeToFavourites
 import mimsoft.io.routing.v1.client.routeToClientDevice
 import mimsoft.io.routing.v1.client.routeToClientProfile
 
@@ -17,16 +18,18 @@ fun Route.clientRouting() {
     route("client/auth") {
         routeToClientAuth()
     }
-    authenticate("user") {
-        route("client") {
+    route("client") {
+        routeToMenu()
+        routeToClientTable()
+        routeToClientBranches()
+
+        authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
-            routeToMenu()
-            routeToClientTable()
-            routeToClientBranches()
             routeToAddress()
             routeToOrderClient()
             routeToBook()
+            routeToFavourites()
         }
     }
 }

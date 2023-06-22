@@ -1,5 +1,6 @@
 package mimsoft.io.features.order.repository
 
+import ch.qos.logback.classic.db.names.ColumnName
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
@@ -21,9 +22,11 @@ import mimsoft.io.features.order.utils.CartItem
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -156,22 +159,41 @@ object OrderRepositoryImpl : OrderRepository {
         status: String?,
         type: String?,
         limit: Int?,
-        offset: Int?
-    ): DataPage<OrderDto?>? {
-
-        val query = """
-            select *
-            from orders o
-            left join users u on o.user_id = u.id
-            left join order_price op on o.id = op.order_id
-            where not o.deleted
-            and not u.deleted
-            and not op.deleted
+        offset: Int?,
+        courierId: Long?,
+        collectorId: Long?,
+        paymentTypeId: Long?
+    ): DataPage<OrderDto?> {
+        val queryCount = "select count(*) from orders o "
+        var query = """
+            select o.id ,
+               o.user_id ,
+               u.phone u_phone,
+               u.first_name u_first_name,
+               u.last_name u_last_name,
+               pt.icon pt_icon,
+               pt.name pt_name,
+               o.product_count,
+               o.grade,
+               o.status
+               from orders o 
+            
         """.trimIndent()
 
+        val joins = """
+                     left join order_price op on o.id = op.order_id
+                     left join users u on o.user_id = u.id
+                     left join payment_type pt on o.deleted = pt.deleted
+                     left join staff cl on cl.id = o.collector_id
+                     left join staff cr on cr.id = o.courier_id 
+        """.trimIndent()
+
+        val filter = """
+               where not o.deleted 
+            """.trimIndent()
         if (search != null) {
-            val s = search.lowercase()
-            query.plus(
+            val s = search.lowercase().replace('\'', '_')
+            filter.plus(
                 """
                 and (
                     lower(u.name) like '%$s%'
@@ -181,11 +203,77 @@ object OrderRepositoryImpl : OrderRepository {
                 """.trimIndent()
             )
         }
-        if (merchantId != null) query.plus(" and o.merchant_id = $merchantId ")
-        if (status != null) query.plus(" and o.status = ? ")
-        if (type != null) query.plus(" and o.type = ? ")
 
+        val stringsList = arrayListOf<Pair<Int, String>>()
+        var x = 1
+        if (merchantId != null) filter.plus(" and o.merchant_id = $merchantId ")
+        if (status != null) {
+            filter.plus(" and o.status = ? ")
+            stringsList.add(Pair(x++, status))
+        }
 
+        if (type != null) {
+            filter.plus(" and o.type = ? ")
+            stringsList.add(Pair(x++, type))
+        }
+        if (courierId != null) filter.plus(" and courier_id = $courierId")
+        if (collectorId != null) {
+            filter.plus("\t and collector_id = $collectorId \n")
+        }
+
+        queryCount.plus(joins + filter)
+        query = query.plus(joins + filter)
+        query = query.plus("order by id desc limit $limit offset $offset")
+        println(query)
+        println(queryCount)
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    stringsList.forEach { p ->
+                        this.setString(p.first, p.second)
+                    }
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val orderList = arrayListOf<OrderDto>()
+                while (rs.next()) {
+                    orderList.add(
+                        OrderDto(
+                            id = rs.getLong("id"),
+                            userId = rs.getLong("user_id"),
+                            user = UserDto(
+                                id = rs.getLong("user_id"),
+                                phone = rs.getString("u_phone"),
+                                firstName = rs.getString("u_first_name"),
+                                lastName = rs.getString("u_last_name")
+                            ),
+                            paymentTypeDto = PaymentTypeDto(
+                                icon = rs.getString("pt_icon"),
+                                name = rs.getString("pt_name")
+                            ),
+                            productCount = rs.getInt("product_count"),
+                            grade = rs.getDouble("grade"),
+                            status = rs.getString("status")
+                        )
+                    )
+                }
+
+                val rc = it.prepareStatement(queryCount).apply {
+                    stringsList.forEach { p ->
+                        this.setString(p.first, p.second)
+                    }
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val count = if (rc.next()) {
+                    rc.getInt("count")
+                } else 0
+
+                return@withContext DataPage(data = orderList, total = count)
+//                return@withContext DataPage(data = orderList, total = orderList.size)
+
+            }
+        }
         /*val where = mutableMapOf<String, Any>()
         if (merchantId != null) where["merchant_id"] = merchantId
         if (status != null) where["status"] = status
@@ -203,10 +291,14 @@ object OrderRepositoryImpl : OrderRepository {
                 total = it.total
             )
         }*/
-        return null
     }
 
-    override suspend fun getByUserId(userId: Long?): List<OrderWrapper?> {
+    override suspend fun getBySomethingId(
+        userId: Long?,
+        courierId: Long?,
+        collectorId: Long?,
+        merchantId: Long?
+    ): List<OrderWrapper?> {
         val query = """
             select 
             o.id  o_id,
@@ -216,9 +308,12 @@ object OrderRepositoryImpl : OrderRepository {
             from orders o
             left join order_price op on o.id = op.order_id
             where not o.deleted
-            and not op.deleted
-            and o.user_id = $userId
+            and not op.deleted 
         """.trimIndent()
+        if (merchantId != null) query.plus(" and merchant_id = $merchantId")
+        if (userId != null) query.plus("and o.user_id = $userId")
+        if (courierId != null) query.plus("and o.courier_id = $courierId")
+        if (collectorId != null) query.plus("and o.collector_id = $collectorId")
         println("query: $query")
 
         val orderWrappers = mutableListOf<OrderWrapper>()
@@ -245,6 +340,8 @@ object OrderRepositoryImpl : OrderRepository {
                     val deliveredAt = statement.getTimestamp("delivered_at")
                     val updatedAt = statement.getTimestamp("updated_at")
                     val comment = statement.getString("comment")
+                    val courierId = statement.getLong("courier_id")
+                    val collectorId = statement.getLong("collector_id")
 
 
                     val priceId = statement.getLong("op_id")
@@ -271,7 +368,9 @@ object OrderRepositoryImpl : OrderRepository {
                                 totalPrice = totalPrice,
                                 totalDiscount = totalDiscount,
                                 updatedAt = updatedAt,
-                                comment = comment
+                                comment = comment,
+                                courierId = courierId,
+                                collectorId = collectorId
                             ),
                             user = UserDto(
                                 id = rUserId,

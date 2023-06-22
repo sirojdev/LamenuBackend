@@ -1,8 +1,10 @@
 package mimsoft.io.client.menu
 
 import io.ktor.http.*
+import io.ktor.http.cio.internals.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.category.repository.CategoryRepository
@@ -15,8 +17,7 @@ import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToMenu() {
     get("/menus") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val categoryRepository: CategoryRepository = CategoryRepositoryImpl
         val categories = categoryRepository.getAll(merchantId=merchantId).map { it }
 

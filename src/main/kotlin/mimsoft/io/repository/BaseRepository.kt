@@ -1,5 +1,6 @@
 package mimsoft.io.repository
 
+import mimsoft.io.features.product.ProductTable
 import java.sql.Connection
 import kotlin.reflect.KClass
 

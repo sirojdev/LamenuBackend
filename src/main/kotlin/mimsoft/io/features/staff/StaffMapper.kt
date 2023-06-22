@@ -2,40 +2,43 @@ package mimsoft.io.features.staff
 
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
-import mimsoft.io.auth.position.PositionDto
 
 object StaffMapper {
 
-    fun toDto(staffTable: StaffTable?): StaffDto? {
+    fun toDto(staffTable: StaffTable?): StaffDto {
         return StaffDto(
             id = staffTable?.id,
-            merchantId = staffTable?.merchantId,
-            phone = staffTable?.phone,
-            password = staffTable?.password,
-            firstName = staffTable?.firstName,
-            lastName = staffTable?.lastName,
-            position = staffTable?.position,
-            birthDay = staffTable?.birthDay.toString(),
             image = staffTable?.image,
-            comment = staffTable?.comment
+            phone = staffTable?.phone,
+            status = staffTable?.status,
+            gender = staffTable?.gender,
+            comment = staffTable?.comment,
+            password = staffTable?.password,
+            position = staffTable?.position,
+            lastName = staffTable?.lastName,
+            firstName = staffTable?.firstName,
+            merchantId = staffTable?.merchantId,
+            birthDay = staffTable?.birthDay.toString()
         )
     }
 
-    fun toTable(staffDto: StaffDto?): StaffTable? {
+    fun toTable(staffDto: StaffDto?): StaffTable {
         val birthDay = if (staffDto?.birthDay != null)
             toTimeStamp(staffDto.birthDay, TIMESTAMP_FORMAT)
         else null
         return StaffTable(
             id = staffDto?.id,
-            merchantId = staffDto?.merchantId,
-            phone = staffDto?.phone,
-            password = staffDto?.password,
-            firstName = staffDto?.firstName,
-            lastName = staffDto?.lastName,
-            position = staffDto?.position,
             birthDay = birthDay,
+            phone = staffDto?.phone,
             image = staffDto?.image,
-            comment = staffDto?.comment
+            gender = staffDto?.gender,
+            status = staffDto?.status,
+            comment = staffDto?.comment,
+            password = staffDto?.password,
+            position = staffDto?.position,
+            lastName = staffDto?.lastName,
+            firstName = staffDto?.firstName,
+            merchantId = staffDto?.merchantId
         )
     }
 }

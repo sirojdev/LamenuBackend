@@ -2,26 +2,26 @@ package mimsoft.io.features.courier.courier_location_history
 
 object CourierLocationHistoryMapper {
     fun toTable(dto: CourierLocationHistoryDto): CourierLocationHistoryTable? {
-        return if (dto == null) null
-        else CourierLocationHistoryTable(
+        return CourierLocationHistoryTable(
             id = dto.id,
-            merchantId = dto.merchantId,
-            longitude = dto.longitude,
-            latitude = dto.latitude,
+            name = dto.name,
+            time = dto.time,
             staffId = dto.staffId,
-            time = dto.time
+            latitude = dto.latitude,
+            longitude = dto.longitude,
+            merchantId = dto.merchantId
         )
     }
 
     fun toDto(table: CourierLocationHistoryTable): CourierLocationHistoryDto? {
-        return if (table == null) null
-        else CourierLocationHistoryDto(
+        return CourierLocationHistoryDto(
             id = table.id,
-            merchantId = table.merchantId,
-            longitude = table.longitude,
-            latitude = table.latitude,
+            time = table.time,
+            name = table.name,
             staffId = table.staffId,
-            time = table.time
+            latitude = table.latitude,
+            longitude = table.longitude,
+            merchantId = table.merchantId
         )
     }
 }
