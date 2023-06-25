@@ -72,7 +72,8 @@ object DeviceController {
                     ")\n" +
                     "insert\n" +
                     "into device (merchant_id, os_version, model, brand, build, created_at ,ip, uuid)\n" +
-                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ? , ? \n" + "where not exists(select * from upsert)"
+                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ? , ? \n" +
+                    "where not exists(select * from upsert)"
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use { connection ->
                 var x = 0
