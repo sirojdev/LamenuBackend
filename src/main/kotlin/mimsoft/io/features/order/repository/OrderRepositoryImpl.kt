@@ -31,7 +31,7 @@ import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.*
 import java.sql.Timestamp
 
-object OrderRepositoryImpl : OrderRepository {
+object  OrderRepositoryImpl : OrderRepository {
 
     private val repository: BaseRepository = DBManager
     private val orderMapper = OrderMapper
@@ -162,7 +162,8 @@ object OrderRepositoryImpl : OrderRepository {
         paymentTypeId: Long?
     ): DataPage<OrderDto?> {
         val queryCount = "select count(*) from orders o "
-        var query = """
+        var query = java.lang.StringBuilder()
+        query.append("""
             select o.id ,
                o.user_id ,
                u.phone u_phone,
@@ -175,22 +176,22 @@ object OrderRepositoryImpl : OrderRepository {
                o.status
                from orders o 
             
-        """.trimIndent()
-
-        val joins = """
+        """.trimIndent())
+        val joins = StringBuilder()
+        joins.append( """
                      left join order_price op on o.id = op.order_id
                      left join users u on o.user_id = u.id
                      left join payment_type pt on o.deleted = pt.deleted
                      left join staff cl on cl.id = o.collector_id
                      left join staff cr on cr.id = o.courier_id 
-        """.trimIndent()
-
-        val filter = """
+        """.trimIndent())
+        val filter = StringBuilder()
+         filter.append("""
                where not o.deleted 
-            """.trimIndent()
+            """.trimIndent())
         if (search != null) {
             val s = search.lowercase().replace('\'', '_')
-            filter.plus(
+            filter.append (
                 """
                 and (
                     lower(u.name) like '%$s%'
@@ -203,29 +204,29 @@ object OrderRepositoryImpl : OrderRepository {
 
         val stringsList = arrayListOf<Pair<Int, String>>()
         var x = 1
-        if (merchantId != null) filter.plus(" and o.merchant_id = $merchantId ")
+        if (merchantId != null) filter.append(" and o.merchant_id = $merchantId ")
         if (status != null) {
-            filter.plus(" and o.status = ? ")
+            filter.append(" and o.status = ? ")
             stringsList.add(Pair(x++, status))
         }
 
         if (type != null) {
-            filter.plus(" and o.type = ? ")
+            filter.append(" and o.type = ? ")
             stringsList.add(Pair(x++, type))
         }
-        if (courierId != null) filter.plus(" and courier_id = $courierId")
+        if (courierId != null) filter.append(" and courier_id = $courierId ")
         if (collectorId != null) {
-            filter.plus("\t and collector_id = $collectorId \n")
+            filter.append("\t and collector_id = $collectorId \n")
         }
 
-        queryCount.plus(joins + filter)
-        query = query.plus(joins + filter)
-        query = query.plus("order by id desc limit $limit offset $offset")
+//        queryCount.plus(joins.append(filter))
+        query.append(joins.append(filter))
+        query.append("order by id desc limit $limit offset $offset")
         println(query)
         println(queryCount)
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                val rs = it.prepareStatement(query.toString()).apply {
                     stringsList.forEach { p ->
                         this.setString(p.first, p.second)
                     }
@@ -267,8 +268,6 @@ object OrderRepositoryImpl : OrderRepository {
                 } else 0
 
                 return@withContext DataPage(data = orderList, total = count)
-//                return@withContext DataPage(data = orderList, total = orderList.size)
-
             }
         }
         /*val where = mutableMapOf<String, Any>()

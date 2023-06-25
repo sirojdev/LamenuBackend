@@ -13,11 +13,13 @@ import mimsoft.io.utils.principal.MerchantPrincipal
 fun Route.routeToProduct() {
 
     val productRepository: ProductRepository = ProductRepositoryImpl
+    val mapper = ProductMapper
 
     get("/products") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val products = productRepository.getAll(merchantId = merchantId).map { ProductMapper.toProductDto(it) }
+
+        val products = (productRepository.getAllProductInfo(merchantId = merchantId))
         if (products.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -33,9 +35,9 @@ fun Route.routeToProduct() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val product = ProductMapper.toProductDto(productRepository.get(id = id, merchantId = merchantId))
+        val product = productRepository.getProductInfo(merchantId = merchantId, id = id)
         if (product != null) {
-            call.respond(HttpStatusCode.OK, product)
+            call.respond(product)
         } else {
             call.respond(HttpStatusCode.NoContent)
         }
@@ -44,16 +46,18 @@ fun Route.routeToProduct() {
     post("/product") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val product = call.receive<ProductDto>()
-        val id = productRepository.add(ProductMapper.toProductTable(product.copy(merchantId = merchantId)))
+        val productInfo = call.receive<ProductInfoDto>()
+        val product = productInfo.product
+        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId)))
         call.respond(HttpStatusCode.OK, ProductId(id))
     }
 
     put("/product") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val product = call.receive<ProductDto>()
-        val updated = productRepository.update((product.copy(merchantId = merchantId)))
+        val productInfo = call.receive<ProductInfoDto>()
+        val product = productInfo.product
+        val updated = productRepository.update((product?.copy(merchantId = merchantId)))
         if (updated) call.respond(HttpStatusCode.OK)
         else call.respond(HttpStatusCode.InternalServerError)
     }
@@ -62,15 +66,14 @@ fun Route.routeToProduct() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id != null) {
-            val deleted = productRepository.delete(id = id, merchantId = merchantId)
-            if (deleted) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError)
-            }
-        } else
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
+        }
+        else{
+            val deleted = productRepository.delete(id = id, merchantId = merchantId)
+                call.respond(deleted)
+        }
+
     }
 
     get("product/info/{id}") {
@@ -88,7 +91,6 @@ fun Route.routeToProduct() {
         } else
             call.respond(HttpStatusCode.OK, response)
     }
-
 }
 
 data class ProductId(
