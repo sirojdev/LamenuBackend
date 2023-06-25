@@ -1,4 +1,4 @@
-package mimsoft.io.features.product.product_label
+package mimsoft.io.features.product.product_option
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -8,22 +8,22 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.MerchantPrincipal
 
-fun Route.routeToProductLabel() {
-    val productLabelService = ProductLabelService
-    route("product/label") {
-        post("") {
+fun Route.routeToProductOption() {
+    val productOptionService = ProductOptionService
+    route("product/option") {
+        post {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val productLabelDto = call.receive<ProductLabelDto>()
-            if (productLabelDto.productId == null) {
+            val productOptionDto = call.receive<ProductOptionDto>()
+            if (productOptionDto.productId == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
-            if (productLabelDto.labelId == null) {
+            if (productOptionDto.optionId == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
-            val result = productLabelService.add(productLabelDto.copy(merchantId = merchantId))
+            val result = productOptionService.add(productOptionDto.copy(merchantId = merchantId))
             call.respond(result)
         }
 
@@ -35,7 +35,7 @@ fun Route.routeToProductLabel() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val response = productLabelService.getLabelsByProductId(productId = id, merchantId = merchantId)
+            val response = productOptionService.getOptionsByProductId(productId = id, merchantId = merchantId)
             if (response.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -43,20 +43,19 @@ fun Route.routeToProductLabel() {
                 call.respond(HttpStatusCode.OK, response)
         }
 
-
         delete {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val productLabelDto = call.receive<ProductLabelDto>()
-            if (productLabelDto.productId == null) {
+            val productOptionDto = call.receive<ProductOptionDto>()
+            if (productOptionDto.productId == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            if (productLabelDto.labelId == null) {
+            if (productOptionDto.optionId == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            val response = productLabelService.deleteProductLabel(productLabelDto.copy(merchantId = merchantId))
+            val response = productOptionService.deleteProductOption(productOptionDto.copy(merchantId = merchantId))
             if (!response) {
                 call.respond(HttpStatusCode.NoContent)
                 return@delete

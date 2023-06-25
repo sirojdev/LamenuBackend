@@ -5,7 +5,6 @@ import io.ktor.client.statement.*
 import io.ktor.server.testing.*
 import kotlin.test.*
 import io.ktor.http.*
-import mimsoft.io.plugins.*
 import mimsoft.io.utils.plugins.configureRouting
 
 class ApplicationTest {
