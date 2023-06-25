@@ -1,35 +1,37 @@
-package mimsoft.io.features.address
+package mimsoft.io.features.address.repository
 
+import mimsoft.io.features.address.ADDRESS_TABLE_NAME
+import mimsoft.io.features.address.AddressDto
+import mimsoft.io.features.address.AddressMapper
+import mimsoft.io.features.address.AddressTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-object AddressServiceImpl : AddressService {
+object AddressRepositoryImpl : AddressRepository {
 
     private val repository: BaseRepository = DBManager
     private val mapper = AddressMapper
 
     override suspend fun getAll(): List<AddressDto?> =
-        repository.getData(dataClass = AddressTable::class, tableName = "address")
+        repository.getData(dataClass = AddressTable::class, tableName = ADDRESS_TABLE_NAME)
             .filterIsInstance<AddressTable?>().map { mapper.toAddressDto(it) }
 
     override suspend fun get(id: Long?): AddressDto? {
-        val data = repository.getData(dataClass = AddressTable::class, id = id, tableName = "address")
-
-        println("\nget: $data")
+        val data = repository.getData(dataClass = AddressTable::class, id = id, tableName = ADDRESS_TABLE_NAME)
         return mapper.toAddressDto(data.firstOrNull() as AddressTable?)
     }
     override suspend fun add(addressDto: AddressDto?): Long? =
         repository.postData(
             dataClass = AddressTable::class,
             dataObject = mapper.toAddressTable(addressDto),
-            tableName = "address")
+            tableName = ADDRESS_TABLE_NAME)
 
 
     override suspend fun update(addressDto: AddressDto?): Boolean =
         repository.updateData(
             dataClass = AddressTable::class,
             dataObject = mapper.toAddressTable(addressDto),
-            tableName = "address")
+            tableName = ADDRESS_TABLE_NAME)
 
     override suspend fun delete(id: Long?) : Boolean =
-        repository.deleteData(tableName = "address", whereValue = id)
+        repository.deleteData(tableName = ADDRESS_TABLE_NAME, whereValue = id)
 }
