@@ -22,6 +22,7 @@ import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
 import mimsoft.io.features.outcome_type.routeToOutcomeType
+import mimsoft.io.features.pantry.routeToPantry
 import mimsoft.io.features.payment.routeToPayment
 import mimsoft.io.features.poster.routeToPoster
 import mimsoft.io.features.product.product_extra.routeToProductExtra
@@ -40,7 +41,6 @@ import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
 import mimsoft.io.routing.merchant.routeToOrderByCourierAndCollector
 
-
 fun Route.routeToMerchant() {
 
     route("merchant") {
@@ -49,12 +49,13 @@ fun Route.routeToMerchant() {
 
         authenticate("merchant") {
 
-            routeToOrderByCourierAndCollector()
-            routeToMerchantProfile()
-            routeToMerchantOrder()
+            routeToVisits()
+            routeToPantry()
             routeToKitchen()
             routeToMerchantBook()
-            routeToVisits()
+            routeToMerchantOrder()
+            routeToMerchantProfile()
+            routeToOrderByCourierAndCollector()
 
 
             route("settings") {
