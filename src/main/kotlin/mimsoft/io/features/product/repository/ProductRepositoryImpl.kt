@@ -2,13 +2,15 @@ package mimsoft.io.features.product.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.product.PRODUCT_TABLE_NAME
-import mimsoft.io.features.product.ProductDto
-import mimsoft.io.features.product.ProductMapper
-import mimsoft.io.features.product.ProductTable
+import mimsoft.io.features.product.*
+import mimsoft.io.features.product.product_extra.ProductExtraService
+import mimsoft.io.features.product.product_integration.ProductIntegrationDto
+import mimsoft.io.features.product.product_label.ProductLabelService
+import mimsoft.io.features.product.product_option.ProductOptionService
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
 
@@ -90,6 +92,60 @@ object ProductRepositoryImpl : ProductRepository {
             repository.connection().use {
                 val rs = it.prepareStatement(query).execute()
                 return@withContext rs
+            }
+        }
+    }
+
+    override suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoResponseDto? {
+        val query = """
+            select p.*, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng,
+                p_i.id_jowi p_i_id_jowi, p_i.id_rkeeper p_i_id_rkeeper, p_i.id_join_poster p_i_id_join_poster
+                from product p
+            inner join category c on p.category_id = c.id
+            inner join product_integration p_i on p.product_integration_id = p_i.id
+                where p.merchant_id = $merchantId 
+                and p.id = $id 
+                and p.deleted = false
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    return@withContext ProductInfoResponseDto(
+                        product = ProductResponseDto(
+                            id = rs.getLong("id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            description = TextModel(
+                                uz = rs.getString("description_uz"),
+                                ru = rs.getString("description_ru"),
+                                eng = rs.getString("description_eng")
+                            ),
+                            image = rs.getString("image"),
+                            costPrice = rs.getLong("cost_price"),
+                            active = rs.getBoolean("active"),
+                            categoryName = TextModel(
+                                uz = rs.getString("c_name_uz"),
+                                ru = rs.getString("c_name_ru"),
+                                eng = rs.getString("c_name_eng")
+                            ),
+                            productIntegration = ProductIntegrationDto(
+                                idJowi = rs.getBoolean("p_i_id_jowi"),
+                                idRkeeper = rs.getBoolean("p_i_id_rkeeper"),
+                                idJoinPoster = rs.getBoolean("p_i_id_join_poster")
+                            ),
+                            timeCookingMin = rs.getLong("time_min"),
+                            timeCookingMax = rs.getLong("time_max"),
+                            deliveryEnabled = rs.getBoolean("enabled")
+                        ),
+                        labels = ProductLabelService.getLabelsByProductId(id, merchantId = merchantId),
+                        options = ProductOptionService.getOptionsByProductId(id, merchantId = merchantId),
+                        extras = ProductExtraService.getExtrasByProductId(id, merchantId = merchantId)
+                    )
+                } else return@withContext null
             }
         }
     }

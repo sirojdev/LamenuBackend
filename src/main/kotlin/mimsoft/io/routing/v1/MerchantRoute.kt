@@ -25,6 +25,9 @@ import mimsoft.io.features.outcome.routeToOutcome
 import mimsoft.io.features.outcome_type.outcomeTypeRoute
 import mimsoft.io.features.payment.routeToPayment
 import mimsoft.io.features.poster.routeToPoster
+import mimsoft.io.features.product.product_extra.routeToProductExtra
+import mimsoft.io.features.product.product_label.routeToProductLabel
+import mimsoft.io.features.product.product_option.routeToProductOption
 import mimsoft.io.features.product.routeToProduct
 import mimsoft.io.features.room.routeToRoom
 import mimsoft.io.features.sms_gateway.routeToSmsGateways
@@ -79,6 +82,9 @@ fun Route.routeToMerchant() {
                 routeToBadge()
                 routeToCourier()
                 routeToCashback()
+                routeToProductLabel()
+                routeToProductExtra()
+                routeToProductOption()
             }
         }
 
