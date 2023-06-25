@@ -25,6 +25,9 @@ tags:
   - name: Profile
     description: Endpoints related to profile
 
+  - name: Favourite
+    description: Endpoints related to profile
+
 paths:
 
   /client/device:
@@ -390,6 +393,101 @@ paths:
         "400":
           description: "Bad Request"
 
+  /client/favourite:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a list of all favourites"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+  /client/book:
+    post:
+      tags:
+        - DineIn
+      description: "Adds a new booking"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - DineIn
+      description: "Update a booking's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookDto"
+      responses:
+        "200":
+          description: "OK"
+  /client/book/{id}:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a book by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - DineIn
+      description: "Deletes a booking by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
 
 
 
@@ -518,6 +616,22 @@ components:
           format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
         comment:
           type: string
+
+    FavouriteDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: '#/'
+
 
 
 
