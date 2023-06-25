@@ -25,36 +25,36 @@ object ProductRepositoryImpl : ProductRepository {
 
     override suspend fun getAllProductInfo(merchantId: Long?): List<ProductInfoDto?> {
         val query = """
-        select p.id              p_id,
-       p.name_uz         p_name_uz,
-       p.name_ru         p_name_ru,
-       p.name_eng        p_name_eng,
-       p.description_uz  p_description_uz,
-       p.description_ru  p_description_ru,
-       p.description_eng p_description_eng,
-       p.image           p_image,
-       p.cost_price      p_cost_price,
-       p.category_id,
-       p.time_cooking_max,
-       p.time_cooking_min,
-       p.delivery_enabled,
-       p.id_rkeeper,
-       p.id_jowi,
-       p.id_join_poster,
-       p.active,
-       COALESCE( pan.count, -1) pan_count, 
-       c.id              c_id,
-       c.name_uz         c_name_uz,
-       c.name_ru         c_name_ru,
-       c.name_eng        c_name_eng,
-       c.image           c_image,
-       c.bg_color        c_bg_color,
-       c.text_color      c_text_color
-from product p
-         inner join category c on p.category_id = c.id
-         left join pantry pan on pan.product_id = p.id
-where p.merchant_id = $merchantId
-        """.trimIndent()
+            select 
+                p.id              p_id,
+                p.name_uz         p_name_uz,
+                p.name_ru         p_name_ru,
+                p.name_eng        p_name_eng,
+                p.description_uz  p_description_uz,
+                p.description_ru  p_description_ru,
+                p.description_eng p_description_eng,
+                p.image           p_image,
+                p.cost_price      p_cost_price,
+                p.category_id,
+                p.time_cooking_max,
+                p.time_cooking_min,
+                p.delivery_enabled,
+                p.id_rkeeper,
+                p.id_jowi,
+                p.id_join_poster,
+                p.active,
+                COALESCE( pan.count, -1) pan_count, 
+                c.id              c_id,
+                c.name_uz         c_name_uz,
+                c.name_ru         c_name_ru,
+                c.name_eng        c_name_eng,
+                c.image           c_image,
+                c.bg_color        c_bg_color,
+                c.text_color      c_text_color
+            from product p
+                left join category c on p.category_id = c.id
+                left join pantry pan on pan.product_id = p.id
+            where p.merchant_id = $merchantId""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -109,26 +109,26 @@ where p.merchant_id = $merchantId
     override suspend fun getAll(merchantId: Long?): List<ProductDto?> {
         val query = """
         select p.id              p_id,
-        p.name_uz         p_name_uz,
-        p.name_ru         p_name_ru,
-        p.name_eng        p_name_eng,
-        p.description_uz  p_description_uz,
-        p.description_ru  p_description_ru,
-        p.description_eng p_description_eng,
-        p.image           p_image,
-        p.cost_price      p_cost_price,
-        p.category_id,
-        p.time_cooking_max,
-        p.time_cooking_min,
-        p.delivery_enabled,
-        p.id_rkeeper,
-        p.id_jowi,
-        p.id_join_poster,
-        p.active,
-        COALESCE( pan.count, -1) pan_count 
-        from product p
-        left join pantry pan on pan.product_id = p.id
-    where p.merchant_id = $merchantId
+            p.name_uz         p_name_uz,
+            p.name_ru         p_name_ru,
+            p.name_eng        p_name_eng,
+            p.description_uz  p_description_uz,
+            p.description_ru  p_description_ru,
+            p.description_eng p_description_eng,
+            p.image           p_image,
+            p.cost_price      p_cost_price,
+            p.category_id,
+            p.time_cooking_max,
+            p.time_cooking_min,
+            p.delivery_enabled,
+            p.id_rkeeper,
+            p.id_jowi,
+            p.id_join_poster,
+            p.active,
+            COALESCE( pan.count, -1) pan_count 
+            from product p
+            left join pantry pan on pan.product_id = p.id
+                where p.merchant_id = $merchantId and not p.deleted
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -193,32 +193,34 @@ where p.merchant_id = $merchantId
     override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
         val query = """
             select 
-        p.id              p_id,
-        p.name_uz         p_name_uz,
-        p.name_ru         p_name_ru,
-        p.name_eng        p_name_eng,
-        p.description_uz  p_description_uz,
-        p.description_ru  p_description_ru,
-        p.description_eng p_description_eng,
-        p.image           p_image,
-        p.cost_price      p_cost_price,
-        p.category_id,
-        p.time_cooking_max,
-        p.time_cooking_min,
-        p.delivery_enabled,
-        p.id_rkeeper,
-        p.id_jowi,
-        p.id_join_poster,
-        p.active,
-        c.id              c_id,
-        c.name_uz         c_name_uz,
-        c.name_ru         c_name_ru,
-        c.name_eng        c_name_eng,
-        c.image           c_image,
-        c.bg_color        c_bg_color,
-        c.text_color      c_text_color
-    from product p
-         inner join category c on p.category_id = c.id where p.merchant_id = $merchantId and p.id = $id
+                p.id              p_id,
+                p.name_uz         p_name_uz,
+                p.name_ru         p_name_ru,
+                p.name_eng        p_name_eng,
+                p.description_uz  p_description_uz,
+                p.description_ru  p_description_ru,
+                p.description_eng p_description_eng,
+                p.image           p_image,
+                p.cost_price      p_cost_price,
+                p.category_id,
+                p.time_cooking_max,
+                p.time_cooking_min,
+                p.delivery_enabled,
+                p.id_rkeeper,
+                p.id_jowi,
+                p.id_join_poster,
+                p.active,
+                c.id              c_id,
+                c.name_uz         c_name_uz,
+                c.name_ru         c_name_ru,
+                c.name_eng        c_name_eng,
+                c.image           c_image,
+                c.bg_color        c_bg_color,
+                c.text_color      c_text_color
+            from product p
+                left join category c on p.category_id = c.id 
+                where not p.deleted p.merchant_id = $merchantId 
+                    and p.id = $id
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -250,7 +252,7 @@ where p.merchant_id = $merchantId
                             ),
                             active = rs.getBoolean("active"),
                             category = CategoryDto(
-                                id = rs.getLong("c_id"),
+                                id = rs.getLong("category_id"),
                                 name = TextModel(
                                     uz = rs.getString("c_name_uz"),
                                     ru = rs.getString("c_name_ru"),
@@ -276,7 +278,7 @@ where p.merchant_id = $merchantId
                 "SET" +
                 " name_uz = ?, " +
                 " name_ru = ?," +
-                " name_eng = ?," +
+                " name_eng = ?, " +
                 " description_uz = ?, " +
                 " description_ru = ?," +
                 " description_eng = ?," +
