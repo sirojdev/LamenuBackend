@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation Merchant
- * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -28,11 +28,15 @@ import org.openapitools.client.model.TextModel;
 /**
  * BadgeDto
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-05T15:02:42.878903600+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-25T19:44:26.434788700+05:00[Asia/Tashkent]")
 public class BadgeDto {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)
   private Integer id;
+
+  public static final String SERIALIZED_NAME_MERCHANT_ID = "merchantId";
+  @SerializedName(SERIALIZED_NAME_MERCHANT_ID)
+  private Integer merchantId;
 
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -71,6 +75,29 @@ public class BadgeDto {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+
+  public BadgeDto merchantId(Integer merchantId) {
+    
+    this.merchantId = merchantId;
+    return this;
+  }
+
+   /**
+   * Get merchantId
+   * @return merchantId
+  **/
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
+
+  public Integer getMerchantId() {
+    return merchantId;
+  }
+
+
+  public void setMerchantId(Integer merchantId) {
+    this.merchantId = merchantId;
   }
 
 
@@ -176,6 +203,7 @@ public class BadgeDto {
     }
     BadgeDto badgeDto = (BadgeDto) o;
     return Objects.equals(this.id, badgeDto.id) &&
+        Objects.equals(this.merchantId, badgeDto.merchantId) &&
         Objects.equals(this.name, badgeDto.name) &&
         Objects.equals(this.textColor, badgeDto.textColor) &&
         Objects.equals(this.bgColor, badgeDto.bgColor) &&
@@ -184,7 +212,7 @@ public class BadgeDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, textColor, bgColor, icon);
+    return Objects.hash(id, merchantId, name, textColor, bgColor, icon);
   }
 
 
@@ -193,6 +221,7 @@ public class BadgeDto {
     StringBuilder sb = new StringBuilder();
     sb.append("class BadgeDto {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    merchantId: ").append(toIndentedString(merchantId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    textColor: ").append(toIndentedString(textColor)).append("\n");
     sb.append("    bgColor: ").append(toIndentedString(bgColor)).append("\n");

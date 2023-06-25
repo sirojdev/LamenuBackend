@@ -26,7 +26,13 @@ tags:
     description: Endpoints related to profile
 
   - name: Favourite
-    description: Endpoints related to profile
+    description: Endpoints related to favourite
+
+  - name: Order
+    description: Endpoints related to order
+
+  - name: Address
+    description: Endpoints related to address
 
 paths:
 
@@ -394,10 +400,174 @@ paths:
           description: "Bad Request"
 
   /client/favourite:
+    post:
+      tags:
+        - Favourite
+      description: "Adds a new favourite"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing favourite's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FavouriteDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Favourite
+      description: "Update a favourite's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated favourite's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FavouriteDto"
+      responses:
+        "200":
+          description: "OK"
+    get:
+      tags:
+        - Favourite
+      description: "Returns a list of all favourites"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/FavouriteDto"
+        "204":
+          description: "No Content"
+    delete:
+      tags:
+        - Favourite
+      description: "Deletes a favourite by its id"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /client/favourite/{id}:
+    delete:
+      tags:
+        - Favourite
+      description: "Deletes a favourite by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /client/orders:
+    get:
+      tags:
+        - Order
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+  /client/order:
+    post:
+      tags:
+        - Order
+      description: "Adds a new ordering"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing ordering's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /client/order/{id}:
+    delete:
+      tags:
+        - Order
+      description: "Deletes a ordering by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /client/orders/{id}:
+      get:
+        tags:
+          - Order
+        description: "Returns a book by its id"
+        security:
+          - bearerAuth: [ ]
+        parameters:
+          - name: "id"
+            in: "path"
+            required: true
+            schema:
+              type: "integer"
+              format: "int64"
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/BookDto"
+          "204":
+            description: "No Content"
+          "400":
+            description: "Bad Request"
+
+  /client/addresses:
     get:
       tags:
         - DineIn
-      description: "Returns a list of all favourites"
+      description: "Returns a list of all address"
       security:
         - bearerAuth: [ ]
       responses:
@@ -411,15 +581,15 @@ paths:
                   $ref: "#/components/schemas/BookDto"
         "204":
           description: "No Content"
-  /client/book:
+  /client/address:
     post:
       tags:
         - DineIn
-      description: "Adds a new booking"
+      description: "Adds a new address"
       security:
         - bearerAuth: [ ]
       requestBody:
-        description: "A JSON object containing booking's information"
+        description: "A JSON object containing address's information"
         required: true
         content:
           application/json:
@@ -444,11 +614,11 @@ paths:
       responses:
         "200":
           description: "OK"
-  /client/book/{id}:
+  /client/address/{id}:
     get:
       tags:
-        - DineIn
-      description: "Returns a book by its id"
+        - Address
+      description: "Returns an address by its id"
       security:
         - bearerAuth: [ ]
       parameters:
@@ -471,8 +641,8 @@ paths:
           description: "Bad Request"
     delete:
       tags:
-        - DineIn
-      description: "Deletes a booking by its id"
+        - Address
+      description: "Deletes an address by its id"
       security:
         - bearerAuth: [ ]
       parameters:
@@ -487,6 +657,8 @@ paths:
           description: "OK"
         "400":
           description: "Bad Request"
+
+
 
 
 
@@ -630,7 +802,109 @@ components:
           type: "integer"
           format: "long"
         name:
-          $ref: '#/'
+          $ref: '#/components/schemas/ProductDto'
+
+    ProductDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        costPrice:
+          type: "integer"
+          format: "long"
+        active:
+          type: boolean
+
+    OrderDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        type:
+          $ref: "#/components/schemas/OrderType"
+        status:
+          type: "string"
+        createdAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        updatedAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveredAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveryAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        totalPrice:
+          type: "number"
+          format: "double"
+        totalDiscount:
+          type: "number"
+          format: "double"
+        comment:
+          type: "string"
+
+    OrderType:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+
+    AddressDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        type:
+          $ref: "#/components/schemas/AddressType"
+        status:
+          type: "string"
+        details:
+          $ref: "#/components/schemas/"
+        description:
+          type: "string"
+        latitude:
+          type: "integer"
+          format: "double"
+        longitude:
+          type: "integer"
+          format: "double"
+
+    AddressType:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+
+    AddressDetails:
+      type: "object"
+      properties:
+        building:
+          type: "string"
+        entrance:
+          type: "string"
+        code:
+          type: "string"
+        floor:
+          type: integer
+        comment:
+            type: "string"
 
 
 

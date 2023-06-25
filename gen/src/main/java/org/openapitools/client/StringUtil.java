@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation Merchant
- * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -16,7 +16,7 @@ package org.openapitools.client;
 import java.util.Collection;
 import java.util.Iterator;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-05T15:02:42.878903600+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-25T19:44:26.434788700+05:00[Asia/Tashkent]")
 public class StringUtil {
   /**
    * Check if the given array contains the given value (with case-insensitive comparison).

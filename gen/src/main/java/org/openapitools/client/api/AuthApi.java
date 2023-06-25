@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation for Staffs
- * Lamenu documentation for Staffs
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -27,8 +27,10 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 
 
-import org.openapitools.client.model.LoginResponse;
-import org.openapitools.client.model.StaffDto;
+import org.openapitools.client.model.DeviceModel;
+import org.openapitools.client.model.InlineObject;
+import org.openapitools.client.model.InlineObject1;
+import org.openapitools.client.model.InlineObject2;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -56,8 +58,8 @@ public class AuthApi {
     }
 
     /**
-     * Build call for staffAuthPost
-     * @param staffDto This object must contain only deviceUuid:unique and phone (required)
+     * Build call for clientAuthSendSmsPost
+     * @param inlineObject  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -65,13 +67,14 @@ public class AuthApi {
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffAuthPostCall(StaffDto staffDto, final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = staffDto;
+    public okhttp3.Call clientAuthSendSmsPostCall(InlineObject inlineObject, final ApiCallback _callback) throws ApiException {
+        Object localVarPostBody = inlineObject;
 
         // create path and map variables
-        String localVarPath = "/staff/auth";
+        String localVarPath = "/client/auth/send-sms";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -93,63 +96,65 @@ public class AuthApi {
         final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        String[] localVarAuthNames = new String[] {  };
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
         return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call staffAuthPostValidateBeforeCall(StaffDto staffDto, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call clientAuthSendSmsPostValidateBeforeCall(InlineObject inlineObject, final ApiCallback _callback) throws ApiException {
         
-        // verify the required parameter 'staffDto' is set
-        if (staffDto == null) {
-            throw new ApiException("Missing the required parameter 'staffDto' when calling staffAuthPost(Async)");
+        // verify the required parameter 'inlineObject' is set
+        if (inlineObject == null) {
+            throw new ApiException("Missing the required parameter 'inlineObject' when calling clientAuthSendSmsPost(Async)");
         }
         
 
-        okhttp3.Call localVarCall = staffAuthPostCall(staffDto, _callback);
+        okhttp3.Call localVarCall = clientAuthSendSmsPostCall(inlineObject, _callback);
         return localVarCall;
 
     }
 
     /**
      * 
-     * Via this endpoint you can get auth token
-     * @param staffDto This object must contain only deviceUuid:unique and phone (required)
-     * @return List&lt;LoginResponse&gt;
+     * Auth client sms
+     * @param inlineObject  (required)
+     * @return List&lt;DeviceModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<LoginResponse> staffAuthPost(StaffDto staffDto) throws ApiException {
-        ApiResponse<List<LoginResponse>> localVarResp = staffAuthPostWithHttpInfo(staffDto);
+    public List<DeviceModel> clientAuthSendSmsPost(InlineObject inlineObject) throws ApiException {
+        ApiResponse<List<DeviceModel>> localVarResp = clientAuthSendSmsPostWithHttpInfo(inlineObject);
         return localVarResp.getData();
     }
 
     /**
      * 
-     * Via this endpoint you can get auth token
-     * @param staffDto This object must contain only deviceUuid:unique and phone (required)
-     * @return ApiResponse&lt;List&lt;LoginResponse&gt;&gt;
+     * Auth client sms
+     * @param inlineObject  (required)
+     * @return ApiResponse&lt;List&lt;DeviceModel&gt;&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<LoginResponse>> staffAuthPostWithHttpInfo(StaffDto staffDto) throws ApiException {
-        okhttp3.Call localVarCall = staffAuthPostValidateBeforeCall(staffDto, null);
-        Type localVarReturnType = new TypeToken<List<LoginResponse>>(){}.getType();
+    public ApiResponse<List<DeviceModel>> clientAuthSendSmsPostWithHttpInfo(InlineObject inlineObject) throws ApiException {
+        okhttp3.Call localVarCall = clientAuthSendSmsPostValidateBeforeCall(inlineObject, null);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
     /**
      *  (asynchronously)
-     * Via this endpoint you can get auth token
-     * @param staffDto This object must contain only deviceUuid:unique and phone (required)
+     * Auth client sms
+     * @param inlineObject  (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -157,12 +162,349 @@ public class AuthApi {
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call staffAuthPostAsync(StaffDto staffDto, final ApiCallback<List<LoginResponse>> _callback) throws ApiException {
+    public okhttp3.Call clientAuthSendSmsPostAsync(InlineObject inlineObject, final ApiCallback<List<DeviceModel>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = staffAuthPostValidateBeforeCall(staffDto, _callback);
-        Type localVarReturnType = new TypeToken<List<LoginResponse>>(){}.getType();
+        okhttp3.Call localVarCall = clientAuthSendSmsPostValidateBeforeCall(inlineObject, _callback);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for clientAuthSignUpPost
+     * @param inlineObject2  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call clientAuthSignUpPostCall(InlineObject2 inlineObject2, final ApiCallback _callback) throws ApiException {
+        Object localVarPostBody = inlineObject2;
+
+        // create path and map variables
+        String localVarPath = "/client/auth/sign-up";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
+        return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call clientAuthSignUpPostValidateBeforeCall(InlineObject2 inlineObject2, final ApiCallback _callback) throws ApiException {
+        
+        // verify the required parameter 'inlineObject2' is set
+        if (inlineObject2 == null) {
+            throw new ApiException("Missing the required parameter 'inlineObject2' when calling clientAuthSignUpPost(Async)");
+        }
+        
+
+        okhttp3.Call localVarCall = clientAuthSignUpPostCall(inlineObject2, _callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * Auth client sign up
+     * @param inlineObject2  (required)
+     * @return List&lt;DeviceModel&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public List<DeviceModel> clientAuthSignUpPost(InlineObject2 inlineObject2) throws ApiException {
+        ApiResponse<List<DeviceModel>> localVarResp = clientAuthSignUpPostWithHttpInfo(inlineObject2);
+        return localVarResp.getData();
+    }
+
+    /**
+     * 
+     * Auth client sign up
+     * @param inlineObject2  (required)
+     * @return ApiResponse&lt;List&lt;DeviceModel&gt;&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<List<DeviceModel>> clientAuthSignUpPostWithHttpInfo(InlineObject2 inlineObject2) throws ApiException {
+        okhttp3.Call localVarCall = clientAuthSignUpPostValidateBeforeCall(inlineObject2, null);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     *  (asynchronously)
+     * Auth client sign up
+     * @param inlineObject2  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call clientAuthSignUpPostAsync(InlineObject2 inlineObject2, final ApiCallback<List<DeviceModel>> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = clientAuthSignUpPostValidateBeforeCall(inlineObject2, _callback);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for clientAuthVerifyPost
+     * @param inlineObject1  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call clientAuthVerifyPostCall(InlineObject1 inlineObject1, final ApiCallback _callback) throws ApiException {
+        Object localVarPostBody = inlineObject1;
+
+        // create path and map variables
+        String localVarPath = "/client/auth/verify";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        String[] localVarAuthNames = new String[] { "bearerAuth" };
+        return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call clientAuthVerifyPostValidateBeforeCall(InlineObject1 inlineObject1, final ApiCallback _callback) throws ApiException {
+        
+        // verify the required parameter 'inlineObject1' is set
+        if (inlineObject1 == null) {
+            throw new ApiException("Missing the required parameter 'inlineObject1' when calling clientAuthVerifyPost(Async)");
+        }
+        
+
+        okhttp3.Call localVarCall = clientAuthVerifyPostCall(inlineObject1, _callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * Auth client verify
+     * @param inlineObject1  (required)
+     * @return List&lt;DeviceModel&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public List<DeviceModel> clientAuthVerifyPost(InlineObject1 inlineObject1) throws ApiException {
+        ApiResponse<List<DeviceModel>> localVarResp = clientAuthVerifyPostWithHttpInfo(inlineObject1);
+        return localVarResp.getData();
+    }
+
+    /**
+     * 
+     * Auth client verify
+     * @param inlineObject1  (required)
+     * @return ApiResponse&lt;List&lt;DeviceModel&gt;&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<List<DeviceModel>> clientAuthVerifyPostWithHttpInfo(InlineObject1 inlineObject1) throws ApiException {
+        okhttp3.Call localVarCall = clientAuthVerifyPostValidateBeforeCall(inlineObject1, null);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     *  (asynchronously)
+     * Auth client verify
+     * @param inlineObject1  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call clientAuthVerifyPostAsync(InlineObject1 inlineObject1, final ApiCallback<List<DeviceModel>> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = clientAuthVerifyPostValidateBeforeCall(inlineObject1, _callback);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for clientDevicePost
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call clientDevicePostCall(final ApiCallback _callback) throws ApiException {
+        Object localVarPostBody = null;
+
+        // create path and map variables
+        String localVarPath = "/client/device";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call clientDevicePostValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+        
+
+        okhttp3.Call localVarCall = clientDevicePostCall(_callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * Auth client for device
+     * @return List&lt;DeviceModel&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public List<DeviceModel> clientDevicePost() throws ApiException {
+        ApiResponse<List<DeviceModel>> localVarResp = clientDevicePostWithHttpInfo();
+        return localVarResp.getData();
+    }
+
+    /**
+     * 
+     * Auth client for device
+     * @return ApiResponse&lt;List&lt;DeviceModel&gt;&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<List<DeviceModel>> clientDevicePostWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = clientDevicePostValidateBeforeCall(null);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     *  (asynchronously)
+     * Auth client for device
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call clientDevicePostAsync(final ApiCallback<List<DeviceModel>> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = clientDevicePostValidateBeforeCall(_callback);
+        Type localVarReturnType = new TypeToken<List<DeviceModel>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
