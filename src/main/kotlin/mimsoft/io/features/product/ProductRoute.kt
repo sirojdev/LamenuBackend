@@ -68,10 +68,9 @@ fun Route.routeToProduct() {
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
-        }
-        else{
+        } else {
             val deleted = productRepository.delete(id = id, merchantId = merchantId)
-                call.respond(deleted)
+            call.respond(deleted)
         }
 
     }
