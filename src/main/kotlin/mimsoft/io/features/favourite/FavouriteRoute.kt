@@ -16,9 +16,9 @@ fun Route.routeToFavourites() {
         post {
             val pr = call.principal<UserPrincipal>()
             val merchantId = pr?.merchantId
-            val clientId = pr?.id
             val favouriteDto = call.receive<FavouriteDto>()
-            favouriteService.add(favouriteDto.copy(merchantId=merchantId, clientId = clientId))
+            val clientId = favouriteDto.clientId
+                favouriteService.add(favouriteDto.copy(merchantId=merchantId, clientId = clientId))
             call.respond(HttpStatusCode.OK)
         }
 

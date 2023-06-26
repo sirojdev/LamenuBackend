@@ -25,124 +25,124 @@ import io.swagger.annotations.ApiModelProperty;
 import java.io.IOException;
 
 /**
- * BookDto
+ * AddressDetails
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-26T11:11:35.933917700+05:00[Asia/Tashkent]")
-public class BookDto {
-  public static final String SERIALIZED_NAME_ID = "id";
-  @SerializedName(SERIALIZED_NAME_ID)
-  private Integer id;
+public class AddressDetails {
+  public static final String SERIALIZED_NAME_BUILDING = "building";
+  @SerializedName(SERIALIZED_NAME_BUILDING)
+  private String building;
 
-  public static final String SERIALIZED_NAME_CLIENT_ID = "clientId";
-  @SerializedName(SERIALIZED_NAME_CLIENT_ID)
-  private Integer clientId;
+  public static final String SERIALIZED_NAME_ENTRANCE = "entrance";
+  @SerializedName(SERIALIZED_NAME_ENTRANCE)
+  private String entrance;
 
-  public static final String SERIALIZED_NAME_TABLE_ID = "tableId";
-  @SerializedName(SERIALIZED_NAME_TABLE_ID)
-  private Integer tableId;
+  public static final String SERIALIZED_NAME_CODE = "code";
+  @SerializedName(SERIALIZED_NAME_CODE)
+  private String code;
 
-  public static final String SERIALIZED_NAME_TIME = "time";
-  @SerializedName(SERIALIZED_NAME_TIME)
-  private String time;
+  public static final String SERIALIZED_NAME_FLOOR = "floor";
+  @SerializedName(SERIALIZED_NAME_FLOOR)
+  private Integer floor;
 
   public static final String SERIALIZED_NAME_COMMENT = "comment";
   @SerializedName(SERIALIZED_NAME_COMMENT)
   private String comment;
 
 
-  public BookDto id(Integer id) {
+  public AddressDetails building(String building) {
     
-    this.id = id;
+    this.building = building;
     return this;
   }
 
    /**
-   * Get id
-   * @return id
+   * Get building
+   * @return building
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public Integer getId() {
-    return id;
+  public String getBuilding() {
+    return building;
   }
 
 
-  public void setId(Integer id) {
-    this.id = id;
+  public void setBuilding(String building) {
+    this.building = building;
   }
 
 
-  public BookDto clientId(Integer clientId) {
+  public AddressDetails entrance(String entrance) {
     
-    this.clientId = clientId;
+    this.entrance = entrance;
     return this;
   }
 
    /**
-   * Get clientId
-   * @return clientId
+   * Get entrance
+   * @return entrance
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public Integer getClientId() {
-    return clientId;
+  public String getEntrance() {
+    return entrance;
   }
 
 
-  public void setClientId(Integer clientId) {
-    this.clientId = clientId;
+  public void setEntrance(String entrance) {
+    this.entrance = entrance;
   }
 
 
-  public BookDto tableId(Integer tableId) {
+  public AddressDetails code(String code) {
     
-    this.tableId = tableId;
+    this.code = code;
     return this;
   }
 
    /**
-   * Get tableId
-   * @return tableId
+   * Get code
+   * @return code
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public Integer getTableId() {
-    return tableId;
+  public String getCode() {
+    return code;
   }
 
 
-  public void setTableId(Integer tableId) {
-    this.tableId = tableId;
+  public void setCode(String code) {
+    this.code = code;
   }
 
 
-  public BookDto time(String time) {
+  public AddressDetails floor(Integer floor) {
     
-    this.time = time;
+    this.floor = floor;
     return this;
   }
 
    /**
-   * Get time
-   * @return time
+   * Get floor
+   * @return floor
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public String getTime() {
-    return time;
+  public Integer getFloor() {
+    return floor;
   }
 
 
-  public void setTime(String time) {
-    this.time = time;
+  public void setFloor(Integer floor) {
+    this.floor = floor;
   }
 
 
-  public BookDto comment(String comment) {
+  public AddressDetails comment(String comment) {
     
     this.comment = comment;
     return this;
@@ -173,28 +173,28 @@ public class BookDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    BookDto bookDto = (BookDto) o;
-    return Objects.equals(this.id, bookDto.id) &&
-        Objects.equals(this.clientId, bookDto.clientId) &&
-        Objects.equals(this.tableId, bookDto.tableId) &&
-        Objects.equals(this.time, bookDto.time) &&
-        Objects.equals(this.comment, bookDto.comment);
+    AddressDetails addressDetails = (AddressDetails) o;
+    return Objects.equals(this.building, addressDetails.building) &&
+        Objects.equals(this.entrance, addressDetails.entrance) &&
+        Objects.equals(this.code, addressDetails.code) &&
+        Objects.equals(this.floor, addressDetails.floor) &&
+        Objects.equals(this.comment, addressDetails.comment);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, clientId, tableId, time, comment);
+    return Objects.hash(building, entrance, code, floor, comment);
   }
 
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class BookDto {\n");
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    clientId: ").append(toIndentedString(clientId)).append("\n");
-    sb.append("    tableId: ").append(toIndentedString(tableId)).append("\n");
-    sb.append("    time: ").append(toIndentedString(time)).append("\n");
+    sb.append("class AddressDetails {\n");
+    sb.append("    building: ").append(toIndentedString(building)).append("\n");
+    sb.append("    entrance: ").append(toIndentedString(entrance)).append("\n");
+    sb.append("    code: ").append(toIndentedString(code)).append("\n");
+    sb.append("    floor: ").append(toIndentedString(floor)).append("\n");
     sb.append("    comment: ").append(toIndentedString(comment)).append("\n");
     sb.append("}");
     return sb.toString();

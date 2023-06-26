@@ -2,7 +2,7 @@
 
 Lamenu documentation Client
 - API version: 1.0.0
-  - Build date: 2023-06-25T19:44:26.434788700+05:00[Asia/Tashkent]
+  - Build date: 2023-06-26T11:11:35.933917700+05:00[Asia/Tashkent]
 
 Lamenu documentation Clint allows to you view the schema of Client Lamenu project
 
@@ -78,7 +78,7 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
 import org.openapitools.client.auth.*;
 import org.openapitools.client.models.*;
-import org.openapitools.client.api.AuthApi;
+import org.openapitools.client.api.AddressApi;
 
 public class Example {
   public static void main(String[] args) {
@@ -89,13 +89,12 @@ public class Example {
     HttpBearerAuth bearerAuth = (HttpBearerAuth) defaultClient.getAuthentication("bearerAuth");
     bearerAuth.setBearerToken("BEARER TOKEN");
 
-    AuthApi apiInstance = new AuthApi(defaultClient);
-    InlineObject inlineObject = new InlineObject(); // InlineObject | 
+    AddressApi apiInstance = new AddressApi(defaultClient);
+    Long id = 56L; // Long | 
     try {
-      List<DeviceModel> result = apiInstance.clientAuthSendSmsPost(inlineObject);
-      System.out.println(result);
+      apiInstance.clientAddressIdDelete(id);
     } catch (ApiException e) {
-      System.err.println("Exception when calling AuthApi#clientAuthSendSmsPost");
+      System.err.println("Exception when calling AddressApi#clientAddressIdDelete");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -112,6 +111,8 @@ All URIs are relative to *http://127.0.0.1:9000/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AddressApi* | [**clientAddressIdDelete**](docs/AddressApi.md#clientAddressIdDelete) | **DELETE** /client/address/{id} | 
+*AddressApi* | [**clientAddressIdGet**](docs/AddressApi.md#clientAddressIdGet) | **GET** /client/address/{id} | 
 *AuthApi* | [**clientAuthSendSmsPost**](docs/AuthApi.md#clientAuthSendSmsPost) | **POST** /client/auth/send-sms | 
 *AuthApi* | [**clientAuthSignUpPost**](docs/AuthApi.md#clientAuthSignUpPost) | **POST** /client/auth/sign-up | 
 *AuthApi* | [**clientAuthVerifyPost**](docs/AuthApi.md#clientAuthVerifyPost) | **POST** /client/auth/verify | 
@@ -119,6 +120,9 @@ Class | Method | HTTP request | Description
 *DeviceApi* | [**clientDeviceGet**](docs/DeviceApi.md#clientDeviceGet) | **GET** /client/device | 
 *DeviceApi* | [**clientDeviceTerminateOthersPost**](docs/DeviceApi.md#clientDeviceTerminateOthersPost) | **POST** /client/device/terminate/others | 
 *DeviceApi* | [**clientDeviceTerminatePost**](docs/DeviceApi.md#clientDeviceTerminatePost) | **POST** /client/device/terminate | 
+*DineInApi* | [**clientAddressPost**](docs/DineInApi.md#clientAddressPost) | **POST** /client/address | 
+*DineInApi* | [**clientAddressPut**](docs/DineInApi.md#clientAddressPut) | **PUT** /client/address | 
+*DineInApi* | [**clientAddressesGet**](docs/DineInApi.md#clientAddressesGet) | **GET** /client/addresses | 
 *DineInApi* | [**clientBookIdDelete**](docs/DineInApi.md#clientBookIdDelete) | **DELETE** /client/book/{id} | 
 *DineInApi* | [**clientBookIdGet**](docs/DineInApi.md#clientBookIdGet) | **GET** /client/book/{id} | 
 *DineInApi* | [**clientBookPost**](docs/DineInApi.md#clientBookPost) | **POST** /client/book | 
@@ -143,6 +147,9 @@ Class | Method | HTTP request | Description
 
 ## Documentation for Models
 
+ - [AddressDetails](docs/AddressDetails.md)
+ - [AddressDto](docs/AddressDto.md)
+ - [AddressType](docs/AddressType.md)
  - [BadgeDto](docs/BadgeDto.md)
  - [BookDto](docs/BookDto.md)
  - [DeviceModel](docs/DeviceModel.md)

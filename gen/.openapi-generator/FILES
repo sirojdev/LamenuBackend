@@ -4,6 +4,10 @@ README.md
 api/openapi.yaml
 build.gradle
 build.sbt
+docs/AddressApi.md
+docs/AddressDetails.md
+docs/AddressDto.md
+docs/AddressType.md
 docs/AuthApi.md
 docs/BadgeDto.md
 docs/BookDto.md
@@ -46,6 +50,7 @@ src/main/java/org/openapitools/client/ProgressResponseBody.java
 src/main/java/org/openapitools/client/ServerConfiguration.java
 src/main/java/org/openapitools/client/ServerVariable.java
 src/main/java/org/openapitools/client/StringUtil.java
+src/main/java/org/openapitools/client/api/AddressApi.java
 src/main/java/org/openapitools/client/api/AuthApi.java
 src/main/java/org/openapitools/client/api/DeviceApi.java
 src/main/java/org/openapitools/client/api/DineInApi.java
@@ -57,6 +62,9 @@ src/main/java/org/openapitools/client/auth/ApiKeyAuth.java
 src/main/java/org/openapitools/client/auth/Authentication.java
 src/main/java/org/openapitools/client/auth/HttpBasicAuth.java
 src/main/java/org/openapitools/client/auth/HttpBearerAuth.java
+src/main/java/org/openapitools/client/model/AddressDetails.java
+src/main/java/org/openapitools/client/model/AddressDto.java
+src/main/java/org/openapitools/client/model/AddressType.java
 src/main/java/org/openapitools/client/model/BadgeDto.java
 src/main/java/org/openapitools/client/model/BookDto.java
 src/main/java/org/openapitools/client/model/DeviceModel.java
@@ -70,14 +78,7 @@ src/main/java/org/openapitools/client/model/OrderType.java
 src/main/java/org/openapitools/client/model/ProductDto.java
 src/main/java/org/openapitools/client/model/TextModel.java
 src/main/java/org/openapitools/client/model/UserDto.java
-src/test/java/org/openapitools/client/api/DeviceApiTest.java
-src/test/java/org/openapitools/client/api/DineInApiTest.java
-src/test/java/org/openapitools/client/api/FavouriteApiTest.java
-src/test/java/org/openapitools/client/api/OrderApiTest.java
-src/test/java/org/openapitools/client/api/ProfileApiTest.java
-src/test/java/org/openapitools/client/model/BookDtoTest.java
-src/test/java/org/openapitools/client/model/DeviceModelTest.java
-src/test/java/org/openapitools/client/model/FavouriteDtoTest.java
-src/test/java/org/openapitools/client/model/InlineObject1Test.java
-src/test/java/org/openapitools/client/model/InlineObject2Test.java
-src/test/java/org/openapitools/client/model/InlineObjectTest.java
+src/test/java/org/openapitools/client/api/AddressApiTest.java
+src/test/java/org/openapitools/client/model/AddressDetailsTest.java
+src/test/java/org/openapitools/client/model/AddressDtoTest.java
+src/test/java/org/openapitools/client/model/AddressTypeTest.java
