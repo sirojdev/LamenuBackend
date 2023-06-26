@@ -28,20 +28,9 @@ fun Route.routeToOrder() {
             call.respond(HttpStatusCode.OK, orderDto)
         }
         get("all") {
-
             val orders = repository.getAll()
             call.respond(orders)
         }
-        get("live") {
-            val type = call.parameters["type"]
-            val orders = repository.getLiveOrders(type = type.toString())
-            val orderDto = orders?.data
-            if (orderDto == null) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-        }
-
         get("history") {
             val orders = repository.getAll()
             if (orders.total == 0) {
@@ -51,7 +40,7 @@ fun Route.routeToOrder() {
             call.respond(HttpStatusCode.OK, orders)
         }
 
-        get("/orders") {
+        get {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
             val search = call.parameters["search"]
@@ -67,7 +56,7 @@ fun Route.routeToOrder() {
             call.respond(HttpStatusCode.OK, orders)
         }
 
-        get("/order/{id}") {
+        get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -81,7 +70,7 @@ fun Route.routeToOrder() {
             }
         }
 
-        post("/order/create") {
+        post("/create") {
             val order = call.receive<OrderWrapper>()
             val status = repository.add(order)
             call.respond(
@@ -90,13 +79,13 @@ fun Route.routeToOrder() {
             )
         }
 
-        put("/order") {
+        put {
             val order = call.receive<OrderDto>()
             repository.update(order)
             call.respond(HttpStatusCode.OK)
         }
 
-        delete("/order/{id}") {
+        delete("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             if (id != null) {
                 val deleted = repository.delete(id)
