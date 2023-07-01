@@ -47,8 +47,9 @@ fun Route.routeToProduct() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val productInfo = call.receive<ProductInfoDto>()
+        val categoryId = productInfo.product?.category?.id
         val product = productInfo.product
-        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId)))
+        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId, categoryId = categoryId)))
         call.respond(HttpStatusCode.OK, ProductId(id))
     }
 
@@ -57,7 +58,7 @@ fun Route.routeToProduct() {
         val merchantId = pr?.merchantId
         val productInfo = call.receive<ProductInfoDto>()
         val product = productInfo.product
-        val updated = productRepository.update((product?.copy(merchantId = merchantId)))
+        val updated = productRepository.update(product?.copy(merchantId = merchantId))
         if (updated) call.respond(HttpStatusCode.OK)
         else call.respond(HttpStatusCode.InternalServerError)
     }

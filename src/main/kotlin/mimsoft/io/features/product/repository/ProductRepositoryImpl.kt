@@ -54,7 +54,7 @@ object ProductRepositoryImpl : ProductRepository {
             from product p
                 left join category c on p.category_id = c.id
                 left join pantry pan on pan.product_id = p.id
-            where p.merchant_id = $merchantId""".trimIndent()
+            where p.merchant_id = $merchantId and p.deleted = false and c.deleted = false""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -219,7 +219,7 @@ object ProductRepositoryImpl : ProductRepository {
                 c.text_color      c_text_color
             from product p
                 left join category c on p.category_id = c.id 
-                where not p.deleted p.merchant_id = $merchantId 
+                where not p.deleted p.merchant_id = $merchantId and c.deleted = false
                     and p.id = $id
         """.trimIndent()
         return withContext(Dispatchers.IO) {

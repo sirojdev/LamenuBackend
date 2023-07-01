@@ -264,4 +264,86 @@ object StaffService {
         }
     }
 
+
+
+
+    suspend fun getAllCollector(merchantId: Long?): List<StaffDto?> {
+        val query = """select s.*, 
+                A.count today_orders, 
+                B.count all_orders,  
+                status.count active_orders 
+                from staff s 
+        left join(select collector_id, count(*) 
+                    from orders 
+                    where date(created_at) = current_date 
+                    group by collector_id) as A on A.collector_id = s.id 
+        left join (select collector_id, count(*) 
+                    from orders 
+                    group by collector_id) as B on B.collector_id=s.id 
+        left join (select collector_id, count(*) 
+                    from orders 
+                    where status = 'OPEN' 
+                    group by collector_id) as status on status.collector_id=s.id 
+        where s.merchant_id = $merchantId and s.position = 'collector' and s.deleted = false 
+        
+        """.trimMargin()
+        return withContext(Dispatchers.IO) {
+            val staffs = arrayListOf<StaffDto?>()
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    val staff = StaffDto(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        position = rs.getString("position"),
+                        phone = rs.getString("phone"),
+                        password = rs.getString("password"),
+                        firstName = rs.getString("first_name"),
+                        lastName = rs.getString("last_name"),
+                        birthDay = rs.getTimestamp("birth_day").toString(),
+                        image = rs.getString("image"),
+                        comment = rs.getString("comment"),
+                        gender = rs.getString("gender"),
+                        allOrderCount = rs.getLong("all_orders"),
+                        todayOrderCount = rs.getLong("today_orders"),
+                        activeOrderCount = rs.getLong("active_orders"),
+                        status = rs.getBoolean("status")
+                    )
+                    staffs.add(staff)
+                }
+                return@withContext staffs
+            }
+        }
+    }
+
+
+    suspend fun getCollector(id: Long?, merchantId: Long?): StaffDto? {
+        val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    return@withContext mapper.toDto(
+                        StaffTable(
+                            id = rs.getLong("id"),
+                            merchantId = rs.getLong("merchant_id"),
+                            position = rs.getString("position"),
+                            phone = rs.getString("phone"),
+                            password = rs.getString("password"),
+                            firstName = rs.getString("first_name"),
+                            lastName = rs.getString("last_name"),
+                            birthDay = rs.getTimestamp("birth_day"),
+                            image = rs.getString("image"),
+                            comment = rs.getString("comment"),
+                            gender = rs.getString("gender"),
+                            status = rs.getBoolean("status"),
+                        )
+                    ).copy(
+                        orders = OrderRepositoryImpl.getAll(merchantId = merchantId, collectorId = id).data
+                    )
+                } else return@withContext null
+            }
+        }
+    }
+
 }
