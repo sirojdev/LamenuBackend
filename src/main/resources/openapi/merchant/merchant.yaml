@@ -2608,12 +2608,21 @@ components:
         comment:
           type: string
 
+    ProductInfoDto:
+      type: "object"
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        labels:
+
+
 
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
 
   responses:
     UnauthorizedError:
