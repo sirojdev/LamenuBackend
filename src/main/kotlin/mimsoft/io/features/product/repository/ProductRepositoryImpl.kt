@@ -2,6 +2,7 @@ package mimsoft.io.features.product.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.category.repository.CategoryRepositoryImpl
 import mimsoft.io.features.product.*
 import mimsoft.io.features.product.product_extra.ProductExtraService
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
@@ -152,25 +153,31 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
-    fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
+    suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
         val connection = repository.connection()
         val sql =
             "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
-        val prSt = connection.prepareStatement(sql)
-        val rs = prSt.executeQuery()
         val listProduct = ArrayList<ProductDto>()
-        while (rs.next()) {
-            var product: ProductDto = ProductDto(
-                id = rs.getLong("id"),
-                name = (TextModel(
-                    uz = rs.getString("name_uz"),
-                    ru = rs.getString("name_ru"),
-                    eng = rs.getString("name_eng")
-                )
+        withContext(Dispatchers.IO) {
+            CategoryRepositoryImpl.repository.connection().use {
+                val rs = it.prepareStatement(sql).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    val product: ProductDto = ProductDto(
+                        id = rs.getLong("id"),
+                        name = (TextModel(
+                            uz = rs.getString("name_uz"),
+                            ru = rs.getString("name_ru"),
+                            eng = rs.getString("name_eng")
                         )
-            )
-            listProduct.add(product)
+                                )
+                    )
+                    listProduct.add(product)
+                }
+            }
         }
+
         return listProduct;
 
     }
@@ -207,5 +214,45 @@ object ProductRepositoryImpl : ProductRepository {
             )
         }
         return null
+    }
+
+    suspend fun getByName(text: String, lang: Language, merchantId: Long): ProductDto? {
+        var name: String = when (lang) {
+            Language.UZ -> "name_uz"
+            Language.RU -> "name_ru"
+            else -> "name_eng"
+        }
+        val sql =
+            "select * from $PRODUCT_TABLE_NAME where merchant_id = ${merchantId}  and   $name = ? and deleted = false and active = true"
+        var product: ProductDto? = null
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(sql).apply {
+                    setString(1, text)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    product = ProductDto(
+                        id = rs.getLong("id"),
+                        name = (TextModel(
+                            uz = rs.getString("name_uz"),
+                            ru = rs.getString("name_ru"),
+                            eng = rs.getString("name_eng")
+                        )),
+                        description = (
+                                TextModel(
+                                    uz = rs.getString("description_uz"),
+                                    ru = rs.getString("description_ru"),
+                                    eng = rs.getString("description_eng")
+                                )
+                                ),
+                        image = rs.getString("image"),
+                        costPrice = rs.getLong("cost_price")
+                    )
+                }
+
+            }
+        }
+        return product
     }
 }

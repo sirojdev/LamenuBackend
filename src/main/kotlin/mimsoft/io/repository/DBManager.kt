@@ -29,9 +29,9 @@ object DBManager: BaseRepository {
     private fun createDataSource(): HikariDataSource {
         val dataSourceConfig = HikariConfig()
 
-        dataSourceConfig.jdbcUrl = "jdbc:postgresql://188.166.167.80:5432/lamenu"
+        dataSourceConfig.jdbcUrl = "jdbc:postgresql://localhost/userjon"
         dataSourceConfig.username = "postgres"
-        dataSourceConfig.password = "re_mim_soft"
+        dataSourceConfig.password = "elmurod2203"
         dataSourceConfig.maximumPoolSize = 10
         dataSourceConfig.minimumIdle = 5
         dataSourceConfig.connectionTimeout = 10000
