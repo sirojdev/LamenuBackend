@@ -2,11 +2,8 @@ package mimsoft.io.features.product.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.branch.BRANCH_TABLE_NAME
-import mimsoft.io.features.branch.BranchTable
-import mimsoft.io.features.branch.repository.BranchServiceImpl
+import mimsoft.io.features.Language
 import mimsoft.io.features.category.CategoryDto
-import mimsoft.io.features.pantry.PantryDto
 import mimsoft.io.features.product.*
 import mimsoft.io.features.product.product_extra.ProductExtraService
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
@@ -54,7 +51,7 @@ object ProductRepositoryImpl : ProductRepository {
             from product p
                 left join category c on p.category_id = c.id
                 left join pantry pan on pan.product_id = p.id
-            where p.merchant_id = $merchantId and p.deleted = false and c.deleted = false""".trimIndent()
+            where p.merchant_id = $merchantId and p.deleted = false""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -219,7 +216,7 @@ object ProductRepositoryImpl : ProductRepository {
                 c.text_color      c_text_color
             from product p
                 left join category c on p.category_id = c.id 
-                where not p.deleted p.merchant_id = $merchantId and c.deleted = false
+                where p.deleted = false and p.merchant_id = $merchantId 
                     and p.id = $id
         """.trimIndent()
         return withContext(Dispatchers.IO) {
@@ -375,4 +372,70 @@ object ProductRepositoryImpl : ProductRepository {
             }
         }
     }
+
+    suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
+        val sql = "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
+        val listProduct = ArrayList<ProductDto>()
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(sql).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    val product = ProductDto(
+                        id = rs.getLong("id"),
+                        name = TextModel(
+                            uz = rs.getString("name_uz"),
+                            ru = rs.getString("name_ru"),
+                            eng = rs.getString("name_eng")
+                        )
+                    )
+                    listProduct.add(product)
+                }
+            }
+        }
+        return listProduct;
+    }
+
+    suspend fun getByName(text: String, lang: Language, merchantId: Long): ProductDto? {
+        val name: String = when (lang) {
+            Language.UZ -> "name_uz"
+            Language.RU -> "name_ru"
+            else -> "name_eng"
+        }
+        val sql =
+            "select * from $PRODUCT_TABLE_NAME where merchant_id = ${merchantId}  and   $name = ? and deleted = false and active = true"
+        var product: ProductDto? = null
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(sql).apply {
+                    setString(1, text)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    product = ProductDto(
+                        id = rs.getLong("id"),
+                        name = (TextModel(
+                            uz = rs.getString("name_uz"),
+                            ru = rs.getString("name_ru"),
+                            eng = rs.getString("name_eng")
+                        )),
+                        description = (
+                                TextModel(
+                                    uz = rs.getString("description_uz"),
+                                    ru = rs.getString("description_ru"),
+                                    eng = rs.getString("description_eng")
+                                )
+                                ),
+                        image = rs.getString("image"),
+                        costPrice = rs.getLong("cost_price")
+                    )
+                }
+
+            }
+        }
+        return product
+    }
 }
+
+
