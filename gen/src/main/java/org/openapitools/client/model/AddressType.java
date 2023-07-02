@@ -25,89 +25,35 @@ import io.swagger.annotations.ApiModelProperty;
 import java.io.IOException;
 
 /**
- * TextModel
+ * AddressType
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-26T11:11:35.933917700+05:00[Asia/Tashkent]")
-public class TextModel {
-  public static final String SERIALIZED_NAME_UZ = "uz";
-  @SerializedName(SERIALIZED_NAME_UZ)
-  private String uz;
-
-  public static final String SERIALIZED_NAME_RU = "ru";
-  @SerializedName(SERIALIZED_NAME_RU)
-  private String ru;
-
-  public static final String SERIALIZED_NAME_ENG = "eng";
-  @SerializedName(SERIALIZED_NAME_ENG)
-  private String eng;
+public class AddressType {
+  public static final String SERIALIZED_NAME_NAME = "name";
+  @SerializedName(SERIALIZED_NAME_NAME)
+  private String name;
 
 
-  public TextModel uz(String uz) {
+  public AddressType name(String name) {
     
-    this.uz = uz;
+    this.name = name;
     return this;
   }
 
    /**
-   * Get uz
-   * @return uz
+   * Get name
+   * @return name
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public String getUz() {
-    return uz;
+  public String getName() {
+    return name;
   }
 
 
-  public void setUz(String uz) {
-    this.uz = uz;
-  }
-
-
-  public TextModel ru(String ru) {
-    
-    this.ru = ru;
-    return this;
-  }
-
-   /**
-   * Get ru
-   * @return ru
-  **/
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
-
-  public String getRu() {
-    return ru;
-  }
-
-
-  public void setRu(String ru) {
-    this.ru = ru;
-  }
-
-
-  public TextModel eng(String eng) {
-    
-    this.eng = eng;
-    return this;
-  }
-
-   /**
-   * Get eng
-   * @return eng
-  **/
-  @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
-
-  public String getEng() {
-    return eng;
-  }
-
-
-  public void setEng(String eng) {
-    this.eng = eng;
+  public void setName(String name) {
+    this.name = name;
   }
 
 
@@ -119,25 +65,21 @@ public class TextModel {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TextModel textModel = (TextModel) o;
-    return Objects.equals(this.uz, textModel.uz) &&
-        Objects.equals(this.ru, textModel.ru) &&
-        Objects.equals(this.eng, textModel.eng);
+    AddressType addressType = (AddressType) o;
+    return Objects.equals(this.name, addressType.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uz, ru, eng);
+    return Objects.hash(name);
   }
 
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class TextModel {\n");
-    sb.append("    uz: ").append(toIndentedString(uz)).append("\n");
-    sb.append("    ru: ").append(toIndentedString(ru)).append("\n");
-    sb.append("    eng: ").append(toIndentedString(eng)).append("\n");
+    sb.append("class AddressType {\n");
+    sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("}");
     return sb.toString();
   }

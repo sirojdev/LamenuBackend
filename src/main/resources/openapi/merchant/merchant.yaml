@@ -4,7 +4,7 @@ info:
   description: "Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project"
   version: "1.0.0"
 servers:
-  - url: 'http://0.0.0.0:9000/v1/'
+  - url: 'http://127.0.0.1:9000/v1/'
     description: 'Local server'
   - url: 'http://188.166.167.80:9000/v1/'
     description: "Host server"
@@ -18,6 +18,9 @@ tags:
 
   - name: DineIn
     description: DineIn endpoints
+
+  - name: TakeOut
+    description: TakeOut endpoints
 
   - name: Settings/Integrations
     description: Endpoints related to category
@@ -1071,7 +1074,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProductDto"
+              $ref: "#/components/schemas/ProductInfoDto"
       responses:
         "200":
           description: "OK"
@@ -1087,7 +1090,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProductDto"
+              $ref: "#/components/schemas/ProductInfoDto"
       responses:
         "200":
           description: "OK"
@@ -1135,7 +1138,7 @@ paths:
         "400":
           description: "Bad Request"
 
-  /merchant/settings/options:
+  /merchant/settings/option:
     get:
       tags:
         - Settings/Menus
@@ -1153,7 +1156,6 @@ paths:
                   $ref: "#/components/schemas/OptionDto"
         "204":
           description: "No Content"
-  /merchant/settings/option:
     post:
       tags:
         - Settings/Menus
@@ -1788,6 +1790,8 @@ paths:
           description: "No Content"
   /merchant/settings/badge:
     post:
+      security:
+        - bearerAuth: [ ]
       requestBody:
         content:
           application/json:
@@ -1864,6 +1868,261 @@ paths:
           description: "OK"
         "400":
           description: "Bad Request"
+
+  /merchant/settings/cashback:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a list of all cashback"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CashbackDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Settings/Integrations
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashbackDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+    put:
+      tags:
+        - Settings/Integrations
+      description: "Update cashback"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated cashback's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CashbackDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/cashback/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a cashback by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CashBackDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Integrations
+      description: "Deletes cashback by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/orders:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+    put:
+      tags:
+        - TakeOut
+      description: "Update order"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated cashback's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/orders/{id}:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a order by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - TakeOut
+      description: "Deletes order by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+  /merchant/settings/orders/create:
+    post:
+      tags:
+        - TakeOut
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+  /merchant/settings/orders/all:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+  /merchant/settings/orders/history:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a list of all orders history"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+  /merchant/settings/orders/live/{type}:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a order by type"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "type"
+          in: "path"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+
+
 
   #//==================================================================================================CRM
   /merchant/crm/smss:
@@ -2129,9 +2388,6 @@ components:
           type: string
         icon:
           type: string
-        menuId:
-          type: integer
-          format: "long"
 
     SmsDto:
       type: object
@@ -2173,10 +2429,26 @@ components:
         id:
           type: "integer"
           format: "long"
+        userId:
+          type: "integer"
+          format: "long"
         type:
           $ref: "#/components/schemas/OrderType"
         status:
           type: "string"
+        courier:
+          $ref: "#/components/schemas/StaffDto"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        collector:
+          $ref: "#/components/schemas/StaffDto"
+        paymentTypeDto:
+          $ref: "#/components/schemas/PaymentDto"
+        grade:
+          type: integer
+          format: "double"
+        productCount:
+           type: integer
         createdAt:
           type: "string"
           format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
@@ -2206,6 +2478,16 @@ components:
           format: "long"
         name:
           type: "string"
+    PaymentTypeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        icon:
+          type: "string"
 
     ExtraDto:
       type: "object"
@@ -2225,9 +2507,6 @@ components:
       type: "object"
       properties:
         id:
-          type: "integer"
-          format: "long"
-        menuId:
           type: "integer"
           format: "long"
         name:
@@ -2254,6 +2533,17 @@ components:
         id:
           type: "integer"
           format: "long"
+        parentId:
+          type: "integer"
+          format: "long"
+        productId:
+          type: "integer"
+          format: "long"
+        options:
+          type: array
+          items:
+            type: "object"
+            $ref: "#/components/schemas/OptionDto"
         name:
           $ref: "#/components/schemas/TextModel"
         description:
@@ -2268,9 +2558,6 @@ components:
       type: "object"
       properties:
         id:
-          type: "integer"
-          format: "long"
-        menuId:
           type: "integer"
           format: "long"
         name:
@@ -2511,14 +2798,30 @@ components:
         id:
           type: "integer"
           format: "long"
+        name:
+          type: "string"
         merchantId:
           type: "integer"
           format: "long"
         branchId:
           type: "integer"
           format: "long"
+
+    CashbackDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
         name:
-          type: "string"
+          $ref: "#/components/schemas/TextModel"
+        minCost:
+          type: "integer"
+          format: "double"
+        maxCost:
+          type: "integer"
+          format: "double"
+
 
     TableDto:
       type: "object"
@@ -2586,10 +2889,6 @@ components:
         token:
           type: string
 
-
-
-
-
     BookDto:
       type: "object"
       properties:
@@ -2608,12 +2907,33 @@ components:
         comment:
           type: string
 
+    ProductInfoDto:
+      type: "object"
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        labels:
+          type: array
+          items:
+            type: "object"
+            $ref: "#/components/schemas/LabelDto"
+        options:
+          type: array
+          items:
+            type: "object"
+            $ref: "#/components/schemas/OptionDto"
+        extras:
+          type: array
+          items:
+            type: "object"
+            $ref: "#/components/schemas/ExtraDto"
 
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
 
   responses:
     UnauthorizedError:

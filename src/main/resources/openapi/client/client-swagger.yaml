@@ -399,6 +399,7 @@ paths:
         "400":
           description: "Bad Request"
 
+
   /client/favourite:
     post:
       tags:
@@ -460,7 +461,6 @@ paths:
           description: "OK"
         "400":
           description: "Bad Request"
-
   /client/favourite/{id}:
     delete:
       tags:
@@ -480,6 +480,7 @@ paths:
           description: "OK"
         "400":
           description: "Bad Request"
+
 
   /client/orders:
     get:
@@ -566,7 +567,7 @@ paths:
   /client/addresses:
     get:
       tags:
-        - DineIn
+        - Address
       description: "Returns a list of all address"
       security:
         - bearerAuth: [ ]
@@ -584,7 +585,7 @@ paths:
   /client/address:
     post:
       tags:
-        - DineIn
+        - Address
       description: "Adds a new address"
       security:
         - bearerAuth: [ ]
@@ -600,7 +601,7 @@ paths:
           description: "OK"
     put:
       tags:
-        - DineIn
+        - Address
       description: "Update a booking's information"
       security:
         - bearerAuth: [ ]
@@ -795,13 +796,13 @@ components:
         id:
           type: "integer"
           format: "long"
-        merchantId:
-          type: "integer"
-          format: "long"
         clientId:
           type: "integer"
           format: "long"
-        name:
+        deviceId:
+          type: "integer"
+          format: "long"
+        product:
           $ref: '#/components/schemas/ProductDto'
 
     ProductDto:
@@ -814,9 +815,9 @@ components:
           type: "integer"
           format: "long"
         name:
-          type: string
+          $ref: '#/components/schemas/TextModel'
         description:
-          type: string
+          $ref: '#/components/schemas/TextModel'
         image:
           type: string
         costPrice:
@@ -824,6 +825,23 @@ components:
           format: "long"
         active:
           type: boolean
+        categoryId:
+          type: "integer"
+          format: "long"
+        category:
+          $ref: '#/components/schemas/CategoryDto'
+        timeCookingMin:
+          type: "integer"
+          format: "long"
+        timeCookingMax:
+          type: "integer"
+          format: "long"
+        deliveryEnabled:
+          type: boolean
+        count:
+          type: "integer"
+          format: "long"
+
 
     OrderDto:
       type: "object"
@@ -876,7 +894,7 @@ components:
         status:
           type: "string"
         details:
-          $ref: "#/components/schemas/"
+          $ref: "#/components/schemas/AddressDetails"
         description:
           type: "string"
         latitude:
@@ -905,6 +923,24 @@ components:
           type: integer
         comment:
             type: "string"
+
+    CategoryDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        merchantId:
+          type: "integer"
+          format: "long"
+        bgColor:
+          type: "string"
+        textColor:
+          type: "string"
 
 
 

@@ -28,7 +28,7 @@ import org.openapitools.client.model.OrderType;
 /**
  * OrderDto
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-25T19:44:26.434788700+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-26T11:11:35.933917700+05:00[Asia/Tashkent]")
 public class OrderDto {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)

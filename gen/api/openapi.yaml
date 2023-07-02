@@ -20,10 +20,12 @@ tags:
   name: Menus
 - description: Endpoints related to profile
   name: Profile
-- description: Endpoints related to profile
+- description: Endpoints related to favourite
   name: Favourite
-- description: Endpoints related to profile
+- description: Endpoints related to order
   name: Order
+- description: Endpoints related to address
+  name: Address
 paths:
   /client/device:
     get:
@@ -585,6 +587,111 @@ paths:
       tags:
       - Order
       x-accepts: application/json
+  /client/addresses:
+    get:
+      description: Returns a list of all address
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BookDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-accepts: application/json
+  /client/address:
+    post:
+      description: Adds a new address
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookDto'
+        description: A JSON object containing address's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Update a booking's information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookDto'
+        description: A JSON object containing updated booking's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/address/{id}:
+    delete:
+      description: Deletes an address by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Address
+      x-accepts: application/json
+    get:
+      description: Returns an address by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Address
+      x-accepts: application/json
 components:
   requestBodies:
     inline_object_1:
@@ -882,6 +989,44 @@ components:
           format: long
           type: integer
         name:
+          type: string
+      type: object
+    AddressDto:
+      properties:
+        id:
+          format: long
+          type: integer
+        type:
+          $ref: '#/components/schemas/AddressType'
+        status:
+          type: string
+        details:
+          $ref: '#/components/schemas/AddressDetails'
+        description:
+          type: string
+        latitude:
+          format: double
+          type: integer
+        longitude:
+          format: double
+          type: integer
+      type: object
+    AddressType:
+      properties:
+        name:
+          type: string
+      type: object
+    AddressDetails:
+      properties:
+        building:
+          type: string
+        entrance:
+          type: string
+        code:
+          type: string
+        floor:
+          type: integer
+        comment:
           type: string
       type: object
     inline_object:
