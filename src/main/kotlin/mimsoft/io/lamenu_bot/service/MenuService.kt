@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
+import mimsoft.io.features.category.repository.CategoryRepositoryImpl.getCategoryByName
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.lamenu_bot.BotTexts
@@ -44,7 +45,7 @@ object MenuService {
 
     fun clickCategories(profile: BotUsersDto, text: String) {
         GlobalScope.launch {
-            val category = categoryRepository.getCategoryByName(profile, text)
+            val category = getCategoryByName(profile.merchantId, profile.language ?: Language.UZ, text)
             if (category == null) {
                 Utils.badRequest(profile)
             } else {
@@ -129,26 +130,27 @@ object MenuService {
     }
 
     fun clickProducts(profile: BotUsersDto, text: String) {
-        val product: ProductDto? = productRepository.getByName(text, profile)
-        if (product == null) {
-            Utils.badRequest(profile)
-        } else {
-            // update profile
-            profile.step = BotUsersStep.CHOOSE_PRODUCT
-            profileRepository.updateStep(profile)
-            // send info product
-            val sendPhoto = SendPhoto()
-            sendPhoto.setChatId(profile.telegramId!!)
-            if (product != null) {
+        GlobalScope.launch {
+            val product: ProductDto? =
+                productRepository.getByName(text, profile.language ?: Language.UZ, profile.merchantId ?: 0)
+            if (product == null) {
+                Utils.badRequest(profile)
+            } else {
+                // update profile
+                profile.step = BotUsersStep.CHOOSE_PRODUCT
+                profileRepository.updateStep(profile)
+                // send info product
+                val sendPhoto = SendPhoto()
+                sendPhoto.setChatId(profile.telegramId!!)
                 sendPhoto.photo = InputFile(product.image)
+                sendPhoto.caption = getDescriptionProduct(product, profile, 1)
+                sendPhoto.replyMarkup = buttonController.productCountButton(profile, product.id, 1);
+                sendPhoto.parseMode = "MARKDOWN"
+                laMenuBot.sendMsg(sendPhoto)
             }
-            sendPhoto.caption = getDescriptionProduct(product, profile,1)
-            sendPhoto.replyMarkup = buttonController.productCountButton(profile, product.id, 1);
-            sendPhoto.parseMode = "MARKDOWN"
-            laMenuBot.sendMsg(sendPhoto)
         }
-    }
 
+    }
 
 
     fun clickProductsBack(profile: BotUsersDto) {

@@ -2,14 +2,12 @@ package mimsoft.io.features.category.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.Language
 import mimsoft.io.features.category.CATEGORY_TABLE_NAME
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
-import mimsoft.io.lamenu_bot.dtos.BotUsersDto
 import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -88,41 +86,8 @@ object CategoryRepositoryImpl : CategoryRepository {
         return true
     }
 
-    suspend fun getCategoryByName(merchantId: Long?, lang: Language, text: String?): CategoryDto? {
-        var name: String = when (lang) {
-            Language.UZ -> "name_uz"
-            Language.RU -> "name_ru"
-            else -> "name_eng"
-        }
-
-        val query =
-            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and $name = ? "
-        var dto: CategoryDto? = null
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    setLong(1, merchantId!!)
-                    setString(2, text)
-                    this.closeOnCompletion()
-                }.executeQuery()
-                if (rs.next()) {
-                    dto = mapper.toCategoryDto(
-                        CategoryTable(
-                            id = rs.getLong("id"),
-                            nameUz = rs.getString("name_uz"),
-                            nameRu = rs.getString("name_ru"),
-                            nameEng = rs.getString("name_eng"),
-                            merchantId = rs.getLong("merchant_id")
-                        )
-                    )
-                } else null
-            }
-        }
-        return dto
-    }
-
-    suspend fun getCategoryByName(merchantId: Long?, lang: Language, text: String?): CategoryDto? {
-        var name: String = when (lang) {
+    override suspend fun getCategoryByName(merchantId: Long?, lang: Language, text: String?): CategoryDto? {
+        val name: String = when (lang) {
             Language.UZ -> "name_uz"
             Language.RU -> "name_ru"
             else -> "name_eng"
