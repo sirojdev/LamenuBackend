@@ -1,5 +1,6 @@
 package mimsoft.io.features.product
 
+import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.utils.TextModel
 
 object ProductMapper {
@@ -17,6 +18,12 @@ object ProductMapper {
             active = productDto.active,
             costPrice = productDto.costPrice,
             categoryId = productDto.categoryId,
+            idJoinPoster = productDto.productIntegration?.idJoinPoster,
+            idJowi = productDto.productIntegration?.idJowi,
+            idRKeeper = productDto.productIntegration?.idRkeeper,
+            deliveryEnabled = productDto.deliveryEnabled,
+            timeCookingMax = productDto.timeCookingMax,
+            timeCookingMin = productDto.timeCookingMin
         )
     }
 
@@ -38,7 +45,15 @@ object ProductMapper {
             image = productTable.image,
             active = productTable.active,
             costPrice = productTable.costPrice,
-            categoryId = productTable.categoryId
+            categoryId = productTable.categoryId,
+            productIntegration = ProductIntegrationDto(
+                idJoinPoster = productTable.idJoinPoster,
+                idRkeeper = productTable.idRKeeper,
+                idJowi = productTable.idJowi
+            ),
+            timeCookingMax = productTable.timeCookingMax,
+            timeCookingMin = productTable.timeCookingMin,
+            deliveryEnabled = productTable.deliveryEnabled,
         )
     }
 }

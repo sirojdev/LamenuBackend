@@ -16,13 +16,13 @@ import mimsoft.io.utils.principal.MerchantPrincipal
 
 
 fun Route.routeToMenu() {
-    get("/menus") {
+    get("/menu") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val categoryRepository: CategoryRepository = CategoryRepositoryImpl
         val categories = categoryRepository.getAll(merchantId=merchantId).map { it }
 
         val productRepository: ProductRepository = ProductRepositoryImpl
-        val products = productRepository.getAll(merchantId=merchantId).map { ProductMapper.toProductDto(it)}
+        val products = productRepository.getAll(merchantId=merchantId)
 
         val menus = MenuDto(
             categoryList = categories,

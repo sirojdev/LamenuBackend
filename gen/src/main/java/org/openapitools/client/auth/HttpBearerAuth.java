@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation Merchant
- * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -18,7 +18,7 @@ import org.openapitools.client.Pair;
 import java.util.Map;
 import java.util.List;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-05T15:02:42.878903600+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-26T11:11:35.933917700+05:00[Asia/Tashkent]")
 public class HttpBearerAuth implements Authentication {
   private final String scheme;
   private String bearerToken;

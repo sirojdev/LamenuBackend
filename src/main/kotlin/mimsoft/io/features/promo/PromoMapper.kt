@@ -1,0 +1,29 @@
+package mimsoft.io.features.promo
+
+object PromoMapper {
+    fun toTable(promoDto: PromoDto):PromoTable{
+        return PromoTable(
+            id = promoDto.id,
+            discountType = promoDto.discountType?.name,
+            deliveryDiscount = promoDto.deliveryDiscount,
+            productDiscount = promoDto.productDiscount,
+            isPublic = promoDto.isPublic,
+            minAmount = promoDto.minAmount,
+            startDate = promoDto.startDate,
+            endDate = promoDto.endDate
+        )
+    }
+
+    fun toDto(promoTable: PromoTable): PromoDto{
+        return PromoDto(
+            id = promoTable.id,
+            discountType = promoTable.discountType?.let { DiscountType.valueOf(it) },
+            deliveryDiscount = promoTable.deliveryDiscount,
+            productDiscount = promoTable.productDiscount,
+            isPublic = promoTable.isPublic,
+            minAmount = promoTable.minAmount,
+            startDate = promoTable.startDate,
+            endDate = promoTable.endDate
+        )
+    }
+}

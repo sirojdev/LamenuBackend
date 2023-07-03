@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation Merchant
- * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -54,7 +54,7 @@ import org.openapitools.client.auth.ApiKeyAuth;
 
 public class ApiClient {
 
-    private String basePath = "http://0.0.0.0:9000/api/v1";
+    private String basePath = "http://127.0.0.1:9000/v1";
     private boolean debugging = false;
     private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
     private Map<String, String> defaultCookieMap = new HashMap<String, String>();
@@ -140,7 +140,7 @@ public class ApiClient {
     /**
      * Set base path
      *
-     * @param basePath Base path of the URL (e.g http://0.0.0.0:9000/api/v1
+     * @param basePath Base path of the URL (e.g http://127.0.0.1:9000/v1
      * @return An instance of OkHttpClient
      */
     public ApiClient setBasePath(String basePath) {

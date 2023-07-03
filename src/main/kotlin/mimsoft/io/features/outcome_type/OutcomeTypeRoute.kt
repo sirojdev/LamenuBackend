@@ -10,7 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.MerchantPrincipal
 
-fun Route.outcomeTypeRoute() {
+fun Route.routeToOutcomeType() {
     get("outcome_types"){
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId

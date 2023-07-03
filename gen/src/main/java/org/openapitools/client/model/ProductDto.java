@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation Merchant
- * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -23,28 +23,27 @@ import com.google.gson.stream.JsonWriter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.IOException;
-import org.openapitools.client.model.TextModel;
 
 /**
  * ProductDto
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-05T15:02:42.878903600+05:00[Asia/Tashkent]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-06-26T11:11:35.933917700+05:00[Asia/Tashkent]")
 public class ProductDto {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)
   private Integer id;
 
-  public static final String SERIALIZED_NAME_MENU_ID = "menuId";
-  @SerializedName(SERIALIZED_NAME_MENU_ID)
-  private Integer menuId;
+  public static final String SERIALIZED_NAME_MERCHANT_ID = "merchantId";
+  @SerializedName(SERIALIZED_NAME_MERCHANT_ID)
+  private Integer merchantId;
 
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
-  private TextModel name;
+  private String name;
 
   public static final String SERIALIZED_NAME_DESCRIPTION = "description";
   @SerializedName(SERIALIZED_NAME_DESCRIPTION)
-  private TextModel description;
+  private String description;
 
   public static final String SERIALIZED_NAME_IMAGE = "image";
   @SerializedName(SERIALIZED_NAME_IMAGE)
@@ -53,6 +52,10 @@ public class ProductDto {
   public static final String SERIALIZED_NAME_COST_PRICE = "costPrice";
   @SerializedName(SERIALIZED_NAME_COST_PRICE)
   private Integer costPrice;
+
+  public static final String SERIALIZED_NAME_ACTIVE = "active";
+  @SerializedName(SERIALIZED_NAME_ACTIVE)
+  private Boolean active;
 
 
   public ProductDto id(Integer id) {
@@ -78,30 +81,30 @@ public class ProductDto {
   }
 
 
-  public ProductDto menuId(Integer menuId) {
+  public ProductDto merchantId(Integer merchantId) {
     
-    this.menuId = menuId;
+    this.merchantId = merchantId;
     return this;
   }
 
    /**
-   * Get menuId
-   * @return menuId
+   * Get merchantId
+   * @return merchantId
   **/
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public Integer getMenuId() {
-    return menuId;
+  public Integer getMerchantId() {
+    return merchantId;
   }
 
 
-  public void setMenuId(Integer menuId) {
-    this.menuId = menuId;
+  public void setMerchantId(Integer merchantId) {
+    this.merchantId = merchantId;
   }
 
 
-  public ProductDto name(TextModel name) {
+  public ProductDto name(String name) {
     
     this.name = name;
     return this;
@@ -114,17 +117,17 @@ public class ProductDto {
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public TextModel getName() {
+  public String getName() {
     return name;
   }
 
 
-  public void setName(TextModel name) {
+  public void setName(String name) {
     this.name = name;
   }
 
 
-  public ProductDto description(TextModel description) {
+  public ProductDto description(String description) {
     
     this.description = description;
     return this;
@@ -137,12 +140,12 @@ public class ProductDto {
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public TextModel getDescription() {
+  public String getDescription() {
     return description;
   }
 
 
-  public void setDescription(TextModel description) {
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -193,6 +196,29 @@ public class ProductDto {
   }
 
 
+  public ProductDto active(Boolean active) {
+    
+    this.active = active;
+    return this;
+  }
+
+   /**
+   * Get active
+   * @return active
+  **/
+  @javax.annotation.Nullable
+  @ApiModelProperty(value = "")
+
+  public Boolean getActive() {
+    return active;
+  }
+
+
+  public void setActive(Boolean active) {
+    this.active = active;
+  }
+
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -203,16 +229,17 @@ public class ProductDto {
     }
     ProductDto productDto = (ProductDto) o;
     return Objects.equals(this.id, productDto.id) &&
-        Objects.equals(this.menuId, productDto.menuId) &&
+        Objects.equals(this.merchantId, productDto.merchantId) &&
         Objects.equals(this.name, productDto.name) &&
         Objects.equals(this.description, productDto.description) &&
         Objects.equals(this.image, productDto.image) &&
-        Objects.equals(this.costPrice, productDto.costPrice);
+        Objects.equals(this.costPrice, productDto.costPrice) &&
+        Objects.equals(this.active, productDto.active);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, menuId, name, description, image, costPrice);
+    return Objects.hash(id, merchantId, name, description, image, costPrice, active);
   }
 
 
@@ -221,11 +248,12 @@ public class ProductDto {
     StringBuilder sb = new StringBuilder();
     sb.append("class ProductDto {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    menuId: ").append(toIndentedString(menuId)).append("\n");
+    sb.append("    merchantId: ").append(toIndentedString(merchantId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    image: ").append(toIndentedString(image)).append("\n");
     sb.append("    costPrice: ").append(toIndentedString(costPrice)).append("\n");
+    sb.append("    active: ").append(toIndentedString(active)).append("\n");
     sb.append("}");
     return sb.toString();
   }
