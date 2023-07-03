@@ -21,5 +21,7 @@ data class OrderTable(
     val comment: String? = null,
     val merchantId: Long? = null,
     val courierId: Long? = null,
-    val collectorId: Long? = null
+    val collectorId: Long? = null,
+    val productCount: Int? = null,
+    val grade: Double? = null
 )

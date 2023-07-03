@@ -16,13 +16,17 @@ object OutcomeService {
     val mapper = OutcomeMapper
 
 
-    suspend fun getAll(): List<OutcomeTable?> {
-        return repository.getData(dataClass = OutcomeTable::class, tableName = OUTCOME_TABLE_NAME)
-            .filterIsInstance<OutcomeTable?>()
+    suspend fun getAll(merchantId: Long?): List<OutcomeTable?> {
+        val data = repository.getPageData(
+            dataClass = OutcomeTable::class,
+            where = mapOf("merchant_id" to merchantId as Any),
+            tableName = OUTCOME_TABLE_NAME
+        )?.data
+        return data.orEmpty()
     }
 
-    suspend fun get(id: Long?): OutcomeDto? {
-        val query = "select * from $OUTCOME_TABLE_NAME where id = $id and deleted = false"
+    suspend fun get(id: Long?, merchantId: Long?): OutcomeDto? {
+        val query = "select * from $OUTCOME_TABLE_NAME where merchant_id = $merchantId and id = $id and not deleted"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -74,8 +78,8 @@ object OutcomeService {
         return true
     }
 
-    suspend fun delete(merchantId: Long?): Boolean {
-        val query = "update $OUTCOME_TABLE_NAME set deleted = true where merchant_id = $merchantId"
+    fun delete(merchantId: Long?, id: Long?): Boolean {
+        val query = "update $OUTCOME_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         repository.connection().use { val rs = it.prepareStatement(query).execute() }
         return true
     }
