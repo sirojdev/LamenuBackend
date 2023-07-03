@@ -10,6 +10,8 @@ import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.features.product.product_label.ProductLabelService
 import mimsoft.io.features.product.product_option.ProductOptionService
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.lamenu_bot.dtos.BotUsersDto
+import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.TextModel
@@ -437,5 +439,4 @@ object ProductRepositoryImpl : ProductRepository {
         return product
     }
 }
-
 

@@ -7,9 +7,10 @@ import mimsoft.io.features.category.CATEGORY_TABLE_NAME
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
-import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.lamenu_bot.dtos.BotUsersDto
+import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
@@ -49,7 +50,7 @@ object CategoryRepositoryImpl : CategoryRepository {
             tableName = CATEGORY_TABLE_NAME
         )
 
-    override suspend fun update(dto: CategoryDto): Boolean{
+    override suspend fun update(dto: CategoryDto): Boolean {
         val merchantId = dto.merchantId
         val query = "UPDATE $CATEGORY_TABLE_NAME " +
                 "SET" +
