@@ -27,7 +27,7 @@ object OutcomeMapper {
         else {
             val staffDto = StaffService.getById(outcomeTable.staffId)
             val outcomeTypeDto = OutcomeTypeService.getById(outcomeTable.outcomeTypeId)
-            OutcomeDto(
+            return OutcomeDto(
                 id = outcomeTable.id,
                 merchantId = outcomeTable.merchantId,
                 name = outcomeTable.name,

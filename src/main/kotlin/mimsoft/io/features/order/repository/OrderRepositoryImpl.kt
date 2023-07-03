@@ -566,7 +566,7 @@ object  OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun update(orderDto: OrderDto?): Boolean {
-        return DBManager.updateData(OrderTable::class, orderMapper.toTable(orderDto), ORDER_TABLE_NAME)
+        return DBManager.updateData(OrderTable::class, orderMapper.toTable(orderDto=orderDto, user = orderDto?.user), ORDER_TABLE_NAME)
     }
 
     override suspend fun delete(id: Long?): ResponseModel {
