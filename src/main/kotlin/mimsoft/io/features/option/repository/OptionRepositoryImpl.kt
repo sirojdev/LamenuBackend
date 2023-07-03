@@ -116,7 +116,7 @@ object OptionRepositoryImpl : OptionRepository {
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $OPTION_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            LabelRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use { val rs = it.prepareStatement(query).execute() }
         }
         return true
     }

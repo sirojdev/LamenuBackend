@@ -1,6 +1,6 @@
 /*
- * Lamenu documentation Merchant
- * Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project
+ * Lamenu documentation Client
+ * Lamenu documentation Clint allows to you view the schema of Client Lamenu project
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -55,120 +55,7 @@ public class MenusApi {
     }
 
     /**
-     * Build call for merchantSettingsMenuIdDelete
-     * @param id  (required)
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuIdDeleteCall(Long id, final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = null;
-
-        // create path and map variables
-        String localVarPath = "/merchant/settings/menu/{id}"
-            .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        final String[] localVarAccepts = {
-            
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        localVarHeaderParams.put("Content-Type", localVarContentType);
-
-        String[] localVarAuthNames = new String[] { "bearerAuth" };
-        return localVarApiClient.buildCall(localVarPath, "DELETE", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call merchantSettingsMenuIdDeleteValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
-        
-        // verify the required parameter 'id' is set
-        if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling merchantSettingsMenuIdDelete(Async)");
-        }
-        
-
-        okhttp3.Call localVarCall = merchantSettingsMenuIdDeleteCall(id, _callback);
-        return localVarCall;
-
-    }
-
-    /**
-     * 
-     * Deletes a menu by its ID
-     * @param id  (required)
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public void merchantSettingsMenuIdDelete(Long id) throws ApiException {
-        merchantSettingsMenuIdDeleteWithHttpInfo(id);
-    }
-
-    /**
-     * 
-     * Deletes a menu by its ID
-     * @param id  (required)
-     * @return ApiResponse&lt;Void&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<Void> merchantSettingsMenuIdDeleteWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = merchantSettingsMenuIdDeleteValidateBeforeCall(id, null);
-        return localVarApiClient.execute(localVarCall);
-    }
-
-    /**
-     *  (asynchronously)
-     * Deletes a menu by its ID
-     * @param id  (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuIdDeleteAsync(Long id, final ApiCallback<Void> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = merchantSettingsMenuIdDeleteValidateBeforeCall(id, _callback);
-        localVarApiClient.executeAsync(localVarCall, _callback);
-        return localVarCall;
-    }
-    /**
-     * Build call for merchantSettingsMenuIdGet
-     * @param id  (required)
+     * Build call for clientMenusGet
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -177,15 +64,13 @@ public class MenusApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call merchantSettingsMenuIdGetCall(Long id, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call clientMenusGetCall(final ApiCallback _callback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
-        String localVarPath = "/merchant/settings/menu/{id}"
-            .replaceAll("\\{" + "id" + "\\}", localVarApiClient.escapeString(id.toString()));
+        String localVarPath = "/client/menus";
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
         List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
@@ -212,341 +97,10 @@ public class MenusApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call merchantSettingsMenuIdGetValidateBeforeCall(Long id, final ApiCallback _callback) throws ApiException {
-        
-        // verify the required parameter 'id' is set
-        if (id == null) {
-            throw new ApiException("Missing the required parameter 'id' when calling merchantSettingsMenuIdGet(Async)");
-        }
+    private okhttp3.Call clientMenusGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
         
 
-        okhttp3.Call localVarCall = merchantSettingsMenuIdGetCall(id, _callback);
-        return localVarCall;
-
-    }
-
-    /**
-     * 
-     * Returns a menu by its ID
-     * @param id  (required)
-     * @return MenuDto
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public MenuDto merchantSettingsMenuIdGet(Long id) throws ApiException {
-        ApiResponse<MenuDto> localVarResp = merchantSettingsMenuIdGetWithHttpInfo(id);
-        return localVarResp.getData();
-    }
-
-    /**
-     * 
-     * Returns a menu by its ID
-     * @param id  (required)
-     * @return ApiResponse&lt;MenuDto&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<MenuDto> merchantSettingsMenuIdGetWithHttpInfo(Long id) throws ApiException {
-        okhttp3.Call localVarCall = merchantSettingsMenuIdGetValidateBeforeCall(id, null);
-        Type localVarReturnType = new TypeToken<MenuDto>(){}.getType();
-        return localVarApiClient.execute(localVarCall, localVarReturnType);
-    }
-
-    /**
-     *  (asynchronously)
-     * Returns a menu by its ID
-     * @param id  (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad Request </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuIdGetAsync(Long id, final ApiCallback<MenuDto> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = merchantSettingsMenuIdGetValidateBeforeCall(id, _callback);
-        Type localVarReturnType = new TypeToken<MenuDto>(){}.getType();
-        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
-        return localVarCall;
-    }
-    /**
-     * Build call for merchantSettingsMenuPost
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuPostCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = menuDto;
-
-        // create path and map variables
-        String localVarPath = "/merchant/settings/menu";
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        final String[] localVarAccepts = {
-            
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            "application/json"
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        localVarHeaderParams.put("Content-Type", localVarContentType);
-
-        String[] localVarAuthNames = new String[] { "bearerAuth" };
-        return localVarApiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call merchantSettingsMenuPostValidateBeforeCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
-        
-        // verify the required parameter 'menuDto' is set
-        if (menuDto == null) {
-            throw new ApiException("Missing the required parameter 'menuDto' when calling merchantSettingsMenuPost(Async)");
-        }
-        
-
-        okhttp3.Call localVarCall = merchantSettingsMenuPostCall(menuDto, _callback);
-        return localVarCall;
-
-    }
-
-    /**
-     * 
-     * Adds a new menu
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public void merchantSettingsMenuPost(MenuDto menuDto) throws ApiException {
-        merchantSettingsMenuPostWithHttpInfo(menuDto);
-    }
-
-    /**
-     * 
-     * Adds a new menu
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @return ApiResponse&lt;Void&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<Void> merchantSettingsMenuPostWithHttpInfo(MenuDto menuDto) throws ApiException {
-        okhttp3.Call localVarCall = merchantSettingsMenuPostValidateBeforeCall(menuDto, null);
-        return localVarApiClient.execute(localVarCall);
-    }
-
-    /**
-     *  (asynchronously)
-     * Adds a new menu
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuPostAsync(MenuDto menuDto, final ApiCallback<Void> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = merchantSettingsMenuPostValidateBeforeCall(menuDto, _callback);
-        localVarApiClient.executeAsync(localVarCall, _callback);
-        return localVarCall;
-    }
-    /**
-     * Build call for merchantSettingsMenuPut
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuPutCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = menuDto;
-
-        // create path and map variables
-        String localVarPath = "/merchant/settings/menu";
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        final String[] localVarAccepts = {
-            
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            "application/json"
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        localVarHeaderParams.put("Content-Type", localVarContentType);
-
-        String[] localVarAuthNames = new String[] { "bearerAuth" };
-        return localVarApiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call merchantSettingsMenuPutValidateBeforeCall(MenuDto menuDto, final ApiCallback _callback) throws ApiException {
-        
-        // verify the required parameter 'menuDto' is set
-        if (menuDto == null) {
-            throw new ApiException("Missing the required parameter 'menuDto' when calling merchantSettingsMenuPut(Async)");
-        }
-        
-
-        okhttp3.Call localVarCall = merchantSettingsMenuPutCall(menuDto, _callback);
-        return localVarCall;
-
-    }
-
-    /**
-     * 
-     * Adds a new menu
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public void merchantSettingsMenuPut(MenuDto menuDto) throws ApiException {
-        merchantSettingsMenuPutWithHttpInfo(menuDto);
-    }
-
-    /**
-     * 
-     * Adds a new menu
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @return ApiResponse&lt;Void&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<Void> merchantSettingsMenuPutWithHttpInfo(MenuDto menuDto) throws ApiException {
-        okhttp3.Call localVarCall = merchantSettingsMenuPutValidateBeforeCall(menuDto, null);
-        return localVarApiClient.execute(localVarCall);
-    }
-
-    /**
-     *  (asynchronously)
-     * Adds a new menu
-     * @param menuDto A JSON object containing updated menu information (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenuPutAsync(MenuDto menuDto, final ApiCallback<Void> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = merchantSettingsMenuPutValidateBeforeCall(menuDto, _callback);
-        localVarApiClient.executeAsync(localVarCall, _callback);
-        return localVarCall;
-    }
-    /**
-     * Build call for merchantSettingsMenusGet
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
-        <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call merchantSettingsMenusGetCall(final ApiCallback _callback) throws ApiException {
-        Object localVarPostBody = null;
-
-        // create path and map variables
-        String localVarPath = "/merchant/settings/menus";
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        final String[] localVarAccepts = {
-            "application/json"
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        localVarHeaderParams.put("Content-Type", localVarContentType);
-
-        String[] localVarAuthNames = new String[] { "bearerAuth" };
-        return localVarApiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call merchantSettingsMenusGetValidateBeforeCall(final ApiCallback _callback) throws ApiException {
-        
-
-        okhttp3.Call localVarCall = merchantSettingsMenusGetCall(_callback);
+        okhttp3.Call localVarCall = clientMenusGetCall(_callback);
         return localVarCall;
 
     }
@@ -563,8 +117,8 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public List<MenuDto> merchantSettingsMenusGet() throws ApiException {
-        ApiResponse<List<MenuDto>> localVarResp = merchantSettingsMenusGetWithHttpInfo();
+    public List<MenuDto> clientMenusGet() throws ApiException {
+        ApiResponse<List<MenuDto>> localVarResp = clientMenusGetWithHttpInfo();
         return localVarResp.getData();
     }
 
@@ -580,8 +134,8 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<List<MenuDto>> merchantSettingsMenusGetWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = merchantSettingsMenusGetValidateBeforeCall(null);
+    public ApiResponse<List<MenuDto>> clientMenusGetWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = clientMenusGetValidateBeforeCall(null);
         Type localVarReturnType = new TypeToken<List<MenuDto>>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -599,9 +153,9 @@ public class MenusApi {
         <tr><td> 204 </td><td> No Content </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call merchantSettingsMenusGetAsync(final ApiCallback<List<MenuDto>> _callback) throws ApiException {
+    public okhttp3.Call clientMenusGetAsync(final ApiCallback<List<MenuDto>> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = merchantSettingsMenusGetValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = clientMenusGetValidateBeforeCall(_callback);
         Type localVarReturnType = new TypeToken<List<MenuDto>>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

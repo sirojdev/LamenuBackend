@@ -124,8 +124,7 @@ fun Route.routeToClientAuth() {
     authenticate("modify") {
         post("sign-up") {
             val pr = call.principal<DevicePrincipal>()
-            println("modify")
-            println(Gson().toJson(pr))
+
             val user = call.receive<UserDto>()
             val result = userRepository.add(user.copy(phone = pr?.phone, merchantId = pr?.merchantId))
             if (result.isOk()) {
@@ -153,6 +152,8 @@ fun Route.routeToClientAuth() {
                     )
                 )
 
+
+
                 call.respond(
                     user.copy(
                         id = result.body.toString().toLongOrNull(),
@@ -162,6 +163,8 @@ fun Route.routeToClientAuth() {
                         )
                     )
                 )
+
+
             } else {
                 call.respond(result)
             }

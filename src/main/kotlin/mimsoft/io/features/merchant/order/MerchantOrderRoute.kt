@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.favourite.merchant
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.utils.principal.MerchantPrincipal
@@ -27,6 +28,7 @@ fun Route.routeToMerchantOrder() {
         }
 
         get("orders/{id}") {
+            call.attributes
             val principal = call.principal<MerchantPrincipal>()
             val id = call.parameters["id"]?.toLongOrNull()
             if (id==null) {

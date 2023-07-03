@@ -16,86 +16,86 @@ fun Route.routeToOrder() {
 
     val repository: OrderRepository = OrderRepositoryImpl
 
-    get("all"){
-
-        val orders = repository.getAll()
-        call.respond(orders)
-    }
-    get("live") {
-        val type = call.parameters["type"]
-        val orders = repository.getLiveOrders(type = type.toString())
-        val orderDto = orders?.data
-        if (orderDto == null) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
+    route("orders") {
+        get("live") {
+            val type = call.parameters["type"]
+            val orders = repository.getLiveOrders(type = type.toString())
+            val orderDto = orders?.data
+            if (orderDto == null) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, orderDto)
         }
-        call.respond(HttpStatusCode.OK, orderDto)
-    }
-
-    get("history") {
-        val orders = repository.getAll()
-        if (orders == null) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
+        get("all") {
+            val orders = repository.getAll()
+            call.respond(orders)
         }
-        call.respond(HttpStatusCode.OK, orders)
-    }
-
-    get("/orders") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val search = call.parameters["search"]
-        val status = call.parameters["status"]
-        val type = call.parameters["type"]
-        val limit = call.parameters["limit"]?.toIntOrNull()
-        val offset = call.parameters["offset"]?.toIntOrNull()
-        val orders = repository.getAll(search, merchantId, status, type, limit, offset)?.data
-        if (orders == null) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
+        get("history") {
+            val orders = repository.getAll()
+            if (orders.total == 0) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, orders)
         }
-        call.respond(HttpStatusCode.OK, orders)
-    }
 
-    get("/order/{id}") {
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
+        get {
+            val pr = call.principal<MerchantPrincipal>()
+            val merchantId = pr?.merchantId
+            val search = call.parameters["search"]
+            val status = call.parameters["status"]
+            val type = call.parameters["type"]
+            val limit = call.parameters["limit"]?.toIntOrNull()
+            val offset = call.parameters["offset"]?.toIntOrNull()
+            val orders = repository.getAll(search, merchantId, status, type, limit, offset)?.data
+            if (orders == null) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, orders)
         }
-        val order = repository.get(id)
-        if (order != null) {
-            call.respond(HttpStatusCode.OK, order)
-        } else {
-            call.respond(HttpStatusCode.NotFound)
+
+        get("{id}") {
+            val id = call.parameters["id"]?.toLongOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
+            val order = repository.get(id)
+            if (order != null) {
+                call.respond(HttpStatusCode.OK, order)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
-    }
 
-    post("/order/create") {
-        val order = call.receive<OrderWrapper>()
-        val status = repository.add(order)
-        call.respond(
-            status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
-            status?.body ?: "Something went wrong"
-        )
-    }
-
-    put("/order") {
-        val order = call.receive<OrderDto>()
-        repository.update(order)
-        call.respond(HttpStatusCode.OK)
-    }
-
-    delete("/order/{id}") {
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id != null) {
-            val deleted = repository.delete(id)
+        post("/create") {
+            val order = call.receive<OrderWrapper>()
+            val status = repository.add(order)
             call.respond(
-                deleted?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
-                deleted?.body ?: "Something went wrong"
+                status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
+                status?.body ?: "Something went wrong"
             )
-        } else {
-            call.respond(HttpStatusCode.BadRequest)
+        }
+
+        put {
+            val order = call.receive<OrderDto>()
+            repository.update(order)
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("/{id}") {
+            val id = call.parameters["id"]?.toLongOrNull()
+            if (id != null) {
+                val deleted = repository.delete(id)
+                call.respond(
+                    deleted?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
+                    deleted?.body ?: "Something went wrong"
+                )
+            } else {
+                call.respond(HttpStatusCode.BadRequest)
+            }
         }
     }
 }
