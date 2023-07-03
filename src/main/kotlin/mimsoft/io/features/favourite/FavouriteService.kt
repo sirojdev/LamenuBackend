@@ -9,9 +9,7 @@ import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.ResponseModel.Companion.OK
 import mimsoft.io.utils.TextModel
-import java.awt.GraphicsDevice
 import java.sql.Timestamp
 
 val repository: BaseRepository = DBManager
@@ -35,17 +33,14 @@ object FavouriteService {
                         "       ${favouriteDto?.clientId}, " +
                         "       ${favouriteDto?.deviceId}, " +
                         "       ${favouriteDto?.product?.id}, " +
-                        "       ? " +
-                        "where not exist " +
-                        "(select from favourite f " +
+                        "       ${Timestamp(System.currentTimeMillis())} " +
+                        "    where not exist " +
+                        "    (select from favourite f " +
                         "    where f.merchant_id = ${favouriteDto?.merchantId} and "
-                "    f.client_id = ${favouriteDto?.clientId} and " +
-                        "    f.device_id = ${favouriteDto?.deviceId} and " +
-                        "    f.product_id = ${favouriteDto?.product?.id}) "
-
-                it.prepareStatement(query).apply {
-                    this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
-                }.execute()
+                        "       f.client_id = ${favouriteDto?.clientId} and " +
+                        "       f.device_id = ${favouriteDto?.deviceId} and " +
+                        "       f.product_id = ${favouriteDto?.product?.id}) "
+                it.prepareStatement(query).execute()
             }
             ResponseModel()
         }

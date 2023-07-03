@@ -29,6 +29,7 @@ import mimsoft.io.features.product.product_extra.routeToProductExtra
 import mimsoft.io.features.product.product_label.routeToProductLabel
 import mimsoft.io.features.product.product_option.routeToProductOption
 import mimsoft.io.features.product.routeToProduct
+import mimsoft.io.features.promo.routeToPromo
 import mimsoft.io.features.room.routeToRoom
 import mimsoft.io.features.sms.routeToSms
 import mimsoft.io.features.sms_gateway.routeToSmsGateways
@@ -92,6 +93,7 @@ fun Route.routeToMerchant() {
 
         route("finance") {
             routeToOutcome()
+            routeToPromo()
         }
 
         route("crm") {

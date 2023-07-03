@@ -13,5 +13,5 @@ interface ProductRepository {
     suspend fun add(productTable: ProductTable?): Long?
     suspend fun update(dto: ProductDto?): Boolean
     suspend fun delete(id: Long?, merchantId: Long?): Boolean
-    suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoDto?
+//    suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoDto?
 }

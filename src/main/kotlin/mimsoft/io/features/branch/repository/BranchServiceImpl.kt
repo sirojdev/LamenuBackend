@@ -22,7 +22,6 @@ object BranchServiceImpl : BranchService {
             where = mapOf("merchant_id" to merchantId as Any),
             tableName = BRANCH_TABLE_NAME
         )?.data
-
         return data?.map { mapper.toBranchDto(it) } ?: emptyList()
     }
 

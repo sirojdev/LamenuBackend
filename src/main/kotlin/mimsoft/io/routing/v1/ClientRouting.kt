@@ -28,12 +28,10 @@ fun Route.clientRouting() {
         authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
-
             routeToAddress()
             routeToOrderClient()
             routeToBook()
             routeToFavourites()
-
         }
     }
 }

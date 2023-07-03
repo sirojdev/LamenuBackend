@@ -2,12 +2,6 @@ package mimsoft.io.features.table
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.entities.table.TABLE_TABLE_NAME
-import mimsoft.io.entities.table.TableTable
-import mimsoft.io.features.product.PRODUCT_TABLE_NAME
-import mimsoft.io.features.product.ProductDto
-import mimsoft.io.features.product.ProductMapper
-import mimsoft.io.features.product.ProductTable
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
