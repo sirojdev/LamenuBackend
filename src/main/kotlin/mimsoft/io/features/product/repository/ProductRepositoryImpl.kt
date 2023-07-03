@@ -396,6 +396,7 @@ object ProductRepositoryImpl : ProductRepository {
                 }
             }
         }
+
         return listProduct;
     }
 
@@ -439,4 +440,3 @@ object ProductRepositoryImpl : ProductRepository {
         return product
     }
 }
-
