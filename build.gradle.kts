@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.slf4j:slf4j-log4j12:2.0.5")
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
