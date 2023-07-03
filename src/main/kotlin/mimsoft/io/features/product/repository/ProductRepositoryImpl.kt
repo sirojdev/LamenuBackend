@@ -208,7 +208,6 @@ object ProductRepositoryImpl : ProductRepository {
                 p.id_jowi,
                 p.id_join_poster,
                 p.active,
-                c.id              c_id,
                 c.name_uz         c_name_uz,
                 c.name_ru         c_name_ru,
                 c.name_eng        c_name_eng,
@@ -222,6 +221,7 @@ object ProductRepositoryImpl : ProductRepository {
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
+                println("Query -> $query")
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     return@withContext ProductInfoDto(
@@ -320,7 +320,7 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
-    override suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoDto? {
+   /* override suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoDto? {
         val query = """
             select p.*, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng
                 from product p
@@ -372,7 +372,7 @@ object ProductRepositoryImpl : ProductRepository {
                 } else return@withContext null
             }
         }
-    }
+    }*/
 
     suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
         val sql = "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"

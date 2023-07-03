@@ -73,7 +73,6 @@ fun Route.routeToProduct() {
             val deleted = productRepository.delete(id = id, merchantId = merchantId)
             call.respond(deleted)
         }
-
     }
 
     get("product/info/{id}") {
@@ -84,7 +83,7 @@ fun Route.routeToProduct() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val response = productRepository.getProductInfo(id = id, merchantId = merchantId)
+        val response = productRepository.getProductInfo(merchantId = merchantId, id = id)
         if (response == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
