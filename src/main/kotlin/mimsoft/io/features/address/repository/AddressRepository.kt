@@ -1,7 +1,9 @@
-package mimsoft.io.features.address
+package mimsoft.io.features.address.repository
 
-interface AddressService {
-    suspend fun getAll(): List<AddressDto?>
+import mimsoft.io.features.address.AddressDto
+
+interface AddressRepository {
+    suspend fun getAll(clientId: Long?): List<AddressDto?>
     suspend fun get(id: Long?): AddressDto?
     suspend fun add(addressDto: AddressDto?): Long?
     suspend fun update(addressDto: AddressDto?): Boolean

@@ -9,8 +9,8 @@ import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.ResponseModel.Companion.OK
 import mimsoft.io.utils.TextModel
+import java.sql.Timestamp
 
 val repository: BaseRepository = DBManager
 val merchant = MerchantRepositoryImp
@@ -19,32 +19,48 @@ val productRepository = ProductRepositoryImpl
 
 object FavouriteService {
     suspend fun add(favouriteDto: FavouriteDto): ResponseModel {
+
         val merchantId = favouriteDto.merchantId
         val productId = favouriteDto.product?.id
-        val product = productRepository.getAll(merchantId = merchantId)
-        if (product.isEmpty())
-            return ResponseModel(HttpStatusCode.NoContent)
-        product.forEach { prod ->
-            if (prod?.id == productId) {
-                return ResponseModel(
-                    body = repository.postData(
-                        dataClass = FavouriteTable::class,
-                        dataObject = mapper.toTable(favouriteDto),
-                        tableName = FAVOURITE_TABLE_NAME
-                    ),
-                    httpStatus = OK
-                )
+        val product = productRepository.get(merchantId = merchantId, id = favouriteDto.product?.id)
+            ?: return ResponseModel(HttpStatusCode.NoContent)
+
+
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val query = "insert into favourite (merchant_id, client_id, product_id, device_id, created ) " +
+                        "select ${favouriteDto?.merchantId}, " +
+                        "       ${favouriteDto?.clientId}, " +
+                        "       ${favouriteDto?.deviceId}, " +
+                        "       ${favouriteDto?.product?.id}, " +
+                        "       ${Timestamp(System.currentTimeMillis())} " +
+                        "    where not exist " +
+                        "    (select from favourite f " +
+                        "    where f.merchant_id = ${favouriteDto?.merchantId} and "
+                        "       f.client_id = ${favouriteDto?.clientId} and " +
+                        "       f.device_id = ${favouriteDto?.deviceId} and " +
+                        "       f.product_id = ${favouriteDto?.product?.id}) "
+                it.prepareStatement(query).execute()
             }
+            ResponseModel()
         }
-        return ResponseModel(OK)
+
+    }
+
+    suspend fun move(clientId: Long?, merchantId: Long?, deviceId: Long?) {
+        return withContext(DBManager.databaseDispatcher){
+            repository.connection().use {
+                val query = "update favourite \n" +
+                        "set device_id = null, client_id = $clientId\n" +
+                        "where merchant_id = $merchantId and device_id = $deviceId"
+                it.prepareStatement(query)
+            }.execute()
+        }
+
+
     }
 
     suspend fun update(favouriteDto: FavouriteDto): ResponseModel {
-        val merchantId = favouriteDto.merchantId
-        val all = productRepository.getAll(merchantId = merchantId)
-        if (all.isEmpty()) {
-            ResponseModel(HttpStatusCode.NoContent)
-        }
         val response = repository.updateData(FavouriteTable::class, mapper.toTable(favouriteDto), FAVOURITE_TABLE_NAME)
         return ResponseModel(response, HttpStatusCode.OK)
     }

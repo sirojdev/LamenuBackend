@@ -15,7 +15,7 @@ fun Route.routeToClientTable(){
     val roomRepository: RoomRepository = RoomService
 
     get("tables") {
-        val merchantId = 1L
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val table = tableRepository.getAll(merchantId=merchantId).map { TableMapper.toTableDto(it) }
 
         val rooms = roomRepository.getAll(merchantId=merchantId).map { it }
@@ -26,10 +26,10 @@ fun Route.routeToClientTable(){
         call.respond(HttpStatusCode.OK, tables)
     }
 
-    get("branch/{id}") {
-        val merchantId = 1L
-        val roomId = call.parameters["id"]?.toLongOrNull()
-        if (roomId==null) {
+    get("table") {
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        val roomId = call.parameters["roomId"]?.toLongOrNull()
+        if (roomId==null || merchantId==null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }

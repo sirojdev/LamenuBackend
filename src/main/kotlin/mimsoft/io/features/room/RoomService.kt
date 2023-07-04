@@ -45,7 +45,7 @@ object RoomService : RoomRepository {
                 "name = ?, " +
                 "branch_id = ${roomDto?.branchId}, " +
                 "updated = ? \n" +
-                "where merchant_id = ${roomDto?.merchantId} and not deleted "
+                "where id = ${roomDto?.id} and merchant_id = ${roomDto?.merchantId} and not deleted "
         withContext(Dispatchers.IO) {
             SmsGatewayService.repository.connection().use {
                 val rs = it.prepareStatement(query).apply {

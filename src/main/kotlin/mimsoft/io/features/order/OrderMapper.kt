@@ -62,7 +62,9 @@ object OrderMapper {
                 updatedAt = details?.updatedAt,
                 comment = details?.comment,
                 courierId = details?.courierId,
-                collectorId = details?.collectorId
+                collectorId = details?.collectorId,
+                productCount = orderDto.productCount,
+                grade = orderDto.grade
             )
         else null
     }

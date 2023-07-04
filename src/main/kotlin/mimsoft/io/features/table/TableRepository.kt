@@ -1,7 +1,5 @@
 package mimsoft.io.features.table
 
-import mimsoft.io.entities.table.TableTable
-
 
 interface TableRepository {
     suspend fun getAll(merchantId: Long?): List<TableTable?>

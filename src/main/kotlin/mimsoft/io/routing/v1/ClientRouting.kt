@@ -22,10 +22,12 @@ fun Route.clientRouting() {
         routeToClientProduct()
         routeToClientTable()
         routeToClientBranches()
+        routeToClientProduct()
+        routeToClientCategory()
+
         authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
-
             routeToAddress()
             routeToOrderClient()
             routeToBook()
