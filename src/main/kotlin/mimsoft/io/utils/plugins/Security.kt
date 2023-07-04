@@ -9,6 +9,8 @@ import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
 import mimsoft.io.client.user.UserPrincipal
+import mimsoft.io.features.payment.PaymentService
+import mimsoft.io.integrate.payme.PAYME_PASSWORD
 import mimsoft.io.session.SessionPrincipal
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
@@ -173,15 +175,18 @@ fun Application.configureSecurity() {
             }
         }
 
-        /*basic(name = "payme") {
+        basic(name = "payme") {
             realm = "Server"
             validate { credentials ->
-                if (credentials.password == PAYME_PASSWORD) {
+                val payment = PaymentService.paymeVerify(
+                    credentials.name
+                )
+                if (payment != null) {
                     UserIdPrincipal(credentials.name)
                 } else {
                     null
                 }
             }
-        }*/
+        }
     }
 }

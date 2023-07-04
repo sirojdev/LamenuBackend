@@ -492,31 +492,6 @@ object  OrderRepositoryImpl : OrderRepository {
 
         val activeProducts = getOrderProducts(order.products).body as OrderWrapper
 
-        val queryOrder = """
-            insert into orders (
-                user_id,
-                user_phone,
-                type,
-                products,
-                status,
-                add_lat,
-                add_long,
-                add_desc,
-                created_at,
-                comment
-            ) values (
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?
-            ) returning id
-        """.trimIndent()
 
         val queryPrice = """
             insert into order_price (
@@ -530,6 +505,33 @@ object  OrderRepositoryImpl : OrderRepository {
             )
         """.trimIndent()
 
+        val queryOrder = """
+            insert into orders (
+                user_id,
+                user_phone,
+                type,
+                products,
+                status,
+                add_lat,
+                add_long,
+                add_desc,
+                created_at,
+                comment,
+                payment_type
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            ) returning id
+        """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val statementOrder = it.prepareStatement(queryOrder).apply {
@@ -543,6 +545,7 @@ object  OrderRepositoryImpl : OrderRepository {
                     setString(8, address.description)
                     setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     setString(10, order.details?.comment)
+                    setLong(11, order.order.paymentTypeDto?.id?: 0L)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -644,5 +647,40 @@ object  OrderRepositoryImpl : OrderRepository {
             httpStatus = ResponseModel.OK
         )
 
+    }
+
+    suspend fun getOrder(id: Long?) = withContext(Dispatchers.IO) {
+        val query = """
+            select * from orders
+            where id = ?
+            and not deleted
+        """.trimIndent()
+
+        return@withContext repository.connection().use {
+            val statement = it.prepareStatement(query).apply {
+                setLong(1, id ?: 0L)
+                this.closeOnCompletion()
+            }.executeQuery()
+
+            if (statement.next()) {
+
+                return@use OrderTable(
+                    id = statement.getLong("id"),
+                    userId = statement.getLong("user_id"),
+                    userPhone = statement.getString("user_phone"),
+                    type = statement.getString("type"),
+                    products = statement.getString("products"),
+                    status = statement.getString("status"),
+                    addLat = statement.getDouble("add_lat"),
+                    addLong = statement.getDouble("add_long"),
+                    addDesc = statement.getString("add_desc"),
+                    createdAt = statement.getTimestamp("created_at"),
+                    comment = statement.getString("comment"),
+                    paymentType = statement.getLong("payment_type")
+                )
+            } else {
+                return@use null
+            }
+        }
     }
 }
