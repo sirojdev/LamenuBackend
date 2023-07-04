@@ -24,7 +24,7 @@ fun Route.clientRouting() {
         routeToClientBranches()
         routeToClientProduct()
         routeToClientCategory()
-
+        routeToClientBasket()
         authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
