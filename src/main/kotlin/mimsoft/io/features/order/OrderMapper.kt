@@ -32,7 +32,6 @@ object OrderMapper {
                 comment = orderTable.comment,
                 courierId = orderTable.courierId,
                 collectorId = orderTable.collectorId
-
             )
         else null
     }

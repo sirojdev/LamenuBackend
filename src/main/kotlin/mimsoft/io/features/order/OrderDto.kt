@@ -17,5 +17,4 @@ data class OrderDto(
     val paymentTypeDto: PaymentTypeDto? = null,
     val grade: Double? = null,
     val productCount: Int? = null
-
 )

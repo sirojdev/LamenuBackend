@@ -11,10 +11,7 @@ import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
-import mimsoft.io.features.order.ORDER_TABLE_NAME
-import mimsoft.io.features.order.OrderDto
-import mimsoft.io.features.order.OrderMapper
-import mimsoft.io.features.order.OrderTable
+import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
 import mimsoft.io.features.order.price.OrderPriceTable
 import mimsoft.io.features.order.utils.CartItem
@@ -22,6 +19,7 @@ import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.payment_type.PaymentTypeDto
+import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
@@ -31,7 +29,7 @@ import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.*
 import java.sql.Timestamp
 
-object  OrderRepositoryImpl : OrderRepository {
+object OrderRepositoryImpl : OrderRepository {
 
     private val repository: BaseRepository = DBManager
     private val orderMapper = OrderMapper
@@ -163,7 +161,8 @@ object  OrderRepositoryImpl : OrderRepository {
     ): DataPage<OrderDto?> {
         val queryCount = "select count(*) from orders o "
         var query = java.lang.StringBuilder()
-        query.append("""
+        query.append(
+            """
             select o.id ,
                o.user_id ,
                u.phone u_phone,
@@ -176,22 +175,27 @@ object  OrderRepositoryImpl : OrderRepository {
                o.status
                from orders o 
             
-        """.trimIndent())
+        """.trimIndent()
+        )
         val joins = StringBuilder()
-        joins.append( """
+        joins.append(
+            """
                      left join order_price op on o.id = op.order_id
                      left join users u on o.user_id = u.id
                      left join payment_type pt on o.deleted = pt.deleted
                      left join staff cl on cl.id = o.collector_id
                      left join staff cr on cr.id = o.courier_id 
-        """.trimIndent())
+        """.trimIndent()
+        )
         val filter = StringBuilder()
-         filter.append("""
+        filter.append(
+            """
                where not o.deleted 
-            """.trimIndent())
+            """.trimIndent()
+        )
         if (search != null) {
             val s = search.lowercase().replace('\'', '_')
-            filter.append (
+            filter.append(
                 """
                 and (
                     lower(u.name) like '%$s%'
@@ -395,7 +399,7 @@ object  OrderRepositoryImpl : OrderRepository {
         return orderWrappers
     }
 
-    override suspend fun get(id: Long?): OrderWrapper {
+    override suspend fun get(id: Long?, merchantId: Long?): OrderWrapper {
         val query = """
             select 
             o.id  o_id,
@@ -408,6 +412,8 @@ object  OrderRepositoryImpl : OrderRepository {
             and not op.deleted
             and o.id = $id
         """.trimIndent()
+        if (merchantId != null)
+            query.plus(" and o.merchant_id = $merchantId")
 
         var orderTable: OrderTable? = null
         var orderPriceTable: OrderPriceTable? = null
@@ -419,6 +425,7 @@ object  OrderRepositoryImpl : OrderRepository {
                 }.executeQuery()
 
                 if (statement.next()) {
+                    println("Query -> $query")
                     orderTable = OrderTable(
                         id = statement.getLong("o_id"),
                         userId = statement.getLong("user_id"),
@@ -468,6 +475,7 @@ object  OrderRepositoryImpl : OrderRepository {
             },
             products = Gson().fromJson(orderTable?.products, object : TypeToken<List<ProductDto>>() {}.type),
         )
+
     }
 
     override suspend fun add(order: OrderWrapper?): ResponseModel {
@@ -566,7 +574,11 @@ object  OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun update(orderDto: OrderDto?): Boolean {
-        return DBManager.updateData(OrderTable::class, orderMapper.toTable(orderDto=orderDto, user = orderDto?.user), ORDER_TABLE_NAME)
+        return DBManager.updateData(
+            OrderTable::class,
+            orderMapper.toTable(orderDto = orderDto, user = orderDto?.user),
+            ORDER_TABLE_NAME
+        )
     }
 
     override suspend fun delete(id: Long?): ResponseModel {
@@ -579,6 +591,56 @@ object  OrderRepositoryImpl : OrderRepository {
             httpStatus = ResponseModel.OK
         )
     }
+
+    override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<ClientOrderDto> {
+        val query =
+            "select * from $ORDER_TABLE_NAME where " +
+                    " user_id = $clientId" +
+                    " and merchant_id = $merchantId" +
+                    " and orders.status = '$filter' " +
+                    " and not deleted"
+
+        val orders = arrayListOf<ClientOrderDto>()
+        val gson = Gson()
+
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                var cartList: List<CartItem>? = null
+                while (rs.next()) {
+                    val products = rs.getString("products")
+                    val typeToken = object : TypeToken<List<CartItem>>() {}.type
+                    cartList = gson.fromJson(products, typeToken)
+
+                    val order = ClientOrderDto(
+                        created = rs.getTimestamp("created_at"),
+                        status = rs.getString("status"),
+                        totalPrice = rs.getLong("total_price"),
+                        product = cartList
+                    )
+                    order.imageList = getImage(cartList)
+                    orders.add(order)
+                }
+            }
+        }
+        return orders
+    }
+
+    suspend fun getImage(list: List<CartItem>?): List<String> {
+        val query = "select image from $PRODUCT_TABLE_NAME where id in (${list?.joinToString { it.product?.id.toString() }})"
+        return withContext(Dispatchers.IO){
+            repository.connection().use {
+                val imageList = arrayListOf<String>()
+                val rs = it.prepareStatement(query).apply { this.closeOnCompletion() }.executeQuery()
+                while (rs.next()){
+                    val image = rs.getString("image")
+                    imageList.add(image)
+                }
+                return@withContext imageList
+            }
+        }
+    }
+
 
     suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
 
@@ -606,7 +668,6 @@ object  OrderRepositoryImpl : OrderRepository {
                 }.executeQuery()
 
                 while (statement.next()) {
-
                     val productTable = ProductTable(
                         id = statement.getLong("id"),
                         nameUz = statement.getString("name_uz"),
@@ -646,3 +707,20 @@ object  OrderRepositoryImpl : OrderRepository {
 
     }
 }
+
+fun main() {
+    val list = arrayListOf(
+        CartItem(product = ProductDto(id = 1), count = 1),
+        CartItem(product = ProductDto(id = 2), count = 1),
+        CartItem(product = ProductDto(id = 3), count = 1)
+        )
+
+    println(list.joinToString { it.product?.id.toString() })
+}
+
+
+
+
+
+
+

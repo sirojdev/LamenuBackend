@@ -9,7 +9,6 @@ import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.features.product.product_label.ProductLabelService
 import mimsoft.io.features.product.product_option.ProductOptionService
 import mimsoft.io.features.staff.StaffService
-import mimsoft.io.lamenu_bot.dtos.BotUsersDto
 import mimsoft.io.lamenu_bot.enums.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -106,7 +105,7 @@ object ProductRepositoryImpl : ProductRepository {
 
     override suspend fun getAll(merchantId: Long?): List<ProductDto?> {
         val query = """
-        select p.id              p_id,
+        select p.id           p_id,
             p.name_uz         p_name_uz,
             p.name_ru         p_name_ru,
             p.name_eng        p_name_eng,
@@ -188,84 +187,84 @@ object ProductRepositoryImpl : ProductRepository {
         return data
     }
 
-    override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
-        val query = """
-            select 
-                p.id              p_id,
-                p.name_uz         p_name_uz,
-                p.name_ru         p_name_ru,
-                p.name_eng        p_name_eng,
-                p.description_uz  p_description_uz,
-                p.description_ru  p_description_ru,
-                p.description_eng p_description_eng,
-                p.image           p_image,
-                p.cost_price      p_cost_price,
-                p.category_id,
-                p.time_cooking_max,
-                p.time_cooking_min,
-                p.delivery_enabled,
-                p.id_rkeeper,
-                p.id_jowi,
-                p.id_join_poster,
-                p.active,
-                c.name_uz         c_name_uz,
-                c.name_ru         c_name_ru,
-                c.name_eng        c_name_eng,
-                c.image           c_image,
-                c.bg_color        c_bg_color,
-                c.text_color      c_text_color
-            from product p
-                left join category c on p.category_id = c.id 
-                where p.deleted = false and p.merchant_id = $merchantId 
-                    and p.id = $id
-        """.trimIndent()
-        return withContext(Dispatchers.IO) {
-            repository.connection().use {
-                println("Query -> $query")
-                val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    return@withContext ProductInfoDto(
-                        product = ProductDto(
-                            id = rs.getLong("p_id"),
-                            name = TextModel(
-                                uz = rs.getString("p_name_uz"),
-                                ru = rs.getString("p_name_ru"),
-                                eng = rs.getString("p_name_eng")
-                            ),
-                            description = TextModel(
-                                uz = rs.getString("p_description_uz"),
-                                ru = rs.getString("p_description_ru"),
-                                eng = rs.getString("p_description_eng")
-                            ),
-                            image = rs.getString("p_image"),
-                            costPrice = rs.getLong("p_cost_price"),
-                            categoryId = rs.getLong("category_id"),
-                            timeCookingMax = rs.getLong("time_cooking_max"),
-                            timeCookingMin = rs.getLong("time_cooking_min"),
-                            deliveryEnabled = rs.getBoolean("delivery_enabled"),
-                            productIntegration = ProductIntegrationDto(
-                                idRkeeper = rs.getLong("id_rkeeper"),
-                                idJowi = rs.getLong("id_jowi"),
-                                idJoinPoster = rs.getLong("id_join_poster")
-                            ),
-                            active = rs.getBoolean("active"),
-                            category = CategoryDto(
-                                id = rs.getLong("category_id"),
+    /*    override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
+            val query = """
+                select
+                    p.id              p_id,
+                    p.name_uz         p_name_uz,
+                    p.name_ru         p_name_ru,
+                    p.name_eng        p_name_eng,
+                    p.description_uz  p_description_uz,
+                    p.description_ru  p_description_ru,
+                    p.description_eng p_description_eng,
+                    p.image           p_image,
+                    p.cost_price      p_cost_price,
+                    p.category_id,
+                    p.time_cooking_max,
+                    p.time_cooking_min,
+                    p.delivery_enabled,
+                    p.id_rkeeper,
+                    p.id_jowi,
+                    p.id_join_poster,
+                    p.active,
+                    c.name_uz         c_name_uz,
+                    c.name_ru         c_name_ru,
+                    c.name_eng        c_name_eng,
+                    c.image           c_image,
+                    c.bg_color        c_bg_color,
+                    c.text_color      c_text_color
+                from product p
+                    left join category c on p.category_id = c.id
+                    where p.deleted = false and p.merchant_id = $merchantId
+                        and p.id = $id
+            """.trimIndent()
+            return withContext(Dispatchers.IO) {
+                repository.connection().use {
+                    println("Query -> $query")
+                    val rs = it.prepareStatement(query).executeQuery()
+                    if (rs.next()) {
+                        return@withContext ProductInfoDto(
+                            product = ProductDto(
+                                id = rs.getLong("p_id"),
                                 name = TextModel(
-                                    uz = rs.getString("c_name_uz"),
-                                    ru = rs.getString("c_name_ru"),
-                                    eng = rs.getString("c_name_eng"),
+                                    uz = rs.getString("p_name_uz"),
+                                    ru = rs.getString("p_name_ru"),
+                                    eng = rs.getString("p_name_eng")
                                 ),
-                                image = rs.getString("c_image"),
-                                bgColor = rs.getString("c_bg_color"),
-                                textColor = rs.getString("c_text_color")
+                                description = TextModel(
+                                    uz = rs.getString("p_description_uz"),
+                                    ru = rs.getString("p_description_ru"),
+                                    eng = rs.getString("p_description_eng")
+                                ),
+                                image = rs.getString("p_image"),
+                                costPrice = rs.getLong("p_cost_price"),
+                                categoryId = rs.getLong("category_id"),
+                                timeCookingMax = rs.getLong("time_cooking_max"),
+                                timeCookingMin = rs.getLong("time_cooking_min"),
+                                deliveryEnabled = rs.getBoolean("delivery_enabled"),
+                                productIntegration = ProductIntegrationDto(
+                                    idRkeeper = rs.getLong("id_rkeeper"),
+                                    idJowi = rs.getLong("id_jowi"),
+                                    idJoinPoster = rs.getLong("id_join_poster")
+                                ),
+                                active = rs.getBoolean("active"),
+                                category = CategoryDto(
+                                    id = rs.getLong("category_id"),
+                                    name = TextModel(
+                                        uz = rs.getString("c_name_uz"),
+                                        ru = rs.getString("c_name_ru"),
+                                        eng = rs.getString("c_name_eng"),
+                                    ),
+                                    image = rs.getString("c_image"),
+                                    bgColor = rs.getString("c_bg_color"),
+                                    textColor = rs.getString("c_text_color")
+                                )
                             )
                         )
-                    )
-                } else return@withContext null
+                    } else return@withContext null
+                }
             }
-        }
-    }
+        }*/
 
     override suspend fun add(productTable: ProductTable?): Long? =
         DBManager.postData(dataClass = ProductTable::class, dataObject = productTable, tableName = PRODUCT_TABLE_NAME)
@@ -320,7 +319,7 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
-   /* override suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoDto? {
+    override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
         val query = """
             select p.*, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng
                 from product p
@@ -372,10 +371,11 @@ object ProductRepositoryImpl : ProductRepository {
                 } else return@withContext null
             }
         }
-    }*/
+    }
 
     suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
-        val sql = "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
+        val sql =
+            "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
         val listProduct = ArrayList<ProductDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {

@@ -232,7 +232,6 @@ object DBManager: BaseRepository {
     }
 
     override suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String?): Long? {
-
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
             dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }

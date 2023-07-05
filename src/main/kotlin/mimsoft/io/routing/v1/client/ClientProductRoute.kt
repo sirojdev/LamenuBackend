@@ -42,4 +42,16 @@ fun Route.routeToClientProduct() {
         call.respond(HttpStatusCode.OK, product!!)
     }
 
+    get("product/info") {
+        val id = call.parameters["id"]?.toLongOrNull()
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        if (merchantId == null || id == null) {
+            call.respond(HttpStatusCode.BadRequest)
+        }
+        val product = productRepository.getProductInfo(merchantId = merchantId, id = id)
+        if (product == null) {
+            call.respond(HttpStatusCode.NotFound)
+        }
+        call.respond(product!!)
+    }
 }

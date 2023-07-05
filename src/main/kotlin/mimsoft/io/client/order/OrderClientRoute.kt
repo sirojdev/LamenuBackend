@@ -14,9 +14,7 @@ import mimsoft.io.utils.LaPrincipal
 import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToOrderClient() {
-
     val orderService: OrderRepository = OrderRepositoryImpl
-
     get("orders") {
         val userId = call.parameters["userId"]?.toLongOrNull()
         val principal = call.principal<LaPrincipal>()
@@ -33,6 +31,7 @@ fun Route.routeToOrderClient() {
             return@get
         }
         call.respond(order)
+        return@get
     }
 
     post("order") {

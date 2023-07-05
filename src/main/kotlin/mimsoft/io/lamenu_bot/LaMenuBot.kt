@@ -17,7 +17,7 @@ object LaMenuBot : TelegramLongPollingBot() {
     private var callBackQueryController: CallBackQueryController = CallBackQueryController()
     var messageController: MessageController = MessageController()
     override fun getBotToken(): String {
-        return "6317749351:AAGWbBizLjTbmIwilFgrDuNY-R6AEwgrRj0"
+        return "5647926179:AAF3GNd3Es5DGTsUea5yfYLycU0dc9_z5Rk"
     }
 
     override fun getBotUsername(): String {

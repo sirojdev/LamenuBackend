@@ -1,5 +1,6 @@
 package mimsoft.io.features.order.repository
 
+import mimsoft.io.features.order.ClientOrderDto
 import mimsoft.io.features.order.OrderDto
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.repository.DataPage
@@ -27,8 +28,9 @@ interface OrderRepository {
     ): DataPage<OrderDto?>
 
     suspend fun getBySomethingId(userId: Long?=null, courierId: Long?=null, collectorId: Long?=null, merchantId: Long?=null): List<OrderWrapper?>
-    suspend fun get(id: Long?): OrderWrapper?
+    suspend fun get(id: Long?, merchantId: Long? = null): OrderWrapper?
     suspend fun add(order: OrderWrapper?): ResponseModel?
     suspend fun update(orderDto: OrderDto?): Boolean
     suspend fun delete(id: Long?): ResponseModel?
+    suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<ClientOrderDto>
 }

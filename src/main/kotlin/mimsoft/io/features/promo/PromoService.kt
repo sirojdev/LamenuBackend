@@ -58,7 +58,7 @@ object PromoService {
         withContext(Dispatchers.IO) {
             StaffService.repository.connection().use {
                 it.prepareStatement(query).use { ti ->
-                    ti.setString(1, dto.discountType?.name)
+                    ti.setString(1, dto.discountType)
                     ti.setTimestamp(4, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
@@ -88,7 +88,7 @@ object PromoService {
                 if (rs.next()) {
                     return@withContext PromoDto(
                         id = rs.getLong("id"),
-                        discountType = DiscountType.valueOf(rs.getString("type")),
+                        discountType = (rs.getString("type")),
                         deliveryDiscount = rs.getDouble("delivery"),
                         productDiscount = rs.getDouble("product"),
                         isPublic = rs.getBoolean("is_public"),

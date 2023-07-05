@@ -89,12 +89,15 @@ fun Route.routeToMerchant() {
                 routeToProductExtra()
                 routeToProductOption()
             }
+
+            route("finance") {
+                routeToOutcome()
+                routeToPromo()
+            }
+
         }
 
-        route("finance") {
-            routeToOutcome()
-            routeToPromo()
-        }
+
 
         route("crm") {
             routeToSms()

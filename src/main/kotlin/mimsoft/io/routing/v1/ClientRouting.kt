@@ -22,7 +22,6 @@ fun Route.clientRouting() {
         routeToClientProduct()
         routeToClientTable()
         routeToClientBranches()
-        routeToClientProduct()
         routeToClientCategory()
 
         authenticate("user") {
@@ -32,6 +31,8 @@ fun Route.clientRouting() {
             routeToOrderClient()
             routeToBook()
             routeToFavourites()
+            routeToClientOrderInfo()
+            routeToClientOrderHistory()
         }
     }
 }

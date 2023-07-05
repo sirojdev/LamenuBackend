@@ -5,7 +5,7 @@ object PromoMapper {
         return PromoTable(
             id = promoDto.id,
             merchantId = promoDto.merchantId,
-            discountType = promoDto.discountType?.name,
+            discountType = promoDto.discountType,
             deliveryDiscount = promoDto.deliveryDiscount,
             productDiscount = promoDto.productDiscount,
             isPublic = promoDto.isPublic,
@@ -19,7 +19,7 @@ object PromoMapper {
         return PromoDto(
             id = promoTable.id,
             merchantId = promoTable.merchantId,
-            discountType = promoTable.discountType?.let { DiscountType.valueOf(it) },
+            discountType = promoTable.discountType,
             deliveryDiscount = promoTable.deliveryDiscount,
             productDiscount = promoTable.productDiscount,
             isPublic = promoTable.isPublic,
