@@ -19,7 +19,6 @@ fun Route.clientRouting() {
     route("client") {
         routeToMenu()
         routeToClientCategory()
-        routeToClientProduct()
         routeToClientTable()
         routeToClientBranches()
         routeToClientProduct()

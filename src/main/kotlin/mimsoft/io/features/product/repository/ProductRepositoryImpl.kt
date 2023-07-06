@@ -166,6 +166,31 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
+    suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): List<ProductDto> {
+        val sql = "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
+        val listProduct = ArrayList<ProductDto>()
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(sql).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    val product = ProductDto(
+                        id = rs.getLong("id"),
+                        name = TextModel(
+                            uz = rs.getString("name_uz"),
+                            ru = rs.getString("name_ru"),
+                            eng = rs.getString("name_eng")
+                        )
+                    )
+                    listProduct.add(product)
+                }
+            }
+        }
+
+        return listProduct;
+    }
+
 
     override suspend fun get(id: Long?, merchantId: Long?): ProductTable? {
         val filter = mutableMapOf<String, Any>()
@@ -374,30 +399,6 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }*/
 
-    suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
-        val sql = "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
-        val listProduct = ArrayList<ProductDto>()
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(sql).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
-                while (rs.next()) {
-                    val product = ProductDto(
-                        id = rs.getLong("id"),
-                        name = TextModel(
-                            uz = rs.getString("name_uz"),
-                            ru = rs.getString("name_ru"),
-                            eng = rs.getString("name_eng")
-                        )
-                    )
-                    listProduct.add(product)
-                }
-            }
-        }
-
-        return listProduct;
-    }
 
     suspend fun getByName(text: String, lang: Language, merchantId: Long): ProductDto? {
         val name: String = when (lang) {
