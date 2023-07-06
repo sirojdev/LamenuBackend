@@ -11,7 +11,7 @@ import mimsoft.io.features.book.routeToBook
 import mimsoft.io.features.favourite.routeToFavourites
 import mimsoft.io.routing.v1.client.*
 
-fun Route.clientRouting() {
+fun Route.routeToClient() {
 
     route("client/auth") {
         routeToClientAuth()
@@ -33,6 +33,8 @@ fun Route.clientRouting() {
             routeToFavourites()
             routeToClientOrderInfo()
             routeToClientOrderHistory()
+            routeToClientStory()
+            routeToClientCheckout()
         }
     }
 }

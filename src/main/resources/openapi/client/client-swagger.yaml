@@ -34,6 +34,7 @@ tags:
   - name: Address
     description: Endpoints related to address
 
+
 paths:
 
   /client/device:
@@ -518,6 +519,7 @@ paths:
         "200":
           description: "OK"
 
+
   /client/order/{id}:
     delete:
       tags:
@@ -564,11 +566,12 @@ paths:
           "400":
             description: "Bad Request"
 
-  /client/addresses:
+
+  /client/address:
     get:
       tags:
         - Address
-      description: "Returns a list of all address"
+      description: "Returns a list of client addresses"
       security:
         - bearerAuth: [ ]
       responses:
@@ -579,39 +582,42 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/BookDto"
+                  $ref: "#/components/schemas/AddressDto"
         "204":
           description: "No Content"
-  /client/address:
+
     post:
       tags:
         - Address
-      description: "Adds a new address"
+      description: "Add a address's information"
       security:
         - bearerAuth: [ ]
       requestBody:
-        description: "A JSON object containing address's information"
+        description: "A JSON object containing add address's information"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BookDto"
+              $ref: "#/components/schemas/AddressDto"
       responses:
         "200":
           description: "OK"
+        "400":
+          description: "Bad request"
+
     put:
       tags:
         - Address
-      description: "Update a booking's information"
+      description: "Update a address's information"
       security:
         - bearerAuth: [ ]
       requestBody:
-        description: "A JSON object containing updated booking's information"
+        description: "A JSON object containing updated address's information"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BookDto"
+              $ref: "#/components/schemas/AddressDto"
       responses:
         "200":
           description: "OK"
@@ -635,7 +641,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BookDto"
+                $ref: "#/components/schemas/AddressDto"
         "204":
           description: "No Content"
         "400":
@@ -662,20 +668,9 @@ paths:
 
 
 
-
-
-
-
-
-
-
-
-
-
 #//==================================================================================================SCHEMAS
 components:
   schemas:
-
 
     MenuDto:
       type: "object"
@@ -890,7 +885,7 @@ components:
           type: "integer"
           format: "long"
         type:
-          $ref: "#/components/schemas/AddressType"
+          type: "string"
         status:
           type: "string"
         details:

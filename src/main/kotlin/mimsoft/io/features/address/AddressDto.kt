@@ -7,5 +7,8 @@ data class AddressDto(
     val details: Details? = null,
     val description: String? = null,
     val latitude: Double? = null,
-    val longitude: Double? = null
+    val longitude: Double? = null,
+    val clientId: Long? = null,
+    val merchantId: Long? = null
+
 )

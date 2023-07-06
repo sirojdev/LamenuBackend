@@ -5,6 +5,8 @@ import java.sql.Timestamp
 const val ADDRESS_TABLE_NAME = "address"
 data class AddressTable(
     val id: Long? = null,
+    val merchantId: Long? = null,
+    val clientId: Long? = null,
     val type: String? = null,
     val name: String? = null,
     val details: String? = null,

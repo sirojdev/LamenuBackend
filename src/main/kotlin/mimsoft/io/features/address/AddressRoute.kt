@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
+import mimsoft.io.features.branch.BranchId
 
 fun Route.routeToAddress() {
     val addressService: AddressRepository = AddressRepositoryImpl
@@ -38,27 +39,38 @@ fun Route.routeToAddress() {
         }
 
         post {
+            val pr = call.principal<UserPrincipal>()
+            val clientId = pr?.id
+            val merchantId = pr?.merchantId
             val table = call.receive<AddressDto>()
-            addressService.add(table)
-            call.respond(HttpStatusCode.OK)
+            val id = addressService.add(table.copy(clientId = clientId, merchantId = merchantId))
+            call.respond(HttpStatusCode.OK, BranchId(id))
         }
 
         put {
+            val pr = call.principal<UserPrincipal>()
+            val clientId = pr?.id
+            val merchantId = pr?.merchantId
             val table = call.receive<AddressDto>()
-            addressService.update(table)
+            addressService.update(table.copy(clientId = clientId, merchantId = merchantId))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("{id}") {
+            val pr = call.principal<UserPrincipal>()
+            val clientId = pr?.id
+            val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            addressService.delete(id)
-            call.respond(HttpStatusCode.OK)
+            val result = addressService.delete(clientId = clientId, merchantId = merchantId, id = id)
+            call.respond(result)
         }
     }
-
-
 }
+
+data class AddressId(
+    val id: Long? = null
+)

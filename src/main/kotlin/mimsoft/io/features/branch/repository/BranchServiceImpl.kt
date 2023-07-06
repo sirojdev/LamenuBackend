@@ -11,7 +11,6 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
 
-
 object BranchServiceImpl : BranchService {
 
     private val mapper = BranchMapper
