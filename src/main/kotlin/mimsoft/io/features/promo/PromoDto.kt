@@ -14,4 +14,9 @@ data class PromoDto(
     val minAmount: Double? = null,
     val startDate: Timestamp? = null,
     val endDate: Timestamp? = null
-)
+) {
+
+
+    fun byPercent(): Boolean =
+        discountType == DiscountType.PERCENT.name
+}
