@@ -2,20 +2,6 @@ package mimsoft.io.features.promo
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.badge.BADGE_TABLE_NAME
-import mimsoft.io.features.badge.BadgeDto
-import mimsoft.io.features.badge.BadgeService
-import mimsoft.io.features.badge.BadgeTable
-import mimsoft.io.features.branch.BRANCH_TABLE_NAME
-import mimsoft.io.features.branch.BranchDto
-import mimsoft.io.features.branch.BranchTable
-import mimsoft.io.features.branch.repository.BranchServiceImpl
-import mimsoft.io.features.delivery.*
-import mimsoft.io.features.product.PRODUCT_TABLE_NAME
-import mimsoft.io.features.product.ProductDto
-import mimsoft.io.features.product.ProductTable
-import mimsoft.io.features.product.repository.ProductRepositoryImpl
-import mimsoft.io.features.sms_gateway.SmsGatewayService
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -25,13 +11,29 @@ object PromoService {
     val repository: BaseRepository = DBManager
     val mapper = PromoMapper
     suspend fun getAll(merchantId: Long?): List<PromoDto> {
-        val data = repository.getPageData(
-            dataClass = PromoTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
-            tableName = PROMO_TABLE_NAME
-        )?.data
-
-        return data?.map { mapper.toDto(it) } ?: emptyList()
+        val query = "select * from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+        return withContext(Dispatchers.IO) {
+            val promos = arrayListOf<PromoDto>()
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    val promo = PromoDto(
+                        id = rs.getLong("id"),
+                        discountType = (rs.getString("discount_type")),
+                        deliveryDiscount = rs.getDouble("delivery_discount"),
+                        productDiscount = rs.getDouble("product_discount"),
+                        isPublic = rs.getBoolean("is_public"),
+                        minAmount = rs.getDouble("min_amount"),
+                        startDate = rs.getTimestamp("start_date"),
+                        endDate = rs.getTimestamp("end_date"),
+                        amount = rs.getLong("amount"),
+                        name = rs.getString("name")
+                    )
+                            promos.add(promo)
+                }
+                return@withContext promos
+            }
+        }
     }
 
     suspend fun add(dto: PromoDto): Long? =
@@ -88,13 +90,15 @@ object PromoService {
                 if (rs.next()) {
                     return@withContext PromoDto(
                         id = rs.getLong("id"),
-                        discountType = (rs.getString("type")),
-                        deliveryDiscount = rs.getDouble("delivery"),
-                        productDiscount = rs.getDouble("product"),
+                        discountType = (rs.getString("discount_type")),
+                        deliveryDiscount = rs.getDouble("delivery_discount"),
+                        productDiscount = rs.getDouble("product_discount"),
                         isPublic = rs.getBoolean("is_public"),
                         minAmount = rs.getDouble("min_amount"),
                         startDate = rs.getTimestamp("start_date"),
-                        endDate = rs.getTimestamp("end_date")
+                        endDate = rs.getTimestamp("end_date"),
+                        amount = rs.getLong("amount"),
+                        name = rs.getString("name")
                     )
                 } else return@withContext null
             }

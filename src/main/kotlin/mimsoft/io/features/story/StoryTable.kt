@@ -16,5 +16,4 @@ data class StoryTable(
     val merchantId: Long? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
-    val products: String? = null
 )

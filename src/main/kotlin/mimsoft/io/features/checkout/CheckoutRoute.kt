@@ -10,7 +10,7 @@ import mimsoft.io.client.user.UserPrincipal
 fun Route.routeToCheckout(){
     post("checkout") {
         val dto = call.receive<CheckoutRequestDto>()
-        val response = CheckoutService.calculate(dto = dto)
+        val response = CheckoutService.calculate(dto= dto)
         call.respond(response)
     }
 }

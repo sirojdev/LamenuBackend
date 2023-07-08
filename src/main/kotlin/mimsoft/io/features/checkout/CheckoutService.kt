@@ -1,5 +1,7 @@
 package mimsoft.io.features.checkout
 
+import mimsoft.io.config.PRODUCT
+import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.promo.DiscountType
 import mimsoft.io.features.promo.PromoDto
@@ -9,7 +11,7 @@ import java.sql.Timestamp
 import kotlin.math.max
 
 object CheckoutService {
-    suspend fun calculateDeliveryPrice(promo: PromoDto?, order: OrderWrapper?): Long {
+    fun calculateDeliveryPrice(promo: PromoDto?): Long {
         val deliveryPrice = 15000L
         val now = Timestamp(System.currentTimeMillis())
         promo?.let { pr ->
@@ -35,31 +37,50 @@ object CheckoutService {
     }
 
 
-    suspend fun calculate(dto: CheckoutRequestDto): CheckoutResponseDto {
-        val products = dto.order?.products
-        var totalCount = 0L
-        var totalPrice = 0.0
-        var discount = 0L
-        products?.forEach { totalCount += it?.count ?: 0 }
-        val promo = PromoService.getPromoByCode(dto.promo?.name)
-        if (promo != null && promo.minAmount!! <= totalCount) {
-            if (promo.discountType.equals(DiscountType.PERCENT.name)) {
-                discount = ((((dto.order?.order?.totalPrice)!! / promo.amount!!) * 100).toLong())
-            }
-            if (promo.discountType.equals(DiscountType.AMOUNT.name)) {
-                discount = promo.amount!!
+    suspend fun calculateProductPromo(promo: PromoDto?, orderWrapper: OrderWrapper?): Long {
+        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(orderWrapper?.products).body as OrderWrapper
+        val productPrice = getTotalPrice.price?.totalPrice ?: 0
+        val now = Timestamp(System.currentTimeMillis())
+        promo?.let { pr ->
+            if (pr.startDate != null && pr.endDate != null) {
+                if (pr.startDate <= now && pr.endDate >= now) {
+                    return if (pr.byPercent()) {
+                        if (productPrice >= (pr.minAmount?.toLong() ?: 0L)) {
+                            (productPrice * (pr.deliveryDiscount ?: 0.0)).toLong() / 100
+                        } else {
+                            productPrice
+                        }
+                    } else {
+                        if (productPrice >= (pr.minAmount?.toLong() ?: 0L)) {
+                            max(productPrice - (pr.deliveryDiscount?.toLong() ?: 0L), 0L)
+                        } else {
+                            productPrice
+                        }
+                    }
+                }
             }
         }
-        totalPrice = dto.order?.order?.totalPrice?.minus(discount)!!
-        totalPrice -= 15000
-        return CheckoutResponseDto(
-            productCount = totalCount,
-            discount = discount,
-            promoCode = dto.promo?.name,
-            deliveryPrice = 15000.0,
-            total = totalPrice
-        )
-
+        return productPrice
     }
 
+    fun productCount(orderWrapper: OrderWrapper?): Long{
+        val products = orderWrapper?.products
+        var totalCount = 0
+        products?.forEach { totalCount += it?.count ?: 0 }
+        return totalCount.toLong()
+    }
+
+
+    suspend fun calculate(dto: CheckoutRequestDto): CheckoutResponseDto {
+        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(dto.order?.products).body as OrderWrapper
+        val productPrice = getTotalPrice.price?.totalPrice ?: 0
+        return CheckoutResponseDto(
+            productCount = productCount(dto.order),
+            discountProduct = calculateProductPromo(dto.promo, dto.order),
+            discountDelivery = calculateDeliveryPrice(dto.promo),
+            promoCode = dto.promo?.name,
+            deliveryPrice = 15000.0,
+            total = productPrice.toDouble()
+        )
+    }
 }

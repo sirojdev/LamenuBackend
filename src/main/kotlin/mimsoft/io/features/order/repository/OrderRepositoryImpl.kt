@@ -592,7 +592,7 @@ object OrderRepositoryImpl : OrderRepository {
         )
     }
 
-    override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<ClientOrderDto> {
+    override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<OrderWrapper> {
         val query =
             "select * from $ORDER_TABLE_NAME where " +
                     " user_id = $clientId" +
@@ -600,25 +600,27 @@ object OrderRepositoryImpl : OrderRepository {
                     " and orders.status = '$filter' " +
                     " and not deleted"
 
-        val orders = arrayListOf<ClientOrderDto>()
+        val orders = arrayListOf<OrderWrapper>()
         val gson = Gson()
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
-                var cartList: List<CartItem>? = null
+                var cartList: List<CartItem>?
                 while (rs.next()) {
                     val products = rs.getString("products")
                     val typeToken = object : TypeToken<List<CartItem>>() {}.type
                     cartList = gson.fromJson(products, typeToken)
 
-                    val order = ClientOrderDto(
-                        created = rs.getTimestamp("created_at"),
-                        status = rs.getString("status"),
-                        totalPrice = rs.getLong("total_price"),
-                        product = cartList
+                    val order = OrderWrapper(
+                        order = OrderDto(
+                            id = rs.getLong("id"),
+                            status = rs.getString("status"),
+                            totalPrice = rs.getDouble("total_price"),
+                            created = rs.getTimestamp("created_at"),
+                        ),
+                        products = cartList
                     )
-                    order.imageList = getImage(cartList)
                     orders.add(order)
                 }
             }
@@ -627,12 +629,13 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     suspend fun getImage(list: List<CartItem>?): List<String> {
-        val query = "select image from $PRODUCT_TABLE_NAME where id in (${list?.joinToString { it.product?.id.toString() }})"
-        return withContext(Dispatchers.IO){
+        val query =
+            "select image from $PRODUCT_TABLE_NAME where id in (${list?.joinToString { it.product?.id.toString() }})"
+        return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val imageList = arrayListOf<String>()
                 val rs = it.prepareStatement(query).apply { this.closeOnCompletion() }.executeQuery()
-                while (rs.next()){
+                while (rs.next()) {
                     val image = rs.getString("image")
                     imageList.add(image)
                 }
@@ -706,16 +709,6 @@ object OrderRepositoryImpl : OrderRepository {
         )
 
     }
-}
-
-fun main() {
-    val list = arrayListOf(
-        CartItem(product = ProductDto(id = 1), count = 1),
-        CartItem(product = ProductDto(id = 2), count = 1),
-        CartItem(product = ProductDto(id = 3), count = 1)
-        )
-
-    println(list.joinToString { it.product?.id.toString() })
 }
 
 

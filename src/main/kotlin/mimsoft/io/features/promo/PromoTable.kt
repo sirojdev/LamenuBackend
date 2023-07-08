@@ -9,6 +9,7 @@ data class PromoTable(
     val deliveryDiscount: Double? = null,
     val productDiscount: Double? = null,
     val isPublic: Boolean? = null,
+    val amount: Long? = null,
     val minAmount: Double? = null,
     val startDate: Timestamp? = null,
     val endDate: Timestamp? = null,
