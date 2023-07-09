@@ -32,5 +32,5 @@ interface OrderRepository {
     suspend fun add(order: OrderWrapper?): ResponseModel?
     suspend fun update(orderDto: OrderDto?): Boolean
     suspend fun delete(id: Long?): ResponseModel?
-    suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<OrderWrapper>
+    suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String? = null): List<OrderWrapper>
 }

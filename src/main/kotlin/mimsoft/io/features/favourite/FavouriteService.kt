@@ -15,36 +15,29 @@ import java.sql.Timestamp
 val repository: BaseRepository = DBManager
 val merchant = MerchantRepositoryImp
 val mapper = FavouriteMapper
-val productRepository = ProductRepositoryImpl
 
 object FavouriteService {
     suspend fun add(favouriteDto: FavouriteDto): ResponseModel {
-
-        val merchantId = favouriteDto.merchantId
-        val productId = favouriteDto.product?.id
-        val product = productRepository.get(merchantId = merchantId, id = favouriteDto.product?.id)
-            ?: return ResponseModel(HttpStatusCode.NoContent)
-
-
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val query = "insert into favourite (merchant_id, client_id, product_id, device_id, created ) " +
-                        "select ${favouriteDto?.merchantId}, " +
-                        "       ${favouriteDto?.clientId}, " +
-                        "       ${favouriteDto?.deviceId}, " +
-                        "       ${favouriteDto?.product?.id}, " +
-                        "       ${Timestamp(System.currentTimeMillis())} " +
-                        "    where not exist " +
-                        "    (select from favourite f " +
-                        "    where f.merchant_id = ${favouriteDto?.merchantId} and "
-                        "       f.client_id = ${favouriteDto?.clientId} and " +
-                        "       f.device_id = ${favouriteDto?.deviceId} and " +
-                        "       f.product_id = ${favouriteDto?.product?.id}) "
+                val query = """
+                    insert into $FAVOURITE_TABLE_NAME (merchant_id, client_id, product_id, device_id, created)
+                        select  ${favouriteDto.merchantId}, 
+                                ${favouriteDto.clientId},
+                                ${favouriteDto.product?.id}, 
+                                ${favouriteDto.deviceId}, 
+                                '${Timestamp(System.currentTimeMillis())}'
+                            where not exists
+                            (select from favourite f
+                            where f.merchant_id = ${favouriteDto.merchantId} and
+                               f.client_id = ${favouriteDto.clientId} and
+                               f.device_id = ${favouriteDto.deviceId} and
+                               f.product_id = ${favouriteDto.product?.id})
+                """.trimIndent()
                 it.prepareStatement(query).execute()
             }
             ResponseModel()
         }
-
     }
 
     suspend fun move(clientId: Long?, merchantId: Long?, deviceId: Long?) {

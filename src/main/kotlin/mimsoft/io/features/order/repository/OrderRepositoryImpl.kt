@@ -597,9 +597,9 @@ object OrderRepositoryImpl : OrderRepository {
             "select * from $ORDER_TABLE_NAME where " +
                     " user_id = $clientId" +
                     " and merchant_id = $merchantId" +
-                    " and orders.status = '$filter' " +
                     " and not deleted"
 
+        if(filter != null) query.plus(" and order.status = $filter")
         val orders = arrayListOf<OrderWrapper>()
         val gson = Gson()
 

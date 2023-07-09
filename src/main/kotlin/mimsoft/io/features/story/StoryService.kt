@@ -73,7 +73,7 @@ object StoryService {
         }
     }
 
-    suspend fun getAllWithOption(merchantId: Long?): List<StoryDto?> {
+    /* suspend fun getAllWithOption(merchantId: Long?): List<StoryDto?> {
         val query = """
             select s.id         s_id,
                 s.merchant_id   s_merchant_id,
@@ -136,7 +136,7 @@ object StoryService {
                 return@withContext list
             }
         }
-    }
+    }*/
 
     suspend fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $STORY_TABLE_NAME " +
@@ -159,6 +159,4 @@ object StoryService {
         }
         return true
     }
-
-
 }
