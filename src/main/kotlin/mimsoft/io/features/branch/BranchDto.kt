@@ -12,5 +12,6 @@ data class BranchDto(
     val name: TextModel? = null,
     val longitude: Double? = null,
     val latitude: Double? = null,
-    val address: String? = null
+    val address: String? = null,
+    val distance: Double? = null
 )

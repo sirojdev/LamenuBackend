@@ -21,20 +21,19 @@ fun Route.routeToBranch() {
         if (branches.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }
-        else call.respond(branches)
+        } else call.respond(branches)
     }
 
     get("branch/{id}") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null) {
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val branch = branchService.get(id=id, merchantId = merchantId)
-        if (branch==null){
+        val branch = branchService.get(id = id, merchantId = merchantId)
+        if (branch == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -59,13 +58,14 @@ fun Route.routeToBranch() {
 
     delete("branch/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
         branchService.delete(id)
         call.respond(HttpStatusCode.OK)
     }
+
 }
 
 data class BranchId(
