@@ -8,4 +8,6 @@ interface BranchService {
     suspend fun add(branchDto: BranchDto?): Long?
     suspend fun update(branchDto: BranchDto): Boolean
     suspend fun delete(id: Long?): Boolean
+    suspend fun getByName(branchName: String, merchantId: Long):BranchDto?
+    suspend fun nearestBranch(latitude: Double?, longitude: Double?, merchantId: Long?): BranchDto?
 }

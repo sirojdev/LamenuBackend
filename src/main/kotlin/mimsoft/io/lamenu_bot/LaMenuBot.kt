@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException
 object LaMenuBot : TelegramLongPollingBot() {
     private var callBackQueryController: CallBackQueryController = CallBackQueryController()
     var messageController: MessageController = MessageController()
+
     override fun getBotToken(): String {
         return "6250100317:AAEpapeTZFpZ_dvrDzjy__xG8bKAvwhcc6k"
     }
@@ -24,15 +25,18 @@ object LaMenuBot : TelegramLongPollingBot() {
         return "@testCaptionBot"
     }
 
+
     override fun onUpdateReceived(update: Update?) {
-        //TODO get merchant id
-        var merchantId:Long = 1
-        if (update!!.hasCallbackQuery()) {
+        val merchantId: Long = 1
+        if (update == null)
+            return
+        if (update.hasCallbackQuery()) {
             callBackQueryController.start(update, merchantId);
-        } else if (update!!.hasMessage()) {
+        } else if (update.hasMessage()) {
             messageController.start(update, merchantId)
         }
     }
+
     fun sendMsg(message: Any): Message? {
         try {
             if (message is SendMessage) {
@@ -53,7 +57,7 @@ object LaMenuBot : TelegramLongPollingBot() {
                 execute(message as SendAudio?)
             } else if (message is AnswerInlineQuery) {
                 execute(message as AnswerInlineQuery?)
-            }else if (message is EditMessageCaption) {
+            } else if (message is EditMessageCaption) {
                 execute(message as EditMessageCaption?)
             }
         } catch (e: TelegramApiRequestException) {

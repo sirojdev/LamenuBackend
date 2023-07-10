@@ -25,6 +25,7 @@ fun Route.routeToClient() {
         routeToClientStory()
         clientStoryInfoRoute()
 
+        routeToClientBasket()
         authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
