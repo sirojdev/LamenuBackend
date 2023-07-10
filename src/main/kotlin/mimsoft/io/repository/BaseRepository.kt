@@ -1,10 +1,15 @@
 package mimsoft.io.repository
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import mimsoft.io.features.product.ProductTable
 import java.sql.Connection
+import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 interface BaseRepository {
+
+
     suspend fun <T : Any> getPageData(
         dataClass: KClass<T>,
         tableName: String?,
@@ -12,6 +17,7 @@ interface BaseRepository {
         limit: Int? = null,
         offset: Int? = null
     ): DataPage<T>?
+
     suspend fun <T : Any> getJoinPageData(
         dataClass1: KClass<T>,
         dataClass: KClass<*>? = null,
@@ -20,7 +26,14 @@ interface BaseRepository {
         limit: Int? = null,
         offset: Int? = null
     ): DataPage<T>?
-    suspend fun getData(dataClass: KClass<*>, id: Long? = null, tableName: String? = null, merchantId: Long? = null): List<Any?>
+
+    suspend fun getData(
+        dataClass: KClass<*>,
+        id: Long? = null,
+        tableName: String? = null,
+        merchantId: Long? = null
+    ): List<Any?>
+
     suspend fun <T : Any> postData(dataClass: KClass<T>, dataObject: T?, tableName: String? = null): Long?
     suspend fun <T : Any> updateData(
         dataClass: KClass<T>,
@@ -28,9 +41,10 @@ interface BaseRepository {
         tableName: String? = null,
         idColumn: String? = "id"
     ): Boolean
+
     suspend fun deleteData(tableName: String, where: String = "id", whereValue: Any? = null): Boolean
 
-    fun connection() : Connection
+    fun connection(): Connection
 
 
 }

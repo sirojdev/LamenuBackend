@@ -24,7 +24,6 @@ fun Route.routeToClient() {
         routeToClientCategory()
         routeToClientStory()
         clientStoryInfoRoute()
-
         routeToClientBasket()
         authenticate("user") {
             routeToClientDevice()

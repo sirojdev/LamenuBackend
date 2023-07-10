@@ -373,10 +373,11 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
-    suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): ArrayList<ProductDto> {
+    suspend fun getAllByCategories(merchantId: Long?, categoryId: Long?): List<ProductDto> {
         val sql =
-            "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId  and category_id = $categoryId and  deleted = false"
-        val listProduct = ArrayList<ProductDto>()
+            "select * from $PRODUCT_TABLE_NAME where merchant_id = $merchantId " +
+                    "and category_id = $categoryId and  deleted = false"
+        val listProduct = arrayListOf<ProductDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(sql).apply {
@@ -396,7 +397,7 @@ object ProductRepositoryImpl : ProductRepository {
             }
         }
 
-        return listProduct;
+        return listProduct
     }
 
     suspend fun getByName(text: String, lang: Language, merchantId: Long): ProductDto? {
