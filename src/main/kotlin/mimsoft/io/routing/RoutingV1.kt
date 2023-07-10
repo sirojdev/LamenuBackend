@@ -7,6 +7,7 @@ import mimsoft.io.files.routeToFiles
 import mimsoft.io.routing.v1.routeToAdmin
 import mimsoft.io.routing.v1.clientRouting
 import mimsoft.io.routing.v1.device.routeToDevice
+import mimsoft.io.routing.v1.routeToIntegration
 import mimsoft.io.routing.v1.routeToMerchant
 
 
@@ -18,4 +19,5 @@ fun Route.routeToV1() {
     routeToUser()
     routeToFiles()
     routeToDevice()
+    routeToIntegration()
 }

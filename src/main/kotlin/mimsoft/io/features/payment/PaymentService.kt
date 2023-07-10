@@ -21,7 +21,7 @@ object PaymentService {
                 if (rs.next()) {
                     return@withContext PaymentMapper.toPaymentDto(
                         PaymentTable(
-                            paymeMerchantId = rs.getLong("payme_merchant_id"),
+                            paymeMerchantId = rs.getString("payme_merchant_id"),
                             paymeSecret = rs.getString("payme_secret"),
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),
@@ -49,7 +49,7 @@ object PaymentService {
                 if (rs.next()) {
                     return@withContext PaymentMapper.toPaymentDto(
                         PaymentTable(
-                            paymeMerchantId = rs.getLong("payme_merchant_id"),
+                            paymeMerchantId = rs.getString("payme_merchant_id"),
                             paymeSecret = rs.getString("payme_secret"),
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),

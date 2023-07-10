@@ -10,7 +10,6 @@ import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.payment.PaymentService
-import mimsoft.io.integrate.payme.PAYME_PASSWORD
 import mimsoft.io.session.SessionPrincipal
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
@@ -178,9 +177,11 @@ fun Application.configureSecurity() {
         basic(name = "payme") {
             realm = "Server"
             validate { credentials ->
+                println("\ncredentials: ${credentials}")
                 val payment = PaymentService.paymeVerify(
                     credentials.name
                 )
+                println("\npayment: ${GSON.toJson(payment)}")
                 if (payment != null) {
                     UserIdPrincipal(credentials.name)
                 } else {

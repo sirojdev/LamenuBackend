@@ -25,6 +25,7 @@ import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
+import mimsoft.io.integrate.payme.PaymeRepo
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -582,6 +583,25 @@ object  OrderRepositoryImpl : OrderRepository {
             httpStatus = ResponseModel.OK
         )
     }
+
+    override suspend fun editPaidOrder(order: OrderDto?) {
+        val query = """
+            update orders set
+            paid = ${order?.paymentTypeDto?.isPaid},
+            updated_at = ?
+            where id = ${order?.id}
+        """.trimIndent()
+
+        withContext(Dispatchers.IO){
+            repository.connection().use { connection ->
+                connection.prepareStatement(query).apply {
+                    setTimestamp(1, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
+        }
+    }
+
 
     suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
 
