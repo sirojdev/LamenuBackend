@@ -54,7 +54,9 @@ object ProductRepositoryImpl : ProductRepository {
             where p.merchant_id = $merchantId and p.deleted = false""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
                 val list = arrayListOf<ProductInfoDto>()
                 while (rs.next()) {
                     val dto = ProductInfoDto(
@@ -129,7 +131,9 @@ object ProductRepositoryImpl : ProductRepository {
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
                 val list = arrayListOf<ProductDto>()
                 while (rs.next()) {
                     val dto = ProductDto(
@@ -302,7 +306,7 @@ object ProductRepositoryImpl : ProductRepository {
                     ti.setString(6, dto?.description?.eng)
                     ti.setString(7, dto?.image)
                     ti.setTimestamp(8, Timestamp(System.currentTimeMillis()))
-                    ti.executeUpdate()
+                    ti.closeOnCompletion()
                 }
             }
         }
@@ -313,7 +317,9 @@ object ProductRepositoryImpl : ProductRepository {
         val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).execute()
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.execute()
                 return@withContext !rs
             }
         }
@@ -330,7 +336,9 @@ object ProductRepositoryImpl : ProductRepository {
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
                 if (rs.next()) {
                     return@withContext ProductInfoDto(
                         product = ProductDto(
@@ -379,8 +387,8 @@ object ProductRepositoryImpl : ProductRepository {
                     "and category_id = $categoryId and  deleted = false"
         val listProduct = arrayListOf<ProductDto>()
         withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(sql).apply {
+            repository.connection().use { c->
+                val rs = c.prepareStatement(sql).apply {
                     this.closeOnCompletion()
                 }.executeQuery()
                 while (rs.next()) {

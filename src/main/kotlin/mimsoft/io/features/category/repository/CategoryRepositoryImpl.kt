@@ -19,7 +19,6 @@ object CategoryRepositoryImpl : CategoryRepository {
     val mapper = CategoryMapper
 
     override suspend fun getAll(merchantId: Long?): List<CategoryDto?> {
-        println(merchantId)
         val data = repository.getPageData(
             dataClass = CategoryTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
@@ -48,6 +47,7 @@ object CategoryRepositoryImpl : CategoryRepository {
             tableName = CATEGORY_TABLE_NAME
         )
 
+
     override suspend fun update(dto: CategoryDto): Boolean {
         val merchantId = dto.merchantId
         val query = "UPDATE $CATEGORY_TABLE_NAME " +
@@ -58,21 +58,21 @@ object CategoryRepositoryImpl : CategoryRepository {
                 " image = ?, " +
                 " bg_color = ?," +
                 " text_color = ?," +
-                " updated = ?" +
+                " updated = ? \n" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
         withContext(Dispatchers.IO) {
-            StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
-                    ti.setString(1, dto.name?.uz)
-                    ti.setString(2, dto.name?.ru)
-                    ti.setString(3, dto.name?.eng)
-                    ti.setString(4, dto.image)
-                    ti.setString(5, dto.bgColor)
-                    ti.setString(6, dto.textColor)
-                    ti.setTimestamp(7, Timestamp(System.currentTimeMillis()))
-                    ti.executeUpdate()
-                }
+            StaffService.repository.connection().use { c ->
+                c.prepareStatement(query).apply {
+                    this.setString(1, dto.name?.uz)
+                    this.setString(2, dto.name?.ru)
+                    this.setString(3, dto.name?.eng)
+                    this.setString(4, dto.image)
+                    this.setString(5, dto.bgColor)
+                    this.setString(6, dto.textColor)
+                    this.setTimestamp(7, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
             }
         }
         return true
@@ -81,12 +81,19 @@ object CategoryRepositoryImpl : CategoryRepository {
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $CATEGORY_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            ProductRepositoryImpl.repository.connection().use { it ->
+                it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.execute()
+            }
         }
         return true
     }
 
     override suspend fun getCategoryByName(merchantId: Long?, lang: Language, text: String?): CategoryDto? {
+        if (merchantId == null) {
+            return null
+        }
         val name: String = when (lang) {
             Language.UZ -> "name_uz"
             Language.RU -> "name_ru"

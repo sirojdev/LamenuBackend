@@ -34,19 +34,23 @@ object FavouriteService {
                                f.device_id = ${favouriteDto.deviceId} and
                                f.product_id = ${favouriteDto.product?.id})
                 """.trimIndent()
-                it.prepareStatement(query).execute()
+                it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.execute()
             }
             ResponseModel()
         }
     }
 
     suspend fun move(clientId: Long?, merchantId: Long?, deviceId: Long?) {
-        return withContext(DBManager.databaseDispatcher){
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val query = "update favourite \n" +
                         "set device_id = null, client_id = $clientId\n" +
                         "where merchant_id = $merchantId and device_id = $deviceId"
                 it.prepareStatement(query)
+            }.apply {
+                this.closeOnCompletion()
             }.execute()
         }
 
@@ -79,7 +83,9 @@ object FavouriteService {
 
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
                 val list = arrayListOf<FavouriteDto>()
                 while (rs.next()) {
                     val favourite = FavouriteDto(
