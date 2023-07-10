@@ -23,6 +23,7 @@ import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
+import mimsoft.io.integrate.payme.PaymeRepo
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -314,7 +315,6 @@ object OrderRepositoryImpl : OrderRepository {
         if (userId != null) query.plus("and o.user_id = $userId")
         if (courierId != null) query.plus("and o.courier_id = $courierId")
         if (collectorId != null) query.plus("and o.collector_id = $collectorId")
-        println("query: $query")
 
         val orderWrappers = mutableListOf<OrderWrapper>()
 
@@ -500,31 +500,6 @@ object OrderRepositoryImpl : OrderRepository {
 
         val activeProducts = getOrderProducts(order.products).body as OrderWrapper
 
-        val queryOrder = """
-            insert into orders (
-                user_id,
-                user_phone,
-                type,
-                products,
-                status,
-                add_lat,
-                add_long,
-                add_desc,
-                created_at,
-                comment
-            ) values (
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?
-            ) returning id
-        """.trimIndent()
 
         val queryPrice = """
             insert into order_price (
@@ -538,6 +513,33 @@ object OrderRepositoryImpl : OrderRepository {
             )
         """.trimIndent()
 
+        val queryOrder = """
+            insert into orders (
+                user_id,
+                user_phone,
+                type,
+                products,
+                status,
+                add_lat,
+                add_long,
+                add_desc,
+                created_at,
+                comment,
+                payment_type
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            ) returning id
+        """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val statementOrder = it.prepareStatement(queryOrder).apply {
@@ -551,6 +553,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setString(8, address.description)
                     setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     setString(10, order.details?.comment)
+                    setLong(11, order.order.paymentTypeDto?.id?: 0L)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -644,6 +647,24 @@ object OrderRepositoryImpl : OrderRepository {
         }
     }
 
+    override suspend fun editPaidOrder(order: OrderDto?) {
+        val query = """
+            update orders set
+            paid = ${order?.paymentTypeDto?.isPaid},
+            updated_at = ?
+            where id = ${order?.id}
+        """.trimIndent()
+
+        withContext(Dispatchers.IO){
+            repository.connection().use { connection ->
+                connection.prepareStatement(query).apply {
+                    setTimestamp(1, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
+        }
+    }
+
 
     suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
 
@@ -709,11 +730,40 @@ object OrderRepositoryImpl : OrderRepository {
         )
 
     }
+
+
+    suspend fun getOrder(id: Long?) = withContext(Dispatchers.IO) {
+        val query = """
+            select * from orders
+            where id = ?
+            and not deleted
+        """.trimIndent()
+
+        return@withContext repository.connection().use {
+            val statement = it.prepareStatement(query).apply {
+                setLong(1, id ?: 0L)
+                this.closeOnCompletion()
+            }.executeQuery()
+
+            if (statement.next()) {
+
+                return@use OrderTable(
+                    id = statement.getLong("id"),
+                    userId = statement.getLong("user_id"),
+                    userPhone = statement.getString("user_phone"),
+                    type = statement.getString("type"),
+                    products = statement.getString("products"),
+                    status = statement.getString("status"),
+                    addLat = statement.getDouble("add_lat"),
+                    addLong = statement.getDouble("add_long"),
+                    addDesc = statement.getString("add_desc"),
+                    createdAt = statement.getTimestamp("created_at"),
+                    comment = statement.getString("comment"),
+                    paymentType = statement.getLong("payment_type")
+                )
+            } else {
+                return@use null
+            }
+        }
+    }
 }
-
-
-
-
-
-
-

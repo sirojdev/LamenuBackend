@@ -21,7 +21,35 @@ object PaymentService {
                 if (rs.next()) {
                     return@withContext PaymentMapper.toPaymentDto(
                         PaymentTable(
-                            paymeMerchantId = rs.getLong("payme_merchant_id"),
+                            paymeMerchantId = rs.getString("payme_merchant_id"),
+                            paymeSecret = rs.getString("payme_secret"),
+                            apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
+                            apelsinMerchantToken = rs.getString("apelsin_merchant_token"),
+                            clickServiceId = rs.getLong("click_service_id"),
+                            clickKey = rs.getString("click_key"),
+                            selected = rs.getString("selected")
+                        )
+                    )
+                } else return@withContext null
+            }
+        }
+    }
+
+    suspend fun paymeVerify(serviceKey: String?): PaymentDto? {
+        val query = """
+            select * from $PAYMENT_TABLE_NAME 
+            and payme_secret = ?
+            and deleted = false
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, serviceKey)
+                }.executeQuery()
+                if (rs.next()) {
+                    return@withContext PaymentMapper.toPaymentDto(
+                        PaymentTable(
+                            paymeMerchantId = rs.getString("payme_merchant_id"),
                             paymeSecret = rs.getString("payme_secret"),
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),

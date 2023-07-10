@@ -11,6 +11,4 @@ data class  MerchantDto(
     var password: String? = null,
     var isActive: Boolean? = null,
     val token : String? = null,
-
-
     )

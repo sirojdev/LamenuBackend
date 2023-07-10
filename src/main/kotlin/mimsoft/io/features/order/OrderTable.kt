@@ -13,6 +13,8 @@ data class OrderTable(
     val addLat: Double? = null,
     val addLong: Double? = null,
     val addDesc: String? = null,
+    val paymentType: Long? = null,
+    val isPaid: Boolean? = null,
     val createdAt: Timestamp? = null,
     val deliveryAt: Timestamp? = null,
     val deliveredAt: Timestamp? = null,
