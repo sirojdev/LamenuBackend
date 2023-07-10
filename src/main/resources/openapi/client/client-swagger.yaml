@@ -654,6 +654,7 @@ paths:
       responses:
         "200":
           description: "OK"
+
   /client/address/{id}:
     get:
       tags:
@@ -698,12 +699,444 @@ paths:
         "400":
           description: "Bad Request"
 
+  /client/checkout:
+    post:
+      tags:
+        - Order
+      description: "Returns a checkout"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object calculate checkout order"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequestDto"
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/order/history/get:
+    get:
+      tags:
+        - Order
+      description: "A Json object gives information about client order history"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "filter"
+          in: "query"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderWrapper"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/order/info/{id}:
+    get:
+      tags:
+        - Order
+      description: "A Json object gives information about client order history info"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+            
+                  $ref: "#/components/schemas/OrderWrapper"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/stories:
+    get:
+      tags:
+        - Story
+      description: "A Json object gives information of stories"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/story/info:
+    get:
+      tags:
+        - Story
+      description: "A Json object gives information of story info"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoryInfoDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/branch:
+    get:
+      tags:
+        - Branch
+      description: "A Json object gives information about branch by its id"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BranchDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/branches:
+    get:
+      tags:
+        - Branch
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BranchDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/products:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "category"
+          in: "query"
+          required: true
+          schema:
+            type: string
+        - name: "lang"
+          in: "query"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/product/info:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: integer
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
 
 
+  /client/product:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "product"
+          in: "query"
+          required: true
+          schema:
+            type: string
+        - name: "lang"
+          in: "query"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/categories:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of categories"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
 
 #//==================================================================================================SCHEMAS
 components:
   schemas:
+    BranchDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        longitude:
+          type: "number"
+        latitude:
+          type: "number"
+        open:
+          type: "string"
+        close:
+          type: "string"
+        address:
+          type: "string"
+
+    StoryDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          $ref: "#/components/schemas/TextModel"
+        priority:
+          type: integer
+        stories:
+          $ref: "#/components/schemas/StoryInfoDto"
+
+    StoryInfoDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        image:
+          $ref: "#/components/schemas/TextModel"
+        priority:
+          type: integer
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDto"
+        buttonBgColor:
+          type: string
+        buttonTextColor:
+          type: string
+        buttonText:
+          $ref: "#/components/schemas/TextModel"
+        storyId:
+          type: integer
+          format: "long"
+
+    CheckoutRequestDto:
+      type: "object"
+      properties:
+        order:
+          $ref: "#/components/schemas/OrderWrapper"
+
+    StaffDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        username:
+          type: "string"
+        password:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        image:
+          type: "string"
+        position:
+          $ref: "#/components/schemas/PositionDto"
+
+    PositionDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleDto"
+
+    RoleDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        staffId:
+          type: "integer"
+          format: "long"
+        menu:
+          type: boolean
+        delivery:
+          type: boolean
 
     MenuDto:
       type: "object"
@@ -870,17 +1303,9 @@ components:
           type: "integer"
           format: "long"
 
-
-    OrderDto:
-      type: "object"
+    Details:
+      type: object
       properties:
-        id:
-          type: "integer"
-          format: "long"
-        type:
-          $ref: "#/components/schemas/OrderType"
-        status:
-          type: "string"
         createdAt:
           type: "string"
           format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
@@ -901,6 +1326,94 @@ components:
           format: "double"
         comment:
           type: "string"
+        collectorId:
+          type: integer
+          format: "long"
+        courierId:
+          type: integer
+          format: "long"
+
+    OrderWrapper:
+      type: "object"
+      properties:
+        details:
+          $ref: "#/components/schemas/Details"
+        order:
+          $ref: "#/components/schemas/OrderDto"
+        address:
+          $ref: "#/components/schemas/AddressDto"
+        products:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/CartItem"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        price:
+          $ref: "#/components/schemas/OrderPriceDto"
+
+
+    OrderPriceDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        orderId:
+          type: integer
+          format: "long"
+        deliveryPrice:
+          type: integer
+          format: "long"
+        deliveryDiscount:
+          type: integer
+          format: "long"
+        deliveryPromo:
+          type: integer
+          format: "long"
+        productPrice:
+          type: integer
+          format: "long"
+        productDiscount:
+          type: integer
+          format: "long"
+        productPromo:
+          type: integer
+          format: "long"
+        totalPrice:
+          type: integer
+          format: "long"
+        totalDiscount:
+          type: integer
+          format: "long"
+
+    CartItem:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        count:
+          type: integer
+          format: "long"
+
+    OrderDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        userId:
+          type: "integer"
+          format: "long"
+        type:
+          type: string
+        status:
+          type: "string"
+        courier:
+          $ref: "#/components/schemas/UserDto"
+        totalPrice:
+          type: "number"
+          format: "double"
+
 
     OrderType:
       type: "object"

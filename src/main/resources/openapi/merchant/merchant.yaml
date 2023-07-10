@@ -2850,6 +2850,10 @@ components:
           type: "number"
         latitude:
           type: "number"
+        open:
+          type: "string"
+        close:
+          type: "string"
         address:
           type: "string"
 

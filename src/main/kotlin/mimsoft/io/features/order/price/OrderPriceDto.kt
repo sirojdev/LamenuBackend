@@ -10,5 +10,5 @@ data class OrderPriceDto(
     val productDiscount: Long? = null,
     val productPromo: Long? = null,
     val totalPrice: Long? = null,
-    val totalDiscount: Long? = null,
+    val totalDiscount: Long? = null
 )

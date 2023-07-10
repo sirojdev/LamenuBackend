@@ -18,7 +18,6 @@ fun Route.routeToClient() {
     }
     route("client") {
         routeToMenu()
-        routeToClientCategory()
         routeToClientProduct()
         routeToClientTable()
         routeToClientBranches()
@@ -35,7 +34,6 @@ fun Route.routeToClient() {
             routeToFavourites()
             routeToClientOrderInfo()
             routeToClientOrderHistory()
-            routeToClientStory()
             routeToClientCheckout()
         }
     }
