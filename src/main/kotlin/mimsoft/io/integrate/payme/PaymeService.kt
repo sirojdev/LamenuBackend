@@ -33,7 +33,7 @@ object PaymeService {
 
             orderWrapper = orderRepository.get(id = account?.orderId)
             val order = orderWrapper?.order
-            val price = orderWrapper?.price
+            val price = orderWrapper?.details?.totalPrice
             println("\norder-->${GSON.toJson(orderWrapper)}\n")
 
             if (order == null || price == null || order.paymentTypeDto?.isPaid == true || order.paymentTypeDto?.id != PAYME.id) {
@@ -46,7 +46,7 @@ object PaymeService {
                 )
             } else {
 
-                return@withContext if (amount?.toLong() != price.totalPrice) {
+                return@withContext if (amount?.toLong() != price) {
                     ErrorResult(
                         error = Error(
                             code = -31001,

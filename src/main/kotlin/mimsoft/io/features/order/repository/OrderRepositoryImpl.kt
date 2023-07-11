@@ -412,6 +412,7 @@ object OrderRepositoryImpl : OrderRepository {
             and not op.deleted
             and o.id = $id
         """.trimIndent()
+        println("\nQuery -> $query")
         if (merchantId != null)
             query.plus(" and o.merchant_id = $merchantId")
 
@@ -425,7 +426,6 @@ object OrderRepositoryImpl : OrderRepository {
                 }.executeQuery()
 
                 if (statement.next()) {
-                    println("Query -> $query")
                     orderTable = OrderTable(
                         id = statement.getLong("o_id"),
                         userId = statement.getLong("user_id"),
@@ -441,7 +441,9 @@ object OrderRepositoryImpl : OrderRepository {
                         deliveredAt = statement.getTimestamp("delivered_at"),
                         updatedAt = statement.getTimestamp("updated_at"),
                         deleted = statement.getBoolean("deleted"),
-                        comment = statement.getString("comment")
+                        comment = statement.getString("comment"),
+                        paymentType = statement.getLong("payment_type"),
+                        isPaid = statement.getBoolean("is_paid")
                     )
                     orderPriceTable = OrderPriceTable(
                         id = statement.getLong("op_id"),
