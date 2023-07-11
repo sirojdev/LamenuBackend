@@ -1,5 +1,6 @@
 package mimsoft.io.integrate.payme
 
+import com.google.gson.Gson
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -28,8 +29,8 @@ fun Route.routeToPayme() {
 
                     CHECK_PERFORM_TRANSACTION -> {
                         paymeService.checkPerform(
-                            account = params["account"] as Account,
-                            amount = params["amount"] as Long,
+                            account = Gson().fromJson(params["account"].toString(), Account::class.java),
+                            amount = params["amount"] as Double,
                             transactionId = receive.id,
                         )
                     }

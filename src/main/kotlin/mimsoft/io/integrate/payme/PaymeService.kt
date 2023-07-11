@@ -27,13 +27,14 @@ object PaymeService {
     suspend fun checkPerform(
         account: Account? = null,
         transactionId: Long? = null,
-        amount: Long? = null
+        amount: Double? = null
     ): Any {
         return withContext(Dispatchers.IO) {
 
             orderWrapper = orderRepository.get(id = account?.orderId)
             val order = orderWrapper?.order
             val price = orderWrapper?.price
+            println("\norder-->${GSON.toJson(orderWrapper)}\n")
 
             if (order == null || price == null || order.paymentTypeDto?.isPaid == true || order.paymentTypeDto?.id != PAYME.id) {
                 return@withContext ErrorResult(
@@ -45,7 +46,7 @@ object PaymeService {
                 )
             } else {
 
-                return@withContext if (amount != price.totalPrice) {
+                return@withContext if (amount?.toLong() != price.totalPrice) {
                     ErrorResult(
                         error = Error(
                             code = -31001,
@@ -86,7 +87,7 @@ object PaymeService {
                 val checkPerform = checkPerform(
                     account = account,
                     transactionId = transactionId,
-                    amount = amount
+                    amount = amount?.toDouble()
                 )
 
                 if (checkPerform is CheckPerformResult && checkPerform.result?.allow == true) {

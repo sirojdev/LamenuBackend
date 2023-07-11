@@ -179,7 +179,7 @@ fun Application.configureSecurity() {
             validate { credentials ->
                 println("\ncredentials: ${credentials}")
                 val payment = PaymentService.paymeVerify(
-                    credentials.name
+                    credentials.password
                 )
                 println("\npayment: ${GSON.toJson(payment)}")
                 if (payment != null) {
