@@ -40,4 +40,18 @@ fun Route.routeToClientTable(){
         }
         call.respond(table)
     }
+
+    get("table/qr") {
+        val url = call.parameters["qr"].toString()
+        if (url.isEmpty()) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        val result = TableService.getByQr(url = url)
+        if (result == null) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        }
+        call.respond(HttpStatusCode.OK, result)
+    }
 }

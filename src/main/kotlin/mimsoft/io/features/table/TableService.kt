@@ -83,4 +83,15 @@ object TableService : TableRepository {
         }
         return true
     }
+
+    override suspend fun getByQr(url: String): TableDto? {
+            val data = repository.getPageData(
+                dataClass = TableTable::class,
+                where = mapOf(
+                    "qr" to url as Any,
+                ),
+                tableName = TABLE_TABLE_NAME
+            )?.data?.firstOrNull()
+            return mapper.toTableDto(data)
+        }
 }

@@ -11,6 +11,7 @@ object CategoryMapper {
             nameRu = categoryDto.name?.ru,
             nameEng = categoryDto.name?.eng,
             image = categoryDto.image,
+            groupId = categoryDto.groupId,
             merchantId = categoryDto.merchantId,
             bgColor = categoryDto.bgColor,
             textColor = categoryDto.textColor
@@ -27,6 +28,7 @@ object CategoryMapper {
                 eng = categoryTable.nameEng
             ),
             image = categoryTable.image ,
+            groupId = categoryTable.groupId ,
             merchantId = categoryTable.merchantId,
             bgColor = categoryTable.bgColor,
             textColor = categoryTable.textColor

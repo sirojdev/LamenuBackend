@@ -9,6 +9,7 @@ data class CategoryTable(
     val nameEng: String? = null,
     val image: String? = null,
     val merchantId: Long? = null,
+    val groupId: Long? = null,
     val bgColor: String? = null,
     val textColor: String? = null,
     var deleted: Boolean? = null,

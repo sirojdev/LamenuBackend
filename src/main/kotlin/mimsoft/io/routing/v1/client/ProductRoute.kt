@@ -7,7 +7,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl.getCategoryByName
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
-import mimsoft.io.lamenu_bot.enums.Language
+import mimsoft.io.features.telegram_bot.Language
 
 fun Route.routeToClientProduct() {
     val categoryRepository = CategoryRepositoryImpl

@@ -7,6 +7,7 @@ import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.cashback.routeToCashback
 import mimsoft.io.features.category.routeToCategory
+import mimsoft.io.features.category_group.routeToCategoryGroup
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
@@ -18,6 +19,7 @@ import mimsoft.io.features.merchant.order.routeToMerchantOrder
 import mimsoft.io.features.merchant.user.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
+import mimsoft.io.features.notification.routeToNotification
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
@@ -62,6 +64,8 @@ fun Route.routeToMerchant() {
             routeToOrderByCourierAndCollector()
             routeToStory()
             routeToStoryInfo()
+            routeToCategoryGroup()
+            routeToNotification()
 
 
             route("settings") {
@@ -98,10 +102,7 @@ fun Route.routeToMerchant() {
                 routeToOutcome()
                 routeToPromo()
             }
-
         }
-
-
 
         route("crm") {
             routeToSms()

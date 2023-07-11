@@ -279,6 +279,101 @@ paths:
         "400":
           description: "Bad Request"
 
+
+  /merchant/category/group:
+    get:
+      tags:
+        - Category
+      description: "Returns a list of category-group"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Category
+      description: "Adds a new Category Group"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing category group's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryGroupDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Category
+      description: "Update a category group's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated category group's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryGroupDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/category/group/{id}:
+    get:
+      tags:
+        - Category
+      description: "Returns a category group by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Category
+      description: "Deletes a category group by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
   /merchant/visits:
     get:
       tags:
@@ -2426,6 +2521,22 @@ paths:
 components:
   schemas:
 
+    CategoryGroupDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        merchantId:
+          type: integer
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        bgColor:
+          type: string
+        textColor:
+          type: string
+
     BadgeDto:
       type: object
       properties:
@@ -2867,6 +2978,9 @@ components:
           $ref: "#/components/schemas/TextModel"
         image:
           type: "string"
+        group_id:
+          type: "integer"
+          format: "long"
 
     PosterDto:
       type: "object"
