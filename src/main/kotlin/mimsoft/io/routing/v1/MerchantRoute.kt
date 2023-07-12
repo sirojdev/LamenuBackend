@@ -2,6 +2,7 @@ package mimsoft.io.routing.v1
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.announcement.routeToAnnounce
 import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
@@ -66,6 +67,7 @@ fun Route.routeToMerchant() {
             routeToStoryInfo()
             routeToCategoryGroup()
             routeToNotification()
+            routeToAnnounce()
 
 
             route("settings") {

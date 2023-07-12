@@ -1,9 +1,8 @@
-package mimsoft.io.features.notification
+package mimsoft.io.features.announcement
 
 import java.sql.Timestamp
 
-const val NOTIFICATION_TABLE_NAME = "notification"
-data class NotificationTable(
+data class AnnouncementTable(
     val id: Long? = null,
     val type: Int? = null,
     val bodyUz: String? = null,
@@ -14,7 +13,6 @@ data class NotificationTable(
     val bodyRu: String? = null,
     val bodyEng: String? = null,
     val image: String? = null,
-    val clientId: Long? = null,
     val date: Timestamp? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,

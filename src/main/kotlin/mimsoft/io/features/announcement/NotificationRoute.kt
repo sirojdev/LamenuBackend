@@ -1,4 +1,4 @@
-package mimsoft.io.features.notification
+package mimsoft.io.features.announcement
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,26 +6,26 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.notification.repository.NotificationRepository
-import mimsoft.io.features.notification.repository.NotificationRepositoryImpl
+import mimsoft.io.features.announcement.repository.AnnounceRepository
+import mimsoft.io.features.announcement.repository.AnnounceRepositoryImpl
 import mimsoft.io.utils.principal.MerchantPrincipal
 
-fun Route.routeToNotification() {
-    val notification: NotificationRepository = NotificationRepositoryImpl
-    route("notification") {
+fun Route.routeToAnnounce() {
+    val announce: AnnounceRepository = AnnounceRepositoryImpl
+    route("announcement") {
         post {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val dto = call.receive<NotificationDto>()
-            val response = notification.add(dto.copy(merchantId = merchantId))
+            val dto = call.receive<AnnouncementDto>()
+            val response = announce.add(dto.copy(merchantId = merchantId))
             call.respond(HttpStatusCode.OK, CategoryGroupId(response))
         }
 
         put {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val dto = call.receive<NotificationDto>()
-            val response = notification.update(dto.copy(merchantId = merchantId))
+            val dto = call.receive<AnnouncementDto>()
+            val response = announce.update(dto.copy(merchantId = merchantId))
             call.respond(response)
         }
 
@@ -37,7 +37,7 @@ fun Route.routeToNotification() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val response = notification.getById(id = id, merchantId = merchantId)
+            val response = announce.getById(id = id, merchantId = merchantId)
             if (response == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -48,7 +48,7 @@ fun Route.routeToNotification() {
         get {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val response = notification.getAll(merchantId = merchantId)
+            val response = announce.getAll(merchantId = merchantId)
             call.respond(response)
         }
 
@@ -60,7 +60,7 @@ fun Route.routeToNotification() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            val response = notification.delete(id = id, merchantId = merchantId)
+            val response = announce.delete(id = id, merchantId = merchantId)
             call.respond(response)
         }
     }

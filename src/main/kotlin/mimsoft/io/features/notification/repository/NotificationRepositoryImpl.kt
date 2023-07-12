@@ -9,11 +9,15 @@ import mimsoft.io.features.notification.NotificationTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 
-object NotificationRepositoryImpl: NotificationRepository {
+object NotificationRepositoryImpl : NotificationRepository {
     val repository: BaseRepository = DBManager
     val mapper = NotificationMapper
-    override suspend fun add(dto: NotificationDto?): Long?  =
-        DBManager.postData(dataClass = NotificationTable::class, dataObject = mapper.toTable(dto), tableName = NOTIFICATION_TABLE_NAME)
+    override suspend fun add(dto: NotificationDto?): Long? =
+        DBManager.postData(
+            dataClass = NotificationTable::class,
+            dataObject = mapper.toTable(dto),
+            tableName = NOTIFICATION_TABLE_NAME
+        )
 
     override suspend fun update(dto: NotificationDto?): Boolean {
         return DBManager.updateData(NotificationTable::class, mapper.toTable(dto), NOTIFICATION_TABLE_NAME)
@@ -46,5 +50,17 @@ object NotificationRepositoryImpl: NotificationRepository {
             repository.connection().use { val rs = it.prepareStatement(query).execute() }
         }
         return true
+    }
+
+    suspend fun getClient(merchantId: Long?, userId: Long?): List<NotificationDto?> {
+        val data = repository.getPageData(
+            dataClass = NotificationTable::class,
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "client_id" to userId as Any
+            ),
+            tableName = NOTIFICATION_TABLE_NAME
+        )?.data?.map { mapper.toDto(it) }
+        return data ?: emptyList()
     }
 }

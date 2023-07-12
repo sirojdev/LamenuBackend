@@ -40,31 +40,6 @@ fun Route.routeToClientCategory() {
         call.respond(category)
     }
 
-    post("category") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val category = call.receive<CategoryDto>()
-        val status = categoryRepository.add(category.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK, status ?: 0)
-    }
 
-    put("category") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val category = call.receive<CategoryDto>()
-        categoryRepository.update(category.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK)
-    }
 
-    delete("category/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
-        categoryRepository.delete(id = id, merchantId = merchantId)
-        call.respond(HttpStatusCode.OK)
-    }
 }

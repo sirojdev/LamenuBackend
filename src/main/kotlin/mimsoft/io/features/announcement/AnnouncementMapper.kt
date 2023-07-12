@@ -1,14 +1,13 @@
-package mimsoft.io.features.notification
+package mimsoft.io.features.announcement
 
 import mimsoft.io.utils.TextModel
 
-object NotificationMapper {
-    fun toDto(table: NotificationTable?): NotificationDto? {
+object AnnouncementMapper {
+    fun toDto(table: AnnouncementTable?): AnnouncementDto? {
         if(table==null) return null
-        return NotificationDto(
+        return AnnouncementDto(
             id = table.id,
             merchantId = table.merchantId,
-            clientId = table.clientId,
             title = TextModel(
                 uz = table.titleUz,
                 ru = table.titleRu,
@@ -25,8 +24,8 @@ object NotificationMapper {
         )
     }
 
-    fun toTable(dto: NotificationDto?): NotificationTable {
-        return NotificationTable(
+    fun toTable(dto: AnnouncementDto?): AnnouncementTable {
+        return AnnouncementTable(
             id = dto?.id,
             merchantId = dto?.merchantId,
             titleUz = dto?.title?.uz,
@@ -35,7 +34,6 @@ object NotificationMapper {
             bodyUz = dto?.body?.uz,
             bodyRu = dto?.body?.ru,
             bodyEng = dto?.body?.eng,
-            clientId = dto?.clientId,
             image = dto?.image,
             type = dto?.type,
             date = dto?.date
