@@ -2,7 +2,6 @@ package mimsoft.io.integrate.payme
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.features.order.OrderDto
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
@@ -10,9 +9,12 @@ import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.payment_type.PaymentTypeDto.Companion.PAYME
 import mimsoft.io.integrate.payme.models.*
-import mimsoft.io.integrate.payme.models.CrResult.Companion.STATE_CANCELED
-import mimsoft.io.integrate.payme.models.CrResult.Companion.STATE_DONE
-import mimsoft.io.integrate.payme.models.CrResult.Companion.STATE_IN_PROGRESS
+import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_CANCELED
+import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_DONE
+import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_IN_PROGRESS
+import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.TRANSACTION_TIMEOUT
+import mimsoft.io.integrate.payme.models.Result
+import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.plugins.GSON
 import java.util.*
@@ -22,7 +24,7 @@ object PaymeService {
     private val paymeRepository = PaymeRepo
     private val orderRepository = OrderRepositoryImpl
     private var orderWrapper: OrderWrapper? = null
-    private val time_expired = 43_200_000L
+    const val time_expired = 43_200_000L
 
     suspend fun checkPerform(
         account: Account? = null,
@@ -55,8 +57,7 @@ object PaymeService {
                         ),
                         id = transactionId
                     )
-                }
-                else {
+                } else {
                     val info = HashMap<String, Any>()
                     info["name"] = "${order.user?.firstName ?: ""} ${order.user?.lastName ?: ""}"
                     info["phone"] = order.user?.phone ?: ""
@@ -74,20 +75,41 @@ object PaymeService {
     suspend fun createTransaction(
         account: Account? = null,
         transactionId: Long? = null,
-        amount: Long? = null,
+        amount: Double? = null,
         paycomId: String? = null,
-        pacomTime: Long? = null,
+        pacomTime: Double? = null,
     ): Any {
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
+
+            if (account?.orderId == null || amount == null || paycomId == null) {
+                return@withContext ErrorResult(
+                    error = Error(
+                        code = -31050,
+                        message = Message.WRONG_RESPONSE_DATA
+                    ),
+                    id = transactionId
+                )
+            }
+
             val transaction = paymeRepository.getByPaycom(paycomId)
 
-
             if (transaction == null) {
+
+                if (PaymeRepo.getByOrderId(account.orderId) != null) {
+                    return@withContext ErrorResult(
+                        error = Error(
+                            code = -31050,
+                            data = "transaction",
+                            message = Message.UNABLE_TO_COMPLETE_OPERATION
+                        ),
+                        id = transactionId
+                    )
+                }
 
                 val checkPerform = checkPerform(
                     account = account,
                     transactionId = transactionId,
-                    amount = amount?.toDouble()
+                    amount = amount
                 )
 
                 if (checkPerform is CheckPerformResult && checkPerform.result?.allow == true) {
@@ -95,61 +117,62 @@ object PaymeService {
                     val orderTransaction = paymeRepository.saveTransaction(
                         OrderTransaction(
                             paycomId = paycomId,
-                            orderId = account?.orderId,
-                            paycomTime = pacomTime,
+                            orderId = account.orderId,
+                            amount = amount.toLong(),
+                            paycomTime = pacomTime?.toLong(),
                             state = STATE_IN_PROGRESS
                         )
                     )
 
                     if (orderTransaction != null) {
-                        return@withContext CreateResult(
-                            result = CrResult(
-                                createTime = orderTransaction.createTime,
-                                transaction = orderTransaction.id,
-                                state = orderTransaction.state
-                            )
+                        return@withContext ResultResponse(
+                            result = hashMapOf(
+                                "create_time" to orderTransaction.createTime as Any,
+                                "transaction" to orderTransaction.id.toString(),
+                                "state" to orderTransaction.state as Any
+                            ),
+                            id = transactionId
                         )
-                    }
-                    else {
+                    } else {
                         return@withContext ErrorResult(
                             error = Error(
                                 code = -32400,
                                 message = Message.DATABASE_ERROR
-                            )
+                            ),
+                            id = transactionId
                         )
                     }
-                }
-                else {
+                } else {
                     return@withContext checkPerform
                 }
-            }
-            else {
+            } else {
                 if (transaction.state == STATE_IN_PROGRESS) {
-                    if (System.currentTimeMillis() - (transaction.paycomTime?:0) > time_expired) {
+                    if (System.currentTimeMillis() - (transaction.paycomTime ?: 0) > time_expired) {
                         return@withContext ErrorResult(
                             error = Error(
                                 code = -31008,
                                 data = "transaction",
                                 message = Message.UNABLE_TO_COMPLETE_OPERATION
-                            )
+                            ),
+                            id = transactionId
+                        )
+                    } else {
+                        return@withContext ResultResponse(
+                            result = hashMapOf(
+                                "create_time" to transaction.createTime as Any,
+                                "transaction" to transaction.id.toString(),
+                                "state" to transaction.state as Any
+                            ),
+                            id = transactionId
                         )
                     }
-                    else {
-                        return@withContext CreateResult(
-                            result = CrResult(
-                                createTime = transaction.createTime,
-                                transaction = transaction.id,
-                                state = transaction.state
-                            )
-                        )
-                    }
-                }
-                else {
+                } else {
                     return@withContext ErrorResult(
                         error = Error(
                             code = -31008,
                             message = Message.UNABLE_TO_COMPLETE_OPERATION
-                        )
+                        ),
+                        id = transactionId
                     )
                 }
             }
@@ -163,7 +186,7 @@ object PaymeService {
         return withContext(Dispatchers.IO) {
             val transaction = paymeRepository.getByPaycom(paycomId)
             orderWrapper = orderRepository.get(id = transaction?.orderId)
-            orderWrapper?.order?: return@withContext ErrorResult(
+            orderWrapper?.order ?: return@withContext ErrorResult(
                 error = Error(
                     code = -31050,
                     message = Message.ORDER_NOT_FOUND
@@ -172,18 +195,22 @@ object PaymeService {
             )
 
             if (transaction?.state == STATE_IN_PROGRESS) {
-                if (System.currentTimeMillis() - (transaction.paycomTime?:0) > time_expired) {
+                if (System.currentTimeMillis() - (transaction.paycomTime ?: 0) > time_expired) {
                     transaction.state = STATE_CANCELED
+                    transaction.cancelTime = System.currentTimeMillis()
+                    transaction.reason = TRANSACTION_TIMEOUT
                     paymeRepository.updateTransaction(transaction)
                     return@withContext ErrorResult(
                         error = Error(
                             code = -31008,
                             message = Message.UNABLE_TO_COMPLETE_OPERATION
-                        )
+                        ),
+                        id = transactionId
                     )
                 }
                 else {
                     transaction.state = STATE_DONE
+                    transaction.performTime = System.currentTimeMillis()
                     paymeRepository.updateTransaction(transaction)
                     orderRepository.editPaidOrder(
                         OrderDto(
@@ -194,27 +221,29 @@ object PaymeService {
                     return@withContext ResultResponse(
                         result = hashMapOf(
                             "transaction" to transaction.id,
-                            "perform_time" to System.currentTimeMillis(),
+                            "perform_time" to transaction.performTime,
                             "state" to STATE_DONE
-                            )
+                        ),
+                        id = transactionId
                     )
                 }
             }
-            else if (transaction?.state == STATE_DONE){
+            else if (transaction?.state == STATE_DONE) {
                 return@withContext ResultResponse(
                     result = hashMapOf(
-                        "transaction" to transaction.id,
-                        "perform_time" to System.currentTimeMillis(),
+                        "transaction" to transaction.id.toString(),
+                        "perform_time" to transaction.performTime,
                         "state" to STATE_DONE
-                    )
+                    ),
+                    id = transactionId
                 )
-            }
-            else {
+            } else {
                 return@withContext ErrorResult(
                     error = Error(
                         code = -31008,
                         message = Message.UNABLE_TO_COMPLETE_OPERATION
-                    )
+                    ),
+                    id = transactionId
                 )
             }
         }
@@ -222,7 +251,7 @@ object PaymeService {
 
     suspend fun cancelTransaction(
         paycomId: String? = null,
-        reason: Int? = null,
+        reason: Double? = null,
         transactionId: Long? = null
     ): Any {
         return withContext(Dispatchers.IO) {
@@ -238,14 +267,16 @@ object PaymeService {
 
             if (transaction?.state == STATE_IN_PROGRESS) {
                 transaction.state = STATE_CANCELED
-                transaction.reason = reason
+                transaction.reason = reason?.toInt()
+                transaction.cancelTime = System.currentTimeMillis()
                 paymeRepository.updateTransaction(transaction)
                 return@withContext ResultResponse(
                     result = hashMapOf(
-                        "transaction" to transaction.id,
-                        "cancel_time" to System.currentTimeMillis(),
+                        "transaction" to transaction.id.toString(),
+                        "cancel_time" to transaction.cancelTime,
                         "state" to STATE_CANCELED
-                    )
+                    ),
+                    id = transactionId
                 )
             }
             else if (transaction?.state == STATE_DONE) {
@@ -257,10 +288,10 @@ object PaymeService {
                         ),
                         id = transactionId
                     )
-                }
-                else {
+                } else {
                     transaction.state = STATE_CANCELED
-                    transaction.reason = reason
+                    transaction.reason = reason?.toInt()
+                    transaction.cancelTime = System.currentTimeMillis()
                     paymeRepository.updateTransaction(transaction)
                     orderRepository.editPaidOrder(
                         OrderDto(
@@ -270,21 +301,31 @@ object PaymeService {
                     )
                     return@withContext ResultResponse(
                         result = hashMapOf(
-                            "transaction" to transaction.id,
-                            "cancel_time" to System.currentTimeMillis(),
+                            "transaction" to transaction.id.toString(),
+                            "cancel_time" to transaction.cancelTime,
                             "state" to STATE_CANCELED
                         )
                     )
                 }
             }
+            else if (transaction?.state == STATE_CANCELED){
+                return@withContext ResultResponse(
+                    result = hashMapOf(
+                        "transaction" to transaction.id.toString(),
+                        "cancel_time" to transaction.cancelTime,
+                        "state" to STATE_CANCELED
+                    )
+                )
+            }
             else {
                 transaction?.state = STATE_CANCELED
-                transaction?.reason = reason
+                transaction?.reason = reason?.toInt()
+                transaction?.cancelTime = System.currentTimeMillis()
                 paymeRepository.updateTransaction(transaction!!)
                 return@withContext ResultResponse(
                     result = hashMapOf(
-                        "transaction" to transaction.id,
-                        "cancel_time" to System.currentTimeMillis(),
+                        "transaction" to transaction.id.toString(),
+                        "cancel_time" to transaction.cancelTime,
                         "state" to STATE_CANCELED
                     )
                 )
@@ -292,24 +333,38 @@ object PaymeService {
         }
     }
 
-    suspend fun checkTransaction(paycomId: String?): Any {
-        val transaction = paymeRepository.getByPaycom(paycomId)
-            ?: return ErrorResult(
-            error = Error(
-                code = -31003,
-                message = Message.TRANSACTION_NOT_FOUND
+    suspend fun checkTransaction(paycomId: String?, transactionId: Long?): Any {
+        return withContext(Dispatchers.IO) {
+            val transaction = paymeRepository.getByPaycom(paycomId)
+                ?: return@withContext ErrorResult(
+                    error = Error(
+                        code = -31003,
+                        message = Message.TRANSACTION_NOT_FOUND
+                    )
+                )
+            println("checkTransaction--->${GSON.toJson(transaction)}")
+            return@withContext Result(
+                result = CheckTransactionResult(
+                    create_time = transaction.createTime,
+                    perform_time = transaction.performTime,
+                    cancel_time = transaction.cancelTime,
+                    transaction = transaction.id.toString(),
+                    state = transaction.state,
+                    reason = if (transaction.reason == 0) null else transaction.reason
+                )
             )
-        )
-        return ResultResponse(
-            result = hashMapOf(
-                "create_time" to transaction.createTime as Any,
-                "perform_time" to transaction.paycomTime as Any,
-                "cancel_time" to transaction.cancelTime as Any,
-                "transaction" to transaction.id as Any,
-                "state" to transaction.state as Any,
-                "reason" to transaction.reason as Any,
-            )
-        )
+            /*ResultResponse(
+                id = transactionId,
+                result = mutableMapOf(
+                    "create_time" to if (transaction.createTime != 0L) transaction.createTime else null,
+                    "perform_time" to if (transaction.performTime != 0L) transaction.performTime else null,
+                    "cancel_time" to if (transaction.cancelTime != 0L) transaction.cancelTime else null,
+                    "reason" to if (transaction.reason == 0) null else transaction.reason,
+                    "transaction" to transaction.id,
+                    "state" to transaction.state,
+                )
+            )*/
+        }
     }
 
     suspend fun getStatement(from: Long?, to: Long?): Any {

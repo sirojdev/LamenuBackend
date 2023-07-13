@@ -652,7 +652,7 @@ object OrderRepositoryImpl : OrderRepository {
     override suspend fun editPaidOrder(order: OrderDto?) {
         val query = """
             update orders set
-            paid = ${order?.paymentTypeDto?.isPaid},
+            is_paid = ${order?.paymentTypeDto?.isPaid},
             updated_at = ?
             where id = ${order?.id}
         """.trimIndent()
