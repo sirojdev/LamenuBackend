@@ -417,13 +417,12 @@ object OrderRepositoryImpl : OrderRepository {
 
         var orderTable: OrderTable? = null
         var orderPriceTable: OrderPriceTable? = null
-
+        val gson = Gson()
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val statement = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeQuery()
-
                 if (statement.next()) {
                     println("Query -> $query")
                     orderTable = OrderTable(
@@ -459,6 +458,13 @@ object OrderRepositoryImpl : OrderRepository {
             }
         }
 
+        val cartList: List<CartItem>?
+        val typeToken = object : TypeToken<List<CartItem>>() {}.type
+        val products = orderTable?.products
+        cartList = gson.fromJson(products, typeToken)
+        val p = getOrderProducts(products = cartList)
+        val d = p.body as OrderWrapper
+        val prod = d.products
         return OrderWrapper(
             order = orderTable?.let { orderMapper.toDto(it) },
             user = UserDto(
@@ -473,7 +479,7 @@ object OrderRepositoryImpl : OrderRepository {
                     description = it.addDesc
                 )
             },
-            products = Gson().fromJson(orderTable?.products, object : TypeToken<List<ProductDto>>() {}.type),
+            products = prod
         )
 
     }
@@ -553,7 +559,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setString(8, address.description)
                     setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     setString(10, order.details?.comment)
-                    setLong(11, order.order.paymentTypeDto?.id?: 0L)
+                    setLong(11, order.order.paymentTypeDto?.id ?: 0L)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -602,7 +608,7 @@ object OrderRepositoryImpl : OrderRepository {
                     " and merchant_id = $merchantId" +
                     " and not deleted"
 
-        if(filter != null) query.plus(" and order.status = $filter")
+        if (filter != null) query.plus(" and order.status = $filter")
         val orders = arrayListOf<OrderWrapper>()
         val gson = Gson()
 
@@ -614,15 +620,18 @@ object OrderRepositoryImpl : OrderRepository {
                     val products = rs.getString("products")
                     val typeToken = object : TypeToken<List<CartItem>>() {}.type
                     cartList = gson.fromJson(products, typeToken)
+                    val p = getOrderProducts(products = cartList)
+                    val d = p.body as OrderWrapper
+                    val prod = d.products
 
                     val order = OrderWrapper(
                         order = OrderDto(
                             id = rs.getLong("id"),
                             status = rs.getString("status"),
                             totalPrice = rs.getDouble("total_price"),
-                            created = rs.getTimestamp("created_at"),
+                            created = rs.getTimestamp("created_at")
                         ),
-                        products = cartList
+                        products = prod
                     )
                     orders.add(order)
                 }
@@ -655,7 +664,7 @@ object OrderRepositoryImpl : OrderRepository {
             where id = ${order?.id}
         """.trimIndent()
 
-        withContext(Dispatchers.IO){
+        withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
                 connection.prepareStatement(query).apply {
                     setTimestamp(1, Timestamp(System.currentTimeMillis()))
@@ -664,7 +673,6 @@ object OrderRepositoryImpl : OrderRepository {
             }
         }
     }
-
 
     suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
 

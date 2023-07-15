@@ -2,6 +2,7 @@ package mimsoft.io.features.product.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.entities.app.AppService
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.product.*
 import mimsoft.io.features.product.product_extra.ProductExtraService
@@ -105,7 +106,7 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
-    override suspend fun getAll(merchantId: Long?): List<ProductDto?> {
+    override suspend fun getAll(merchantId: Long?, search: String?): List<ProductDto?> {
         val query = """
         select p.id           p_id,
             p.name_uz         p_name_uz,
@@ -129,6 +130,18 @@ object ProductRepositoryImpl : ProductRepository {
             left join pantry pan on pan.product_id = p.id
                 where p.merchant_id = $merchantId and not p.deleted
         """.trimIndent()
+        query.plus("and merchant_id = 1")
+        if (search != null) {
+//            val s = search.lowercase().replace('/', '_')
+            query.plus ("""
+                and (
+                lower(p.name_uz) like '%$search%'  or
+                lower(p.name_ru) like '%$search%'  or
+                lower(p.name_eng) like '%$search%')
+            """.trimIndent()
+            )
+        }
+        println(query)
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
@@ -293,21 +306,22 @@ object ProductRepositoryImpl : ProductRepository {
                 " time_cooking_max = ${dto?.timeCookingMax}," +
                 " time_cooking_min = ${dto?.timeCookingMin}," +
                 " updated = ?" +
-                " WHERE id = ${dto?.id} and merchant_id = $merchantId and not deleted"
+                " WHERE id = ${dto?.id} and merchant_id = $merchantId "
 
         withContext(Dispatchers.IO) {
-            StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
-                    ti.setString(1, dto?.name?.uz)
-                    ti.setString(2, dto?.name?.ru)
-                    ti.setString(3, dto?.name?.eng)
-                    ti.setString(4, dto?.description?.uz)
-                    ti.setString(5, dto?.description?.ru)
-                    ti.setString(6, dto?.description?.eng)
-                    ti.setString(7, dto?.image)
-                    ti.setTimestamp(8, Timestamp(System.currentTimeMillis()))
-                    ti.closeOnCompletion()
-                }
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, dto?.name?.uz)
+                    this.setString(2, dto?.name?.ru)
+                    this.setString(3, dto?.name?.eng)
+                    this.setString(4, dto?.description?.uz)
+                    this.setString(5, dto?.description?.ru)
+                    this.setString(6, dto?.description?.eng)
+                    this.setString(7, dto?.image)
+                    this.setTimestamp(8, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+                println(query)
             }
         }
         return true
@@ -387,7 +401,7 @@ object ProductRepositoryImpl : ProductRepository {
                     "and category_id = $categoryId and  deleted = false"
         val listProduct = arrayListOf<ProductDto>()
         withContext(Dispatchers.IO) {
-            repository.connection().use { c->
+            repository.connection().use { c ->
                 val rs = c.prepareStatement(sql).apply {
                     this.closeOnCompletion()
                 }.executeQuery()

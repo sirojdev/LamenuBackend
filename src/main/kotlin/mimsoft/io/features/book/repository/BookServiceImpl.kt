@@ -7,6 +7,7 @@ import mimsoft.io.features.book.BOOK_TABLE_NAME
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.book.BookMapper
 import mimsoft.io.features.book.BookTable
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.merchant_booking.MerchantBookResponseDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.table.TableDto
@@ -47,7 +48,10 @@ object BookServiceImpl : BookService {
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            branch = BranchDto(
+                                id = rs.getLong("t_branch_id"),
+                            )
+
                         )
                     )
                     mazgi.add(book)
@@ -97,7 +101,7 @@ object BookServiceImpl : BookService {
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         )
                     )
                 } else return@withContext null
@@ -158,7 +162,7 @@ object BookServiceImpl : BookService {
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         phone = rs.getString("phone"),
                         time = rs.getTimestamp("time"),
@@ -190,7 +194,7 @@ object BookServiceImpl : BookService {
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         phone = rs.getString("phone"),
                         time = rs.getTimestamp("time"),

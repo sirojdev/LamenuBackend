@@ -20,8 +20,10 @@ object NotificationMapper {
                 eng = table.titleEng
             ),
             image = table.image,
-            type = table.type,
-            date = table.date
+            date = table.date,
+            isSendAndroid = table.isSendAndroid,
+            isSendIos = table.isSendIos,
+            isSendBot = table.isSendBot
         )
     }
 
@@ -37,8 +39,10 @@ object NotificationMapper {
             bodyEng = dto?.body?.eng,
             clientId = dto?.clientId,
             image = dto?.image,
-            type = dto?.type,
-            date = dto?.date
+            date = dto?.date,
+            isSendAndroid = dto?.isSendAndroid,
+            isSendIos = dto?.isSendIos,
+            isSendBot = dto?.isSendBot
         )
     }
 }

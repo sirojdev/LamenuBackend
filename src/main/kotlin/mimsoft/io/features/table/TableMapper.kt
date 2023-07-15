@@ -1,5 +1,7 @@
 package mimsoft.io.features.table
 
+import mimsoft.io.features.branch.BranchDto
+
 object TableMapper {
     fun toTableTable(tableDto: TableDto?): TableTable? {
         return if (tableDto == null) null
@@ -8,7 +10,7 @@ object TableMapper {
             name = tableDto.name,
             qr = tableDto.qr,
             roomId = tableDto.roomId,
-            branchId = tableDto.branchId,
+            branchId = tableDto.branch?.id,
             merchantId = tableDto.merchantId
         )
     }
@@ -20,7 +22,7 @@ object TableMapper {
             name = tableTable.name,
             roomId = tableTable.roomId,
             qr = tableTable.qr,
-            branchId = tableTable.branchId,
+            branch = BranchDto( tableTable.branchId),
             merchantId = tableTable.merchantId
         )
     }

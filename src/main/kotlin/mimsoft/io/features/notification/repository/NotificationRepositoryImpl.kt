@@ -1,13 +1,18 @@
 package mimsoft.io.features.notification.repository
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.notification.NOTIFICATION_TABLE_NAME
 import mimsoft.io.features.notification.NotificationDto
 import mimsoft.io.features.notification.NotificationMapper
 import mimsoft.io.features.notification.NotificationTable
+import mimsoft.io.features.visit.VISIT_TABLE_NAME
+import mimsoft.io.features.visit.VisitDto
+import mimsoft.io.features.visit.VisitService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import java.sql.Timestamp
 
 object NotificationRepositoryImpl : NotificationRepository {
     val repository: BaseRepository = DBManager
@@ -20,7 +25,37 @@ object NotificationRepositoryImpl : NotificationRepository {
         )
 
     override suspend fun update(dto: NotificationDto?): Boolean {
-        return DBManager.updateData(NotificationTable::class, mapper.toTable(dto), NOTIFICATION_TABLE_NAME)
+        val query = "update $NOTIFICATION_TABLE_NAME set " +
+                "body_uz = ?, " +
+                "body_ru = ?, " +
+                "body_eng = ?, " +
+                "title_uz = ?, " +
+                "title_ru = ?, " +
+                "title_eng = ?, " +
+                " image = ?," +
+                " client_id = ${dto?.clientId}," +
+                " date = ?, " +
+                " is_send_ios = ${dto?.isSendIos}, " +
+                " is_send_android = ${dto?.isSendAndroid}, " +
+                " is_send_bot = ${dto?.isSendBot}, " +
+                "updated = ? where merchant_id = ${dto?.merchantId} and id = ${dto?.id}"
+
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                it.prepareStatement(query).use { notification ->
+                    notification.setString(1,dto?.body?.uz)
+                    notification.setString(2,dto?.body?.ru)
+                    notification.setString(3,dto?.body?.eng)
+                    notification.setString(4,dto?.title?.uz)
+                    notification.setString(5,dto?.title?.ru)
+                    notification.setString(6,dto?.title?.eng)
+                    notification.setString(7,dto?.image)
+                    notification.setTimestamp(8, Timestamp(System.currentTimeMillis()))
+                    notification.setTimestamp(9, Timestamp(System.currentTimeMillis()))
+                }
+            }
+        }
+        return true
     }
 
     override suspend fun getById(id: Long, merchantId: Long?): NotificationDto? {

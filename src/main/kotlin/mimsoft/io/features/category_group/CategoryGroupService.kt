@@ -106,7 +106,6 @@ object CategoryGroupService {
        cg.text_color,
        (SELECT json_agg(json_build_object(
                'id', c.id,
-               'merchantId', c.merchant_id,
                'bgColor', c.bg_color,
                'nameUz', c.name_uz,
                'nameRu', c.name_ru,
@@ -132,7 +131,6 @@ WHERE cg.merchant_id = 1
                     val list = gson.fromJson<List<CategoryDto>>(categories, typeToken)
                     val book = CategoryGroupClientDto(
                         id = rs.getLong("id"),
-                        merchantId = rs.getLong("merchant_id"),
                         title = TextModel(
                             uz = rs.getString("title_uz"),
                             ru = rs.getString("title_ru"),
@@ -140,7 +138,6 @@ WHERE cg.merchant_id = 1
                         ),
                         categories = list,
                         bgColor = rs.getString("bg_color"),
-                        textColor = rs.getString("text_color")
                     )
                     data.add(book)
                 }

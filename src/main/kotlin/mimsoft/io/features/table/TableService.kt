@@ -59,7 +59,7 @@ object TableService : TableRepository {
                 " name = ?, " +
                 " qr = ?," +
                 " room_id = ${dto.roomId}," +
-                " branch_id = ${dto.branchId}, " +
+                " branch_id = ${dto.branch?.id}, " +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
@@ -85,6 +85,7 @@ object TableService : TableRepository {
     }
 
     override suspend fun getByQr(url: String): TableDto? {
+
             val data = repository.getPageData(
                 dataClass = TableTable::class,
                 where = mapOf(

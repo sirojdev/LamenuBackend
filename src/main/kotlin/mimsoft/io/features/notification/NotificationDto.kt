@@ -9,7 +9,9 @@ data class NotificationDto(
     val title: TextModel? = null,
     val body: TextModel? = null,
     val image: String? = null,
-    val type: Int? = null,
     val date: Timestamp? = null,
-    val clientId: Long? = null
+    val clientId: Long? = null,
+    val isSendAndroid: Boolean? = null,
+    val isSendIos: Boolean? = null,
+    val isSendBot: Boolean? = null
 )

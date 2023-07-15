@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.log.OrderLog
+import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.staff.StaffDto
@@ -69,7 +71,7 @@ object VisitService {
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            branch = BranchDto( rs.getLong("t_branch_id"))
                         ),
                         payment = PaymentTypeDto(
                             id = rs.getLong("payment_type_id"),
@@ -147,7 +149,7 @@ object VisitService {
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
                             roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         payment = PaymentTypeDto(
                             id = rs.getLong("payment_type_id"),
@@ -159,7 +161,7 @@ object VisitService {
                         price = rs.getDouble("price"),
                         orders = ObjectMapper().readValue(
                             rs.getString("orders"),
-                            Array<OrderLog>::class.java
+                            Array<OrderWrapper>::class.java
                         ).toList(),
                     )
                 } else return@withContext null

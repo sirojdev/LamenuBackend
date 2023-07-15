@@ -8,6 +8,5 @@ data class CategoryGroupClientDto(
     val merchantId: Long? = null,
     val title: TextModel? = null,
     val bgColor: String? = null,
-    val textColor: String? = null,
     val categories : List<CategoryDto>?=null
 )

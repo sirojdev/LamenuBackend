@@ -7,23 +7,23 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
-import mimsoft.io.utils.LaPrincipal
 import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToOrderClient() {
     val orderService: OrderRepository = OrderRepositoryImpl
     get("orders") {
-        val userId = call.parameters["userId"]?.toLongOrNull()
-        val principal = call.principal<LaPrincipal>()
-        val orders = orderService.getBySomethingId(principal?.id?: userId)
+        val principal = call.principal<UserPrincipal>()
+        val orders = orderService.getClientOrders(clientId = principal?.id, merchantId = principal?.merchantId)
         call.respond(orders.ifEmpty { HttpStatusCode.NoContent })
     }
 
-    get("orders/{id}") {
-        val principal = call.principal<LaPrincipal>()
+    get("order/{id}") {
+        val principal = call.principal<UserPrincipal>()
         val id = call.parameters["id"]?.toLongOrNull()
         val order = orderService.get(id)
         if (order == null) {
@@ -35,11 +35,9 @@ fun Route.routeToOrderClient() {
     }
 
     post("order") {
-        val principal = call.principal<LaPrincipal>()
+        val principal = call.principal<UserPrincipal>()
         val order = call.receive<OrderWrapper>()
-
-        val status = orderService.add(order)
-
+        val status = orderService.add(order.copy(user = UserDto(id = principal?.id)))
         call.respond(
             status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
             status?.body?:
@@ -48,7 +46,7 @@ fun Route.routeToOrderClient() {
     }
 
     delete("order/{id}") {
-        val principal = call.principal<LaPrincipal>()
+        val principal = call.principal<UserPrincipal>()
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
         call.respond(

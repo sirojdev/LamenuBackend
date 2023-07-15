@@ -38,6 +38,7 @@ fun Route.routeToClient() {
             routeToClientOrderHistory()
             routeToClientCheckout()
             routeToNotification()
+            routeToClientVisit()
         }
     }
 }
