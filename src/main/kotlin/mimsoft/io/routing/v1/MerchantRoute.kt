@@ -17,7 +17,7 @@ import mimsoft.io.features.kitchen.routeToKitchen
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
-import mimsoft.io.features.merchant.user.routeToUserUser
+import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.notification.routeToNotification
@@ -66,7 +66,6 @@ fun Route.routeToMerchant() {
             routeToStory()
             routeToStoryInfo()
             routeToCategoryGroup()
-            routeToNotification()
             routeToAnnounce()
 
 
@@ -88,7 +87,6 @@ fun Route.routeToMerchant() {
                 routeToCollector()
                 routeToPayment()
                 routeToProduct()
-                routeToUserUser()
                 routeToCashback()
                 routeToDelivery()
                 routeToCategory()
@@ -102,13 +100,14 @@ fun Route.routeToMerchant() {
 
             route("finance") {
                 routeToOutcome()
-                routeToPromo()
             }
-        }
-
-        route("crm") {
-            routeToSms()
-            routeToMessage()
+            route("crm") {
+                routeToSms()
+                routeToMessage()
+                routeToPromo()
+                routeToUserUser()
+                routeToNotification()
+            }
         }
     }
 }

@@ -75,7 +75,6 @@ object ProductRepositoryImpl : ProductRepository {
                             ),
                             image = rs.getString("p_image"),
                             costPrice = rs.getLong("p_cost_price"),
-                            categoryId = rs.getLong("category_id"),
                             timeCookingMax = rs.getLong("time_cooking_max"),
                             timeCookingMin = rs.getLong("time_cooking_min"),
                             deliveryEnabled = rs.getBoolean("delivery_enabled"),
@@ -107,7 +106,7 @@ object ProductRepositoryImpl : ProductRepository {
     }
 
     override suspend fun getAll(merchantId: Long?, search: String?): List<ProductDto?> {
-        val query = """
+        var query = """
         select p.id           p_id,
             p.name_uz         p_name_uz,
             p.name_ru         p_name_ru,
@@ -128,19 +127,22 @@ object ProductRepositoryImpl : ProductRepository {
             COALESCE( pan.count, -1) pan_count 
             from product p
             left join pantry pan on pan.product_id = p.id
-                where p.merchant_id = $merchantId and not p.deleted
+                where p.merchant_id = $merchantId and not p.deleted 
         """.trimIndent()
-        query.plus("and merchant_id = 1")
         if (search != null) {
-//            val s = search.lowercase().replace('/', '_')
-            query.plus ("""
+            val s = search.lowercase().replace("'", "_")
+            query += """
                 and (
-                lower(p.name_uz) like '%$search%'  or
-                lower(p.name_ru) like '%$search%'  or
-                lower(p.name_eng) like '%$search%')
-            """.trimIndent()
-            )
+                lower(p.name_uz) like '%$s%'  or 
+                lower(p.name_ru) like '%$s%'  or 
+                lower(p.name_eng) like '%$s%' or 
+                lower(p.description_uz) like '%$s%' or 
+                lower(p.description_ru) like '%$s%' or 
+                lower(p.description_eng) like '%$s%')
+            """
+
         }
+        println(search)
         println(query)
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -163,7 +165,7 @@ object ProductRepositoryImpl : ProductRepository {
                         ),
                         image = rs.getString("p_image"),
                         costPrice = rs.getLong("p_cost_price"),
-                        categoryId = rs.getLong("category_id"),
+                        category = CategoryDto(id = rs.getLong("category_id")),
                         timeCookingMax = rs.getLong("time_cooking_max"),
                         timeCookingMin = rs.getLong("time_cooking_min"),
                         deliveryEnabled = rs.getBoolean("delivery_enabled"),
@@ -297,7 +299,7 @@ object ProductRepositoryImpl : ProductRepository {
                 " description_ru = ?," +
                 " description_eng = ?," +
                 " image = ? ," +
-                " category_id = ${dto?.categoryId} ," +
+                " category_id = ${dto?.category?.id} ," +
                 " cost_price = ${dto?.costPrice}," +
                 " id_rkeeper = ${dto?.productIntegration?.idRkeeper}," +
                 " id_join_poster = ${dto?.productIntegration?.idJoinPoster}," +
@@ -341,12 +343,12 @@ object ProductRepositoryImpl : ProductRepository {
 
     override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
         val query = """
-            select p.*, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng
+            select p.*, c.id c_id, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng, c.image c_image, c.bg_color c_bg_color, c.text_color c_text_color, c.group_id c_group_id
                 from product p
             inner join category c on p.category_id = c.id 
                 where p.merchant_id = $merchantId 
                 and p.id = $id 
-                and p.deleted = false 
+                and not p.deleted 
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -371,11 +373,16 @@ object ProductRepositoryImpl : ProductRepository {
                             costPrice = rs.getLong("cost_price"),
                             active = rs.getBoolean("active"),
                             category = CategoryDto(
+                                id = rs.getLong("c_id"),
                                 name = TextModel(
                                     uz = rs.getString("c_name_uz"),
                                     ru = rs.getString("c_name_ru"),
                                     eng = rs.getString("c_name_eng")
-                                )
+                                ),
+                                image = rs.getString("c_image"),
+                                bgColor = rs.getString("c_bg_color"),
+                                textColor = rs.getString("c_text_color"),
+                                groupId = rs.getLong("c_group_id")
                             ),
                             productIntegration = ProductIntegrationDto(
                                 idJowi = rs.getLong("id_jowi"),
@@ -451,7 +458,7 @@ object ProductRepositoryImpl : ProductRepository {
                                     ru = rs.getString("description_ru"),
                                     eng = rs.getString("description_eng")
                                 )
-                                ),
+                        ),
                         image = rs.getString("image"),
                         costPrice = rs.getLong("cost_price")
                     )

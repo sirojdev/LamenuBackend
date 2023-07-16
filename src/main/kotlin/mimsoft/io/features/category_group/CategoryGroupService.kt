@@ -4,12 +4,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.book.repository.BookResponseDto
-import mimsoft.io.features.book.repository.BookServiceImpl
-import mimsoft.io.features.category.CategoryDto
+import mimsoft.io.features.category.CategoryMapper
+import mimsoft.io.features.category.CategoryTable
 import mimsoft.io.features.staff.StaffService
-import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.TextModel
@@ -75,7 +72,8 @@ object CategoryGroupService {
     }
 
     suspend fun getById(merchantId: Long?, id: Long?): CategoryGroupDto? {
-        val query = "select * from $CATEGORY_GROUP_TABLE where merchant_id = $merchantId and id = $id and deleted = false"
+        val query =
+            "select * from $CATEGORY_GROUP_TABLE where merchant_id = $merchantId and id = $id and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -115,10 +113,10 @@ object CategoryGroupService {
            ))
         FROM category c
         WHERE c.group_id = cg.id
-          AND c.merchant_id = 1) AS categories
-FROM category_group cg
-WHERE cg.merchant_id = 1
-  and cg.deleted = false
+          AND c.merchant_id = $merchantId) AS categories 
+    FROM category_group cg 
+    WHERE cg.merchant_id = $merchantId 
+        and cg.deleted = false 
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -126,9 +124,11 @@ WHERE cg.merchant_id = 1
                 val gson = Gson()
                 val data = arrayListOf<CategoryGroupClientDto>()
                 while (rs.next()) {
-                    val categories = rs.getString("categories")
-                    val typeToken = object : TypeToken<List<CategoryDto>>(){}.type
-                    val list = gson.fromJson<List<CategoryDto>>(categories, typeToken)
+                    val categories = rs?.getString("categories")
+                    val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
+                    val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken)?: emptyList()
+                    val dtoList = list.map { CategoryMapper.toCategoryDto(it) }
+
                     val book = CategoryGroupClientDto(
                         id = rs.getLong("id"),
                         title = TextModel(
@@ -136,7 +136,7 @@ WHERE cg.merchant_id = 1
                             ru = rs.getString("title_ru"),
                             eng = rs.getString("title_eng")
                         ),
-                        categories = list,
+                        categories = dtoList.filterNotNull(),
                         bgColor = rs.getString("bg_color"),
                     )
                     data.add(book)
@@ -144,6 +144,57 @@ WHERE cg.merchant_id = 1
                 return@withContext data
             }
         }
+    }
+
+    suspend fun getCategoryGroupById(merchantId: Long?, id: Long?): CategoryGroupClientDto? {
+        val query = """
+            SELECT cg.id,
+       cg.bg_color,
+       cg.title_uz,
+       cg.title_ru,
+       cg.title_eng,
+       cg.merchant_id,
+       cg.text_color,
+       (SELECT json_agg(json_build_object(
+               'id', c.id,
+               'nameUz', c.name_uz,
+               'nameRu', c.name_ru,
+               'nameEng', c.name_eng,
+               'image', c.image,
+               'textColor', c.text_color,
+               'bgColor', c.bg_color
+           ))
+          FROM category c
+          WHERE c.group_id = cg.id
+          AND c.merchant_id = $merchantId) AS categories
+      FROM category_group cg
+      WHERE cg.id = $id and cg.merchant_id = $merchantId
+      and cg.deleted = false
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val gson = Gson()
+                if (rs.next()) {
+                    val categories = rs?.getString("categories")
+                    val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
+                    val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken)?: emptyList()
+                    val dtoList = list.map { CategoryMapper.toCategoryDto(it) }
+                    return@withContext CategoryGroupClientDto(
+                        id = rs.getLong("id"),
+                        title = TextModel(
+                            uz = rs.getString("title_uz"),
+                            ru = rs.getString("title_ru"),
+                            eng = rs.getString("title_eng")
+                        ),
+                        categories = dtoList.filterNotNull(),
+                        bgColor = rs.getString("bg_color")
+                    )
+                }
+                return@withContext null
+            }
+        }
 
     }
+
 }

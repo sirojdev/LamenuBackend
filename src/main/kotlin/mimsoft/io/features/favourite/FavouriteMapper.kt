@@ -1,5 +1,6 @@
 package mimsoft.io.features.favourite
 
+import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.utils.TextModel
@@ -33,7 +34,9 @@ object FavouriteMapper {
                 ),
                 image = product?.image,
                 costPrice = product?.costPrice,
-                categoryId = product?.categoryId
+                category = CategoryDto(
+                  id = product?.categoryId
+                )
             )
         )
     }

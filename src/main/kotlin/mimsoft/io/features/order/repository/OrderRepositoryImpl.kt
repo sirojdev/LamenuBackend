@@ -160,8 +160,9 @@ object OrderRepositoryImpl : OrderRepository {
         collectorId: Long?,
         paymentTypeId: Long?
     ): DataPage<OrderDto?> {
+
         val queryCount = "select count(*) from orders o "
-        var query = java.lang.StringBuilder()
+        val query = java.lang.StringBuilder()
         query.append(
             """
             select o.id ,
@@ -194,8 +195,10 @@ object OrderRepositoryImpl : OrderRepository {
                where not o.deleted 
             """.trimIndent()
         )
+        println("search = $search")
         if (search != null) {
-            val s = search.lowercase().replace('\'', '_')
+
+            val s = search.lowercase().replace("'", "_")
             filter.append(
                 """
                 and (
@@ -225,7 +228,7 @@ object OrderRepositoryImpl : OrderRepository {
         }
 
 //        queryCount.plus(joins.append(filter))
-        query.append(joins.append(filter))
+        query.append(filter)
         query.append("order by id desc limit $limit offset $offset")
         println(query)
         println(queryCount)

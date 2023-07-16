@@ -18,5 +18,17 @@ fun Route.routeToCategoryByGroup(){
             call.respond(response)
             return@get
         }
+
+        get("{id}"){
+            val id = call.parameters["id"]?.toLongOrNull()
+            val merchantId = call.parameters["appKey"]?.toLongOrNull()
+            val response = CategoryGroupService.getCategoryGroupById(merchantId = merchantId, id = id)
+            if(response == null){
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(response)
+            return@get
+        }
     }
 }

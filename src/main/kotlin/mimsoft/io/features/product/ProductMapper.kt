@@ -1,5 +1,6 @@
 package mimsoft.io.features.product
 
+import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.utils.TextModel
 
@@ -17,7 +18,7 @@ object ProductMapper {
             image = productDto.image,
             active = productDto.active,
             costPrice = productDto.costPrice,
-            categoryId = productDto.categoryId,
+            categoryId = productDto.category?.id,
             idJoinPoster = productDto.productIntegration?.idJoinPoster,
             idJowi = productDto.productIntegration?.idJowi,
             idRKeeper = productDto.productIntegration?.idRkeeper,
@@ -45,7 +46,7 @@ object ProductMapper {
             image = productTable.image,
             active = productTable.active,
             costPrice = productTable.costPrice,
-            categoryId = productTable.categoryId,
+            category = CategoryDto(id = productTable.categoryId),
             productIntegration = ProductIntegrationDto(
                 idJoinPoster = productTable.idJoinPoster,
                 idRkeeper = productTable.idRKeeper,

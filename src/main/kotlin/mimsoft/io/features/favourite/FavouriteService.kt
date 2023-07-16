@@ -3,6 +3,7 @@ package mimsoft.io.features.favourite
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
@@ -105,7 +106,7 @@ object FavouriteService {
                             ),
                             image = rs.getString("p_image"),
                             costPrice = rs.getLong("p_cost_price"),
-                            categoryId = rs.getLong("p_category_id")
+                            category = CategoryDto(id = rs.getLong("p_category_id"))
                         )
                     )
                     list.add(favourite)

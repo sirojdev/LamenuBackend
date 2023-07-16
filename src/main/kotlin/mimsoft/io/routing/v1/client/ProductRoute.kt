@@ -31,18 +31,20 @@ fun Route.routeToClientProduct() {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val productName = call.parameters["product"]
         val lang = Language.valueOf(call.parameters["lang"] ?: "UZ")
-        val search = call.parameters["search"].toString()
+        val search = call.parameters["search"]
         if (merchantId == null) {
             call.respond(HttpStatusCode.BadRequest)
         }
-        if (productName != null && lang != null) {
+        println("p = $productName \n" +
+                "s = $search")
+        if (productName != null) {
             val product = productRepository.getByName(productName.toString(), lang, merchantId!!)
             if (product == null) {
                 call.respond(HttpStatusCode.NotFound)
             }
             call.respond(HttpStatusCode.OK, product!!)
         }
-        if (search != null) {
+        if (!search.isNullOrBlank()) {
             val response = productRepository.getAll(merchantId = merchantId, search = search)
             if (response.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
