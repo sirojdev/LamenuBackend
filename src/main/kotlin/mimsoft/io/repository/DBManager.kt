@@ -66,20 +66,21 @@ object DBManager: BaseRepository {
         } else {
             ""
         }
-
-        val whereClause = if (where == null) {
-            ""
+        var query:String?=null
+        if (where == null) {
+            val whereClause = "WHERE "
+             query = "SELECT $columns FROM $tName $whereClause  deleted = false $limitClause $offsetClause  "
         } else {
-            generateWhereClause(where)
+            val whereClause = generateWhereClause(where)
+             query = "SELECT $columns FROM $tName $whereClause and deleted = false $limitClause $offsetClause  "
         }
 
 
-        val query = "SELECT $columns FROM $tName $whereClause $limitClause $offsetClause and deleted = false "
 
         println("\nGET PAGE DATA QUERY ---> $query")
 
         val resultList = mutableListOf<T>()
-        withContext(Dispatchers.IO) {
+        withContext(databaseDispatcher) {
             connection().use { connection ->
                 val statement = connection.createStatement()
                 val resultSet = statement.executeQuery(query)
@@ -101,7 +102,6 @@ object DBManager: BaseRepository {
 
         return totalCount?.let { DataPage(resultList, it) }
     }
-
 
 
     override suspend fun <T : Any> getJoinPageData(
@@ -254,8 +254,7 @@ object DBManager: BaseRepository {
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "created") {
                                 statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
-                            }
-                            else {
+                            } else {
                                 statement.setTimestamp(index + 1, value as? Timestamp)
                             }
                         }
@@ -283,7 +282,7 @@ object DBManager: BaseRepository {
     ): Boolean {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
-            dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id"}
+            dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id" }
 
         val setClause = filteredProperties.joinToString(", ") { "${camelToSnakeCase(it.name)} = ?" }
 
@@ -306,8 +305,7 @@ object DBManager: BaseRepository {
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "updated") {
                                 statement.setTimestamp(index + 1, Timestamp(System.currentTimeMillis()))
-                            }
-                            else {
+                            } else {
                                 statement.setTimestamp(index + 1, value as? Timestamp)
                             }
                         }
