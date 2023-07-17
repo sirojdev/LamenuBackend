@@ -9,6 +9,7 @@ import mimsoft.io.features.log.OrderLog
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.room.RoomDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
@@ -69,8 +70,8 @@ object VisitService {
                             id = rs.getLong("table_id"),
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branch = BranchDto( rs.getLong("t_branch_id"))
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         payment = PaymentTypeDto(
                             id = rs.getLong("payment_type_id"),
@@ -147,7 +148,7 @@ object VisitService {
                             id = rs.getLong("table_id"),
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
                             branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         payment = PaymentTypeDto(
