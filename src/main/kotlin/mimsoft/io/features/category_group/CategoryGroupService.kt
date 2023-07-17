@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
+import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -180,6 +181,7 @@ object CategoryGroupService {
                     val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
                     val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken)?: emptyList()
                     val dtoList = list.map { CategoryMapper.toCategoryDto(it) }
+                    dtoList.map { it?.products = ProductRepositoryImpl.getAllByCategories(merchantId = merchantId, categoryId = it?.id) }
                     return@withContext CategoryGroupClientDto(
                         id = rs.getLong("id"),
                         title = TextModel(

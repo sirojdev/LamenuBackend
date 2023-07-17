@@ -27,11 +27,11 @@ object CategoryMapper {
                 ru = categoryTable.nameRu,
                 eng = categoryTable.nameEng
             ),
-            image = categoryTable.image ,
-            groupId = categoryTable.groupId ,
+            image = categoryTable.image,
             merchantId = categoryTable.merchantId,
             bgColor = categoryTable.bgColor,
-            textColor = categoryTable.textColor
+            textColor = categoryTable.textColor,
+            groupId = categoryTable.groupId,
         )
     }
 }

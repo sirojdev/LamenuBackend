@@ -491,7 +491,10 @@ object OrderRepositoryImpl : OrderRepository {
         if (order?.order == null) return ResponseModel(httpStatus = ResponseModel.ORDER_NULL)
         if (order.user?.id == null) return ResponseModel(httpStatus = ResponseModel.USER_NULL)
 
-        val user = userRepo.get(order.user.id) ?: ResponseModel.USER_NOT_FOUND
+        val userId = order.user.id
+            if(userId == null){
+                return ResponseModel(ResponseModel.USER_NOT_FOUND)
+            }
         val address: AddressDto?
 
         if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
@@ -508,6 +511,7 @@ object OrderRepositoryImpl : OrderRepository {
         if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
         val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+        val merchantId = order.user.merchantId
 
 
         val queryPrice = """
@@ -525,6 +529,7 @@ object OrderRepositoryImpl : OrderRepository {
         val queryOrder = """
             insert into orders (
                 user_id,
+                merchant_id, 
                 user_phone,
                 type,
                 products,
@@ -546,23 +551,25 @@ object OrderRepositoryImpl : OrderRepository {
                 ?,
                 ?,
                 ?,
+                ?,
                 ?
             ) returning id
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val statementOrder = it.prepareStatement(queryOrder).apply {
-                    setLong(1, order.user.id)
-                    setString(2, order.user.phone)
-                    setString(3, order.order.type)
-                    setString(4, Gson().toJson(activeProducts.products))
-                    setString(5, OrderStatus.OPEN.name)
-                    setDouble(6, address.latitude)
-                    setDouble(7, address.longitude)
-                    setString(8, address.description)
-                    setTimestamp(9, Timestamp(System.currentTimeMillis()))
-                    setString(10, order.details?.comment)
-                    setLong(11, order.order.paymentTypeDto?.id ?: 0L)
+                    setLong(1, userId as Long)
+                    setLong(2, merchantId as Long)
+                    setString(3, order.user.phone)
+                    setString(4, order.order.type)
+                    setString(5, Gson().toJson(activeProducts.products))
+                    setString(6, OrderStatus.OPEN.name)
+                    setDouble(7, address.latitude)
+                    setDouble(8, address.longitude)
+                    setString(9, address.description)
+                    setTimestamp(10, Timestamp(System.currentTimeMillis()))
+                    setString(11, order.details?.comment)
+                    setLong(12, order.order.paymentTypeDto?.id ?: 0L)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -614,6 +621,7 @@ object OrderRepositoryImpl : OrderRepository {
         if (filter != null) query.plus(" and order.status = $filter")
         val orders = arrayListOf<OrderWrapper>()
         val gson = Gson()
+        println("Query = $query")
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -690,9 +698,10 @@ object OrderRepositoryImpl : OrderRepository {
         val query = """
             select * from product
             where not deleted and active
-            and id in (${sortedProducts?.joinToString { it.product?.id.toString() }})
+            and id in (${sortedProducts?.joinToString { it.product?.id.toString() }}) 
             order by id
         """.trimIndent()
+        println(query)
 
         var totalPrice = 0L
 

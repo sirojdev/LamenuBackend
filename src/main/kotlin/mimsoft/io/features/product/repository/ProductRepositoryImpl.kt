@@ -2,14 +2,14 @@ package mimsoft.io.features.product.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.entities.app.AppService
 import mimsoft.io.features.category.CategoryDto
+import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.product.*
 import mimsoft.io.features.product.product_extra.ProductExtraService
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.features.product.product_label.ProductLabelService
 import mimsoft.io.features.product.product_option.ProductOptionService
-import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -94,7 +94,7 @@ object ProductRepositoryImpl : ProductRepository {
                                 ),
                                 image = rs.getString("c_image"),
                                 bgColor = rs.getString("c_bg_color"),
-                                textColor = rs.getString("c_text_color")
+                                textColor = rs.getString("c_text_color"),
                             )
                         )
                     )
@@ -165,7 +165,7 @@ object ProductRepositoryImpl : ProductRepository {
                         ),
                         image = rs.getString("p_image"),
                         costPrice = rs.getLong("p_cost_price"),
-                        category = CategoryDto(id = rs.getLong("category_id")),
+                        category = CategoryDto(id = rs.getLong("category_id"),),
                         timeCookingMax = rs.getLong("time_cooking_max"),
                         timeCookingMin = rs.getLong("time_cooking_min"),
                         deliveryEnabled = rs.getBoolean("delivery_enabled"),
@@ -382,7 +382,7 @@ object ProductRepositoryImpl : ProductRepository {
                                 image = rs.getString("c_image"),
                                 bgColor = rs.getString("c_bg_color"),
                                 textColor = rs.getString("c_text_color"),
-                                groupId = rs.getLong("c_group_id")
+                                groupId = rs.getLong("c_group_id"),
                             ),
                             productIntegration = ProductIntegrationDto(
                                 idJowi = rs.getLong("id_jowi"),
@@ -394,8 +394,8 @@ object ProductRepositoryImpl : ProductRepository {
                             deliveryEnabled = rs.getBoolean("delivery_enabled")
                         ),
                         labels = ProductLabelService.getLabelsByProductId(id, merchantId = merchantId),
-                        options = ProductOptionService.getOptionsByProductId(id, merchantId = merchantId),
-                        extras = ProductExtraService.getExtrasByProductId(id, merchantId = merchantId)
+                        options = OptionRepositoryImpl.getOptionsByProductId(merchantId = merchantId, productId = id),
+                        extras = ExtraRepositoryImpl.getExtrasByProductId(merchantId = merchantId, productId = id)
                     )
                 } else return@withContext null
             }
@@ -419,7 +419,23 @@ object ProductRepositoryImpl : ProductRepository {
                             uz = rs.getString("name_uz"),
                             ru = rs.getString("name_ru"),
                             eng = rs.getString("name_eng")
-                        )
+                        ),
+                        description = TextModel(
+                            uz = rs.getString("description_uz"),
+                            ru = rs.getString("description_ru"),
+                            eng = rs.getString("description_eng")
+                        ),
+                        image = rs.getString("image"),
+                        costPrice =  rs.getLong("cost_price"),
+                        active = rs.getBoolean("active"),
+                        productIntegration = ProductIntegrationDto(
+                            idJowi = rs.getLong("id_jowi"),
+                            idRkeeper = rs.getLong("id_rkeeper"),
+                            idJoinPoster = rs.getLong("id_join_poster"),
+                        ),
+                         timeCookingMin = rs.getLong("time_cooking_min"),
+                         timeCookingMax = rs.getLong("time_cooking_max"),
+                        deliveryEnabled = rs.getBoolean("delivery_enabled"),
                     )
                     listProduct.add(product)
                 }

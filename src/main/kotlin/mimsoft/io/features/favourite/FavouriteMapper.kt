@@ -35,7 +35,7 @@ object FavouriteMapper {
                 image = product?.image,
                 costPrice = product?.costPrice,
                 category = CategoryDto(
-                  id = product?.categoryId
+                    id = product?.categoryId,
                 )
             )
         )

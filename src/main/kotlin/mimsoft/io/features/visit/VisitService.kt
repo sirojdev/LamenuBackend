@@ -59,7 +59,6 @@ object VisitService {
                         waiter = StaffDto(
                             id = rs.getLong("waiter_id"),
                             phone = rs.getString("s_phone"),
-                            password = rs.getString("s_password"),
                             firstName = rs.getString("s_first_name"),
                             lastName = rs.getString("s_last_name"),
                             image = rs.getString("s_image"),

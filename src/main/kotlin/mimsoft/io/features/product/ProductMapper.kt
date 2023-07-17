@@ -46,7 +46,7 @@ object ProductMapper {
             image = productTable.image,
             active = productTable.active,
             costPrice = productTable.costPrice,
-            category = CategoryDto(id = productTable.categoryId),
+            category = CategoryDto(id = productTable.categoryId,),
             productIntegration = ProductIntegrationDto(
                 idJoinPoster = productTable.idJoinPoster,
                 idRkeeper = productTable.idRKeeper,

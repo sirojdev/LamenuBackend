@@ -36,8 +36,9 @@ fun Route.routeToOrderClient() {
 
     post("order") {
         val principal = call.principal<UserPrincipal>()
+        val merchantId = principal?.merchantId
         val order = call.receive<OrderWrapper>()
-        val status = orderService.add(order.copy(user = UserDto(id = principal?.id)))
+        val status = orderService.add(order.copy(user = UserDto(id = principal?.id, merchantId = merchantId)))
         call.respond(
             status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
             status?.body?:

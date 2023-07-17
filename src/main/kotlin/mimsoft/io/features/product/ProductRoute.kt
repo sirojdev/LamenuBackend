@@ -50,7 +50,9 @@ fun Route.routeToProduct() {
         val productInfo = call.receive<ProductInfoDto>()
         val categoryId = productInfo.product?.category?.id
         val product = productInfo.product
-        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId, category = CategoryDto(id = categoryId))))
+        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId, category = CategoryDto(
+            id = categoryId,
+        ))))
         call.respond(HttpStatusCode.OK, ProductId(id))
     }
 
