@@ -1,5 +1,6 @@
 package mimsoft.io.integrate.payme
 
+import com.google.gson.Gson
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -24,14 +25,16 @@ fun Route.routeToPayme() {
             val paymeService = PaymeService
             val params = receive.params
 
+            println("\nreceive: $receive")
+
             receive.let {
 
                 val response = when (it.method) {
 
                     CHECK_PERFORM_TRANSACTION -> {
                         paymeService.checkPerform(
-                            account = params["account"] as Account,
-                            amount = params["amount"] as Long,
+                            account = Gson().fromJson(params["account"].toString(), Account::class.java),
+                            amount = params["amount"] as Double,
                             transactionId = receive.id,
                         )
                     }
@@ -39,9 +42,9 @@ fun Route.routeToPayme() {
                     CREATE_TRANSACTION -> {
                         paymeService.createTransaction(
                             paycomId = params["id"] as String,
-                            account = params["account"] as Account,
-                            amount = params["amount"] as Long,
-                            pacomTime = params["time"] as Long,
+                            account = Gson().fromJson(params["account"].toString(), Account::class.java),
+                            amount = params["amount"] as Double,
+                            pacomTime = params["time"] as Double,
                             transactionId = receive.id,
                         )
                     }
@@ -55,13 +58,14 @@ fun Route.routeToPayme() {
                     CANCEL_TRANSACTION -> {
                         paymeService.cancelTransaction(
                             paycomId = params["id"] as String,
-                            reason = params["reason"] as Int,
+                            reason = params["reason"] as Double,
                             transactionId = receive.id,
                         )
                     }
                     CHECK_TRANSACTION -> {
                         paymeService.checkTransaction(
-                            paycomId = params["id"] as String
+                            paycomId = params["id"] as String,
+                            transactionId = receive.id,
                         )
                     }
                     GET_STATEMENT -> {

@@ -37,10 +37,11 @@ object PaymentService {
 
     suspend fun paymeVerify(serviceKey: String?): PaymentDto? {
         val query = """
-            select * from $PAYMENT_TABLE_NAME 
-            and payme_secret = ?
+            select * from $PAYMENT_TABLE_NAME
+            where payme_secret = ?
             and deleted = false
         """.trimIndent()
+        println("\nquery-->$query\n")
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
