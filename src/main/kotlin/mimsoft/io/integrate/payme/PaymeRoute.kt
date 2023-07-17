@@ -18,6 +18,8 @@ fun Route.routeToPayme() {
 
     authenticate("payme") {
         post("payment/payme") {
+
+            val merchantId = call.parameters["merchantId"]?.toLongOrNull()
             val receive: Receive = call.receive()
             val paymeService = PaymeService
             val params = receive.params
