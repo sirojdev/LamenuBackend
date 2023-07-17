@@ -748,6 +748,72 @@ paths:
         "400":
           description: "Bad Request"
 
+  /client/announcement:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of announcements"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnnouncementDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/notification:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of product list"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotificationDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/categoryByGroup:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of product list"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
   /client/order/info/{id}:
     get:
       tags:
@@ -768,7 +834,7 @@ paths:
           content:
             application/json:
               schema:
-            
+
                   $ref: "#/components/schemas/OrderWrapper"
         "204":
           description: "No Content"
@@ -1017,6 +1083,44 @@ paths:
 #//==================================================================================================SCHEMAS
 components:
   schemas:
+    AnnouncementDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        body:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: string
+        type:
+          type: integer
+        clientId:
+          type: integer
+          format: "long"
+
+
+    NotificationDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        body:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: string
+
     BranchDto:
       type: "object"
       properties:
@@ -1483,6 +1587,23 @@ components:
         textColor:
           type: "string"
 
+    CategoryGroupDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        merchantId:
+          type: integer
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        bgColor:
+          type: string
+        textColor:
+          type: string
+        categories:
+          $ref: "#/components/schemas/CategoryDto"
 
 
 

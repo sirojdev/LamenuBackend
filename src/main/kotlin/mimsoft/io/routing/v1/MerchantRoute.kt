@@ -2,11 +2,13 @@ package mimsoft.io.routing.v1
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.announcement.routeToAnnounce
 import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.cashback.routeToCashback
 import mimsoft.io.features.category.routeToCategory
+import mimsoft.io.features.category_group.routeToCategoryGroup
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
@@ -15,9 +17,10 @@ import mimsoft.io.features.kitchen.routeToKitchen
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
-import mimsoft.io.features.merchant.user.routeToUserUser
+import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
+import mimsoft.io.features.notification.routeToNotification
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
@@ -62,6 +65,8 @@ fun Route.routeToMerchant() {
             routeToOrderByCourierAndCollector()
             routeToStory()
             routeToStoryInfo()
+            routeToCategoryGroup()
+            routeToAnnounce()
 
 
             route("settings") {
@@ -82,7 +87,6 @@ fun Route.routeToMerchant() {
                 routeToCollector()
                 routeToPayment()
                 routeToProduct()
-                routeToUserUser()
                 routeToCashback()
                 routeToDelivery()
                 routeToCategory()
@@ -96,16 +100,14 @@ fun Route.routeToMerchant() {
 
             route("finance") {
                 routeToOutcome()
-                routeToPromo()
             }
-
-        }
-
-
-
-        route("crm") {
-            routeToSms()
-            routeToMessage()
+            route("crm") {
+                routeToSms()
+                routeToMessage()
+                routeToPromo()
+                routeToUserUser()
+                routeToNotification()
+            }
         }
     }
 }

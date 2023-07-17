@@ -1,4 +1,4 @@
-package mimsoft.io.features.merchant.user
+package mimsoft.io.routing.merchant
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -21,7 +21,7 @@ fun Route.routeToUserUser() {
     get("users") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val users = userRepository.getAll(merchantId = merchantId).map { UserMapper.toUserDto(it) }
+        val users = userRepository.getAll(merchantId = merchantId)
         if (users.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -50,13 +50,13 @@ fun Route.routeToUserUser() {
         val merchantId = pr?.merchantId
         try {
             val user = call.receive<UserDto>()
-
-            val statusTimestamp = timestampValidator(user.birthDay)
-
-            if (statusTimestamp.httpStatus != ResponseModel.OK){
-                call.respond(statusTimestamp)
-                return@post
-            }
+//
+//            val statusTimestamp = timestampValidator(user.birthDay)
+//
+//            if (statusTimestamp.httpStatus != ResponseModel.OK){
+//                call.respond(statusTimestamp)
+//                return@post
+//            }
 
             val status = userRepository.add(user.copy(merchantId=merchantId))
 
@@ -71,12 +71,12 @@ fun Route.routeToUserUser() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val user = call.receive<UserDto>()
-        val statusTimestamp = timestampValidator(user.birthDay)
-
-        if (statusTimestamp.httpStatus != ResponseModel.OK){
-            call.respond(statusTimestamp)
-            return@put
-        }
+//        val statusTimestamp = timestampValidator(user.birthDay)
+//
+//        if (statusTimestamp.httpStatus != ResponseModel.OK){
+//            call.respond(statusTimestamp)
+//            return@put
+//        }
 
         val status = userRepository.update(user.copy(merchantId = merchantId))
 

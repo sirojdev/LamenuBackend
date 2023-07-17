@@ -7,8 +7,10 @@ import mimsoft.io.features.book.BOOK_TABLE_NAME
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.book.BookMapper
 import mimsoft.io.features.book.BookTable
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.merchant_booking.MerchantBookResponseDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
+import mimsoft.io.features.room.RoomDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -46,8 +48,11 @@ object BookServiceImpl : BookService {
                         table = TableDto(
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(
+                                id = rs.getLong("t_branch_id"),
+                            )
+
                         )
                     )
                     mazgi.add(book)
@@ -96,8 +101,8 @@ object BookServiceImpl : BookService {
                         table = TableDto(
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         )
                     )
                 } else return@withContext null
@@ -114,19 +119,19 @@ object BookServiceImpl : BookService {
             tableName = BOOK_TABLE_NAME
         )
 
-    override suspend fun update(dto: BookDto): Boolean {
+    override suspend fun update(bookDto: BookDto): Boolean {
         val query = "update $BOOK_TABLE_NAME " +
                 "SET" +
-                " client_id = ${dto.clientId}, " +
-                " table_id = ${dto.tableId}," +
+                " client_id = ${bookDto.clientId}, " +
+                " table_id = ${bookDto.tableId}," +
                 " time = ?," +
                 " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = ${dto.merchantId} and not deleted"
+                " WHERE id = ${bookDto.id} and merchant_id = ${bookDto.merchantId} and not deleted"
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).use { ti ->
-                    ti.setTimestamp(1, dto.time)
+                    ti.setTimestamp(1, bookDto.time)
                     ti.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
@@ -157,8 +162,8 @@ object BookServiceImpl : BookService {
                         table = TableDto(
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            room = RoomDto(rs.getLong("t_room_id")),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         phone = rs.getString("phone"),
                         time = rs.getTimestamp("time"),
@@ -189,8 +194,8 @@ object BookServiceImpl : BookService {
                         table = TableDto(
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         phone = rs.getString("phone"),
                         time = rs.getTimestamp("time"),
@@ -210,20 +215,20 @@ object BookServiceImpl : BookService {
             tableName = BOOK_TABLE_NAME
         )
 
-    override suspend fun updateMerchantBook(dto: BookDto): Boolean {
+    override suspend fun updateMerchantBook(bookDto: BookDto): Boolean {
         val query = "update $BOOK_TABLE_NAME " +
                 "SET" +
-                " table_id = ${dto.tableId}," +
+                " table_id = ${bookDto.tableId}," +
                 " time = ?," +
                 " comment = ?," +
                 " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = ${dto.merchantId} and not deleted"
+                " WHERE id = ${bookDto.id} and merchant_id = ${bookDto.merchantId} and not deleted"
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).use { ti ->
-                    ti.setTimestamp(1, dto.time)
-                    ti.setString(2, dto.comment)
+                    ti.setTimestamp(1, bookDto.time)
+                    ti.setString(2, bookDto.comment)
                     ti.setTimestamp(3, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
@@ -235,7 +240,7 @@ object BookServiceImpl : BookService {
     override suspend fun deleteMerchantBook(id: Long?, merchantId: Long?): Boolean {
         val query = "update $BOOK_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            ProductRepositoryImpl.repository.connection().use {  it.prepareStatement(query).execute() }
         }
         return true
     }

@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.log.OrderLog
+import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.room.RoomDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
@@ -57,7 +60,6 @@ object VisitService {
                         waiter = StaffDto(
                             id = rs.getLong("waiter_id"),
                             phone = rs.getString("s_phone"),
-                            password = rs.getString("s_password"),
                             firstName = rs.getString("s_first_name"),
                             lastName = rs.getString("s_last_name"),
                             image = rs.getString("s_image"),
@@ -68,8 +70,8 @@ object VisitService {
                             id = rs.getLong("table_id"),
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         payment = PaymentTypeDto(
                             id = rs.getLong("payment_type_id"),
@@ -146,8 +148,8 @@ object VisitService {
                             id = rs.getLong("table_id"),
                             qr = rs.getString("t_qr"),
                             name = rs.getString("t_name"),
-                            roomId = rs.getLong("t_room_id"),
-                            branchId = rs.getLong("t_branch_id"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(rs.getLong("t_branch_id"))
                         ),
                         payment = PaymentTypeDto(
                             id = rs.getLong("payment_type_id"),
@@ -159,7 +161,7 @@ object VisitService {
                         price = rs.getDouble("price"),
                         orders = ObjectMapper().readValue(
                             rs.getString("orders"),
-                            Array<OrderLog>::class.java
+                            Array<OrderWrapper>::class.java
                         ).toList(),
                     )
                 } else return@withContext null

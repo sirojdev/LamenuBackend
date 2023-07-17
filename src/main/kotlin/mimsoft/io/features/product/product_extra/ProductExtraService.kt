@@ -43,11 +43,6 @@ object ProductExtraService {
                             ru = rs.getString("name_ru"),
                             eng = rs.getString("name_eng"),
                         ),
-                        description = TextModel(
-                            uz = rs.getString("description_uz"),
-                            ru = rs.getString("description_ru"),
-                            eng = rs.getString("description_eng"),
-                        ),
                         price = rs.getDouble("price"),
                     )
                     extraList.add(extra)

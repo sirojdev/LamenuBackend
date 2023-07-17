@@ -25,6 +25,8 @@ fun Route.routeToClient() {
         routeToClientStory()
         clientStoryInfoRoute()
         routeToClientBasket()
+        routeToAnnouncement()
+        routeToCategoryByGroup()
         authenticate("user") {
             routeToClientDevice()
             routeToClientProfile()
@@ -35,6 +37,8 @@ fun Route.routeToClient() {
             routeToClientOrderInfo()
             routeToClientOrderHistory()
             routeToClientCheckout()
+            routeToNotification()
+            routeToClientVisit()
         }
     }
 }

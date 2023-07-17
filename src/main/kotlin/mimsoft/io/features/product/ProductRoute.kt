@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.product.repository.ProductRepository
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.utils.principal.MerchantPrincipal
@@ -49,7 +50,9 @@ fun Route.routeToProduct() {
         val productInfo = call.receive<ProductInfoDto>()
         val categoryId = productInfo.product?.category?.id
         val product = productInfo.product
-        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId, categoryId = categoryId)))
+        val id = productRepository.add(mapper.toProductTable(product?.copy(merchantId = merchantId, category = CategoryDto(
+            id = categoryId,
+        ))))
         call.respond(HttpStatusCode.OK, ProductId(id))
     }
 

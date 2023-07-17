@@ -21,6 +21,5 @@ fun Application.module() {
     configureRouting()
     configureSocket()
     DBManager.init()
-    runBot()
 
 }

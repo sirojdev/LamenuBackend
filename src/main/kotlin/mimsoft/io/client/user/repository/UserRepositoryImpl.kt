@@ -8,50 +8,80 @@ import mimsoft.io.client.user.UserMapper
 import mimsoft.io.client.user.UserTable
 import mimsoft.io.features.badge.BadgeDto
 import mimsoft.io.features.extra.EXTRA_TABLE_NAME
-import mimsoft.io.features.extra.ExtraTable
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.*
+import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
 object UserRepositoryImpl : UserRepository {
 
     val repository: BaseRepository = DBManager
     val mapper = UserMapper
-    override suspend fun getAll(merchantId: Long?): List<UserTable?> {
-        val where = mutableMapOf<String, Any>()
-        if (merchantId != null) where["merchant_id"] = merchantId
-        val data = repository.getPageData(
-            dataClass = UserTable::class,
-            where = where,
-            tableName = USER_TABLE_NAME
-        )?.data
-        return data ?: emptyList()
+    override suspend fun getAll(merchantId: Long?): List<UserDto?> {
+        val query = """
+            select u.*, 
+            b.name_uz b_name_uz, 
+            b.name_ru b_name_ru, 
+            b.name_eng b_name_eng, 
+            b.text_color bt_color, 
+            b.bg_color bg_color, 
+            b.icon b_icon 
+                from users u 
+                left join badge b on b.id = u.badge_id 
+                where u.merchant_id = $merchantId and not u.deleted
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val list = arrayListOf<UserDto>()
+                while (rs.next()) {
+                    val dto = UserDto(
+                        id = rs.getLong("id"),
+                        phone = rs.getString("phone"),
+                        firstName = rs.getString("first_name"),
+                        lastName = rs.getString("last_name"),
+                        image = rs.getString("image"),
+                        birthDay = rs.getTimestamp("birth_day"),
+                        badge = BadgeDto(
+                            name = TextModel(
+                                uz = rs.getString("b_name_uz"),
+                                ru = rs.getString("b_name_ru"),
+                                eng = rs.getString("b_name_eng"),
+                            ),
+                            textColor = rs.getString("bt_color"),
+                            bgColor = rs.getString("bg_color"),
+                            icon = rs.getString("b_icon")
+                        )
+                    )
+                    list.add(dto)
+                }
+                return@withContext list
+            }
+        }
     }
 
 
     override suspend fun get(id: Long?, merchantId: Long?): UserDto? {
-
-
-        val query = "select u.*, " +
-                "b.name_uz b_name_uz, \n" +
-                "b.name_ru b_name_ru, \n" +
-                "b.name_eng b_name_eng, \n" +
-                "b.text_color bt_color, \n" +
-                "b.bg_color bg_color, \n" +
-                "b.icon b_icon \n" +
-                "   from users u \n" +
-                "   left join badge b on b.id = u.badge_id  \n" +
-                "where u.id = $id and u.merchant_id = $merchantId and not u.deleted"
+        val query =
+            "select u.*, " +
+                    "b.name_uz b_name_uz, \n" +
+                    "b.name_ru b_name_ru, \n" +
+                    "b.name_eng b_name_eng, \n" +
+                    "b.text_color bt_color, \n" +
+                    "b.bg_color bg_color, \n" +
+                    "b.icon b_icon \n" +
+                    "   from users u \n" +
+                    "   left join badge b on b.id = u.badge_id  \n" +
+                    "where u.id = $id and u.merchant_id = $merchantId and not u.deleted"
 
         println(query)
 
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use { it ->
                 val rs = it.prepareStatement(query).executeQuery()
-
                 if (rs.next()) {
                     UserDto(
                         id = rs.getLong("id"),
@@ -70,12 +100,10 @@ object UserRepositoryImpl : UserRepository {
                         phone = rs.getString("phone"),
                         lastName = rs.getString("last_name"),
                         image = rs.getString("image"),
-                        birthDay = rs.getString("birth_day"),
+                        birthDay = rs.getTimestamp("birth_day"),
                         merchantId = rs.getLong("merchant_id")
                     )
                 } else null
-
-
             }
         }
     }
@@ -145,6 +173,7 @@ object UserRepositoryImpl : UserRepository {
         if (userDto.merchantId != null) {
             query += "and merchant_id = ${userDto.merchantId}"
         }
+        println(query)
         withContext(Dispatchers.IO) {
             StaffService.repository.connection().use {
                 var x = 0
@@ -152,7 +181,7 @@ object UserRepositoryImpl : UserRepository {
                     ti.setString(++x, userDto.firstName)
                     ti.setString(++x, userDto.lastName)
                     ti.setString(++x, userDto.image)
-                    ti.setTimestamp(++x, Timestamp.valueOf(userDto.birthDay))
+                    ti.setTimestamp(++x, userDto.birthDay)
                     ti.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
@@ -164,7 +193,7 @@ object UserRepositoryImpl : UserRepository {
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        var query = "update $EXTRA_TABLE_NAME set deleted = true where id = $id "
+        var query = "update $USER_TABLE_NAME set deleted = true where id = $id "
         if (merchantId != null) {
             query += "and merchant_id = $merchantId"
         }

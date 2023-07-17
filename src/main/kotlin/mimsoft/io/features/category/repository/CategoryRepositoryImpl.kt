@@ -8,7 +8,7 @@ import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
-import mimsoft.io.lamenu_bot.enums.Language
+import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
@@ -58,6 +58,7 @@ object CategoryRepositoryImpl : CategoryRepository {
                 " image = ?, " +
                 " bg_color = ?," +
                 " text_color = ?," +
+                " group_id = ${dto.groupId}," +
                 " updated = ? \n" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
@@ -117,7 +118,8 @@ object CategoryRepositoryImpl : CategoryRepository {
                             nameUz = rs.getString("name_uz"),
                             nameRu = rs.getString("name_ru"),
                             nameEng = rs.getString("name_eng"),
-                            merchantId = rs.getLong("merchant_id")
+                            merchantId = rs.getLong("merchant_id"),
+                            groupId = rs.getLong("group_id")
                         )
                     )
                 } else null

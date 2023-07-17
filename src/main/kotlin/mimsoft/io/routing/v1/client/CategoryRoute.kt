@@ -25,46 +25,21 @@ fun Route.routeToClientCategory() {
     }
 
     get("category/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
         val category = categoryRepository.get(id = id, merchantId = merchantId)
-        if (category == null) {
+        if(category==null){
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
         call.respond(category)
+        return@get
     }
 
-    post("category") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val category = call.receive<CategoryDto>()
-        val status = categoryRepository.add(category.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK, status ?: 0)
-    }
 
-    put("category") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val category = call.receive<CategoryDto>()
-        categoryRepository.update(category.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK)
-    }
 
-    delete("category/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
-        categoryRepository.delete(id = id, merchantId = merchantId)
-        call.respond(HttpStatusCode.OK)
-    }
 }

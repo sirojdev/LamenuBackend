@@ -10,11 +10,9 @@ object OptionMapper {
             nameUz = optionDto.name?.uz,
             nameRu = optionDto.name?.ru,
             nameEng = optionDto.name?.eng,
-            descriptionUz = optionDto.description?.uz,
-            descriptionRu = optionDto.description?.ru,
-            descriptionEng = optionDto.description?.eng,
             image = optionDto.image,
             price = optionDto.price,
+            productId = optionDto.productId
         )
     }
 
@@ -28,12 +26,8 @@ object OptionMapper {
                 ru = optionTable.nameRu,
                 eng = optionTable.nameEng
             ),
-            description = TextModel(
-                uz = optionTable.descriptionUz,
-                ru = optionTable.descriptionRu,
-                eng = optionTable.descriptionEng
-            ),
             image = optionTable.image,
+            productId = optionTable.productId,
             price = optionTable.price
         )
     }
