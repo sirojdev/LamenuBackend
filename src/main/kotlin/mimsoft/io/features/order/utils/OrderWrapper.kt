@@ -13,5 +13,6 @@ data class OrderWrapper(
     val products: List<CartItem?>? = null,
     val user: UserDto? = null,
     val price: OrderPriceDto? = null,
-    val logs: List<OrderLog?>? = null
+    val logs: List<OrderLog?>? = null,
+    val orderPrice: OrderPriceDto?=null
 )

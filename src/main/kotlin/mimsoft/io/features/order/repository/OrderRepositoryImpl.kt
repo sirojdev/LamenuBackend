@@ -492,21 +492,20 @@ object OrderRepositoryImpl : OrderRepository {
         if (order.user?.id == null) return ResponseModel(httpStatus = ResponseModel.USER_NULL)
 
         val userId = order.user.id
-            if(userId == null){
-                return ResponseModel(ResponseModel.USER_NOT_FOUND)
-            }
-        val address: AddressDto?
+        if(userId == null){
+            return ResponseModel(ResponseModel.USER_NOT_FOUND)
+        }
+        var address: AddressDto?=null
 
         if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
             return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
-        else {
+        else if (order.order.type == OrderType.DELIVERY.name && order.address?.id != null) {
             address = addressService.get(order.address?.id)
                 ?: return ResponseModel(httpStatus = ResponseModel.ADDRESS_NOT_FOUND)
 
             if (address.latitude == null || address.longitude == null)
                 return ResponseModel(httpStatus = ResponseModel.WRONG_ADDRESS_INFO)
         }
-
 
         if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
@@ -518,8 +517,10 @@ object OrderRepositoryImpl : OrderRepository {
             insert into order_price (
                 order_id,
                 product_price,
-                created
+                created,
+                total_price
             ) values (
+                ?,
                 ?,
                 ?,
                 ?
@@ -564,9 +565,9 @@ object OrderRepositoryImpl : OrderRepository {
                     setString(4, order.order.type)
                     setString(5, Gson().toJson(activeProducts.products))
                     setString(6, OrderStatus.OPEN.name)
-                    setDouble(7, address.latitude)
-                    setDouble(8, address.longitude)
-                    setString(9, address.description)
+                    setDouble(7, address?.latitude?:0.0)
+                    setDouble(8, address?.longitude?:0.0)
+                    setString(9, address?.description)
                     setTimestamp(10, Timestamp(System.currentTimeMillis()))
                     setString(11, order.details?.comment)
                     setLong(12, order.order.paymentTypeDto?.id ?: 0L)
@@ -580,6 +581,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(1, orderId)
                     setLong(2, activeProducts.price?.productPrice ?: 0L)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    setLong(4,activeProducts.price?.productPrice?:0L)
                     this.closeOnCompletion()
                 }.execute()
 
@@ -589,7 +591,6 @@ object OrderRepositoryImpl : OrderRepository {
                 )
             }
         }
-
     }
 
     override suspend fun update(orderDto: OrderDto?): Boolean {
@@ -613,10 +614,21 @@ object OrderRepositoryImpl : OrderRepository {
 
     override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<OrderWrapper> {
         val query =
-            "select * from $ORDER_TABLE_NAME where " +
-                    " user_id = $clientId" +
-                    " and merchant_id = $merchantId" +
-                    " and not deleted"
+            "select *," +
+                    " p.id p_id," +
+                    " p.name p_name, " +
+                    " p.icon p_icon," +
+                    " op.total_price op_total_price," +
+                    " op.delivery_price op_delivery_price ," +
+                    " op.product_price op_product_price" +
+                    " " +
+                    " from $ORDER_TABLE_NAME o " +
+                    " inner join payment_type p on o.payment_type =p.id or o.payment_type=0 " +
+                    " inner join order_price op on o.id = op.order_id " +
+                    " where " +
+                    " o.user_id =$clientId " +
+                    " and o.merchant_id = $merchantId " +
+                    " and not o.deleted"
 
         if (filter != null) query.plus(" and order.status = $filter")
         val orders = arrayListOf<OrderWrapper>()
@@ -640,9 +652,19 @@ object OrderRepositoryImpl : OrderRepository {
                             id = rs.getLong("id"),
                             status = rs.getString("status"),
                             totalPrice = rs.getDouble("total_price"),
-                            created = rs.getTimestamp("created_at")
+                            created = rs.getTimestamp("created_at"),
+                            paymentTypeDto = PaymentTypeDto(
+                                id = rs.getLong("p_id"),
+                                name = rs.getString("p_name"),
+                                icon = rs.getString("p_icon")
+                            )
                         ),
-                        products = prod
+                        products = prod,
+                        orderPrice = OrderPriceDto(
+                            deliveryPrice = rs.getLong("op_delivery_price"),
+                            productPrice = rs.getLong("op_product_price"),
+                            totalPrice = rs.getLong("op_total_price")
+                        )
                     )
                     orders.add(order)
                 }
