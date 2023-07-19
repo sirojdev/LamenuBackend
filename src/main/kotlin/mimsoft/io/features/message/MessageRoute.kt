@@ -2,15 +2,17 @@ package mimsoft.io.features.message
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToMessage() {
     val messageService = MessageService
 
     get("messages") {
-        val messages = MessageService.getAll()
+        val messages = messageService.getAll()
         call.respond(messages.ifEmpty { HttpStatusCode.NoContent })
     }
 
@@ -20,13 +22,13 @@ fun Route.routeToMessage() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val message = MessageService.get(id)
+        val message = messageService.get(id)
         call.respond(message ?: HttpStatusCode.NoContent)
     }
 
     post("message") {
         val messageDto = call.receive<MessageDto>()
-        val id = MessageService.post(messageDto)
+        val id = messageService.post(messageDto)
         call.respond(id ?: HttpStatusCode.BadRequest)
     }
 
@@ -36,7 +38,7 @@ fun Route.routeToMessage() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        val result = MessageService.delete(id)
+        val result = messageService.delete(id)
         call.respond(result)
     }
 }

@@ -7,7 +7,7 @@ import java.sql.Timestamp
 
 object ClickRepo {
 
-    suspend fun saveTransaction(parameters: Parameters): Click {
+    suspend fun saveTransaction(parameters: Parameters) {
         val query = """
             insert into click (
             click_trans_id,

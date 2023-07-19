@@ -61,7 +61,7 @@ object RoomService : RoomRepository {
     override suspend fun delete(id: Long?, merchantId: Long?) : Boolean {
         val query = "update $ROOM_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            ProductRepositoryImpl.repository.connection().use { it.prepareStatement(query).execute() }
         }
         return true
     }
