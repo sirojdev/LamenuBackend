@@ -12,6 +12,7 @@ object PaymentMapper {
             apelsinMerchantToken = paymentDto.apelsinMerchantToken,
             clickServiceId = paymentDto.clickServiceId,
             clickMerchantId = paymentDto.clickMerchantId,
+            clickKey = paymentDto.clickKey,
             selected = paymentDto.selected
         )
     }
@@ -27,6 +28,7 @@ object PaymentMapper {
             apelsinMerchantToken = paymentTable.apelsinMerchantToken,
             clickServiceId = paymentTable.clickServiceId,
             clickMerchantId = paymentTable.clickMerchantId,
+            clickKey = paymentTable.clickKey,
             selected = paymentTable.selected
         )
     }

@@ -8,5 +8,6 @@ data class PaymentDto (
     val apelsinMerchantToken: String? = null,
     val clickServiceId: Long? = null,
     val clickMerchantId: String? = null,
+    val clickKey: String? = null,
     val selected: String? = null
 )
