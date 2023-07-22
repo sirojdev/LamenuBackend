@@ -12,7 +12,6 @@ data class ProductDto(
     val image: String? = null,
     val costPrice: Long? = null,
     val active: Boolean? = null,
-    val categoryId: Long? = null,
     val productIntegration: ProductIntegrationDto? = null,
     val category: CategoryDto? = null,
     val timeCookingMin: Long? = null,

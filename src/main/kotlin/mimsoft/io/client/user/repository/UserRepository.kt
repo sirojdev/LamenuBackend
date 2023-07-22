@@ -5,7 +5,7 @@ import mimsoft.io.client.user.UserTable
 import mimsoft.io.utils.ResponseModel
 
 interface UserRepository {
-    suspend fun getAll(merchantId: Long? = null): List<UserTable?>
+    suspend fun getAll(merchantId: Long? = null): List<UserDto?>
     suspend fun get(id: Long?, merchantId:Long? = null): UserDto?
     suspend fun get(phone: String?, merchantId: Long?): UserDto?
     suspend fun add(userDto: UserDto?): ResponseModel

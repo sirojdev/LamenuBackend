@@ -1,0 +1,35 @@
+{
+  "caseInsensitiveName": true,
+  "values": {
+    "click_trans_id": [
+      "2023956374"
+    ],
+    "service_id": [
+      "25190"
+    ],
+    "click_paydoc_id": [
+      "2336083903"
+    ],
+    "merchant_trans_id": [
+      "1326"
+    ],
+    "amount": [
+      "1000"
+    ],
+    "action": [
+      "0"
+    ],
+    "sign_time": [
+      "2023-02-13 11:46:58"
+    ],
+    "error": [
+      "0"
+    ],
+    "error_note": [
+      "Success"
+    ],
+    "sign_string": [
+      "20891ba25d0e87915ce157f4a302fb0b"
+    ]
+  }
+}

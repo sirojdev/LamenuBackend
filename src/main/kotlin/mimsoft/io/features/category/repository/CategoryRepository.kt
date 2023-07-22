@@ -1,7 +1,7 @@
 package mimsoft.io.features.category.repository
 
 import mimsoft.io.features.category.CategoryDto
-import mimsoft.io.lamenu_bot.enums.Language
+import mimsoft.io.features.telegram_bot.Language
 
 interface CategoryRepository {
     suspend fun getAll(merchantId: Long?): List<CategoryDto?>

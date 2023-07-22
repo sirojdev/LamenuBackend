@@ -8,4 +8,5 @@ interface TableRepository {
     suspend fun add(tableTable: TableTable?): Long?
     suspend fun update(dto: TableDto): Boolean
     suspend fun delete(id: Long?, merchantId: Long?): Boolean
+    suspend fun getByQr(url: String): TableDto?
 }

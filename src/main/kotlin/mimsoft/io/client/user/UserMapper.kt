@@ -8,7 +8,7 @@ object UserMapper {
     fun toUserTable(userDto: UserDto?): UserTable? {
         return if (userDto == null) null else {
 
-            val birthDay = toTimeStamp(userDto.birthDay, TIMESTAMP_FORMAT)
+            val birthDay = userDto.birthDay
             UserTable(
                 id = userDto.id,
                 badgeId = userDto.badge?.id,
@@ -32,7 +32,7 @@ object UserMapper {
                 firstName = userTable.firstName,
                 lastName = userTable.lastName,
                 image = userTable.image,
-                birthDay = userTable.birthDay.toString()
+                birthDay = userTable.birthDay
             )
         }
     }

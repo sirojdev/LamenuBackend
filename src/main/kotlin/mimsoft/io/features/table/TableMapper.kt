@@ -1,5 +1,8 @@
 package mimsoft.io.features.table
 
+import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.room.RoomDto
+
 object TableMapper {
     fun toTableTable(tableDto: TableDto?): TableTable? {
         return if (tableDto == null) null
@@ -7,8 +10,8 @@ object TableMapper {
             id = tableDto.id,
             name = tableDto.name,
             qr = tableDto.qr,
-            roomId = tableDto.roomId,
-            branchId = tableDto.branchId,
+            roomId = tableDto.room?.id,
+            branchId = tableDto.branch?.id,
             merchantId = tableDto.merchantId
         )
     }
@@ -18,9 +21,11 @@ object TableMapper {
         else TableDto(
             id = tableTable.id,
             name = tableTable.name,
-            roomId = tableTable.roomId,
+            room = RoomDto(
+                id = tableTable.roomId
+            ),
             qr = tableTable.qr,
-            branchId = tableTable.branchId,
+            branch = BranchDto(tableTable.branchId),
             merchantId = tableTable.merchantId
         )
     }

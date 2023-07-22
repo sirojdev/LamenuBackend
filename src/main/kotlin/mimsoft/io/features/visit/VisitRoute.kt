@@ -6,8 +6,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.book.BookDto
-import mimsoft.io.features.book.BookId
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToVisits() {

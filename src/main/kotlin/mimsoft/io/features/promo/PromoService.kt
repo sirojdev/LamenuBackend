@@ -47,13 +47,15 @@ object PromoService {
         val merchantId = dto.merchantId
         val query = "UPDATE $PROMO_TABLE_NAME " +
                 "SET" +
-                " discountType = ?, " +
-                " deliveryDiscount = ${dto.deliveryDiscount}," +
-                " productDiscount = ${dto.productDiscount}," +
-                " isPublic = ${dto.isPublic} ," +
-                " minAmount = ${dto.minAmount} ," +
-                " startDate = ${dto.startDate} ," +
-                " endDate = ${dto.endDate} ," +
+                " discount_type = ?, " +
+                " name = ?, " +
+                " delivery_discount = ${dto.deliveryDiscount}," +
+                " amount = ${dto.amount}," +
+                " product_discount = ${dto.productDiscount}," +
+                " is_public = ${dto.isPublic} ," +
+                " min_amount = ${dto.minAmount} ," +
+                " start_date = ? ," +
+                " end_date = ? ," +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
@@ -61,7 +63,10 @@ object PromoService {
             StaffService.repository.connection().use {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.discountType)
-                    ti.setTimestamp(4, Timestamp(System.currentTimeMillis()))
+                    ti.setString(2, dto.name)
+                    ti.setTimestamp(3, dto.startDate)
+                    ti.setTimestamp(4, dto.endDate)
+                    ti.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
             }

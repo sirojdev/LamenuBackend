@@ -2,6 +2,7 @@ package mimsoft.io.features.option.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.favourite.mapper
 import mimsoft.io.features.label.LABEL_TABLE_NAME
 import mimsoft.io.features.label.LabelDto
 import mimsoft.io.features.label.LabelTable
@@ -33,9 +34,6 @@ object OptionRepositoryImpl : OptionRepository {
                         nameUz = rs.getString("name_uz"),
                         nameRu = rs.getString("name_ru"),
                         nameEng = rs.getString("name_en"),
-                        descriptionUz = rs.getString("description_uz"),
-                        descriptionRu = rs.getString("description_ru"),
-                        descriptionEng = rs.getString("description_en"),
                         image = rs.getString("image"),
                         price = rs.getDouble("price"),
                         deleted = rs.getBoolean("deleted"),
@@ -64,6 +62,19 @@ object OptionRepositoryImpl : OptionRepository {
         return data ?: emptyList()
     }
 
+     suspend fun getOptionsByProductId(merchantId: Long?, productId: Long?): List<OptionDto>? {
+        val data = repository.getPageData(
+            dataClass = OptionTable::class,
+            where = mapOf(
+                ("merchant_id" to merchantId as Any),
+                ("product_id" to productId as Any),
+            ),
+            tableName = OPTION_TABLE_NAME
+        )?.data
+
+        return data?.map { OptionMapper.toOptionDto(it)!! }
+    }
+
     override suspend fun get(id: Long?, merchantId: Long?): OptionDto? {
         val data = repository.getPageData(
             dataClass = OptionTable::class,
@@ -86,9 +97,6 @@ object OptionRepositoryImpl : OptionRepository {
                 " name_uz = ?, " +
                 " name_ru = ?," +
                 " name_eng = ?," +
-                " description_uz = ?, " +
-                " description_ru = ?," +
-                " description_eng = ?," +
                 " image = ? ," +
                 " price = ${dto.price}," +
                 " parent_id = ${dto.parentId}," +
@@ -101,11 +109,8 @@ object OptionRepositoryImpl : OptionRepository {
                     ti.setString(1, dto.name?.uz)
                     ti.setString(2, dto.name?.ru)
                     ti.setString(3, dto.name?.eng)
-                    ti.setString(4, dto.description?.uz)
-                    ti.setString(5, dto.description?.ru)
-                    ti.setString(6, dto.description?.eng)
-                    ti.setString(7, dto.image)
-                    ti.setTimestamp(8, Timestamp(System.currentTimeMillis()))
+                    ti.setString(4, dto.image)
+                    ti.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
             }

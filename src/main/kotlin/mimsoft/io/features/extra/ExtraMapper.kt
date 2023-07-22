@@ -12,9 +12,8 @@ object ExtraMapper {
             nameEng = extraDto.name?.eng,
             price = extraDto.price,
             merchantId = extraDto.merchantId,
-            descriptionUz = extraDto.description?.uz,
-            descriptionRu = extraDto.description?.ru,
-            descriptionEng = extraDto.description?.eng
+            image = extraDto.image,
+            productId = extraDto.productId
         )
     }
 
@@ -29,11 +28,8 @@ object ExtraMapper {
             ),
             price = extraTable.price,
             merchantId = extraTable.merchantId,
-            description = TextModel(
-                uz = extraTable.descriptionUz,
-                ru = extraTable.descriptionRu,
-                eng = extraTable.descriptionEng
-            )
+            image = extraTable.image,
+            productId = extraTable.productId
         )
     }
 }

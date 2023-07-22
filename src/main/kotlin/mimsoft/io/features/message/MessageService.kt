@@ -52,7 +52,7 @@ object MessageService {
                             merchantId = messageDto.merchantId
                         )
                     }
-                    smsService.post(it?.copy(messageId = messageId))
+                    smsService.post(it?.copy(message = MessageDto(id = messageId)))
                 }
             }
         }

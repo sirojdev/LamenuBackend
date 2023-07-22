@@ -29,15 +29,23 @@ fun Route.routeToClientTable(){
     get("table") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val roomId = call.parameters["roomId"]?.toLongOrNull()
-        if (roomId==null || merchantId==null) {
-            call.respond(HttpStatusCode.BadRequest)
+        val qr = call.parameters["qr"].toString()
+        if (roomId!=null || merchantId!=null) {
+            val table = tableRepository.getByTableId(roomId = roomId, merchantId = merchantId)
+            if (table==null){
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(table)
             return@get
         }
-        val table = tableRepository.getByTableId(roomId = roomId, merchantId = merchantId)
-        if (table==null){
-            call.respond(HttpStatusCode.NoContent)
-            return@get
+        if(merchantId == null && roomId == null && qr != null){
+            val result = TableService.getByQr(url = qr)
+            if (result == null) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, result)
         }
-        call.respond(table)
     }
 }

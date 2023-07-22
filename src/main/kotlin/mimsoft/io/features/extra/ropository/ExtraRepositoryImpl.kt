@@ -15,6 +15,7 @@ import java.sql.Timestamp
 object ExtraRepositoryImpl : ExtraRepository {
     val repository: BaseRepository = DBManager
     val mapper = ExtraMapper
+
     override suspend fun getAll(merchantId: Long?): List<ExtraTable?> {
         val data = repository.getPageData(
             dataClass = ExtraTable::class,
@@ -37,9 +38,6 @@ object ExtraRepositoryImpl : ExtraRepository {
         return data
     }
 
-    override suspend fun add(extraTable: ExtraTable?): Long? =
-        DBManager.postData(dataClass = ExtraTable::class, dataObject = extraTable, tableName = EXTRA_TABLE_NAME)
-
     override suspend fun update(dto: ExtraDto): Boolean {
         val merchantId = dto.merchantId
         val query = "UPDATE $EXTRA_TABLE_NAME " +
@@ -47,10 +45,9 @@ object ExtraRepositoryImpl : ExtraRepository {
                 " name_uz = ?, " +
                 " name_ru = ?," +
                 " name_eng = ?," +
+                " image = ?," +
                 " price = ${dto.price} ," +
-                " description_uz = ?," +
-                " description_ru = ?," +
-                " description_eng = ?," +
+                " product_id = ${dto.productId} ," +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
@@ -60,20 +57,35 @@ object ExtraRepositoryImpl : ExtraRepository {
                     ti.setString(1, dto.name?.uz)
                     ti.setString(2, dto.name?.ru)
                     ti.setString(3, dto.name?.eng)
-                    ti.setString(4, dto.description?.uz)
-                    ti.setString(5, dto.description?.ru)
-                    ti.setString(6, dto.description?.eng)
-                    ti.setTimestamp(7, Timestamp(System.currentTimeMillis()))
+                    ti.setString(4, dto.image)
+                    ti.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
             }
         }
         return true
     }
+
+    override suspend fun add(extraTable: ExtraTable?): Long? =
+        DBManager.postData(dataClass = ExtraTable::class, dataObject = extraTable, tableName = EXTRA_TABLE_NAME)
+
+    suspend fun getExtrasByProductId(merchantId: Long?, productId: Long?): List<ExtraDto>? {
+        val data = repository.getPageData(
+            dataClass = ExtraTable::class,
+            where = mapOf(
+                ("merchant_id" to merchantId as Any),
+                ("product_id" to productId as Any),
+            ),
+            tableName = EXTRA_TABLE_NAME
+        )?.data
+
+        return data?.map { mapper.toExtraDto(it)!! }
+    }
+
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
         val query = "update $EXTRA_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {it.prepareStatement(query).execute() }
         }
         return true
     }

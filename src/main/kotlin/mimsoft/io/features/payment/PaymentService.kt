@@ -26,6 +26,7 @@ object PaymentService {
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),
                             clickServiceId = rs.getLong("click_service_id"),
+                            clickMerchantId = rs.getString("click_merchant_id"),
                             clickKey = rs.getString("click_key"),
                             selected = rs.getString("selected")
                         )
@@ -37,8 +38,8 @@ object PaymentService {
 
     suspend fun paymeVerify(serviceKey: String?): PaymentDto? {
         val query = """
-            select * from $PAYMENT_TABLE_NAME 
-            and payme_secret = ?
+            select * from $PAYMENT_TABLE_NAME
+            where payme_secret = ?
             and deleted = false
         """.trimIndent()
         return withContext(Dispatchers.IO) {
@@ -54,6 +55,7 @@ object PaymentService {
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),
                             clickServiceId = rs.getLong("click_service_id"),
+                            clickMerchantId = rs.getString("click_merchant_id"),
                             clickKey = rs.getString("click_key"),
                             selected = rs.getString("selected")
                         )
@@ -92,6 +94,7 @@ object PaymentService {
                 "click_key = ?, " +
                 "selected = ?, " +
                 "updated = ? \n" +
+                "click_merchant_id = ? \n" +
                 "where merchant_id = ${paymentDto?.merchantId} and not deleted "
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -101,6 +104,7 @@ object PaymentService {
                     this.setString(3, paymentDto?.clickKey)
                     this.setString(4, paymentDto?.selected)
                     this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
+                    this.setString(6, paymentDto?.clickMerchantId)
                     this.closeOnCompletion()
                 }.execute()
             }

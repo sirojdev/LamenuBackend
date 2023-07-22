@@ -5,11 +5,14 @@ import com.google.gson.reflect.TypeToken
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.payment.PaymentService
+import mimsoft.io.integrate.payme.models.PaymePrincipal
+import mimsoft.io.integrate.payme.models.Receive
 import mimsoft.io.session.SessionPrincipal
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.LaPrincipal
@@ -179,13 +182,20 @@ fun Application.configureSecurity() {
             validate { credentials ->
                 println("\ncredentials: ${credentials}")
                 val payment = PaymentService.paymeVerify(
-                    credentials.name
+                    credentials.password
                 )
                 println("\npayment: ${GSON.toJson(payment)}")
                 if (payment != null) {
-                    UserIdPrincipal(credentials.name)
+                    PaymePrincipal(
+                        username = credentials.name,
+                        password = credentials.password
+                    )
                 } else {
-                    null
+                    PaymePrincipal(
+                        username = credentials.name,
+                        password = credentials.password,
+                        authenticate = false
+                    )
                 }
             }
         }

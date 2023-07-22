@@ -6,8 +6,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.repository.UserRepository
-import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.config.timestampValidator
 import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToUser() {
@@ -19,18 +19,17 @@ fun Route.routeToUser() {
         if (users.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }
-        else call.respond(users)
+        } else call.respond(users)
     }
 
     get("user/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null) {
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
         val user = userRepository.get(id)
-        if (user==null){
+        if (user == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -42,20 +41,14 @@ fun Route.routeToUser() {
         try {
             val user = call.receive<UserDto>()
 
-            val statusTimestamp = timestampValidator(user.birthDay)
-
-            if (statusTimestamp.httpStatus != ResponseModel.OK){
-                call.respond(statusTimestamp)
-                return@post
-            }
-
             val status = userRepository.add(user)
             println("status: $status")
 
             call.respond(
                 status.httpStatus,
-                status.body?: status.httpStatus.description)
-        }catch (e: Exception) {
+                status.body ?: status.httpStatus.description
+            )
+        } catch (e: Exception) {
             e.printStackTrace()
             call.respond(HttpStatusCode.BadRequest)
         }
@@ -63,14 +56,6 @@ fun Route.routeToUser() {
 
     put("user") {
         val user = call.receive<UserDto>()
-
-        val statusTimestamp = timestampValidator(user.birthDay)
-
-        if (statusTimestamp.httpStatus != ResponseModel.OK){
-            call.respond(statusTimestamp)
-            return@put
-        }
-
         val status = userRepository.update(user)
 
         call.respond(status.httpStatus, status)
@@ -78,7 +63,7 @@ fun Route.routeToUser() {
 
     delete("user/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }

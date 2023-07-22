@@ -1,5 +1,8 @@
 package mimsoft.io.integrate.payme.models
 
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
+
 data class ResultResponse(
-    val result: HashMap<String, Any>? = null
+    val id: Long? = null,
+    val result: Map<String, *>? = null
 )

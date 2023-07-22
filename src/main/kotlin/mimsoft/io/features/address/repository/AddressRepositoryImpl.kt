@@ -2,10 +2,7 @@ package mimsoft.io.features.address.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.address.ADDRESS_TABLE_NAME
-import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.address.AddressMapper
-import mimsoft.io.features.address.AddressTable
+import mimsoft.io.features.address.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 
@@ -22,12 +19,34 @@ object AddressRepositoryImpl : AddressRepository {
         return data?.map { mapper.toAddressDto(it) } ?: emptyList()
     }
     override suspend fun get(id: Long?): AddressDto? {
-        val data = repository.getData(
-            dataClass = AddressTable::class,
-            id = id,
-            tableName = ADDRESS_TABLE_NAME
-        )
-        return mapper.toAddressDto(data.firstOrNull() as AddressTable?)
+        val query =
+            "select * from $ADDRESS_TABLE_NAME " +
+                    "where id = $id"
+        var dto: AddressDto? = null
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    dto=  AddressDto(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        type = AddressType.valueOf(rs.getString("type")),
+                        name = rs.getString("name"),
+                        latitude = rs.getDouble("latitude"),
+                        longitude = rs.getDouble("longitude"),
+                    )
+                } else null
+            }
+        }
+        return dto
+//        val data = repository.getData(
+//            dataClass = AddressTable::class,
+//            id = id,
+//            tableName = ADDRESS_TABLE_NAME
+//        )
+//        return mapper.toAddressDto(data.firstOrNull() as AddressTable?)
     }
     override suspend fun add(addressDto: AddressDto?): Long? =
         repository.postData(

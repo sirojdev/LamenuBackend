@@ -17,6 +17,13 @@ data class Message(
     val uz: String? = null
 ) {
     companion object{
+
+        val WRONG_RESPONSE_DATA: Message = Message(
+            en = "Wrong data order id",
+            ru = "Неверный идентификатор заказа",
+            uz = "Noto'g'ri buyurtma identifikatori"
+        )
+
         val TRANSACTION_NOT_FOUND: Message = Message(
             en = "Transaction not found",
             ru = "Транзакция не найдена",
@@ -48,6 +55,12 @@ data class Message(
             ru = "Невозможно отменить транзакцию",
             en = "Unable to cancel transaction",
             uz = "To'lovni bekor qilish mumkin emas"
+        )
+
+        val WRONG_HEADERS = Message(
+            ru = "Неверные заголовки",
+            en = "Wrong headers",
+            uz = "Noto'g'ri sarlavhalar"
         )
     }
 }
