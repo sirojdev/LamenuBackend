@@ -56,5 +56,11 @@ data class Message(
             en = "Unable to cancel transaction",
             uz = "To'lovni bekor qilish mumkin emas"
         )
+
+        val WRONG_HEADERS = Message(
+            ru = "Неверные заголовки",
+            en = "Wrong headers",
+            uz = "Noto'g'ri sarlavhalar"
+        )
     }
 }

@@ -29,11 +29,12 @@ object PaymeService {
     suspend fun checkPerform(
         account: Account? = null,
         transactionId: Long? = null,
-        amount: Double? = null
+        amount: Double? = null,
+        merchantId: Long? = null
     ): Any {
         return withContext(Dispatchers.IO) {
 
-            orderWrapper = orderRepository.get(id = account?.orderId)
+            orderWrapper = orderRepository.get(id = account?.orderId, merchantId = merchantId)
             val order = orderWrapper?.order
             val price = orderWrapper?.details?.totalPrice
             println("\norder-->${GSON.toJson(orderWrapper)}\n")
@@ -220,7 +221,7 @@ object PaymeService {
                     )
                     return@withContext ResultResponse(
                         result = hashMapOf(
-                            "transaction" to transaction.id,
+                            "transaction" to transaction.id.toString(),
                             "perform_time" to transaction.performTime,
                             "state" to STATE_DONE
                         ),
@@ -389,21 +390,21 @@ object PaymeService {
         }
     }
 
-    fun getCheckout(id: Long, amount: Int, paymeMerchantId: String?): CheckoutLinkModel {
-
+    suspend fun getCheckout(id: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
+        val payment = PaymentService.get(merchantId)
         val params =
-            Base64.getEncoder().encodeToString("m=$paymeMerchantId;ac.order_id=$id;a=$amount".toByteArray())
+            Base64.getEncoder().encodeToString("m=${payment?.paymeMerchantId};ac.order_id=$id;a=$amount".toByteArray())
         return CheckoutLinkModel(link = "https://checkout.paycom.uz/$params")
     }
 
 
 }
 
-suspend fun main() {
-    val payment = PaymentService.get(1)
-    println("payment = ${GSON.toJson(payment)}")
-    val linck = PaymeService.getCheckout(id = 6, amount = 3608, paymeMerchantId = payment?.paymeMerchantId)
-    println("linck = $linck")
-}
+//suspend fun main() {
+//    val payment = PaymentService.get(1)
+//    println("payment = ${GSON.toJson(payment)}")
+//    val linck = PaymeService.getCheckout(id = 6, amount = 3608, paymeMerchantId = payment?.paymeMerchantId)
+//    println("linck = $linck")
+//}
 
 
