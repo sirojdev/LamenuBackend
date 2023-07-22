@@ -494,15 +494,14 @@ object OrderRepositoryImpl : OrderRepository {
         if (order.user?.id == null) return ResponseModel(httpStatus = ResponseModel.USER_NULL)
 
         val userId = order.user.id
-        if(userId == null){
-            return ResponseModel(ResponseModel.USER_NOT_FOUND)
-        }
-        var address: AddressDto?=null
+        val user =
+            UserRepositoryImpl.get(userId, order.user.merchantId) ?: return ResponseModel(ResponseModel.USER_NOT_FOUND)
+        var address: AddressDto? = null
 
         if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
             return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
         else if (order.order.type == OrderType.DELIVERY.name && order.address?.id != null) {
-            address = addressService.get(order.address?.id)
+            address = addressService.get(order.address.id)
                 ?: return ResponseModel(httpStatus = ResponseModel.ADDRESS_NOT_FOUND)
 
             if (address.latitude == null || address.longitude == null)
@@ -561,14 +560,14 @@ object OrderRepositoryImpl : OrderRepository {
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val statementOrder = it.prepareStatement(queryOrder).apply {
-                    setLong(1, userId as Long)
+                    setLong(1, userId)
                     setLong(2, merchantId as Long)
-                    setString(3, order.user.phone)
+                    setString(3, user.phone)
                     setString(4, order.order.type)
                     setString(5, Gson().toJson(activeProducts.products))
                     setString(6, OrderStatus.OPEN.name)
-                    setDouble(7, address?.latitude?:0.0)
-                    setDouble(8, address?.longitude?:0.0)
+                    setDouble(7, address?.latitude ?: 0.0)
+                    setDouble(8, address?.longitude ?: 0.0)
                     setString(9, address?.description)
                     setTimestamp(10, Timestamp(System.currentTimeMillis()))
                     setString(11, order.details?.comment)
@@ -583,7 +582,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(1, orderId)
                     setLong(2, activeProducts.price?.productPrice ?: 0L)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
-                    setLong(4,activeProducts.price?.productPrice?:0L)
+                    setLong(4, activeProducts.price?.productPrice ?: 0L)
                     this.closeOnCompletion()
                 }.execute()
 
