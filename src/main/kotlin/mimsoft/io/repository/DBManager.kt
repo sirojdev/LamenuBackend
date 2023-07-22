@@ -370,7 +370,7 @@ object DBManager: BaseRepository {
         }
     }
 
-    private suspend fun getDataCount(tableName: String): Int? {
+     suspend fun getDataCount(tableName: String): Int? {
         val query = "SELECT COUNT(*) FROM $tableName WHERE NOT deleted"
         var count: Int?
         withContext(Dispatchers.IO) {
@@ -385,7 +385,7 @@ object DBManager: BaseRepository {
         return count
     }
 
-    private fun camelToSnakeCase(input: String): String {
+    fun camelToSnakeCase(input: String): String {
         return input.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
     }
 

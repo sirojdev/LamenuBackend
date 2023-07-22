@@ -1,11 +1,21 @@
 package mimsoft.io.features.category.repository
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.category.CATEGORY_TABLE_NAME
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
+import mimsoft.io.features.order.OrderDto
+import mimsoft.io.features.order.price.OrderPriceDto
+import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.utils.CartItem
+import mimsoft.io.features.order.utils.OrderDetails
+import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.telegram_bot.Language
@@ -19,13 +29,7 @@ object CategoryRepositoryImpl : CategoryRepository {
     val mapper = CategoryMapper
 
     override suspend fun getAll(merchantId: Long?): List<CategoryDto?> {
-        val data = repository.getPageData(
-            dataClass = CategoryTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
-            tableName = "category"
-        )?.data
-
-        return data?.map { mapper.toCategoryDto(it) } ?: emptyList()
+        return emptyList()
     }
 
     override suspend fun get(id: Long?, merchantId: Long?): CategoryDto? {

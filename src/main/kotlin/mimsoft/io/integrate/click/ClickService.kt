@@ -150,7 +150,6 @@ object ClickService {
                 "error_note" to SIGN_CHECK_FAILED.error_note
             )
         }
-
     }
 
 

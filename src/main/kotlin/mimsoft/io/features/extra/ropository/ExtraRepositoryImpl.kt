@@ -45,11 +45,9 @@ object ExtraRepositoryImpl : ExtraRepository {
                 " name_uz = ?, " +
                 " name_ru = ?," +
                 " name_eng = ?," +
+                " image = ?," +
                 " price = ${dto.price} ," +
                 " product_id = ${dto.productId} ," +
-                " description_uz = ?," +
-                " description_ru = ?," +
-                " description_eng = ?," +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 

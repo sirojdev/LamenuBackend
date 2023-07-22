@@ -34,7 +34,6 @@ object NotificationRepositoryImpl : NotificationRepository {
                 "title_eng = ?, " +
                 " image = ?," +
                 " client_id = ${dto?.clientId}," +
-                " date = ?, " +
                 " is_send_ios = ${dto?.isSendIos}, " +
                 " is_send_android = ${dto?.isSendAndroid}, " +
                 " is_send_bot = ${dto?.isSendBot}, " +
@@ -51,7 +50,6 @@ object NotificationRepositoryImpl : NotificationRepository {
                     notification.setString(6,dto?.title?.eng)
                     notification.setString(7,dto?.image)
                     notification.setTimestamp(8, Timestamp(System.currentTimeMillis()))
-                    notification.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                 }
             }
         }
