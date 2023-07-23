@@ -12,6 +12,7 @@ data class CategoryTable(
     val groupId: Long? = null,
     val bgColor: String? = null,
     val textColor: String? = null,
+    val priority: Int? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,
     var updated: Timestamp? = null

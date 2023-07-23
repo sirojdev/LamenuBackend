@@ -4,23 +4,24 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.category.CATEGORY_TABLE_NAME
-import mimsoft.io.features.category.CategoryDto
-import mimsoft.io.features.category.CategoryMapper
-import mimsoft.io.features.category.CategoryTable
-import mimsoft.io.features.order.OrderDto
-import mimsoft.io.features.order.price.OrderPriceDto
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.order.utils.CartItem
-import mimsoft.io.features.order.utils.OrderDetails
-import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.category.*
+import mimsoft.io.features.category_group.CATEGORY_GROUP_TABLE
+import mimsoft.io.features.category_group.CategoryGroupDto
+import mimsoft.io.features.category_group.CategoryGroupService
+import mimsoft.io.features.category_group.CategoryGroupTable
+import mimsoft.io.features.extra.EXTRA_TABLE_NAME
+import mimsoft.io.features.extra.ExtraTable
+import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.features.option.repository.OptionRepositoryImpl
+import mimsoft.io.features.product.ClientProductDto
+import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.product.product_label.ProductLabelService
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
 object CategoryRepositoryImpl : CategoryRepository {
@@ -28,8 +29,224 @@ object CategoryRepositoryImpl : CategoryRepository {
     val repository: BaseRepository = DBManager
     val mapper = CategoryMapper
 
+    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?> {
+        val query = """
+            SELECT c.id c_id,
+                c.name_uz,
+                c.name_ru,
+                c.name_eng,
+                c.image,
+                c.bg_color c_bg_color,
+                c.text_color c_text_color,
+                c.priority c_priority,
+                cg.id cg_id, 
+                cg.merchant_id cg_merchant_id,
+                cg.title_uz cg_title_uz,
+                cg.title_ru cg_title_ru,
+                cg.title_eng cg_title_eng,
+                cg.text_color cg_text_color,
+                cg.bg_color cg_bg_color,
+                cg.priority cg_priority,
+                   (SELECT json_agg(json_build_object(
+                       'id', p.id,
+                       'nameUz', p.name_uz,
+                       'nameRu', p.name_ru,
+                       'nameEng', p.name_eng,
+                       'descriptionUz', p.description_uz,
+                       'descriptionRu', p.description_ru,
+                       'descriptionEng', p.description_eng,
+                       'image', p.image,
+                       'costPrice', p.cost_price,
+                       'timeCookingMin', p.time_cooking_min,
+                       'timeCookingMax', p.time_cooking_max,
+                       'deliveryEnabled', p.delivery_enabled,
+                       'idRkeeper', p.id_rkeeper,
+                       'idJoinPoster', p.id_join_poster,
+                       'idJowi', p.id_jowi,
+                       'active', p.active))
+                FROM product p
+                WHERE p.category_id = c.id
+                AND p.merchant_id = $merchantId and not p.deleted) AS products 
+            FROM category c left join category_group cg on c.group_id = cg.id 
+            WHERE c.merchant_id = $merchantId 
+            and c.deleted = false order by c.priority, c.created
+        """.trimIndent()
+        println("\ncategory for client $query")
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val gson = Gson()
+                val rs = it.prepareStatement(query).executeQuery()
+                val list = arrayListOf<ClientCategoryDto>()
+                val list1 = arrayListOf<ClientProductDto>()
+                while (rs.next()) {
+                    val product = rs.getString("products")
+                    val typeToken = object : TypeToken<List<ProductDto>>() {}.type
+                    val products = gson.fromJson<List<ProductDto>>(product, typeToken)
+                    products?.map {
+                        list1.add(
+                            ClientProductDto(
+                                productDto = it,
+                                option = OptionRepositoryImpl.getOptionsByProductId(
+                                    merchantId = merchantId,
+                                    productId = it.id
+                                ),
+                                extra = ExtraRepositoryImpl.getExtrasByProductId(
+                                    merchantId = merchantId,
+                                    productId = it.id
+                                ),
+                                label = ProductLabelService.getLabelsByProductId(
+                                    merchantId = merchantId,
+                                    productId = it.id
+                                )
+                            )
+                        )
+                    }
+                    val clientCategory = ClientCategoryDto(
+                        categoryDto = CategoryDto(
+                            id = rs.getLong("c_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng"),
+                            ),
+                            image = rs.getString("image"),
+                            bgColor = rs.getString("c_bg_color"),
+                            textColor = rs.getString("c_text_color"),
+                            priority = rs.getInt("c_priority")
+                        ),
+                        clientProductDto = list1,
+                        categoryGroup = CategoryGroupDto(
+                            id = rs.getLong("cg_id"),
+                            merchantId = rs.getLong("cg_merchant_id"),
+                            title = TextModel(
+                                uz = rs.getString("cg_title_uz"),
+                                ru = rs.getString("cg_title_ru"),
+                                eng = rs.getString("cg_title_eng")
+                            ),
+                            bgColor = rs.getString("cg_bg_color"),
+                            textColor = rs.getString("cg_text_color"),
+                            priority = rs.getInt("cg_priority")
+                        )
+                    )
+                    list.add(clientCategory)
+                }
+                return@withContext list
+            }
+        }
+    }
+
+    override suspend fun getCategoryForClientById(id: Long?, merchantId: Long?): ClientCategoryDto? {
+        val query = """
+            SELECT c.id c_id,
+                c.name_uz,
+                c.name_ru,
+                c.name_eng,
+                c.image,
+                c.bg_color c_bg_color,
+                c.text_color c_text_color,
+                c.priority c_priority,
+                cg.id cg_id, 
+                cg.merchant_id cg_merchant_id,
+                cg.title_uz cg_title_uz,
+                cg.title_ru cg_title_ru,
+                cg.title_eng cg_title_eng,
+                cg.text_color cg_text_color,
+                cg.bg_color cg_bg_color,
+                cg.priority cg_priority,
+                   (SELECT json_agg(json_build_object(
+                       'id', p.id,
+                       'nameUz', p.name_uz,
+                       'nameRu', p.name_ru,
+                       'nameEng', p.name_eng,
+                       'descriptionUz', p.description_uz,
+                       'descriptionRu', p.description_ru,
+                       'descriptionEng', p.description_eng,
+                       'image', p.image,
+                       'costPrice', p.cost_price,
+                       'timeCookingMin', p.time_cooking_min,
+                       'timeCookingMax', p.time_cooking_max,
+                       'deliveryEnabled', p.delivery_enabled,
+                       'idRkeeper', p.id_rkeeper,
+                       'idJoinPoster', p.id_join_poster,
+                       'idJowi', p.id_jowi,
+                       'active', p.active))
+                FROM product p
+                WHERE p.category_id = c.id
+                AND p.merchant_id = $merchantId and not p.deleted) AS products 
+            FROM category c left join category_group cg on c.group_id = cg.id 
+            WHERE c.merchant_id = $merchantId 
+            and c.deleted = false order by c.priority, c.created
+        """.trimIndent()
+        println("\ncategory for client $query")
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val gson = Gson()
+                val rs = it.prepareStatement(query).executeQuery()
+                val list1 = arrayListOf<ClientProductDto>()
+                if (rs.next()) {
+                    val product = rs.getString("products")
+                    val typeToken = object : TypeToken<List<ProductDto>>() {}.type
+                    val products = gson.fromJson<List<ProductDto>>(product, typeToken)
+                    products?.map {
+                        list1.add(
+                            ClientProductDto(
+                                productDto = it,
+                                option = OptionRepositoryImpl.getOptionsByProductId(
+                                    merchantId = merchantId,
+                                    productId = it.id
+                                ),
+                                extra = ExtraRepositoryImpl.getExtrasByProductId(
+                                    merchantId = merchantId,
+                                    productId = it.id
+                                ),
+                                label = ProductLabelService.getLabelsByProductId(
+                                    merchantId = merchantId,
+                                    productId = it.id
+                                )
+                            )
+                        )
+                    }
+                    return@withContext ClientCategoryDto(
+                        categoryDto = CategoryDto(
+                            id = rs.getLong("c_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng"),
+                            ),
+                            image = rs.getString("image"),
+                            bgColor = rs.getString("c_bg_color"),
+                            textColor = rs.getString("c_text_color"),
+                            priority = rs.getInt("c_priority")
+                        ),
+                        clientProductDto = list1,
+                        categoryGroup = CategoryGroupDto(
+                            id = rs.getLong("cg_id"),
+                            merchantId = rs.getLong("cg_merchant_id"),
+                            title = TextModel(
+                                uz = rs.getString("cg_title_uz"),
+                                ru = rs.getString("cg_title_ru"),
+                                eng = rs.getString("cg_title_eng")
+                            ),
+                            bgColor = rs.getString("cg_bg_color"),
+                            textColor = rs.getString("cg_text_color"),
+                            priority = rs.getInt("cg_priority")
+                        )
+                    )
+                }
+                return@withContext null
+            }
+        }
+    }
+
     override suspend fun getAll(merchantId: Long?): List<CategoryDto?> {
-        return emptyList()
+        val data = repository.getPageData(
+            dataClass = CategoryTable::class,
+            where = mapOf("merchant_id" to merchantId as Any),
+            tableName = CATEGORY_TABLE_NAME
+        )?.data
+
+        return data?.map { mapper.toCategoryDto(it) } ?: emptyList()
     }
 
     override suspend fun get(id: Long?, merchantId: Long?): CategoryDto? {
@@ -51,7 +268,6 @@ object CategoryRepositoryImpl : CategoryRepository {
             tableName = CATEGORY_TABLE_NAME
         )
 
-
     override suspend fun update(dto: CategoryDto): Boolean {
         val merchantId = dto.merchantId
         val query = "UPDATE $CATEGORY_TABLE_NAME " +
@@ -62,6 +278,7 @@ object CategoryRepositoryImpl : CategoryRepository {
                 " image = ?, " +
                 " bg_color = ?," +
                 " text_color = ?," +
+                " priority = ${dto.priority}," +
                 " group_id = ${dto.groupId}," +
                 " updated = ? \n" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
@@ -82,6 +299,7 @@ object CategoryRepositoryImpl : CategoryRepository {
         }
         return true
     }
+
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $CATEGORY_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
@@ -106,12 +324,12 @@ object CategoryRepositoryImpl : CategoryRepository {
         }
 
         val query =
-            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and $name = ? "
+            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and $name = ? order by priority, created"
         var dto: CategoryDto? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
-                    setLong(1, merchantId!!)
+                    setLong(1, merchantId)
                     setString(2, text)
                     this.closeOnCompletion()
                 }.executeQuery()

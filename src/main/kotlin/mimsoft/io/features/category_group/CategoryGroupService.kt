@@ -6,6 +6,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.category.CategoryMapper
 import mimsoft.io.features.category.CategoryTable
+import mimsoft.io.features.category.ClientCategoryDto
+import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.features.option.repository.OptionRepositoryImpl
+import mimsoft.io.features.product.ClientProductDto
+import mimsoft.io.features.product.product_label.ProductLabelService
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
@@ -42,6 +47,7 @@ object CategoryGroupService {
                 " bg_color = ?," +
                 " text_color = ?," +
                 " updated = ?" +
+                " priority = ${dto.priority}" +
                 " WHERE id = ${dto.id} and merchant_id = ${dto.merchantId} and not deleted"
 
         withContext(Dispatchers.IO) {
@@ -86,7 +92,8 @@ object CategoryGroupService {
                             titleRu = rs.getString("title_ru"),
                             titleEng = rs.getString("title_eng"),
                             bgColor = rs.getString("bg_color"),
-                            merchantId = rs.getLong("merchant_id")
+                            merchantId = rs.getLong("merchant_id"),
+                            priority = rs.getInt("priority")
                         )
                     )
                 } else return@withContext null
@@ -103,6 +110,7 @@ object CategoryGroupService {
        cg.title_eng,
        cg.merchant_id,
        cg.text_color,
+       cg.priority,
        (SELECT json_agg(json_build_object(
                'id', c.id,
                'bgColor', c.bg_color,
@@ -110,37 +118,70 @@ object CategoryGroupService {
                'nameRu', c.name_ru,
                'nameEng', c.name_eng,
                'image', c.image,
-               'textColor', c.text_color
+               'textColor', c.text_color,
+               'priority', c.priority,
+               'groupId', c.group_id
            ))
         FROM category c
         WHERE c.group_id = cg.id
-          AND c.merchant_id = $merchantId) AS categories 
+          AND c.merchant_id = $merchantId and not c.deleted) AS categories 
     FROM category_group cg 
     WHERE cg.merchant_id = $merchantId 
         and cg.deleted = false 
         """.trimIndent()
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
+//                val categoryList = arrayListOf<ClientCategoryDto>()
                 val rs = it.prepareStatement(query).executeQuery()
                 val gson = Gson()
                 val data = arrayListOf<CategoryGroupClientDto>()
                 while (rs.next()) {
                     val categories = rs?.getString("categories")
                     val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
-                    val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken)?: emptyList()
-                    val dtoList = list.map { CategoryMapper.toCategoryDto(it) }
-
-                    val book = CategoryGroupClientDto(
+                    val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken) ?: emptyList()
+//                    val dtoList = list.map { CategoryMapper.toCategoryDto(it) }
+//                    dtoList.map {
+//                        val list1 = arrayListOf<ClientProductDto>()
+//                        val prod =
+//                            ProductRepositoryImpl.getAllByCategories(merchantId = merchantId, categoryId = it?.id)
+//                        prod.map {
+//                            list1.add(
+//                                ClientProductDto(
+//                                    productDto = it,
+//                                    option = OptionRepositoryImpl.getOptionsByProductId(
+//                                        merchantId = merchantId,
+//                                        productId = it.id
+//                                    ),
+//                                    extra = ExtraRepositoryImpl.getExtrasByProductId(
+//                                        merchantId = merchantId,
+//                                        productId = it.id
+//                                    ),
+//                                    label = ProductLabelService.getLabelsByProductId(
+//                                        merchantId = merchantId,
+//                                        productId = it.id
+//                                    )
+//                                )
+//                            )
+//                        }
+//                        categoryList.add(
+//                            ClientCategoryDto(
+//                                categoryDto = it,
+//                                clientProductDto = list1
+//                            )
+//                        )
+//                    }
+                    val a = CategoryGroupClientDto(
                         id = rs.getLong("id"),
                         title = TextModel(
                             uz = rs.getString("title_uz"),
                             ru = rs.getString("title_ru"),
                             eng = rs.getString("title_eng")
                         ),
-                        categories = dtoList.filterNotNull(),
+                        categories = list.map { CategoryMapper.toCategoryDto(it)!! },
                         bgColor = rs.getString("bg_color"),
+                        priority = rs.getInt("priority")
                     )
-                    data.add(book)
+                    data.add(a)
                 }
                 return@withContext data
             }
@@ -156,6 +197,7 @@ object CategoryGroupService {
        cg.title_eng,
        cg.merchant_id,
        cg.text_color,
+       cg.priority,
        (SELECT json_agg(json_build_object(
                'id', c.id,
                'nameUz', c.name_uz,
@@ -163,25 +205,56 @@ object CategoryGroupService {
                'nameEng', c.name_eng,
                'image', c.image,
                'textColor', c.text_color,
-               'bgColor', c.bg_color
+               'bgColor', c.bg_color,
+               'priority', c.priority
            ))
           FROM category c
           WHERE c.group_id = cg.id
           AND c.merchant_id = $merchantId) AS categories
       FROM category_group cg
       WHERE cg.id = $id and cg.merchant_id = $merchantId
-      and cg.deleted = false
+      and cg.deleted = false order by  priority, created 
         """.trimIndent()
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
+                val categoryList = arrayListOf<ClientCategoryDto>()
                 val rs = it.prepareStatement(query).executeQuery()
                 val gson = Gson()
                 if (rs.next()) {
                     val categories = rs?.getString("categories")
                     val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
-                    val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken)?: emptyList()
+                    val list = gson.fromJson<List<CategoryTable?>?>(categories, typeToken) ?: emptyList()
                     val dtoList = list.map { CategoryMapper.toCategoryDto(it) }
-                    dtoList.map { it?.products = ProductRepositoryImpl.getAllByCategories(merchantId = merchantId, categoryId = it?.id) }
+                    dtoList.map {
+                        val list1 = arrayListOf<ClientProductDto>()
+                        val prod =
+                            ProductRepositoryImpl.getAllByCategories(merchantId = merchantId, categoryId = it?.id)
+                        prod.map {
+                            list1.add(
+                                ClientProductDto(
+                                    productDto = it,
+                                    option = OptionRepositoryImpl.getOptionsByProductId(
+                                        merchantId = merchantId,
+                                        productId = it.id
+                                    ),
+                                    extra = ExtraRepositoryImpl.getExtrasByProductId(
+                                        merchantId = merchantId,
+                                        productId = it.id
+                                    ),
+                                    label = ProductLabelService.getLabelsByProductId(
+                                        merchantId = merchantId,
+                                        productId = it.id
+                                    )
+                                )
+                            )
+                        }
+                        categoryList.add(
+                            ClientCategoryDto(
+                                categoryDto = it,
+                                clientProductDto = list1
+                            )
+                        )
+                    }
                     return@withContext CategoryGroupClientDto(
                         id = rs.getLong("id"),
                         title = TextModel(
@@ -189,14 +262,13 @@ object CategoryGroupService {
                             ru = rs.getString("title_ru"),
                             eng = rs.getString("title_eng")
                         ),
-                        categories = dtoList.filterNotNull(),
-                        bgColor = rs.getString("bg_color")
+                        categoriesWithProduct = categoryList,
+                        bgColor = rs.getString("bg_color"),
+                        priority = rs.getInt("priority")
                     )
                 }
                 return@withContext null
             }
         }
-
     }
-
 }

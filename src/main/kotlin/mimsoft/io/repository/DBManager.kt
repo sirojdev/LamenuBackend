@@ -49,7 +49,8 @@ object DBManager: BaseRepository {
         tableName: String?,
         where: Map<String, Any>?,
         limit: Int?,
-        offset: Int?
+        offset: Int?,
+        order: String?
     ): DataPage<T>? {
 
         val tName = tableName ?: dataClass.simpleName
@@ -60,6 +61,8 @@ object DBManager: BaseRepository {
         } else {
             ""
         }
+
+//        val order = if(order != null)
 
         val offsetClause = if (offset != null && offset > 0) {
             "OFFSET $offset"

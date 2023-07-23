@@ -1,8 +1,5 @@
 package mimsoft.io.client.basket
 
-import mimsoft.io.features.category.CategoryDto
-import mimsoft.io.features.category.CategoryTable
-
 object BasketMapper {
     fun toBasketTable(basketDto: BasketDto?): BasketTable? {
         return if (basketDto == null) null
