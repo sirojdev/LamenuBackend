@@ -15,27 +15,13 @@ object SmsService {
     val mapper: SmsMapper = SmsMapper
 
 
-    /*suspend fun <T :Any> getAll2(
+    suspend fun getAll(
         merchantId: Long?,
         limit: Int? = null,
         offset: Int? = null
-    ): List<SmsDto>? {
+    ): List<SmsDto> {
 
-
-//        val tName = SMS_TABLE ?: SmsTable::class.simpleName
-
-        val limitClause = if (limit != null && limit > 0) {
-            "LIMIT $limit"
-        } else {
-            ""
-        }
-
-        val offsetClause = if (offset != null && offset > 0) {
-            "OFFSET $offset"
-        } else {
-            ""
-        }
-        val where = "where s.merchant_id = $merchantId \n" +
+        val where = " where s.merchant_id = $merchantId \n" +
                 "                    and not s.deleted\n" +
                 "                    and not m.deleted "
         val columns = "s.id   s_id,\n" +
@@ -47,10 +33,9 @@ object SmsService {
         val tableName = " sms s left join message m on s.message_id = m.id"
 
         val query = "select $columns from $tableName where $where limit $limit offset $offset "
+        println("query = $query")
 
-        println("\nGET PAGE DATA QUERY ---> $query")
-
-        val resultList = mutableListOf<T>()
+        val resultList = arrayListOf<SmsDto>()
         withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use { connection ->
                 val statement = connection.createStatement()
@@ -64,19 +49,18 @@ object SmsService {
                         resultSet.getObject(columnName)
                     }
                     val instance = constructor.callBy(parameters)
-                    resultList.add(instance)
+                    resultList.add(mapper.toDto(instance)!!)
                 }
             }
         }
 
         val totalCount = tableName.let { DBManager.getDataCount(it) }
 
-        return totalCount?.let { DataPage(resultList, it) }
+        return totalCount?.let { DataPage(resultList, it) } as List<SmsDto>
     }
-*/
 
 
-    suspend fun getAll(
+    suspend fun getAll2(
         merchantId: Long?,
         limit: Int? = null,
         offset: Int? = null

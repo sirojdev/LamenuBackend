@@ -162,7 +162,7 @@ object OrderRepositoryImpl : OrderRepository {
     ): DataPage<OrderDto?> {
 
         val queryCount = "select count(*) from orders o "
-        val query = java.lang.StringBuilder()
+        val query = StringBuilder()
         query.append(
             """
             select o.id ,
@@ -228,6 +228,7 @@ object OrderRepositoryImpl : OrderRepository {
         }
 
 //        queryCount.plus(joins.append(filter))
+        query.append(joins)
         query.append(filter)
         query.append("order by id desc limit $limit offset $offset")
         println(query)

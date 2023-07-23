@@ -20,23 +20,6 @@ object CourierTransactionService {
             dataObject = mapper.toTable(dto = dto),
             tableName = COURIER_TRANSACTION_TABLE
         )
-
-//        val query =
-//            "insert into $COURIER_TRANSACTION_TABLE " +
-//                    "(merchant_id, courier_id, time, amount, from_order_id, to_cash_id, created)" +
-//                    " values " +
-//                    "(${dto?.merchantId}, ${dto?.courierId}, ?, ${dto?.amount}, ${dto?.fromOrderId}, ${dto?.toCashId}, ?)"
-//        return withContext(Dispatchers.IO) {
-//            repository.connection().use {
-//                it.prepareStatement(query).apply {
-//                    setTimestamp(1, dto?.time)
-//                    setTimestamp(2, Timestamp(System.currentTimeMillis()))
-//                    this.closeOnCompletion()
-//                }.executeQuery()
-//            }
-//            return@withContext 0
-//
-//        }
     }
 
     suspend fun getByCourierId(courierId: String?, merchantId: String?): List<CourierTransactionDto> {
@@ -61,7 +44,7 @@ object CourierTransactionService {
             from courier_transaction ct
             left join branch b on b.id = ct.branch_id
             left join courier c on ct.courier_id = c.id
-            where ct.merchant_id = $merchantId and ct.courier_id = $courierId 
+            where ct.merchant_id = $merchantId and ct.courier_id = $courierId and 
              not ct.deleted
                 and not b.deleted
                 and not c.deleted
@@ -85,7 +68,7 @@ object CourierTransactionService {
                             ),
                             balance = rs.getDouble("balance"),
                         ),
-                        order = OrderRepositoryImpl.get(rs.getLong("from_order_id")),
+                        order = OrderRepositoryImpl.get(id = rs.getLong("from_order_id")),
                         branch = BranchDto(
                             id = rs.getLong("b_id"),
                             name = TextModel(

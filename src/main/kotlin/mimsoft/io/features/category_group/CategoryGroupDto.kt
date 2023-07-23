@@ -7,5 +7,6 @@ data class CategoryGroupDto(
     val merchantId: Long? = null,
     val title: TextModel? = null,
     val bgColor: String? = null,
-    val textColor: String? = null
+    val textColor: String? = null,
+    val priority: Int? = null
 )

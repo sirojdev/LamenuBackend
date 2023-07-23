@@ -13,7 +13,8 @@ object CategoryGroupMapper {
                 eng = table.titleEng
             ),
             bgColor = table.bgColor,
-            textColor = table.textColor
+            textColor = table.textColor,
+            priority = table.priority
         )
     }
 
@@ -26,6 +27,7 @@ object CategoryGroupMapper {
             titleEng = dto.title?.eng,
             bgColor = dto.bgColor,
             textColor = dto.textColor,
+            priority = dto.priority
         )
     }
 }

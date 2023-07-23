@@ -10,5 +10,8 @@ data class CourierTransactionTable(
     val time: Timestamp? = null,
     val amount: Double? = null,
     val fromOrderId: Long? = null,
-    val branchId: Long? = null
+    val branchId: Long? = null,
+    val created: Timestamp? = null,
+    val updated: Timestamp? = null,
+    val deleted: Boolean? = null
 )

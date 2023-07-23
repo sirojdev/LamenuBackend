@@ -10,5 +10,6 @@ data class CategoryDto(
     val bgColor: String? = null,
     val textColor: String? = null,
     val groupId: Long? = null,
+    val priority: Int? = null,
     var products: List<ProductDto>? = null
 )

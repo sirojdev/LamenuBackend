@@ -15,7 +15,8 @@ interface BaseRepository {
         tableName: String?,
         where: Map<String, Any>? = null,
         limit: Int? = null,
-        offset: Int? = null
+        offset: Int? = null,
+        order: String? = null
     ): DataPage<T>?
 
     suspend fun <T : Any> getJoinPageData(

@@ -5,6 +5,7 @@ import java.sql.Timestamp
 const val CATEGORY_GROUP_TABLE = "category_group"
 data class CategoryGroupTable(
     val id: Long? = null,
+    val priority: Int? = null,
     val merchantId: Long? = null,
     val titleUz: String? = null,
     val titleRu: String? = null,

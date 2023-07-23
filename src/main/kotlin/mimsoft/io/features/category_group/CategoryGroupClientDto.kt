@@ -1,6 +1,7 @@
 package mimsoft.io.features.category_group
 
 import mimsoft.io.features.category.CategoryDto
+import mimsoft.io.features.category.ClientCategoryDto
 import mimsoft.io.utils.TextModel
 
 data class CategoryGroupClientDto(
@@ -8,5 +9,7 @@ data class CategoryGroupClientDto(
     val merchantId: Long? = null,
     val title: TextModel? = null,
     val bgColor: String? = null,
-    val categories : List<CategoryDto>?=null
+    val priority: Int? = null,
+    val categories : List<CategoryDto>?=null,
+    val categoriesWithProduct : List<ClientCategoryDto>?=null
 )
