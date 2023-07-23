@@ -7,8 +7,6 @@ data class CategoryDto(
     val name: TextModel? = null,
     val image: String? = null,
     val merchantId: Long? = null,
-    val bgColor: String? = null,
-    val textColor: String? = null,
     val groupId: Long? = null,
     val priority: Int? = null,
     var products: List<ProductDto>? = null

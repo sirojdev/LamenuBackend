@@ -11,7 +11,6 @@ data class CategoryGroupTable(
     val titleRu: String? = null,
     val titleEng: String? = null,
     val bgColor: String? = null,
-    val textColor: String? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null

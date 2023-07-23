@@ -29,22 +29,19 @@ object CategoryRepositoryImpl : CategoryRepository {
     val repository: BaseRepository = DBManager
     val mapper = CategoryMapper
 
-    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?> {
+    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?>{
         val query = """
             SELECT c.id c_id,
                 c.name_uz,
                 c.name_ru,
                 c.name_eng,
                 c.image,
-                c.bg_color c_bg_color,
-                c.text_color c_text_color,
                 c.priority c_priority,
                 cg.id cg_id, 
                 cg.merchant_id cg_merchant_id,
                 cg.title_uz cg_title_uz,
                 cg.title_ru cg_title_ru,
                 cg.title_eng cg_title_eng,
-                cg.text_color cg_text_color,
                 cg.bg_color cg_bg_color,
                 cg.priority cg_priority,
                    (SELECT json_agg(json_build_object(
@@ -110,8 +107,6 @@ object CategoryRepositoryImpl : CategoryRepository {
                                 eng = rs.getString("name_eng"),
                             ),
                             image = rs.getString("image"),
-                            bgColor = rs.getString("c_bg_color"),
-                            textColor = rs.getString("c_text_color"),
                             priority = rs.getInt("c_priority")
                         ),
                         clientProductDto = list1,
@@ -124,7 +119,6 @@ object CategoryRepositoryImpl : CategoryRepository {
                                 eng = rs.getString("cg_title_eng")
                             ),
                             bgColor = rs.getString("cg_bg_color"),
-                            textColor = rs.getString("cg_text_color"),
                             priority = rs.getInt("cg_priority")
                         )
                     )
@@ -142,15 +136,12 @@ object CategoryRepositoryImpl : CategoryRepository {
                 c.name_ru,
                 c.name_eng,
                 c.image,
-                c.bg_color c_bg_color,
-                c.text_color c_text_color,
                 c.priority c_priority,
                 cg.id cg_id, 
                 cg.merchant_id cg_merchant_id,
                 cg.title_uz cg_title_uz,
                 cg.title_ru cg_title_ru,
                 cg.title_eng cg_title_eng,
-                cg.text_color cg_text_color,
                 cg.bg_color cg_bg_color,
                 cg.priority cg_priority,
                    (SELECT json_agg(json_build_object(
@@ -215,8 +206,6 @@ object CategoryRepositoryImpl : CategoryRepository {
                                 eng = rs.getString("name_eng"),
                             ),
                             image = rs.getString("image"),
-                            bgColor = rs.getString("c_bg_color"),
-                            textColor = rs.getString("c_text_color"),
                             priority = rs.getInt("c_priority")
                         ),
                         clientProductDto = list1,
@@ -229,7 +218,6 @@ object CategoryRepositoryImpl : CategoryRepository {
                                 eng = rs.getString("cg_title_eng")
                             ),
                             bgColor = rs.getString("cg_bg_color"),
-                            textColor = rs.getString("cg_text_color"),
                             priority = rs.getInt("cg_priority")
                         )
                     )
@@ -276,8 +264,6 @@ object CategoryRepositoryImpl : CategoryRepository {
                 " name_ru = ?," +
                 " name_eng = ?," +
                 " image = ?, " +
-                " bg_color = ?," +
-                " text_color = ?," +
                 " priority = ${dto.priority}," +
                 " group_id = ${dto.groupId}," +
                 " updated = ? \n" +
@@ -290,9 +276,7 @@ object CategoryRepositoryImpl : CategoryRepository {
                     this.setString(2, dto.name?.ru)
                     this.setString(3, dto.name?.eng)
                     this.setString(4, dto.image)
-                    this.setString(5, dto.bgColor)
-                    this.setString(6, dto.textColor)
-                    this.setTimestamp(7, Timestamp(System.currentTimeMillis()))
+                    this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
                 }.execute()
             }

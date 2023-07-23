@@ -46,9 +46,7 @@ object ProductRepositoryImpl : ProductRepository {
                 c.name_uz         c_name_uz,
                 c.name_ru         c_name_ru,
                 c.name_eng        c_name_eng,
-                c.image           c_image,
-                c.bg_color        c_bg_color,
-                c.text_color      c_text_color
+                c.image           c_image
             from product p
                 left join category c on p.category_id = c.id
                 left join pantry pan on pan.product_id = p.id
@@ -93,8 +91,6 @@ object ProductRepositoryImpl : ProductRepository {
                                     eng = rs.getString("c_name_eng"),
                                 ),
                                 image = rs.getString("c_image"),
-                                bgColor = rs.getString("c_bg_color"),
-                                textColor = rs.getString("c_text_color"),
                             )
                         )
                     )
@@ -343,7 +339,7 @@ object ProductRepositoryImpl : ProductRepository {
 
     override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
         val query = """
-            select p.*, c.id c_id, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng, c.image c_image, c.bg_color c_bg_color, c.text_color c_text_color, c.group_id c_group_id
+            select p.*, c.id c_id, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng, c.image c_image,  c.group_id c_group_id
                 from product p
             inner join category c on p.category_id = c.id 
                 where p.merchant_id = $merchantId 
@@ -380,8 +376,6 @@ object ProductRepositoryImpl : ProductRepository {
                                     eng = rs.getString("c_name_eng")
                                 ),
                                 image = rs.getString("c_image"),
-                                bgColor = rs.getString("c_bg_color"),
-                                textColor = rs.getString("c_text_color"),
                                 groupId = rs.getLong("c_group_id"),
                             ),
                             productIntegration = ProductIntegrationDto(
