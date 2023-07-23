@@ -75,7 +75,6 @@ fun Route.routeToStory() {
             val response = storyService.updatePriority(priorityNumber = priorityNumber, id = id, merchantId = merchantId)
             call.respond(response)
         }
-
     }
 }
 

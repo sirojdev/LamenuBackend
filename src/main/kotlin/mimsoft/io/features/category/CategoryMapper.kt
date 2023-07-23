@@ -14,7 +14,8 @@ object CategoryMapper {
             groupId = categoryDto.groupId,
             merchantId = categoryDto.merchantId,
             bgColor = categoryDto.bgColor,
-            textColor = categoryDto.textColor
+            textColor = categoryDto.textColor,
+            priority = categoryDto.priority
         )
     }
 
@@ -32,6 +33,7 @@ object CategoryMapper {
             bgColor = categoryTable.bgColor,
             textColor = categoryTable.textColor,
             groupId = categoryTable.groupId,
+            priority = categoryTable.priority
         )
     }
 }

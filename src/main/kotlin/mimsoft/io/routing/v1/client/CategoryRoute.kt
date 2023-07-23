@@ -17,7 +17,7 @@ fun Route.routeToClientCategory() {
 
     get("categories") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
-        val categories = categoryRepository.getAll(merchantId = merchantId)
+        val categories = categoryRepository.getAllByClient(merchantId = merchantId)
         if (categories.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -31,7 +31,7 @@ fun Route.routeToClientCategory() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val category = categoryRepository.get(id = id, merchantId = merchantId)
+        val category = categoryRepository.getCategoryForClientById(id = id, merchantId = merchantId)
         if(category==null){
             call.respond(HttpStatusCode.NoContent)
             return@get
