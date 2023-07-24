@@ -24,9 +24,10 @@ object ClickRepo {
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             ) returning *
         """.trimIndent()
+        println("\nsaveTransactionPrepare->$query")
 
-         return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use { statement->
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use { statement ->
                 statement.prepareStatement(query).apply {
                     parameters?.get("click_trans_id")?.toLong()?.let { setLong(1, it) }
                     parameters?.get("service_id")?.toLongOrNull()?.let { setLong(2, it) }
@@ -39,10 +40,10 @@ object ClickRepo {
                     setTimestamp(9, Timestamp.valueOf(parameters?.get("sign_time")))
                     setString(10, parameters?.get("sign_string"))
                     this.closeOnCompletion()
-                }.executeQuery().use {
+                }.executeQuery().let {
                     if (it.next()) {
                         it.getLong("id")
-                    }else null
+                    } else null
                 }
             }
         }
@@ -51,18 +52,20 @@ object ClickRepo {
     suspend fun saveTransactionComplete(parameters: Parameters?): Map<String, *>? {
         val query = """
             update click set
-            action = ${parameters?.get("action")},
-            error = ${parameters?.get("error")},
+            action = ${parameters?.get("action")?.toIntOrNull()},
+            error = ${parameters?.get("error")?.toIntOrNull()},
             error_note = ?,
             sign_time = ?,
             sign_string = ?
-            where click_trans_id = ${parameters?.get("click_trans_id")} and
-            merchant_trans_id = ${parameters?.get("merchant_trans_id")} and
-            id = ${parameters?.get("merchant_prepare_id")}
+            where click_trans_id = ${parameters?.get("click_trans_id")?.toLongOrNull()} and
+            merchant_trans_id = '${parameters?.get("merchant_trans_id")}' and
+            id = ${parameters?.get("merchant_prepare_id")?.toLongOrNull()}
             returning *
         """.trimIndent()
+
+        println(query)
         return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use {connection->
+            DBManager.connection().use { connection ->
                 connection.prepareStatement(query).apply {
                     setString(1, parameters?.get("error_note"))
                     setTimestamp(2, Timestamp.valueOf(parameters?.get("sign_time")))
@@ -83,9 +86,31 @@ object ClickRepo {
                             "sign_time" to it.getString("sign_time"),
                             "sign_string" to it.getString("sign_string")
                         )
-                    }
-                    else null
+                    } else null
                 }
+            }
+        }
+    }
+
+    suspend fun cancelTransaction(parameters: Parameters?, error: ClickErrors?) {
+        val query = """
+            update click set
+            error = ${error?.error},
+            error_note = ?,
+            sign_time = ?
+            where click_trans_id = ${parameters?.get("click_trans_id")?.toLongOrNull()} and
+            merchant_trans_id = ? and
+            id = ${parameters?.get("merchant_prepare_id")?.toLongOrNull()}
+        """.trimIndent()
+
+        withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                it.prepareStatement(query).apply {
+                    setString(1, error?.error_note)
+                    setTimestamp(2, Timestamp(System.currentTimeMillis()))
+                    setString(3, parameters?.get("merchant_trans_id"))
+                    this.closeOnCompletion()
+                }.execute()
             }
         }
     }
@@ -96,7 +121,7 @@ object ClickRepo {
             where click_trans_id = $clickTransId
         """.trimIndent()
         return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use {connection->
+            DBManager.connection().use { connection ->
                 connection.prepareStatement(query).executeQuery().use {
                     if (it.next()) {
                         mutableMapOf(
@@ -112,8 +137,7 @@ object ClickRepo {
                             "sign_time" to it.getString("sign_time"),
                             "sign_string" to it.getString("sign_string")
                         )
-                    }
-                    else null
+                    } else null
                 }
             }
         }
@@ -122,38 +146,42 @@ object ClickRepo {
     suspend fun getTransByOrderId(orderId: Long?): Map<String, *>? {
         val query = """
             select * from click
-            where merchant_trans_id = $orderId
+            where merchant_trans_id = '$orderId'
             and sign_time between ? and ?
         """.trimIndent()
+
+        println("\ngetTransByOrderId-->$query")
+
         return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use {connection->
+            DBManager.connection().use { connection ->
                 connection.prepareStatement(query).apply {
-                    setTimestamp(1, Timestamp(System.currentTimeMillis()))
-                    setTimestamp(2, Timestamp(System.currentTimeMillis().plus(CLICK_EXPIRED_TIME)))
-                }.executeQuery().use {
-                if (it.next()) {
-                    mutableMapOf(
-                        "id" to it.getLong("id"),
-                        "click_trans_id" to it.getLong("click_trans_id"),
-                        "service_id" to it.getLong("service_id"),
-                        "click_paydoc_id" to it.getLong("click_paydoc_id"),
-                        "amount" to it.getLong("amount"),
-                        "action" to it.getInt("action"),
-                        "error" to it.getInt("error"),
-                        "merchant_trans_id" to it.getString("merchant_trans_id"),
-                        "error_note" to it.getString("error_note"),
-                        "sign_time" to it.getString("sign_time"),
-                        "sign_string" to it.getString("sign_string")
-                    )
+                    setTimestamp(1, Timestamp(System.currentTimeMillis().minus(CLICK_EXPIRED_TIME)))
+                    setTimestamp(2, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.executeQuery().let {
+                    if (it.next()) {
+                        mutableMapOf(
+                            "id" to it.getLong("id"),
+                            "click_trans_id" to it.getLong("click_trans_id"),
+                            "service_id" to it.getLong("service_id"),
+                            "click_paydoc_id" to it.getLong("click_paydoc_id"),
+                            "amount" to it.getLong("amount"),
+                            "action" to it.getInt("action"),
+                            "error" to it.getInt("error"),
+                            "merchant_trans_id" to it.getString("merchant_trans_id"),
+                            "error_note" to it.getString("error_note"),
+                            "sign_time" to it.getString("sign_time"),
+                            "sign_string" to it.getString("sign_string")
+                        )
+                    } else null
                 }
-                else null
-            }}
+            }
         }
     }
 
     suspend fun clickLog(method: String? = null, parameters: Any? = null): List<ClickLogModel?> {
         val query = if (method != null && parameters != null) """
-           insert into click_log (method, parameters, created_at)
+           insert into click_logs (method, parameters, created_at)
               values (?, ?, ?) returning *
        """.trimIndent()
         else """
@@ -166,8 +194,9 @@ object ClickRepo {
                     statement.setString(1, method)
                     statement.setString(2, parameters.toString())
                     statement.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    statement.closeOnCompletion()
                 }
-                statement.executeQuery().use { resultSet ->
+                statement.executeQuery().let { resultSet ->
                     val list = mutableListOf<ClickLogModel?>()
                     while (resultSet.next()) {
                         list.add(
