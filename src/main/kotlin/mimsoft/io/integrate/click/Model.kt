@@ -1,15 +1,17 @@
 package mimsoft.io.integrate.click
 
 import com.google.gson.annotations.SerializedName
+import mimsoft.io.integrate.click.ClickErrors.Companion.SUCCESS
+import mimsoft.io.utils.plugins.GSON
 
 open class Click
 
 data class ClickErrors(
     val error: Int? = null,
     val error_note: String? = null
-){
-    companion object{
-        val SUCCESS = ClickErrors(0, "Success")
+) {
+    companion object {
+        val SUCCESS = ClickErrors(0, "Ok")
         val SIGN_CHECK_FAILED = ClickErrors(-1, "SIGN CHECK FAILED!")
         val INCORRECT_PARAMETER_AMOUNT = ClickErrors(-2, "Incorrect parameter amount")
         val ACCOUNT_NOT_FOUND = ClickErrors(-3, "Account not found")
@@ -23,25 +25,33 @@ data class ClickErrors(
 }
 
 data class ClickRespondPrepare(
-    var error: Int? = null,
-    @SerializedName("click_trans_id")
-    val clickTransId: Long? = null,
     @SerializedName("merchant_prepare_id")
     val merchantPrepareId: Long? = null,
-    @SerializedName("merchant_trans_id")
+    val clickTransId: Long? = null,
     val merchantTransId: String? = null,
-    @SerializedName("error_note")
+    val error: Int? = null,
     val errorNote: String? = null
-) : Click()
+) : Click() {
+    constructor(
+        merchantPrepareId: Long? = null,
+        clickTransId: Long? = null,
+        merchantTransId: String? = null,
+        error: ClickErrors? = null
+    ): this (merchantPrepareId, clickTransId, merchantTransId, error?.error, error?.error_note)
+}
 
 data class ClickRespondComplete(
-    var error: Int? = null,
-    @SerializedName("click_trans_id")
-    val clickTransId: Long? = null,
     @SerializedName("merchant_confirm_id")
     val merchantConfirmId: Long? = null,
-    @SerializedName("merchant_trans_id")
+    val clickTransId: Long? = null,
     val merchantTransId: String? = null,
-    @SerializedName("error_note")
+    val error: Int? = null,
     val errorNote: String? = null
-) : Click()
+) : Click() {
+    constructor(
+        merchantConfirmId: Long? = null,
+        clickTransId: Long? = null,
+        merchantTransId: String? = null,
+        error: ClickErrors? = null
+    ): this (merchantConfirmId, clickTransId, merchantTransId, error?.error, error?.error_note)
+}

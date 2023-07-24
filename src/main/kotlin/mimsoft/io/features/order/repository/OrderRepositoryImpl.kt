@@ -23,7 +23,6 @@ import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
-import mimsoft.io.integrate.payme.PaymeRepo
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -416,7 +415,6 @@ object OrderRepositoryImpl : OrderRepository {
             and not op.deleted
             and o.id = $id
         """.trimIndent()
-        println("\nQuery -> $query")
         if (merchantId != null)
             query.plus(" and o.merchant_id = $merchantId")
 
@@ -725,7 +723,6 @@ object OrderRepositoryImpl : OrderRepository {
             and id in (${sortedProducts?.joinToString { it.product?.id.toString() }}) 
             order by id
         """.trimIndent()
-        println(query)
 
         var totalPrice = 0L
 

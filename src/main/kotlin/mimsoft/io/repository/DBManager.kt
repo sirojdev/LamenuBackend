@@ -34,7 +34,7 @@ object DBManager: BaseRepository {
         dataSourceConfig.password = "re_mim_soft"
         dataSourceConfig.maximumPoolSize = 10
         dataSourceConfig.minimumIdle = 5
-        dataSourceConfig.connectionTimeout = 10000
+        dataSourceConfig.connectionTimeout = 30000
         dataSourceConfig.idleTimeout = 600000
         return HikariDataSource(dataSourceConfig)
     }

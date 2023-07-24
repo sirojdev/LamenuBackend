@@ -17,183 +17,207 @@ import mimsoft.io.integrate.click.ClickErrors.Companion.SUCCESS
 import mimsoft.io.integrate.click.ClickErrors.Companion.TRANSACTION_NOT_FOUND
 import mimsoft.io.integrate.click.ClickErrors.Companion.USER_NOT_FOUND
 import mimsoft.io.integrate.payme.models.CheckoutLinkModel
+import mimsoft.io.utils.plugins.GSON
 import org.apache.commons.codec.digest.DigestUtils
 
 object ClickService {
 
     private val orderRepository: OrderRepository = OrderRepositoryImpl
-    suspend fun prepare(parameters: Parameters?, merchantId: Long, checkForCom: Boolean? = false): Map<String, *> {
+    suspend fun prepare(parameters: Parameters, merchantId: Long): Map<String, *> {
 
-        val orderId = parameters?.get("merchant_trans_id")?.toLongOrNull()
-            ?: return hashMapOf(
-                "error" to ERROR_IN_REQUEST.error,
-                "click_trans_id" to parameters?.get("click_trans_id")?.toLongOrNull(),
-                "merchant_trans_id" to parameters?.get("merchant_trans_id"),
-                "error_note" to ERROR_IN_REQUEST.error_note
-            )
-
-
-        ClickRepo.getTransByOrderId(orderId).let {
-            if (it == null && checkForCom == true)
-                return mutableMapOf(
-                    "error" to TRANSACTION_NOT_FOUND.error,
-                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                    "error_note" to TRANSACTION_NOT_FOUND.error_note
-                )
-            else if (it?.get("action") == 0 && it["error"] == SUCCESS.error)
-                return mutableMapOf(
-                    "error" to SUCCESS.error,
-                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                    "merchant_prepare_id" to it["id"],
-                    "error_note" to SUCCESS.error_note
-                )
-            else if (it?.get("action") == 1 && it["error"] == SUCCESS.error)
-                return mutableMapOf(
-                    "error" to ALREADY_PAID.error,
-                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                    "error_note" to ALREADY_PAID.error_note
-                )
-        }
-
-        val clickPayment = PaymentService.get(merchantId)
-
-        val signString = DigestUtils.md5Hex(
-            parameters["click_trans_id"]
-                    + parameters["service_id"]
-                    + clickPayment?.clickMerchantId
-                    + parameters["merchant_trans_id"]
-                    + parameters["amount"]
-                    + parameters["action"]
-                    + parameters["sign_time"]
-        )
-
-        if (signString == parameters["sign_string"]) {
-
-            val orderWrapper = orderRepository.get(orderId, merchantId)
-            val order = orderWrapper?.order
-            val amount = (parameters["amount"]?.parseLong() ?: 0) * 100
-
-            return if (order != null) {
-
-                return if ((order.created?.time?:0) + CLICK_EXPIRED_TIME < System.currentTimeMillis()) {
-
-                    return if (order.paymentTypeDto?.isPaid != true){
-
-                        return if (orderWrapper.price?.totalPrice == amount &&
-                            order.paymentTypeDto?.id == CLICK.id
-                        ) {
-                            val merchantTransId =
-                                if (checkForCom == true) ClickRepo.saveTransactionPrepare(parameters)
-                                else ClickRepo.getTransaction(parameters["click_trans_id"]?.toLongOrNull())?.get("id")
-
-                            return if (merchantTransId != null) {
-                                hashMapOf(
-                                    "error" to SUCCESS.error,
-                                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                                    "merchant_prepare_id" to merchantTransId,
-                                    "error_note" to SUCCESS.error_note
-                                )
-                            } else {
-                                hashMapOf(
-                                    "error" to USER_NOT_FOUND.error,
-                                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                                    "error_note" to USER_NOT_FOUND.error_note
-                                )
-                            }
-                        }
-                        else {
-                            hashMapOf(
-                                "error" to INCORRECT_PARAMETER_AMOUNT.error,
-                                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                                "merchant_trans_id" to parameters["merchant_trans_id"],
-                                "error_note" to INCORRECT_PARAMETER_AMOUNT.error_note
-                            )
-                        }
-                    }
-                    else {
-                        hashMapOf(
-                            "error" to ALREADY_PAID.error,
-                            "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                            "merchant_trans_id" to parameters["merchant_trans_id"],
-                            "error_note" to ALREADY_PAID.error_note
-                        )
-                    }
-                }
-                else {
-                    hashMapOf(
-                        "error" to CANCELLED.error,
-                        "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                        "merchant_trans_id" to parameters["merchant_trans_id"],
-                        "error_note" to CANCELLED.error_note
-                    )
-                }
-            }
-            else {
-                hashMapOf(
-                    "error" to ORDER_NOT_FOUND.error,
-                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                    "error_note" to ORDER_NOT_FOUND.error_note
-                )
-            }
-        }
-        else {
+        if (!verifyMD5Hash(parameters, true, merchantId))
             return hashMapOf(
                 "error" to SIGN_CHECK_FAILED.error,
                 "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
                 "merchant_trans_id" to parameters["merchant_trans_id"],
                 "error_note" to SIGN_CHECK_FAILED.error_note
             )
+
+        verifyOrder(parameters, merchantId).let {
+            if (it != null) return it
         }
+
+        val merchantTransId = ClickRepo.saveTransactionPrepare(parameters)
+
+        return if (merchantTransId != null) {
+            hashMapOf(
+                "error" to SUCCESS.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "merchant_prepare_id" to merchantTransId,
+                "error_note" to SUCCESS.error_note
+            )
+        } else {
+            hashMapOf(
+                "error" to USER_NOT_FOUND.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "error_note" to USER_NOT_FOUND.error_note
+            )
+        }
+
     }
 
+    suspend fun complete(parameters: Parameters, merchantId: Long): Map<String, *> {
+
+        if (parameters["error"]?.toIntOrNull() == -5017){
+            ClickRepo.cancelTransaction(parameters, CANCELLED)
+            return mutableMapOf(
+                "error" to CANCELLED.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                "error_note" to CANCELLED.error_note
+            )
+        }
+
+        if (!verifyMD5Hash(parameters, merchantId = merchantId)) {
+            return mutableMapOf(
+                "error" to SIGN_CHECK_FAILED.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "error_note" to SIGN_CHECK_FAILED.error_note
+            )
+        }
+
+        ClickRepo.getTransaction(
+            parameters["click_trans_id]"]?.toLongOrNull()).let {
+            if (it?.get("error") != 0)
+                return mutableMapOf(
+                    "error" to CANCELLED.error,
+                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                    "merchant_trans_id" to parameters["merchant_trans_id"],
+                    "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                    "error_note" to CANCELLED.error_note
+                )
+        }
+
+        verifyOrder(parameters, merchantId).let {
+            if (it != null) return it
+            else {
+                ClickRepo.saveTransactionComplete(parameters)
+                    ?:return mutableMapOf(
+                        "error" to TRANSACTION_NOT_FOUND.error,
+                        "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                        "merchant_trans_id" to parameters["merchant_trans_id"],
+                        "merchant_confirm_id" to parameters["merchant_prepare_id"],
+                        "error_note" to TRANSACTION_NOT_FOUND.error_note)
+
+                println("\nSUCCESS\n")
+                orderRepository.editPaidOrder(
+                    OrderDto(
+                        id = parameters["merchant_trans_id"]?.toLongOrNull(),
+                        paymentTypeDto = PaymentTypeDto(isPaid = true)
+                    )
+                )
+                return mutableMapOf(
+                    "error" to SUCCESS.error,
+                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                    "merchant_trans_id" to parameters["merchant_trans_id"],
+                    "merchant_confirm_id" to parameters["merchant_prepare_id"],
+                    "error_note" to SUCCESS.error_note
+                )
+            }
+        }
+    }
 
     private fun String.parseLong(): Long {
         return this.substringBeforeLast('.').toLongOrNull() ?: 0L
     }
 
-    suspend fun complete(parameters: Parameters?, merchantId: Long): Map<String, *> {
+    private suspend fun verifyMD5Hash(
+        parameters: Parameters,
+        prepare: Boolean = false,
+        merchantId: Long?
+    ): Boolean {
 
-        if (parameters?.get("error")?.toIntOrNull() != 0)
+        val clickPayment = PaymentService.get(merchantId)
+        println(clickPayment)
+
+        val merchantPrepId = if (prepare) "" else parameters["merchant_prepare_id"].toString()
+        println(prepare)
+        println("merchantPrepId-->$merchantPrepId")
+
+        val input = (parameters["click_trans_id"]
+                + parameters["service_id"]
+                + clickPayment?.clickKey
+                + parameters["merchant_trans_id"]
+                + merchantPrepId
+                + parameters["amount"]
+                + parameters["action"]
+                + parameters["sign_time"])
+        println(input)
+
+        val md5Hash = DigestUtils.md5Hex(input.toByteArray())
+        return md5Hash == parameters["sign_string"]
+    }
+
+    private suspend fun verifyOrder(parameters: Parameters, merchantId: Long): Map<String, *>? {
+
+        val orderId = parameters["merchant_trans_id"]
+        if (orderId.isNullOrBlank())
+             return mutableMapOf(
+                "error" to ERROR_IN_REQUEST.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                 "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                "error_note" to ERROR_IN_REQUEST.error_note
+            )
+        else if (orderId.toLongOrNull() == null)
             return mutableMapOf(
-                "error" to CANCELLED.error,
-                "click_trans_id" to parameters?.get("click_trans_id")?.toLongOrNull(),
-                "merchant_trans_id" to parameters?.get("merchant_trans_id"),
-                "error_note" to CANCELLED.error_note
+                "error" to USER_NOT_FOUND.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                "error_note" to USER_NOT_FOUND.error_note
             )
 
-        prepare(parameters, merchantId, true).let {
+        val orderWrapper = orderRepository.get(orderId.toLong(), merchantId)
+        val order = orderWrapper?.order
+        val amount = (parameters["amount"]?.parseLong() ?: 0) * 100
+        println("\nclick prepare order-->${GSON.toJson(orderWrapper?.order)}")
+        println("\nclick prepare details-->${GSON.toJson(orderWrapper?.details)}")
 
-            ClickRepo.saveTransactionComplete(parameters)
-                ?:return mutableMapOf(
-                    "error" to TRANSACTION_NOT_FOUND.error,
-                    "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                    "merchant_trans_id" to parameters["merchant_trans_id"],
-                    "error_note" to TRANSACTION_NOT_FOUND.error_note
-                )
 
-            if (it["error"] == SUCCESS.error) {
-                orderRepository.editPaidOrder(
-                    OrderDto(
-                        id = it["merchant_trans_id"] as Long?,
-                        paymentTypeDto = PaymentTypeDto(isPaid = true)
-                    )
-                )
+        if (order == null)
+            return mutableMapOf(
+                "error" to ORDER_NOT_FOUND.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                "error_note" to ORDER_NOT_FOUND.error_note
+            )
 
-                return mutableMapOf(
-                    "error" to SUCCESS.error,
-                    "click_trans_id" to it["click_trans_id"],
-                    "merchant_confirm_id" to it["merchant_prepare_id"],
-                    "merchant_trans_id" to it["merchant_trans_id"]
-                )
-            }
-            else return it
-        }
+        if ((orderWrapper.details?.createdAt?.time
+                ?: 0L) + CLICK_EXPIRED_TIME < System.currentTimeMillis()
+        ) return mutableMapOf(
+            "error" to CANCELLED.error,
+            "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+            "merchant_trans_id" to parameters["merchant_trans_id"],
+            "merchant_prepare_id" to parameters["merchant_prepare_id"],
+            "error_note" to CANCELLED.error_note
+        )
+
+        if (order.paymentTypeDto?.isPaid == true)
+            return mutableMapOf(
+                "error" to ALREADY_PAID.error,
+                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+                "merchant_trans_id" to parameters["merchant_trans_id"],
+                "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                "error_note" to ALREADY_PAID.error_note
+            )
+
+        if (orderWrapper.details?.totalPrice != amount ||
+            order.paymentTypeDto?.id != CLICK.id
+        ) return mutableMapOf(
+            "error" to INCORRECT_PARAMETER_AMOUNT.error,
+            "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+            "merchant_trans_id" to parameters["merchant_trans_id"],
+            "merchant_prepare_id" to parameters["merchant_prepare_id"],
+            "error_note" to INCORRECT_PARAMETER_AMOUNT.error_note
+        )
+
+        return null
     }
 
     suspend fun getCheckout(orderId: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
@@ -204,3 +228,4 @@ object ClickService {
     }
 
 }
+
