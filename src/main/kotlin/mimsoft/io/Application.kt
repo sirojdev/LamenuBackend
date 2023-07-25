@@ -24,28 +24,4 @@ fun Application.module() = runBlocking {
     configureSocket()
      // init
     DBManager.init()
-
-    createTestOrder()
-
-}
-
-suspend fun createTestOrder(){
-    val q = "with g as (\n" +
-            "       insert into orders (created_at, payment_type, is_paid, total_price)\n" +
-            "           values (?, 2, false, 50000)\n" +
-            "              returning id, total_price, created_at\n" +
-            "    )\n" +
-            "insert into order_price (order_id, total_price, created) select * from g returning order_id"
-    withContext(DBManager.databaseDispatcher){
-        DBManager.connection().use {
-            val r = it.prepareStatement(q).apply {
-                this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
-                this.closeOnCompletion()
-            }.executeQuery()
-
-            if (r.next()){
-                println(r.getLong("order_id"))
-            }
-        }
-    }
 }
