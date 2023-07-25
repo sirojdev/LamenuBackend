@@ -324,9 +324,7 @@ object OrderRepositoryImpl : OrderRepository {
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                val statement = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val statement = it.prepareStatement(query).executeQuery()
 
                 while (statement.next()) {
 

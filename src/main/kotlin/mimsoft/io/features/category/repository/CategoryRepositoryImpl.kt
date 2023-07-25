@@ -5,12 +5,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.category.*
-import mimsoft.io.features.category_group.CATEGORY_GROUP_TABLE
 import mimsoft.io.features.category_group.CategoryGroupDto
-import mimsoft.io.features.category_group.CategoryGroupService
-import mimsoft.io.features.category_group.CategoryGroupTable
-import mimsoft.io.features.extra.EXTRA_TABLE_NAME
-import mimsoft.io.features.extra.ExtraTable
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.product.ClientProductDto

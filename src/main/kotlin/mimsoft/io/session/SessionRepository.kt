@@ -167,6 +167,34 @@ object SessionRepository {
 
     }
 
+    suspend fun getStaffSession(sessionUuid: String): SessionTable? {
+        val query = "select * from session where " +
+                "uuid = ? and user_id is not null"
+
+
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, sessionUuid)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                if (rs.next()) SessionTable(
+                    id = rs.getLong("id"),
+                    uuid = rs.getString("uuid"),
+                    userId = rs.getLong("user_id"),
+                    deviceId = rs.getLong("device_id"),
+                    phone = rs.getString("phone"),
+                    isExpired = rs.getBoolean("is_expired"),
+                    stuffId = rs.getLong("stuff_id")
+                )
+                else null
+            }
+        }
+
+    }
+
+
     suspend fun getUserDevices(userId: Long?, merchantId: Long?, uuid: String?): List<DeviceModel?> {
         val query = "select d.* , s.uuid s_uuid  from session s left join device d on d.id = s.device_id " +
                 "where not s.is_expired and s.user_id = $userId and s.merchant_id = $merchantId and d.id is not null"

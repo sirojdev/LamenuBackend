@@ -130,12 +130,13 @@ object StaffService {
         }
     }
 
-    suspend fun getByPhone(phone: String?): StaffTable? =
-        DBManager.getPageData(
-            dataClass = StaffTable::class,
-            tableName = STAFF_TABLE_NAME,
-            where = mapOf("phone" to phone as String)
-        )?.data?.firstOrNull()
+    suspend fun getByPhone(phone: String?): StaffTable? {
+            return DBManager.getPageData(
+                dataClass = StaffTable::class,
+                tableName = STAFF_TABLE_NAME,
+                where = mapOf("phone" to phone as String)
+            )?.data?.firstOrNull()
+    }
 
     suspend fun add(staff: StaffDto?): ResponseModel {
         when {

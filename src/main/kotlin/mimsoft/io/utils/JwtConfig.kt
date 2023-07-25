@@ -15,6 +15,7 @@ object JwtConfig {
     private const val secretDevice = "dAviDg-agFgrGggSgtWbt"
     private const val secretMerchant = "LaMenuMerchant-r42gweRt"
     private const val secretUser = "LaMenuMusernt-FsdAafF"
+    private const val secretStuff = "laMenu+0stuff_mYinCh"
 
     private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
     private const val validityRefresh = 2_592_000_000 * 1000L// 1 month
@@ -28,6 +29,7 @@ object JwtConfig {
     private val algorithmMerchant = Algorithm.HMAC512(secretMerchant)
     private val algorithmDevice = Algorithm.HMAC512(secretDevice)
     private val algorithmUser = Algorithm.HMAC512(secretUser)
+    private val algorithmStaff = Algorithm.HMAC512(secretStuff)
 
 
     val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
@@ -37,6 +39,7 @@ object JwtConfig {
     val verifierDevice: JWTVerifier = JWT.require(algorithmDevice).withIssuer(issuer).build()
     val verifierMerchant: JWTVerifier = JWT.require(algorithmMerchant).withIssuer(issuer).build()
     val verifierUser: JWTVerifier = JWT.require(algorithmUser).withIssuer(issuer).build()
+    val verifierStaff: JWTVerifier = JWT.require(algorithmStaff).withIssuer(issuer).build()
 
     fun generateDeviceToken(
         merchantId: Long?,
@@ -115,6 +118,14 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
 
+    fun generateStaffToken(merchantId: Long?, uuid: String?): String = JWT.create()
+        .withSubject("stuff")
+        .withIssuer(issuer)
+        .withClaim("merchantId", merchantId)
+        .withClaim("uuid", uuid)
+        .withExpiresAt(getExpiration(validityAccessUser))
+        .sign(algorithmStaff)
+
     fun generateModifyToken(sessionUuid: String?): String? = JWT.create()
         .withSubject("modify")
         .withIssuer(issuer)
@@ -123,5 +134,4 @@ object JwtConfig {
         .sign(algorithmLogin)
 
     private fun getExpiration(validate: Long) = Date(System.currentTimeMillis() + validate)
-
 }

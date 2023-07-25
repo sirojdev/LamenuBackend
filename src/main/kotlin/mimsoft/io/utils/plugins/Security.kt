@@ -11,6 +11,7 @@ import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.payment.PaymentService
+import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.integrate.payme.models.PaymePrincipal
 import mimsoft.io.integrate.payme.models.Receive
 import mimsoft.io.session.SessionPrincipal
@@ -150,6 +151,24 @@ fun Application.configureSecurity() {
                     UserPrincipal(
                         id = session.userId,
                         uuid = session.uuid,
+                        merchantId = credential.payload.getClaim("merchantId").asLong()
+                    )
+                } else null
+            }
+        }
+
+        jwt("staff") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierUser)
+            validate { credential ->
+                val session = SessionRepository.getStaffSession(
+                    sessionUuid = credential.payload.getClaim("uuid").asString()
+                )
+
+                if (session != null && session.isExpired != true) {
+                    StaffPrincipal(
+                        uuid = session.uuid,
+                        staffId = session.stuffId,
                         merchantId = credential.payload.getClaim("merchantId").asLong()
                     )
                 } else null

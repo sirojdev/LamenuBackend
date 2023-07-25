@@ -2,7 +2,7 @@ package mimsoft.io.rsa
 
 import kotlin.random.Random
 
-object Generator {
+object  Generator {
     private const val AC_TIME = 3 * 60000
     private const val GONE_TIME = 600000
     fun checkValidate(generator: GeneratorModel?): Status {
