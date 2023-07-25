@@ -23,8 +23,6 @@ fun Route.routeToPayme() {
     val paymeService = PaymeService
     val payment = PaymentService
 
-//    authenticate("payme") {
-
     post("payment/payme/{merchantId}") {
         val merchantId = call.parameters["merchantId"]?.toLongOrNull()
         val receive: Receive = call.receive()
@@ -126,6 +124,19 @@ fun Route.routeToPayme() {
             call.respond(response as Any)
         }
     }
-//    }
+
+    get("payment/payme/{merchantId}/{orderId}/{amount}") {
+        val merchantId = call.parameters["merchantId"]?.toLongOrNull()
+        val orderId = call.parameters["orderId"]?.toLongOrNull()
+        val amount = call.parameters["amount"]?.toIntOrNull()
+
+        if (merchantId == null || orderId == null || amount == null) {
+            call.respond(HttpStatusCode.BadRequest, "merchantId, orderId, amount must be not null")
+            return@get
+        }
+
+        val response = paymeService.getCheckout(orderId, amount, merchantId)
+        call.respond(response)
+    }
 
 }

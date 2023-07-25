@@ -53,4 +53,16 @@ fun Route.routeToClick() {
     get("payment/click/info") {
         call.respond(ClickRepo.clickLog())
     }
+
+    get("payment/click/{merchantId}/{orderId}/{amount}") {
+        val merchantId = call.parameters["merchantId"]?.toLongOrNull()
+        val amount = call.parameters["amount"]?.toIntOrNull()
+        val orderId = call.parameters["orderId"]?.toLongOrNull()
+        if (merchantId == null || amount == null || orderId == null) {
+            call.respondText("merchantId or amount or orderId is null")
+            return@get
+        }
+        val response = ClickService.getCheckout(orderId, amount, merchantId)
+        call.respond(response)
+    }
 }

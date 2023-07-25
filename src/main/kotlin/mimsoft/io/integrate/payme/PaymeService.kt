@@ -390,21 +390,14 @@ object PaymeService {
         }
     }
 
-    suspend fun getCheckout(id: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
+    suspend fun getCheckout(orderId: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
         val payment = PaymentService.get(merchantId)
         val params =
-            Base64.getEncoder().encodeToString("m=${payment?.paymeMerchantId};ac.order_id=$id;a=$amount".toByteArray())
+            Base64.getEncoder().encodeToString("m=${payment?.paymeMerchantId};ac.order_id=$orderId;a=$amount".toByteArray())
         return CheckoutLinkModel(link = "https://checkout.paycom.uz/$params")
     }
 
-
 }
 
-//suspend fun main() {
-//    val payment = PaymentService.get(1)
-//    println("payment = ${GSON.toJson(payment)}")
-//    val linck = PaymeService.getCheckout(id = 6, amount = 3608, paymeMerchantId = payment?.paymeMerchantId)
-//    println("linck = $linck")
-//}
 
 
