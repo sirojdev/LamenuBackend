@@ -20,6 +20,7 @@ fun Application.module() {
     configureSerialization()
     configureRouting()
     configureSocket()
+     // init
     DBManager.init()
 
 }
