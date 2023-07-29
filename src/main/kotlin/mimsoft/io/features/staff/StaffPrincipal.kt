@@ -6,5 +6,4 @@ data class StaffPrincipal(
     val uuid: String? = null,
     val staffId: Long? = null,
     val merchantId: Long? = null
-
 ): Principal

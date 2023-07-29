@@ -18,7 +18,7 @@ fun Route.merchantAuthRoute() {
 //    post("auth") {
 //        val staff = call.receive<StaffDto>()
 //        val staffAuth = authService.auth(merchant)
-//        if (merchantAuth != null) {
+//         if (merchantAuth != null) {
 //            call.respond(merchantAuth)
 //        } else
 //            call.respond(HttpStatusCode.BadRequest)

@@ -107,7 +107,6 @@ fun Application.configureSecurity() {
             validate {
                 with(it.payload) {
                     val device = DeviceController.getWithUUid(uuid = getClaim("uuid").asString())
-
                     if (device != null) {
                         DevicePrincipal(
                             id = device.id,
@@ -159,7 +158,7 @@ fun Application.configureSecurity() {
 
         jwt("staff") {
             realm = JwtConfig.issuer
-            verifier(JwtConfig.verifierUser)
+            verifier(JwtConfig.verifierStaff)
             validate { credential ->
                 val session = SessionRepository.getStaffSession(
                     sessionUuid = credential.payload.getClaim("uuid").asString()

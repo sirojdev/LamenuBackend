@@ -121,7 +121,7 @@ object StaffService {
                             comment = rs.getString("comment"),
                             gender = rs.getString("gender"),
                             status = rs.getBoolean("status"),
-                            )
+                        )
                     ).copy(
                         orders = OrderRepositoryImpl.getAll(merchantId = merchantId, courierId = id).data
                     )
@@ -130,12 +130,26 @@ object StaffService {
         }
     }
 
-    suspend fun getByPhone(phone: String?): StaffTable? {
+    suspend fun getByPhone(phone: String?, merchantId: Long? = null): StaffTable? {
+        if (merchantId != null) {
             return DBManager.getPageData(
-                dataClass = StaffTable::class,
-                tableName = STAFF_TABLE_NAME,
-                where = mapOf("phone" to phone as String)
-            )?.data?.firstOrNull()
+                    dataClass = StaffTable::class,
+                    tableName = STAFF_TABLE_NAME,
+                    where = mapOf(
+                        "phone" to phone as Any,
+                        "merchant_id" to merchantId as Any
+                    )
+                )?.data?.firstOrNull()
+
+        } else {
+            return DBManager.getPageData(
+                    dataClass = StaffTable::class,
+                    tableName = STAFF_TABLE_NAME,
+                    where = mapOf("phone" to phone as String)
+                )?.data?.firstOrNull()
+
+        }
+
     }
 
     suspend fun add(staff: StaffDto?): ResponseModel {
@@ -261,8 +275,6 @@ object StaffService {
             }
         }
     }
-
-
 
 
     suspend fun getAllCollector(merchantId: Long?): List<StaffDto?> {

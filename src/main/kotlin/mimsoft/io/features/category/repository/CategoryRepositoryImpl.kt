@@ -160,7 +160,7 @@ object CategoryRepositoryImpl : CategoryRepository {
                 WHERE p.category_id = c.id
                 AND p.merchant_id = $merchantId and not p.deleted) AS products 
             FROM category c left join category_group cg on c.group_id = cg.id 
-            WHERE c.merchant_id = $merchantId 
+            WHERE c.id = $id and c.merchant_id = $merchantId 
             and c.deleted = false order by c.priority, c.created
         """.trimIndent()
         println("\ncategory for client $query")
