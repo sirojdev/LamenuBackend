@@ -1,6 +1,9 @@
 package mimsoft.io.features.product
 
 import mimsoft.io.features.category.CategoryDto
+import mimsoft.io.features.extra.ExtraDto
+import mimsoft.io.features.label.LabelDto
+import mimsoft.io.features.option.OptionDto
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.utils.TextModel
 
@@ -17,5 +20,8 @@ data class ProductDto(
     val timeCookingMin: Long? = null,
     val timeCookingMax: Long? = null,
     val deliveryEnabled: Boolean? = null,
-    val count: Long? = -1
+    val count: Long? = -1,
+    val options: List<OptionDto>? = null,
+    val extras: List<ExtraDto>? = null,
+    val labels: List<LabelDto>? = null
 )

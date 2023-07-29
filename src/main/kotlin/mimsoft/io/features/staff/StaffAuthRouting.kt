@@ -15,7 +15,7 @@ fun Route.routeToStaffAuth(){
     val staffService = StaffService
     val sessionRepo = SessionRepository
 
-    post("staff/auth") {
+    post("auth") {
         val staff = call.receive<StaffDto>()
         val status = staffService.auth(staff)
 

@@ -1,6 +1,5 @@
 package mimsoft.io.routing.v1.client
 
-import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -20,7 +19,6 @@ import mimsoft.io.services.sms.SmsSenderService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.plugins.GSON
 import java.util.*
 
 fun Route.routeToClientAuth() {

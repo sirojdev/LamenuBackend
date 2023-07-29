@@ -39,6 +39,7 @@ import mimsoft.io.features.sms.routeToSms
 import mimsoft.io.features.sms_gateway.routeToSmsGateways
 import mimsoft.io.features.staff.routeToCollector
 import mimsoft.io.features.staff.routeToStaff
+import mimsoft.io.features.staff.routeToStaffProfile
 import mimsoft.io.features.story.routeToStory
 import mimsoft.io.features.story_info.routeToStoryInfo
 import mimsoft.io.features.table.routeToTable

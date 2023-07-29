@@ -1,12 +1,11 @@
 package mimsoft.io.session
 
-import io.ktor.network.tls.extensions.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
-import java.util.UUID
+import java.util.*
 
 object SessionRepository {
 
@@ -167,6 +166,34 @@ object SessionRepository {
 
     }
 
+    suspend fun getStaffSession(sessionUuid: String): SessionTable? {
+        val query = "select * from session where " +
+                "uuid = ? and stuff_id is not null"
+
+
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, sessionUuid)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                if (rs.next()) SessionTable(
+                    id = rs.getLong("id"),
+                    uuid = rs.getString("uuid"),
+                    userId = rs.getLong("user_id"),
+                    deviceId = rs.getLong("device_id"),
+                    phone = rs.getString("phone"),
+                    isExpired = rs.getBoolean("is_expired"),
+                    stuffId = rs.getLong("stuff_id")
+                )
+                else null
+            }
+        }
+
+    }
+
+
     suspend fun getUserDevices(userId: Long?, merchantId: Long?, uuid: String?): List<DeviceModel?> {
         val query = "select d.* , s.uuid s_uuid  from session s left join device d on d.id = s.device_id " +
                 "where not s.is_expired and s.user_id = $userId and s.merchant_id = $merchantId and d.id is not null"
@@ -215,6 +242,66 @@ object SessionRepository {
     suspend fun expireOther(uuid: String?, userId: Long?, merchantId: Long?, deviceId: Long?): Boolean {
         val query = "update session set is_expired = true, updated = ? where " +
                 "user_id = $userId and merchant_id = $merchantId and device_id = $deviceId and not uuid = ?"
+
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                it.prepareStatement(query).apply {
+                    this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
+                    this.setString(2, uuid)
+                    this.closeOnCompletion()
+                }.execute()
+            }
+        }
+    }
+
+    suspend fun getStuffDevices(stuffId: Long?, merchantId: Long?, uuid: String?): List<DeviceModel?> {
+        val query = "select d.* , s.uuid s_uuid  from session s left join device d on d.id = s.device_id " +
+                "where not s.is_expired and s.stuff_id = $stuffId and s.merchant_id = $merchantId and d.id is not null"
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val list = arrayListOf<DeviceModel>()
+
+                while (rs.next()) {
+                    list.add(
+                        DeviceModel(
+                            id = rs.getLong("id"),
+                            uuid = rs.getString("uuid"),
+                            osVersion = rs.getString("os_version"),
+                            model = rs.getString("model"),
+                            ip = rs.getString("ip"),
+                            brand = rs.getString("brand"),
+                            firebaseToken = rs.getString("fb_token"),
+                            isCurrent = rs.getString("s_uuid") == uuid
+                        )
+                    )
+                }
+                return@withContext list
+            }
+        }
+    }
+
+    suspend fun expireOtherStaffs(uuid: String?, stuffId: Long?, merchantId: Long?): Boolean {
+        val query = "update session set is_expired = true, updated = ? where " +
+                "stuff_id = $stuffId and merchant_id = $merchantId and not uuid = ?"
+
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                it.prepareStatement(query).apply {
+                    this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
+                    this.setString(2, uuid)
+                    this.closeOnCompletion()
+                }.execute()
+            }
+        }
+    }
+
+    suspend fun expireOtherStuff(uuid: String?, stuffId: Long?, merchantId: Long?, deviceId: Long?): Boolean {
+        val query = "update session set is_expired = true, updated = ? where " +
+                "stuff_id = $stuffId and merchant_id = $merchantId and device_id = $deviceId and not uuid = ?"
 
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {

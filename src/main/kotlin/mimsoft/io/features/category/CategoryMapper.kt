@@ -13,8 +13,6 @@ object CategoryMapper {
             image = categoryDto.image,
             groupId = categoryDto.groupId,
             merchantId = categoryDto.merchantId,
-            bgColor = categoryDto.bgColor,
-            textColor = categoryDto.textColor,
             priority = categoryDto.priority
         )
     }
@@ -30,8 +28,6 @@ object CategoryMapper {
             ),
             image = categoryTable.image,
             merchantId = categoryTable.merchantId,
-            bgColor = categoryTable.bgColor,
-            textColor = categoryTable.textColor,
             groupId = categoryTable.groupId,
             priority = categoryTable.priority
         )
