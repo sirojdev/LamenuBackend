@@ -102,7 +102,6 @@ object CategoryGroupService {
     suspend fun getClient(merchantId: Long?): List<CategoryGroupDto> {
         val query = """
             SELECT cg.id,
-       cg.bg_color,
        cg.title_uz,
        cg.title_ru,
        cg.title_eng,
@@ -173,7 +172,6 @@ object CategoryGroupService {
                             eng = rs.getString("title_eng")
                         ),
                         categories = list.map { CategoryMapper.toCategoryDto(it)!! },
-                        bgColor = rs.getString("bg_color"),
                         priority = rs.getInt("priority")
                     )
                     data.add(a)
