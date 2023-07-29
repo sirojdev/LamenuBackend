@@ -104,21 +104,17 @@ object CategoryGroupService {
     suspend fun getClient(merchantId: Long?): List<CategoryGroupClientDto> {
         val query = """
             SELECT cg.id,
-       cg.bg_color,
        cg.title_uz,
        cg.title_ru,
        cg.title_eng,
        cg.merchant_id,
-       cg.text_color,
        cg.priority,
        (SELECT json_agg(json_build_object(
                'id', c.id,
-               'bgColor', c.bg_color,
                'nameUz', c.name_uz,
                'nameRu', c.name_ru,
                'nameEng', c.name_eng,
                'image', c.image,
-               'textColor', c.text_color,
                'priority', c.priority,
                'groupId', c.group_id
            ))
@@ -178,7 +174,6 @@ object CategoryGroupService {
                             eng = rs.getString("title_eng")
                         ),
                         categories = list.map { CategoryMapper.toCategoryDto(it)!! },
-                        bgColor = rs.getString("bg_color"),
                         priority = rs.getInt("priority")
                     )
                     data.add(a)
