@@ -53,9 +53,7 @@ object ProductRepositoryImpl : ProductRepository {
             where p.merchant_id = $merchantId and p.deleted = false""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<ProductInfoDto>()
                 while (rs.next()) {
                     val dto = ProductInfoDto(
@@ -329,9 +327,7 @@ object ProductRepositoryImpl : ProductRepository {
         val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                val rs = it.prepareStatement(query).execute()
                 return@withContext !rs
             }
         }
@@ -348,9 +344,7 @@ object ProductRepositoryImpl : ProductRepository {
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     return@withContext ProductInfoDto(
                         product = ProductDto(
@@ -403,9 +397,7 @@ object ProductRepositoryImpl : ProductRepository {
         val listProduct = arrayListOf<ProductDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use { c ->
-                val rs = c.prepareStatement(sql).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = c.prepareStatement(sql).executeQuery()
                 while (rs.next()) {
                     val product = ProductDto(
                         id = rs.getLong("id"),

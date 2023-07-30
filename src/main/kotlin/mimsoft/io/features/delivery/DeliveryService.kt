@@ -3,10 +3,6 @@ package mimsoft.io.features.delivery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
-import mimsoft.io.features.sms_gateway.SmsGatewayDto
-import mimsoft.io.features.sms_gateway.SmsGatewayService
-import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
@@ -61,7 +57,7 @@ object DeliveryService {
                 "updated = ? \n" +
                 "where merchant_id = ${deliveryDto?.merchantId} and not deleted "
         repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
+             it.prepareStatement(query).apply {
                 this.setString(1, deliveryDto?.yandexToken)
                 this.setString(2, deliveryDto?.expressToken)
                 this.setString(3, deliveryDto?.selected)

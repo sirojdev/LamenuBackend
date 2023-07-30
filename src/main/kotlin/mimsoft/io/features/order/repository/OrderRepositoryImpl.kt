@@ -509,6 +509,7 @@ object OrderRepositoryImpl : OrderRepository {
 
         val activeProducts = getOrderProducts(order.products).body as OrderWrapper
         val merchantId = order.user.merchantId
+        val totalPrice = activeProducts.price?.totalPrice
 
 
         val queryPrice = """
@@ -538,8 +539,10 @@ object OrderRepositoryImpl : OrderRepository {
                 add_desc,
                 created_at,
                 comment,
-                payment_type
+                payment_type,
+                total_price
             ) values (
+                ?,
                 ?,
                 ?,
                 ?,
@@ -569,6 +572,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setTimestamp(10, Timestamp(System.currentTimeMillis()))
                     setString(11, order.details?.comment)
                     setLong(12, order.order.paymentTypeDto?.id ?: 0L)
+                    setLong(13, totalPrice ?: 0L)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -579,7 +583,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(1, orderId)
                     setLong(2, activeProducts.price?.productPrice ?: 0L)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
-                    setLong(4, activeProducts.price?.productPrice ?: 0L)
+                    setLong(4, totalPrice ?: 0L)
                     this.closeOnCompletion()
                 }.execute()
 
@@ -724,11 +728,9 @@ object OrderRepositoryImpl : OrderRepository {
 
         var totalPrice = 0L
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val statement = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val statement = it.prepareStatement(query).executeQuery()
 
                 while (statement.next()) {
                     val productTable = ProductTable(
@@ -762,7 +764,7 @@ object OrderRepositoryImpl : OrderRepository {
             body = OrderWrapper(
                 products = readyProducts,
                 price = OrderPriceDto(
-                    productPrice = totalPrice
+                    totalPrice = totalPrice
                 )
             ),
             httpStatus = ResponseModel.OK
@@ -804,5 +806,25 @@ object OrderRepositoryImpl : OrderRepository {
                 return@use null
             }
         }
+    }
+
+    override suspend fun updateDetails(detail: OrderDetails?): Boolean {
+        val query = """
+            update $ORDER_TABLE_NAME
+            set delivery_at = ?, 
+            delivered_at = ?, 
+            updated_at = ?, 
+            courier_id = ?, 
+            collector_id = ?, 
+            comment = ?, 
+            total_price = ? where id = ${detail?.orderId}
+        """.trimIndent()
+
+        val queryPrice = """
+            update order_price set
+            delivery_price = ${15000},
+            delivery_discount = 
+        """.trimIndent()
+        TODO("Not yet implemented")
     }
 }

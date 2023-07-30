@@ -113,7 +113,7 @@ fun Application.configureSecurity() {
                             uuid = device.uuid,
                             hash = getClaim("hash").asLong(),
                             phone = getClaim("phone").asString(),
-                            merchantId = device.merchantId
+                            merchantId = getClaim("merchantId").asLong()
                         )
                     } else null
 
@@ -183,7 +183,7 @@ fun Application.configureSecurity() {
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
 
-                    if (session != null && session.merchantId == merchantId) {
+                    if (session != null && session.merchantId == merchantId && session.isExpired != true) {
                         MerchantPrincipal(
                             merchantId = session.merchantId,
                             uuid = uuid

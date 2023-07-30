@@ -284,9 +284,7 @@ object CategoryRepositoryImpl : CategoryRepository {
         val query = "update $CATEGORY_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
             ProductRepositoryImpl.repository.connection().use { it ->
-                it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                it.prepareStatement(query).execute()
             }
         }
         return true

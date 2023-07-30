@@ -2,6 +2,7 @@ package mimsoft.io.features.order.repository
 
 import mimsoft.io.features.order.ClientOrderDto
 import mimsoft.io.features.order.OrderDto
+import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.ResponseModel
@@ -34,4 +35,5 @@ interface OrderRepository {
     suspend fun delete(id: Long?): ResponseModel?
     suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String? = null): List<OrderWrapper>
     suspend fun editPaidOrder(order: OrderDto?)
+    suspend fun updateDetails(detail: OrderDetails?): Boolean
 }

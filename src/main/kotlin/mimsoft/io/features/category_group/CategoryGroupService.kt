@@ -68,9 +68,7 @@ object CategoryGroupService {
         val query = "update $CATEGORY_GROUP_TABLE set deleted = true where id = $id and merchant_id = $merchantId"
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                it.prepareStatement(query).execute()
             }
         }
         return true
@@ -102,26 +100,29 @@ object CategoryGroupService {
     suspend fun getClient(merchantId: Long?): List<CategoryGroupDto> {
         val query = """
             SELECT cg.id,
-       cg.title_uz,
-       cg.title_ru,
-       cg.title_eng,
-       cg.merchant_id,
-       cg.priority,
-       (SELECT json_agg(json_build_object(
-               'id', c.id,
-               'nameUz', c.name_uz,
-               'nameRu', c.name_ru,
-               'nameEng', c.name_eng,
-               'image', c.image,
-               'priority', c.priority,
-               'groupId', c.group_id
-           ))
-        FROM category c
-        WHERE c.group_id = cg.id
-          AND c.merchant_id = $merchantId and not c.deleted order by priority, created) AS categories 
-    FROM category_group cg 
-    WHERE cg.merchant_id = $merchantId 
-        and cg.deleted = false order by priority, created
+                   cg.title_uz,
+                   cg.title_ru,
+                   cg.title_eng,
+                   cg.merchant_id,
+                   cg.priority,
+                   cg.bg_color,
+                   (SELECT json_agg(json_build_object(
+                           'id', c.id,
+                           'nameUz', c.name_uz,
+                           'nameRu', c.name_ru,
+                           'nameEng', c.name_eng,
+                           'image', c.image,
+                           'priority', c.priority,
+                           'groupId', c.group_id
+                       ))
+                    FROM category c
+                    WHERE c.group_id = cg.id
+                      AND c.merchant_id = $merchantId 
+                      and not c.deleted) AS categories 
+            FROM category_group cg
+            WHERE cg.merchant_id = $merchantId
+              and cg.deleted = false
+            order by priority, created
         """.trimIndent()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
@@ -171,6 +172,7 @@ object CategoryGroupService {
                             ru = rs.getString("title_ru"),
                             eng = rs.getString("title_eng")
                         ),
+                        bgColor = rs.getString("bg_color"),
                         categories = list.map { CategoryMapper.toCategoryDto(it)!! },
                         priority = rs.getInt("priority")
                     )

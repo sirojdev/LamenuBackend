@@ -12,7 +12,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.sql.Timestamp
 
 fun main() {
-    embeddedServer(Netty, port = 9001, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
 
@@ -22,6 +22,5 @@ fun Application.module() = runBlocking {
     configureSerialization()
     configureRouting()
     configureSocket()
-     // init
     DBManager.init()
 }

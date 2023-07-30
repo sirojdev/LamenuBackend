@@ -13,5 +13,8 @@ data class UserDto(
     val lastName: String? = null,
     val image: String? = null,
     val birthDay: Timestamp? = null,
-    val token : String? = null
+    val token : String? = null,
+    val orderCount: Int? = null,
+    val visitCount: Int? = null,
+    val cashbackBalance: Double? = null
 )

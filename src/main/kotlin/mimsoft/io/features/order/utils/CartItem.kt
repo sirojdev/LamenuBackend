@@ -4,5 +4,5 @@ import mimsoft.io.features.product.ProductDto
 
 data class CartItem(
     var product: ProductDto? = null,
-    val count: Int? = null
+    var count: Int? = null
 )
