@@ -19,5 +19,7 @@ data class DeviceModel(
     var action: String? = null,
     val expAction: Boolean? = null,
     val phone: String? = null,
-    val isCurrent: Boolean? = null
+    val isCurrent: Boolean? = null,
+    val appKey: Long? = null
+
 )

@@ -22,7 +22,7 @@ object RoomService : RoomRepository {
             tableName = ROOM_TABLE_NAME
         )?.data
 
-        return data?.map { mapper.toRoomDto(it)} ?: emptyList()
+        return data?.map { mapper.toRoomDto(it) } ?: emptyList()
     }
 
     override suspend fun get(id: Long?, merchantId: Long?): RoomDto? {
@@ -46,9 +46,9 @@ object RoomService : RoomRepository {
                 "branch_id = ${roomDto?.branchId}, " +
                 "updated = ? \n" +
                 "where id = ${roomDto?.id} and merchant_id = ${roomDto?.merchantId} and not deleted "
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             SmsGatewayService.repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     this.setString(1, roomDto?.name)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
@@ -58,9 +58,9 @@ object RoomService : RoomRepository {
         return true
     }
 
-    override suspend fun delete(id: Long?, merchantId: Long?) : Boolean {
+    override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $ROOM_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             ProductRepositoryImpl.repository.connection().use { it.prepareStatement(query).execute() }
         }
         return true

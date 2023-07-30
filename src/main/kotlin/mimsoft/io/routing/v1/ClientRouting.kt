@@ -27,8 +27,8 @@ fun Route.routeToClient() {
         routeToClientBasket()
         routeToAnnouncement()
         routeToCategoryByGroup()
+        routeToClientDevice()
         authenticate("user") {
-            routeToClientDevice()
             routeToClientProfile()
             routeToAddress()
             routeToOrderClient()

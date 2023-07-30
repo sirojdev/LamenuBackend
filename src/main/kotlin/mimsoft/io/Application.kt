@@ -32,6 +32,5 @@ fun Application.module() = runBlocking {
     configureSerialization()
     configureRouting()
     configureSocket()
-     // init
     DBManager.init()
 }

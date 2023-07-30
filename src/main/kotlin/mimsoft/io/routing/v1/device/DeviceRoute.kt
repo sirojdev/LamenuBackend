@@ -10,7 +10,6 @@ import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
 
 fun Route.routeToDevice() {
-
     post("device") {
         val device: DeviceModel = call.receive()
         println(Gson().toJson(device))

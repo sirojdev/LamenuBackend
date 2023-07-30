@@ -27,7 +27,7 @@ object OutcomeService {
 
     suspend fun get(id: Long?, merchantId: Long?): OutcomeDto? {
         val query = "select * from $OUTCOME_TABLE_NAME where merchant_id = $merchantId and id = $id and not deleted"
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -69,7 +69,7 @@ object OutcomeService {
                 "updated = ? \n" +
                 "where merchant_id = ${outcomeDto?.merchantId} and not deleted "
         repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
+           it.prepareStatement(query).apply {
                 this.setString(1, outcomeDto?.name)
                 this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
@@ -80,7 +80,7 @@ object OutcomeService {
 
     fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $OUTCOME_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        repository.connection().use { it.prepareStatement(query).execute() }
         return true
     }
 }

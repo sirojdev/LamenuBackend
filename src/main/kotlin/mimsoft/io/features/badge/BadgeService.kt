@@ -101,11 +101,9 @@ object BadgeService {
 
     suspend fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $BADGE_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId"
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                it.prepareStatement(query).execute()
             }
         }
         return true

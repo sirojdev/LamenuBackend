@@ -34,9 +34,7 @@ object FavouriteService {
                                f.device_id = ${favouriteDto.deviceId} and
                                f.product_id = ${favouriteDto.product?.id})
                 """.trimIndent()
-                it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                it.prepareStatement(query).execute()
             }
             ResponseModel()
         }
@@ -49,8 +47,6 @@ object FavouriteService {
                         "set device_id = null, client_id = $clientId\n" +
                         "where merchant_id = $merchantId and device_id = $deviceId"
                 it.prepareStatement(query)
-            }.apply {
-                this.closeOnCompletion()
             }.execute()
         }
 
@@ -119,9 +115,7 @@ object FavouriteService {
         val query = "update $FAVOURITE_TABLE_NAME set deleted = true where id = $id"
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                it.prepareStatement(query).execute()
             }
         }
         return true

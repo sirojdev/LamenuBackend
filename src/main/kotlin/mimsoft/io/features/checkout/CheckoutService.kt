@@ -6,6 +6,7 @@ import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.promo.DiscountType
 import mimsoft.io.features.promo.PromoDto
 import mimsoft.io.features.promo.PromoService
+import mimsoft.io.features.stoplist.StopListService
 import mimsoft.io.utils.TimestampSerializer
 import java.sql.Timestamp
 import kotlin.math.max
@@ -63,7 +64,7 @@ object CheckoutService {
         return productPrice
     }
 
-    fun productCount(orderWrapper: OrderWrapper?): Long{
+    fun productCount(orderWrapper: OrderWrapper?): Long {
         val products = orderWrapper?.products
         var totalCount = 0
         products?.forEach { totalCount += it?.count ?: 0 }
@@ -83,4 +84,44 @@ object CheckoutService {
             total = productPrice.toDouble()
         )
     }
+
+
+    suspend fun checkProductCount(dto: CheckoutRequestDto, merchantId: Long?): CheckoutRequestDto {
+        val prodCheck = StopListService.getAll(merchantId = merchantId)
+        for (stopListDto in prodCheck) {
+            dto.order?.products?.forEach {
+                if(stopListDto.id == it?.product?.id){
+                    if(stopListDto.count!! < it?.count!!){
+                        it.count = stopListDto.count.toInt()
+                    }
+                }
+            }
+        }
+        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(dto.order?.products).body as OrderWrapper
+        val productPrice = getTotalPrice.price?.totalPrice ?: 0
+        val products = dto.order
+        return CheckoutRequestDto(
+            order = products,
+            totalPrice = productPrice.toDouble(),
+            promo = dto.promo
+        )
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -51,7 +51,7 @@ object PantryService {
                 " and merchant_id = ${pantryDto.merchantId} " +
                 " and deleted = false"
         repository.connection().use {
-            val rs = it.prepareStatement(query).executeUpdate()
+             it.prepareStatement(query).executeUpdate()
         }
         return true
     }

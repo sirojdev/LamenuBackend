@@ -48,7 +48,7 @@ object StaffService {
 
     suspend fun getAll(merchantId: Long?): List<StaffDto?> {
         val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and deleted = false"
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             val staffs = arrayListOf<StaffDto?>()
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
