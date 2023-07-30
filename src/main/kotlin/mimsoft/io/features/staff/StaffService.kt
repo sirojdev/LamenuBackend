@@ -20,14 +20,14 @@ object StaffService {
         LOGGER.info("auth: $staff")
         when {
             staff?.password == null -> {
-                ResponseModel(
+                return ResponseModel(
                     httpStatus = ResponseModel.PASSWORD_NULL,
                 )
             }
 
             staff.phone == null -> {
-                ResponseModel(
-                    httpStatus = ResponseModel.PASSWORD_NULL
+                return ResponseModel(
+                    httpStatus = ResponseModel.PHONE_NULL
                 )
             }
         }
