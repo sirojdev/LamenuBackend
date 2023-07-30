@@ -27,7 +27,7 @@ object CourierService {
             tableName = COURIER_TABLE_NAME
         )
 
-    suspend fun auth(authDto: AuthDto?): ResponseModel {
+    suspend fun auth(authDto: StaffDto?): ResponseModel {
         LOGGER.info("auth: $authDto")
         when {
             authDto?.password == null -> {
@@ -50,7 +50,8 @@ object CourierService {
                     tableName = STAFF_TABLE_NAME,
                     where = mapOf(
                         "phone" to authDto?.phone as Any,
-                        "password" to authDto.password as Any
+                        "password" to authDto.password as Any,
+                        "merchant_id" to authDto.merchantId as Any
                     )
                 )?.data?.firstOrNull()
             ),
@@ -94,9 +95,9 @@ object CourierService {
     }
 
     suspend fun getById(staffId: Long?):CourierInfoDto? {
-        val query = "select s.*,c.id c_id from staff s " +
+        val query = "select s.*,c.id c_id ,c.balance c_balance from staff s " +
                 " inner join courier c on c.staff_id = s.id " +
-                " where s.id = $staffId"
+                " where s.id = $staffId and s.deleted = false and c.deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -109,7 +110,7 @@ object CourierService {
                         image = rs.getString("image"),
                         gender  = rs.getString("gender"),
                         status = rs.getBoolean("status"),
-                        balance = rs.getDouble("balance"),
+                        balance = rs.getDouble("c_balance"),
                     )
                 } else return@withContext null
             }

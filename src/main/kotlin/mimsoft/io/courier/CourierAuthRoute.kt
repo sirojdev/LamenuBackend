@@ -2,9 +2,11 @@ package mimsoft.io.courier
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
@@ -19,8 +21,11 @@ fun Route.routeToCourierAuth() {
     val sessionRepo = SessionRepository
     route("courier") {
         post("auth") {
-            val authDto = call.receive<AuthDto>()
-            val status = courierService.auth(authDto)
+
+            val device = call.principal<DevicePrincipal>()
+            val courier = call.receive<StaffDto>()
+            val status = courierService.auth(courier.copy(merchantId = device?.merchantId))
+
             if (status.httpStatus != ResponseModel.OK)
                 call.respond(status.httpStatus, status)
             else {

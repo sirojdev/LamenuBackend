@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: Courier documentation
+  description: Courier documentation
+  version: 1.0.0
+servers:
+  - url: 'http://127.0.0.1:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+tags:
+  - name: Profile
+    description: information about profile
+
+
+paths:
+  /courier:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Profile Info
+      description: "Get profile info"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/CourierDto'
+  /courier/orders/open:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Get open orders in merchant
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+#//==================================================================================================SCHEMAS
+components:
+  schemas:
+    CourierDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthDay:
+          type: string
+          format: "yyyy-MM-dd"
+        image:
+          type: string
+        gender:
+          type: string
+        status:
+          type: boolean
+        balance:
+          type: integer
+          format: "double"
+
+
+    OrderDto:
+        type: "object"
+        properties:
+          id:
+            type: "long"
+          branch:
+            $ref: '#/components/schemas/BranchDto'
+          productCount:
+            type: "Integer"
+          totalPrice:
+            type: "Double"
+          created:
+            type: "Timestamp"
+          latitude:
+            type: "Double"
+          longitude:
+            type: "Double"
+          addressName:
+            type: "String"
+          deliveryAt:
+            type: "Timestamp"
+          deliveredAt:
+            type: "Timestamp"
+      BranchDto:
+        type: "object"
+        properties:
+          id:
+            type: "Long"
+          name:
+            $ref: '#/components/schemas/TextModel'
+      TextModel:
+        type: "object"
+        properties:
+          uz:
+            type: "string"
+          ru:
+            type: "string"
+          eng:
+            type: "string"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
