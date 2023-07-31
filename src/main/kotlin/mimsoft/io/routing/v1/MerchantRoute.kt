@@ -9,6 +9,7 @@ import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.cashback.routeToCashback
 import mimsoft.io.features.category.routeToCategory
 import mimsoft.io.features.category_group.routeToCategoryGroup
+import mimsoft.io.features.client_promo.routeToClientPromo
 import mimsoft.io.features.courier.checkout.routeToCourierTransaction
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
@@ -70,6 +71,7 @@ fun Route.routeToMerchant() {
             routeToCategoryGroup()
             routeToAnnounce()
             routeToCourierTransaction()
+            routeToClientPromo()
 
 
             route("settings") {
