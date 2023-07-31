@@ -8,6 +8,7 @@ import mimsoft.io.client.order.routeToOrderClient
 import mimsoft.io.client.table.routeToClientTable
 import mimsoft.io.features.address.routeToAddress
 import mimsoft.io.features.book.routeToBook
+import mimsoft.io.features.client_promo.routeToClientPromo
 import mimsoft.io.features.favourite.routeToFavourites
 import mimsoft.io.routing.v1.client.*
 
@@ -29,6 +30,7 @@ fun Route.routeToClient() {
         routeToCategoryByGroup()
         routeToClientDevice()
         authenticate("user") {
+            routeToClientPromo()
             routeToClientProfile()
             routeToAddress()
             routeToOrderClient()
