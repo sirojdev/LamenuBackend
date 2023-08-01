@@ -1,6 +1,7 @@
 package mimsoft.io.features.client_promo
 
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.promo.PromoDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -19,7 +20,7 @@ object ClientPromoService {
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
-                val list = arrayListOf(ClientPromoDto())
+                val list = mutableListOf<ClientPromoDto>()
                 while (rs.next()) {
                     list.add(
                         ClientPromoDto(
@@ -44,28 +45,51 @@ object ClientPromoService {
         }
     }
 
-//    suspend fun getAll(){
-//        val query = """
-//            select u.*, p.* from client_promo cp left join users u on u.id = cp.client_id left join promo p on cp.promo_id = p.id where not cp.deleted
-//        """.trimIndent()
-//        return withContext(DBManager.databaseDispatcher) {
-//            repository.connection().use {
-//                val rs = it.prepareStatement(query).executeQuery()
-//
-//                val list = arrayListOf(ClientPromoTable)
-//                while (rs.next()) {
-//
-//                    list.add(clientCategory)
-//                }
-//                return@withContext list
-//            }
-//        }
-//    }
+    suspend fun getAll(merchantId: Long?): List<ClientPromoDto>{
+        val query = """
+            select
+                cp.id   cp_id,
+                u.id    u_id,
+                u.phone u_phone,
+                u.first_name,
+                u.last_name,
+                p.id    p_id,
+                p.name  p_name,
+                p.amount
+            from client_promo cp
+            left join users u on u.id = cp.client_id
+            left join promo p on cp.promo_id = p.id
+                where not cp.deleted
+                and u.merchant_id = $merchantId
+                and p.merchant_id = $merchantId
+        """.trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val list = mutableListOf<ClientPromoDto>()
+                while (rs.next()) {
+                    list.add(
+                        ClientPromoDto(
+                            id = rs.getLong("cp_id"),
+                            client = UserDto(
+                                id = rs.getLong("u_id"),
+                                phone = rs.getString("u_phone"),
+                                firstName = rs.getString("first_name"),
+                                lastName = rs.getString("last_name")
+                            ),
+                            promo = PromoDto(
+                                id = rs.getLong("p_id"),
+                                name = rs.getString("p_name"),
+                                amount = rs.getLong("amount"),
+                            )
+                        )
+                    )
+                }
+                return@withContext list
+            }
+        }
+    }
 
-
-
-
-
-
-
+    suspend fun delete(id: Long?): Boolean =
+        repository.deleteData("client_promo", where = "id", whereValue = id)
 }
