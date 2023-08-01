@@ -54,5 +54,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     //tgbot
     implementation("org.telegram:telegrambots:6.5.0")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.0")
 
 }

@@ -158,19 +158,18 @@ fun Application.configureSecurity() {
 
         jwt("staff") {
             realm = JwtConfig.issuer
-            verifier(JwtConfig.verifierMerchant)
+            verifier(JwtConfig.verifierUser)
             validate { cr ->
                 val merchantId = cr.payload.getClaim("merchantId").asLong()
                 val courierId = cr.payload.getClaim("courierId").asLong()
                 val uuid = cr.payload.getClaim("uuid").asString()
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
-
                     if (session != null && session.merchantId == merchantId && session.isExpired != true)  {
                         StaffPrincipal(
-                            merchantId = session.merchantId,
+                            merchantId = merchantId,
                             uuid = uuid,
-                            staffId = session.stuffId
+                            staffId = courierId
                         )
                     } else {
                         null

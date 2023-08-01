@@ -10,7 +10,8 @@ import mimsoft.io.features.staff.StaffPrincipal
 
 fun Route.routeToCouriersInfo() {
     val courierService = CourierService
-    get() {
+
+    get("") {
         val principal = call.principal<StaffPrincipal>()
         val courierId = principal?.staffId
         val dto = courierService.getById(courierId)

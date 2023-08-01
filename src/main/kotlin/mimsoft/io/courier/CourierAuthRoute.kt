@@ -19,7 +19,12 @@ import java.util.*
 fun Route.routeToCourierAuth() {
     val courierService = CourierService
     val sessionRepo = SessionRepository
+<<<<<<< HEAD
     route("courier") {
+=======
+
+    authenticate("device") {
+>>>>>>> b3fe7b8 (auth finished)
         post("auth") {
 
             val device = call.principal<DevicePrincipal>()
@@ -38,6 +43,7 @@ fun Route.routeToCourierAuth() {
                     SessionTable(
                         uuid = uuid,
                         stuffId = authStaff?.id,
+                        merchantId = authStaff?.merchantId
                     )
                 )
 
