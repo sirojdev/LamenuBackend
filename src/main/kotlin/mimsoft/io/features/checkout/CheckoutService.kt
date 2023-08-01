@@ -1,13 +1,9 @@
 package mimsoft.io.features.checkout
 
-import mimsoft.io.config.PRODUCT
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
-import mimsoft.io.features.promo.DiscountType
 import mimsoft.io.features.promo.PromoDto
-import mimsoft.io.features.promo.PromoService
 import mimsoft.io.features.stoplist.StopListService
-import mimsoft.io.utils.TimestampSerializer
 import java.sql.Timestamp
 import kotlin.math.max
 

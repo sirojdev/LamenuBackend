@@ -1,4 +1,4 @@
-package mimsoft.io.features.order.utils
+package mimsoft.io.features.cart
 
 import mimsoft.io.features.product.ProductDto
 

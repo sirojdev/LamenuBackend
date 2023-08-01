@@ -1,6 +1,6 @@
 package mimsoft.io.features.order
 
-import mimsoft.io.features.order.utils.CartItem
+import mimsoft.io.features.cart.CartItem
 import java.sql.Timestamp
 
 data class ClientOrderDto(

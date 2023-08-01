@@ -14,7 +14,7 @@ import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
 import mimsoft.io.features.order.price.OrderPriceTable
-import mimsoft.io.features.order.utils.CartItem
+import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper

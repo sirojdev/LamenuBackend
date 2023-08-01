@@ -24,7 +24,8 @@ object ProductMapper {
             idRKeeper = productDto.productIntegration?.idRkeeper,
             deliveryEnabled = productDto.deliveryEnabled,
             timeCookingMax = productDto.timeCookingMax,
-            timeCookingMin = productDto.timeCookingMin
+            timeCookingMin = productDto.timeCookingMin,
+            discount = productDto.discount
         )
     }
 
@@ -32,6 +33,7 @@ object ProductMapper {
         return if (productTable == null) null
         else ProductDto(
             id = productTable.id,
+            discount = productTable.discount,
             merchantId = productTable.merchantId,
             name = TextModel(
                 uz = productTable.nameUz,
@@ -54,7 +56,7 @@ object ProductMapper {
             ),
             timeCookingMax = productTable.timeCookingMax,
             timeCookingMin = productTable.timeCookingMin,
-            deliveryEnabled = productTable.deliveryEnabled,
+            deliveryEnabled = productTable.deliveryEnabled
         )
     }
 }

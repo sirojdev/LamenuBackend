@@ -31,7 +31,7 @@ object UserRepositoryImpl : UserRepository {
             b.icon b_icon
                 from users u 
                 left join badge b on b.id = u.badge_id 
-                where u.merchant_id = $merchantId and not u.deleted
+                where u.merchant_id = $merchantId and not u.deleted 
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
