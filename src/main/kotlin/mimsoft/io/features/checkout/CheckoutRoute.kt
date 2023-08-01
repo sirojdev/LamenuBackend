@@ -13,13 +13,4 @@ fun Route.routeToCheckout() {
         val response = CheckoutService.calculate(dto = dto)
         call.respond(response)
     }
-
-    post("checkout") {
-        val pr = call.principal<UserPrincipal>()
-        val merchantId = pr?.merchantId
-        val dto = call.receive<CheckoutRequestDto>()
-        val response = CheckoutService.checkProductCount(dto = dto, merchantId = merchantId)
-        call.respond(response)
-        return@post
-    }
 }
