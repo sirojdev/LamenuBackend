@@ -5,8 +5,16 @@ import io.ktor.server.routing.*
 import mimsoft.io.utils.authorize
 
 fun Route.routeToCouriers() {
-    routeToCourierAuth()
-    authenticate("merchant") {
-        routeToCouriersInfo()
+    authenticate("device") {
+        routeToCourierAuth()
+    }
+    authenticate("staff") {
+        route("courier") {
+            routeToCouriersInfo()
+            authenticate("staff") {
+                routeToCouriersInfo()
+            }
+
+        }
     }
 }

@@ -24,15 +24,30 @@ fun Route.routeToCouriersInfo() {
         get("open") {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
+
+            val orderList = CourierInfoService.getOrdersBySomething(1, "OPEN", courierId)
+            if(orderList.isNullOrEmpty()){
+                call.respond(HttpStatusCode.NoContent)
+            }
+            call.respond(orderList)
         }
         get("active") {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
-
+            val orderList = CourierInfoService.getOrdersBySomething(1, "IN_PROGRESS", courierId)
+            if(orderList.isNullOrEmpty()){
+                call.respond(HttpStatusCode.NoContent)
+            }
+            call.respond(orderList)
         }
         get("archive") {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
+            val orderList = CourierInfoService.getOrdersBySomething(1, "DELIVERY", courierId)
+            if(orderList.isNullOrEmpty()){
+                call.respond(HttpStatusCode.NoContent)
+            }
+            call.respond(orderList)
         }
     }
 }

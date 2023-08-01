@@ -43,9 +43,9 @@ fun Route.routeToCourierAuth() {
 
                 call.respond(
                     authStaff?.copy(
-                        token = JwtConfig.generateAccessToken(
-                            entityId = authStaff.id,
-                            forUser = false,
+                        token = JwtConfig.generateStaffToken(
+                            courierId = authStaff.id,
+                            merchantId = authStaff.merchantId,
                             uuid = uuid,
                         )
                     ) ?: HttpStatusCode.NoContent
