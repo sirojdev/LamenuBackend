@@ -78,33 +78,42 @@ components:
         type: "object"
         properties:
           id:
-            type: "long"
+            type: integer
+            format: "long"
           branch:
             $ref: '#/components/schemas/BranchDto'
           productCount:
-            type: "Integer"
+            type: integer
           totalPrice:
-            type: "Double"
+            type: integer
+            format: "double"
           created:
-            type: "Timestamp"
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
           latitude:
-            type: "Double"
+            type: integer
+            format: "double"
           longitude:
-            type: "Double"
+            type: integer
+            format: "double"
           addressName:
-            type: "String"
+            type: string
           deliveryAt:
-            type: "Timestamp"
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
           deliveredAt:
-            type: "Timestamp"
-      BranchDto:
-        type: "object"
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+
+    BranchDto:
+        type: object
         properties:
           id:
-            type: "Long"
+            type: integer
           name:
             $ref: '#/components/schemas/TextModel'
-      TextModel:
+
+    TextModel:
         type: "object"
         properties:
           uz:
