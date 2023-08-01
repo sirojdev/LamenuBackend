@@ -8,8 +8,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.MerchantPrincipal
 
-fun Route.routeToCourierTransaction(){
-    route("courier/transaction"){
+fun Route.routeToCourierTransaction() {
+    route("courier/transaction") {
         val courierTransactionService = CourierTransactionService
         post {
             val pr = call.principal<MerchantPrincipal>()
@@ -23,8 +23,11 @@ fun Route.routeToCourierTransaction(){
         get("getByCourier") {
             val merchantId = call.parameters["appKey"]
             val courierId = call.parameters["courierId"]
-            val result = courierTransactionService.getByCourierId(courierId = courierId, merchantId = merchantId)
-            if(result.isEmpty()){
+            val result = courierTransactionService.getByCourierId(
+                courierId = courierId?.toLongOrNull(),
+                merchantId = merchantId?.toLongOrNull()
+            )
+            if (result.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }

@@ -2,6 +2,7 @@ package mimsoft.io.courier
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
+import mimsoft.io.courier.transaction.routeToCourierTransaction
 import mimsoft.io.utils.authorize
 
 fun Route.routeToCouriers() {
@@ -11,9 +12,14 @@ fun Route.routeToCouriers() {
     authenticate("staff") {
         route("courier") {
             routeToCouriersInfo()
+<<<<<<< HEAD
             authenticate("staff") {
                 routeToCouriersInfo()
             }
+=======
+            routeToCourierTransaction()
+        }
+>>>>>>> 2d412ea ( courier transaction)
 
         }
     }

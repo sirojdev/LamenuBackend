@@ -19,46 +19,44 @@ import java.util.*
 fun Route.routeToCourierAuth() {
     val courierService = CourierService
     val sessionRepo = SessionRepository
-<<<<<<< HEAD
     route("courier") {
-=======
 
-    authenticate("device") {
->>>>>>> b3fe7b8 (auth finished)
-        post("auth") {
+        authenticate("device") {
+            post("auth") {
 
-            val device = call.principal<DevicePrincipal>()
-            val courier = call.receive<StaffDto>()
-            val status = courierService.auth(courier.copy(merchantId = device?.merchantId))
+                val device = call.principal<DevicePrincipal>()
+                val courier = call.receive<StaffDto>()
+                val status = courierService.auth(courier.copy(merchantId = device?.merchantId))
 
-            if (status.httpStatus != ResponseModel.OK)
-                call.respond(status.httpStatus, status)
-            else {
-                val authStaff = status.body as StaffDto?
-                if(authStaff?.position!="courier"){
-                    call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
-                }
-                val uuid = courierService.generateUuid(authStaff?.id)
-                sessionRepo.auth(
-                    SessionTable(
-                        uuid = uuid,
-                        stuffId = authStaff?.id,
-                        merchantId = authStaff?.merchantId
-                    )
-                )
-
-                call.respond(
-                    authStaff?.copy(
-                        token = JwtConfig.generateStaffToken(
-                            courierId = authStaff.id,
-                            merchantId = authStaff.merchantId,
+                if (status.httpStatus != ResponseModel.OK)
+                    call.respond(status.httpStatus, status)
+                else {
+                    val authStaff = status.body as StaffDto?
+                    if (authStaff?.position != "courier") {
+                        call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
+                    }
+                    val uuid = courierService.generateUuid(authStaff?.id)
+                    sessionRepo.auth(
+                        SessionTable(
                             uuid = uuid,
+                            stuffId = authStaff?.id,
+                            merchantId = authStaff?.merchantId
                         )
-                    ) ?: HttpStatusCode.NoContent
-                )
-            }
-        }
+                    )
 
+                    call.respond(
+                        authStaff?.copy(
+                            token = JwtConfig.generateStaffToken(
+                                courierId = authStaff.id,
+                                merchantId = authStaff.merchantId,
+                                uuid = uuid,
+                            )
+                        ) ?: HttpStatusCode.NoContent
+                    )
+                }
+            }
+
+        }
     }
 
 }
