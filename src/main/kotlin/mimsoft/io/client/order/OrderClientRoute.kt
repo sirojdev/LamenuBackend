@@ -9,6 +9,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.UserPrincipal
+import mimsoft.io.config.toTimeStamp
+import mimsoft.io.features.order.OrderModel
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
@@ -44,6 +46,18 @@ fun Route.routeToOrderClient() {
             status?.body?:
             status?.httpStatus?.description?:
             ResponseModel.SOME_THING_WRONG.description)
+    }
+
+    post("order/model") {
+        val principal = call.principal<UserPrincipal>()
+        val merchantId = principal?.merchantId
+        val userId = principal?.id
+        val order = call.receive<OrderModel>()
+        val status = orderService.addModel(order.copy(user = UserDto(id = userId, merchantId = merchantId)))
+        call.respond(
+            status.httpStatus,
+            status.body?:
+            status.httpStatus.description)
     }
 
     delete("order/{id}") {

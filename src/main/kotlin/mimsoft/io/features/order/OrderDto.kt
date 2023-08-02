@@ -1,7 +1,6 @@
 package mimsoft.io.features.order
 
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
 import java.sql.Timestamp
