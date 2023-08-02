@@ -8,6 +8,8 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.config.TIMESTAMP_FORMAT
+import mimsoft.io.config.toTimeStamp
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
@@ -15,6 +17,8 @@ import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
 import mimsoft.io.features.order.price.OrderPriceTable
 import mimsoft.io.features.cart.CartItem
+import mimsoft.io.features.cart.CartService
+import mimsoft.io.features.checkout.CheckoutService
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
@@ -23,6 +27,7 @@ import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
+import mimsoft.io.features.promo.PromoService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -587,7 +592,139 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(4, totalPrice ?: 0L)
                     this.closeOnCompletion()
                 }.execute()
+                return@withContext ResponseModel(
+                    httpStatus = ResponseModel.OK,
+                    body = orderId
+                )
+            }
+        }
+    }
 
+    override suspend fun addModel(order: OrderModel): ResponseModel {
+        val userInfo = order.user
+        val user = UserRepositoryImpl.get(id = userInfo?.id, merchantId = userInfo?.merchantId)
+        var address: AddressDto? = null
+        if (order.orderType == OrderType.DELIVERY.name && order.address?.id == null)
+            return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
+        else if (order.orderType == OrderType.DELIVERY.name && order.address?.id != null) {
+            address = addressService.get(order.address.id)
+                ?: return ResponseModel(httpStatus = ResponseModel.ADDRESS_NOT_FOUND)
+
+            if (address.latitude == null || address.longitude == null)
+                return ResponseModel(httpStatus = ResponseModel.WRONG_ADDRESS_INFO)
+        }
+
+        if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
+
+        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+        val merchantId = order.user?.merchantId
+        val totalPrice = activeProducts.price?.totalPrice
+        var time = Timestamp(System.currentTimeMillis())
+        if (order.time != null)
+            time = toTimeStamp(order.time)!!
+        var prodDiscount = 0L
+        var deliveryPrice = 15000L
+        var deliveryDiscount = 0L
+        val productCount = CartService.productCount(order.products)
+        if(order.promo != null){
+            val promo = PromoService.getPromoByCode(order.promo)
+            deliveryDiscount = CheckoutService.calculateDeliveryPrice(promo)
+            prodDiscount = CheckoutService.calculateProductPromo(promo, order.products)
+        }
+
+
+        val queryPrice = """
+            insert into order_price (
+                order_id,
+                product_price,
+                created,
+                total_price,
+                product_discount,
+                delivery_discount,
+                delivery_price,
+                total_discount
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )
+        """.trimIndent()
+
+        val queryOrder = """
+            insert into orders (
+                user_id,
+                merchant_id, 
+                user_phone,
+                type,
+                products,
+                status,
+                add_lat,
+                add_long,
+                add_desc,
+                created_at,
+                comment,
+                payment_type,
+                total_price,
+                time,
+                product_count
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?, 
+                $productCount,
+                
+            ) returning id
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val statementOrder = it.prepareStatement(queryOrder).apply {
+                    setLong(1, user?.id!!)
+                    setLong(2, merchantId as Long)
+                    setString(3, user.phone)
+                    setString(4, order.orderType)
+                    setString(5, Gson().toJson(activeProducts.products))
+                    setString(6, OrderStatus.OPEN.name)
+                    setDouble(7, address?.latitude ?: 0.0)
+                    setDouble(8, address?.longitude ?: 0.0)
+                    setString(9, address?.description)
+                    setTimestamp(10, Timestamp(System.currentTimeMillis()))
+                    setString(11, order.comment)
+                    setLong(12, order.paymentType?.id ?: 0L)
+                    setLong(13, totalPrice ?: 0L)
+                    setTimestamp(14, time)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val orderId = if (statementOrder.next()) statementOrder.getLong("id")
+                else return@withContext ResponseModel(httpStatus = ResponseModel.SOME_THING_WRONG)
+
+                it.prepareStatement(queryPrice).apply {
+                    setLong(1, orderId)
+                    setLong(2, activeProducts.price?.productPrice ?: 0L)
+                    setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    setLong(4, totalPrice ?: 0L)
+                    setLong(5, prodDiscount)
+                    setLong(6, deliveryDiscount)
+                    setLong(7, deliveryPrice)
+                    setLong(8, prodDiscount+deliveryDiscount)
+                    this.closeOnCompletion()
+                }.execute()
                 return@withContext ResponseModel(
                     httpStatus = ResponseModel.OK,
                     body = orderId
@@ -772,7 +909,6 @@ object OrderRepositoryImpl : OrderRepository {
         )
 
     }
-
 
     suspend fun getOrder(id: Long?) = withContext(Dispatchers.IO) {
         val query = """

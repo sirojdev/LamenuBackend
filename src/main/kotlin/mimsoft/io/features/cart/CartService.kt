@@ -34,7 +34,7 @@ object CartService {
     }
 
 
-    private fun productCount(products: List<CartItem>): Int {
+    fun productCount(products: List<CartItem>): Int {
         var totalCount = 0
         products.forEach { totalCount += it.count ?: 0 }
         return totalCount
@@ -53,6 +53,4 @@ object CartService {
         }
         return result
     }
-
-
 }

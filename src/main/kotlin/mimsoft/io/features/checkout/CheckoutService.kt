@@ -1,5 +1,6 @@
 package mimsoft.io.features.checkout
 
+import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.promo.PromoDto
@@ -34,8 +35,8 @@ object CheckoutService {
     }
 
 
-    suspend fun calculateProductPromo(promo: PromoDto?, orderWrapper: OrderWrapper?): Long {
-        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(orderWrapper?.products).body as OrderWrapper
+    suspend fun calculateProductPromo(promo: PromoDto?, products: List<CartItem?>?): Long {
+        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(products).body as OrderWrapper
         val productPrice = getTotalPrice.price?.totalPrice ?: 0
         val now = Timestamp(System.currentTimeMillis())
         promo?.let { pr ->
@@ -73,7 +74,7 @@ object CheckoutService {
         val productPrice = getTotalPrice.price?.totalPrice ?: 0
         return CheckoutResponseDto(
             productCount = productCount(dto.order),
-            discountProduct = calculateProductPromo(dto.promo, dto.order),
+            discountProduct = calculateProductPromo(dto.promo, dto.order?.products),
             discountDelivery = calculateDeliveryPrice(dto.promo),
             promoCode = dto.promo?.name,
             deliveryPrice = 15000.0,
