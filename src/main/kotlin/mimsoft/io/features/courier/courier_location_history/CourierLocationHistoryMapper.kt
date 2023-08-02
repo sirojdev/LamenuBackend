@@ -1,11 +1,13 @@
 package mimsoft.io.features.courier.courier_location_history
 
+import java.sql.Timestamp
+
 object CourierLocationHistoryMapper {
     fun toTable(dto: CourierLocationHistoryDto): CourierLocationHistoryTable? {
         return CourierLocationHistoryTable(
             id = dto.id,
             name = dto.name,
-            time = dto.time,
+            time = Timestamp(System.currentTimeMillis()),
             staffId = dto.staffId,
             latitude = dto.latitude,
             longitude = dto.longitude,

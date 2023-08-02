@@ -93,6 +93,21 @@ object CourierService {
             }
         }
     }
+    suspend fun getByStaffId(staffId: Long?, merchantId: Long?): CourierDto? {
+        val query = "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and staff_id = $staffId and deleted = false"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    return@withContext CourierDto(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        staffId = rs.getLong("staff_id"),
+                    )
+                } else return@withContext null
+            }
+        }
+    }
 
     suspend fun getById(staffId: Long?):CourierInfoDto? {
         val query = "select s.*,c.id c_id ,c.balance c_balance from staff s " +
