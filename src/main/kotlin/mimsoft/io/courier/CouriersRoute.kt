@@ -20,4 +20,3 @@ fun Route.routeToCouriers() {
 
         }
     }
-}
