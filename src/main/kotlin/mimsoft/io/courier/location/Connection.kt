@@ -8,5 +8,10 @@ data class Connection(
     val merchantId: Long? = null,
     val staffId: Long? = null,
     val connectAt: Timestamp? = null,
-    val session: DefaultWebSocketSession? = null,
+    var session: DefaultWebSocketSession? = null,
+)
+data class AdminConnection(
+    var merchantId: Long? = null,
+    val connectAt: Timestamp? = null,
+    var session: DefaultWebSocketSession? = null,
 )

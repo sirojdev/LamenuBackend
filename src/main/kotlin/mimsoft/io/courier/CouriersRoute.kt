@@ -12,14 +12,11 @@ fun Route.routeToCouriers() {
     authenticate("staff") {
         route("courier") {
             routeToCouriersInfo()
-<<<<<<< HEAD
             authenticate("staff") {
                 routeToCouriersInfo()
             }
-=======
             routeToCourierTransaction()
         }
->>>>>>> 2d412ea ( courier transaction)
 
         }
     }

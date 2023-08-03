@@ -26,7 +26,18 @@ Content-Type: text/plain
   "merchantId":1,
   "longitude": 56.235656,
   "latitude":45.56562,
-  "staffId":1
+  "staffId":17
+}
+
+###
+WEBSOCKET ws://localhost:9000/location
+Content-Type: text/plain
+
+{
+  "merchantId":2,
+  "longitude": 56.235656,
+  "latitude":45.56562,
+  "staffId":20
 }
 
 ###
@@ -37,16 +48,22 @@ Content-Type: text/plain
   "merchantId":1,
   "longitude": 56.235656,
   "latitude":45.56562,
-  "staffId":1
+  "staffId":17
 }
 
+
 ###
-WEBSOCKET ws://localhost:9000/location
+WEBSOCKET ws://localhost:9000/admin
 Content-Type: text/plain
 
 {
-  "merchantId":1,
-  "longitude": 56.235656,
-  "latitude":45.56562,
-  "staffId":1
+"merchantId":1
+}
+
+###
+WEBSOCKET ws://localhost:9000/admin
+Content-Type: text/plain
+
+{
+"merchantId":2
 }
