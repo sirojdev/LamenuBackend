@@ -10,7 +10,6 @@ import mimsoft.io.features.staff.StaffPrincipal
 
 fun Route.routeToCouriersInfo() {
     val courierService = CourierService
-
     get("") {
         val principal = call.principal<StaffPrincipal>()
         val courierId = principal?.staffId
@@ -26,7 +25,7 @@ fun Route.routeToCouriersInfo() {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
 
-            val orderList = CourierInfoService.getOrdersBySomething(1, "OPEN", courierId)
+            val orderList = CourierOrderService.getOrdersBySomething(1, "OPEN", courierId)
             if(orderList.isNullOrEmpty()){
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -35,7 +34,7 @@ fun Route.routeToCouriersInfo() {
         get("active") {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
-            val orderList = CourierInfoService.getOrdersBySomething(1, "IN_PROGRESS", courierId)
+            val orderList = CourierOrderService.getOrdersBySomething(1, "IN_PROGRESS", courierId)
             if(orderList.isNullOrEmpty()){
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -44,13 +43,12 @@ fun Route.routeToCouriersInfo() {
         get("archive") {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
-            val orderList = CourierInfoService.getOrdersBySomething(1, "DELIVERY", courierId)
+            val orderList = CourierOrderService.getOrdersBySomething(1, "DELIVERY", courierId)
             if(orderList.isNullOrEmpty()){
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
         }
     }
-
 
 }

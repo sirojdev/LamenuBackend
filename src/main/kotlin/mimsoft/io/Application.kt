@@ -3,14 +3,11 @@ package mimsoft.io
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-<<<<<<< HEAD
 import kotlinx.coroutines.*
-=======
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.launch
->>>>>>> d530b8d (merchant socket finished)
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.plugins.*
 import kotlinx.coroutines.channels.Channel
