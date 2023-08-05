@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.courier.orders.CourierOrderService
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffPrincipal
 
@@ -20,35 +21,4 @@ fun Route.routeToCouriersInfo() {
             call.respond(dto)
         }
     }
-    route("orders") {
-        get("open") {
-            val principal = call.principal<StaffPrincipal>()
-            val courierId = principal?.staffId
-
-            val orderList = CourierOrderService.getOrdersBySomething(1, "OPEN", courierId)
-            if(orderList.isNullOrEmpty()){
-                call.respond(HttpStatusCode.NoContent)
-            }
-            call.respond(orderList)
-        }
-        get("active") {
-            val principal = call.principal<StaffPrincipal>()
-            val courierId = principal?.staffId
-            val orderList = CourierOrderService.getOrdersBySomething(1, "IN_PROGRESS", courierId)
-            if(orderList.isNullOrEmpty()){
-                call.respond(HttpStatusCode.NoContent)
-            }
-            call.respond(orderList)
-        }
-        get("archive") {
-            val principal = call.principal<StaffPrincipal>()
-            val courierId = principal?.staffId
-            val orderList = CourierOrderService.getOrdersBySomething(1, "DELIVERY", courierId)
-            if(orderList.isNullOrEmpty()){
-                call.respond(HttpStatusCode.NoContent)
-            }
-            call.respond(orderList)
-        }
-    }
-
 }
