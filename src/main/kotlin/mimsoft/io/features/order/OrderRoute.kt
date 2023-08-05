@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
+import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.MerchantPrincipal
@@ -96,6 +97,17 @@ fun Route.routeToOrder() {
             } else {
                 call.respond(HttpStatusCode.BadRequest)
             }
+        }
+
+        put("update/details"){
+            val detail = call.receive<OrderDetails>()
+            if(detail.orderId == null){
+                call.respond(HttpStatusCode.BadRequest)
+                return@put
+            }
+            val response = repository.updateDetails(detail = detail)
+            call.respond(response)
+            return@put
         }
     }
 }

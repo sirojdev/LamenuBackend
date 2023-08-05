@@ -82,11 +82,9 @@ object SmsService {
                     and not s.deleted
                     and not m.deleted limit $limit offset $offset 
             """
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<SmsDto>()
                 while (rs.next()) {
                     val dto = SmsDto(
@@ -142,7 +140,7 @@ object SmsService {
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
         val query = "update $SMS_TABLE set deleted = true where id = $id and merchant_id = $merchantId"
         withContext(Dispatchers.IO) {
-            repository.connection().use { it.prepareStatement(query).apply { this.closeOnCompletion() }.execute() }
+            repository.connection().use { it.prepareStatement(query).execute() }
         }
         return true
     }

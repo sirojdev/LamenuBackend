@@ -1,12 +1,10 @@
 package mimsoft.io.features.checkout
 
-import mimsoft.io.config.PRODUCT
+import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
-import mimsoft.io.features.promo.DiscountType
 import mimsoft.io.features.promo.PromoDto
-import mimsoft.io.features.promo.PromoService
-import mimsoft.io.utils.TimestampSerializer
+import mimsoft.io.features.stoplist.StopListService
 import java.sql.Timestamp
 import kotlin.math.max
 
@@ -37,8 +35,8 @@ object CheckoutService {
     }
 
 
-    suspend fun calculateProductPromo(promo: PromoDto?, orderWrapper: OrderWrapper?): Long {
-        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(orderWrapper?.products).body as OrderWrapper
+    suspend fun calculateProductPromo(promo: PromoDto?, products: List<CartItem?>?): Long {
+        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(products).body as OrderWrapper
         val productPrice = getTotalPrice.price?.totalPrice ?: 0
         val now = Timestamp(System.currentTimeMillis())
         promo?.let { pr ->
@@ -63,7 +61,7 @@ object CheckoutService {
         return productPrice
     }
 
-    fun productCount(orderWrapper: OrderWrapper?): Long{
+    fun productCount(orderWrapper: OrderWrapper?): Long {
         val products = orderWrapper?.products
         var totalCount = 0
         products?.forEach { totalCount += it?.count ?: 0 }
@@ -76,11 +74,51 @@ object CheckoutService {
         val productPrice = getTotalPrice.price?.totalPrice ?: 0
         return CheckoutResponseDto(
             productCount = productCount(dto.order),
-            discountProduct = calculateProductPromo(dto.promo, dto.order),
+            discountProduct = calculateProductPromo(dto.promo, dto.order?.products),
             discountDelivery = calculateDeliveryPrice(dto.promo),
             promoCode = dto.promo?.name,
             deliveryPrice = 15000.0,
             total = productPrice.toDouble()
         )
     }
+
+
+    suspend fun checkProductCount(dto: CheckoutRequestDto, merchantId: Long?): CheckoutRequestDto {
+        val prodCheck = StopListService.getAll(merchantId = merchantId)
+        for (stopListDto in prodCheck) {
+            dto.order?.products?.forEach {
+                if(stopListDto.id == it?.product?.id){
+                    if(stopListDto.count!! < it?.count!!){
+                        it.count = stopListDto.count.toInt()
+                    }
+                }
+            }
+        }
+        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(dto.order?.products).body as OrderWrapper
+        val productPrice = getTotalPrice.price?.totalPrice ?: 0
+        val products = dto.order
+        return CheckoutRequestDto(
+            order = products,
+            totalPrice = productPrice.toDouble(),
+            promo = dto.promo
+        )
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

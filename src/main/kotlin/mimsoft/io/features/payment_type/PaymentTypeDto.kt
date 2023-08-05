@@ -13,5 +13,6 @@ data class PaymentTypeDto(
         val CASH = PaymentTypeDto(3, "Naqd", "cash")
         val PAYNET = PaymentTypeDto(4, "Paynet", "paynet")
         val UZUM = PaymentTypeDto(5, "Uzum", "uzum")
+        val TERMAINAL = PaymentTypeDto(6, "Terminal", "terminal")
     }
 }

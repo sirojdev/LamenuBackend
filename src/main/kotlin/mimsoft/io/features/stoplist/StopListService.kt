@@ -15,10 +15,10 @@ object StopListService {
     suspend fun decrementCount(id: Long?, merchantId: Long?): Boolean {
         val query = "UPDATE $STOP_LIST_TABLE_NAME " +
                 "SET count = IF(count > 0, count - 1, count) " +
-                "WHERE id = $id and merchant_id = $merchantId;"
+                "WHERE id = $id and merchant_id = $merchantId"
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).execute()
+                it.prepareStatement(query).execute()
             }
         }
         return true
@@ -36,7 +36,7 @@ object StopListService {
                             merchantId = rs.getLong("merchant_id"),
                             productId = rs.getLong("product_id"),
                             branchId = rs.getLong("branch_id"),
-                            count = rs.getLong("count"),
+                            count = rs.getLong("count")
                         )
                     )
                 } else return@withContext null
@@ -121,6 +121,27 @@ object StopListService {
                 } else {
                     return@use null
                 }
+            }
+        }
+    }
+
+    suspend fun getAll(merchantId: Long?): List<StopListDto> {
+        val query = "select * from $STOP_LIST_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val list = arrayListOf<StopListDto>()
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    val a = mapper.toDto(
+                        StopListTable(
+                            branchId = rs.getLong("branch_id"),
+                            productId = rs.getLong("product_id"),
+                            count = rs.getLong("count"),
+                        )
+                    )
+                    list.add(a)
+                }
+                return@withContext list
             }
         }
     }

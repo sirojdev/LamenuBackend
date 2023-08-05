@@ -1,6 +1,5 @@
 package mimsoft.io.client.order
 
-import ch.qos.logback.classic.db.names.ColumnName
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -9,23 +8,36 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.UserPrincipal
+import mimsoft.io.features.order.OrderModel
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.ResponseModel
 
-fun Route.routeToOrderClient() {
+fun Route.routeToClientOrder() {
     val orderService: OrderRepository = OrderRepositoryImpl
-    get("orders") {
-        val principal = call.principal<UserPrincipal>()
-        val orders = orderService.getClientOrders(clientId = principal?.id, merchantId = principal?.merchantId)
-        call.respond(orders.ifEmpty { HttpStatusCode.NoContent })
-    }
+    get ("orders"){
+            val pr = call.principal<UserPrincipal>()
+            val response: Any
+            val clientId = pr?.id
+            val merchantId = pr?.merchantId
+            val filter = call.parameters["filter"]
+            val limit = call.parameters["limit"]?.toLongOrNull()
+            val offset = call.parameters["offset"]
+            if(filter == null){
+                response = OrderRepositoryImpl.getModelList(clientId = clientId, merchantId = merchantId)
+            } else response = OrderRepositoryImpl.getModelList(clientId = clientId, merchantId = merchantId, filter = filter)
+
+            if (response.isEmpty()) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(response)
+        }
 
     get("order/{id}") {
-        val principal = call.principal<UserPrincipal>()
         val id = call.parameters["id"]?.toLongOrNull()
-        val order = orderService.get(id)
+        val order = OrderRepositoryImpl.getModel(id)
         if (order == null) {
             call.respond(HttpStatusCode.NotFound)
             return@get
@@ -34,7 +46,7 @@ fun Route.routeToOrderClient() {
         return@get
     }
 
-    post("order") {
+    post("order/model") {
         val principal = call.principal<UserPrincipal>()
         val merchantId = principal?.merchantId
         val order = call.receive<OrderWrapper>()
@@ -44,6 +56,18 @@ fun Route.routeToOrderClient() {
             status?.body?:
             status?.httpStatus?.description?:
             ResponseModel.SOME_THING_WRONG.description)
+    }
+
+    post("order") {
+        val principal = call.principal<UserPrincipal>()
+        val merchantId = principal?.merchantId
+        val userId = principal?.id
+        val order = call.receive<OrderModel>()
+        val status = orderService.addModel(order.copy(user = UserDto(id = userId, merchantId = merchantId)))
+        call.respond(
+            status.httpStatus,
+            status.body?:
+            status.httpStatus.description)
     }
 
     delete("order/{id}") {

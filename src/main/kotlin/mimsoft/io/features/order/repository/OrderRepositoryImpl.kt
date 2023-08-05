@@ -8,13 +8,18 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.config.TIMESTAMP_FORMAT
+import mimsoft.io.config.toTimeStamp
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
 import mimsoft.io.features.order.price.OrderPriceTable
-import mimsoft.io.features.order.utils.CartItem
+import mimsoft.io.features.cart.CartItem
+import mimsoft.io.features.cart.CartService
+import mimsoft.io.features.checkout.CheckoutService
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
@@ -23,6 +28,7 @@ import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
+import mimsoft.io.features.promo.PromoService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -487,6 +493,204 @@ object OrderRepositoryImpl : OrderRepository {
 
     }
 
+    suspend fun getModel(id: Long?, merchantId: Long? = null): OrderModel? {
+        val query = """
+            select o.id    o_id,
+                o.products,
+                o.status,
+                o.delivery_at,
+                o.delivered_at,
+                o.type  o_type,
+                o.comment,
+                o.product_count,
+                o.grade,
+                o.is_paid,
+                o.total_price,
+                o.add_desc,
+                o.add_long,
+                o.add_lat,
+                o.created_at,
+                pt.name pt_name,
+                pt.icon pt_icon,
+                op.id   op_id,
+                op.delivery_price,
+                op.delivery_discount,
+                op.delivery_promo,
+                op.product_price,
+                op.product_discount,
+                op.delivery_promo,
+                op.total_price,
+                op.total_discount,
+                b.id    b_id,
+                b.name_uz,
+                b.name_ru,
+                b.name_eng,
+                b.longitude,
+                b.latitude,
+                b.address,
+                b.open,
+                b.close
+                from orders o
+                 left join order_price op on o.id = op.order_id
+                 left join branch b on o.branch_id = b.id
+                 left join payment_type pt on o.payment_type = pt.id
+                where not o.deleted
+                and not op.deleted
+                and o.id = $id
+        """.trimIndent()
+        if (merchantId != null)
+            query.plus(" and o.merchant_id = $merchantId")
+        val gson = Gson()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    val products = rs.getString("products")
+                    val typeToken = object : TypeToken<List<CartItem>>() {}.type
+                    val cartList = gson.fromJson<List<CartItem>>(products, typeToken)
+                    return@withContext OrderModel(
+                        id = rs.getLong("o_id"),
+                        products = cartList,
+                        address = AddressDto(
+                            latitude = rs.getDouble("add_lat"),
+                            longitude = rs.getDouble("add_long"),
+                            description = rs.getString("add_desc")
+                        ),
+                        branch = BranchDto(
+                            id = rs.getLong("b_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            open = rs.getString("open"),
+                            close = rs.getString("close"),
+                            address = rs.getString("address"),
+                            longitude = rs.getDouble("longitude"),
+                            latitude = rs.getDouble("latitude"),
+                        ),
+                        time = rs.getTimestamp("created_at").toString(),
+                        cashbackAmount = rs.getDouble("total_discount"),
+                        paymentType = PaymentTypeDto(
+                            name = rs.getString("pt_name"),
+                            icon = rs.getString("pt_icon")
+                        ),
+                        comment = rs.getString("comment"),
+                        orderType = rs.getString("o_type")
+                    )
+                } else return@withContext null
+            }
+        }
+    }
+
+    suspend fun getModelList(
+        clientId: Long?,
+        merchantId: Long?,
+        filter: String? = null,
+        limit: Long? = null,
+        offset: Long? = null
+    ): List<OrderModel> {
+        val limitDefault = 10
+        val offsetDefault = 0
+        val query = StringBuilder()
+        query.append(
+            """
+            select o.id    o_id,
+                o.products,
+                o.status,
+                o.delivery_at,
+                o.delivered_at,
+                o.type  o_type,
+                o.comment,
+                o.product_count,
+                o.grade,
+                o.is_paid,
+                o.total_price,
+                o.add_desc,
+                o.add_long,
+                o.add_lat,
+                o.created_at,
+                pt.name pt_name,
+                pt.icon pt_icon,
+                op.id   op_id,
+                op.delivery_price,
+                op.delivery_discount,
+                op.delivery_promo,
+                op.product_price,
+                op.product_discount,
+                op.delivery_promo,
+                op.total_price,
+                op.total_discount,
+                b.id    b_id,
+                b.name_uz,
+                b.name_ru,
+                b.name_eng,
+                b.longitude,
+                b.latitude,
+                b.address,
+                b.open,
+                b.close
+                from orders o
+                 left join order_price op on o.id = op.order_id
+                 left join branch b on o.branch_id = b.id
+                 left join payment_type pt on o.payment_type = pt.id
+                where not o.deleted
+                and not op.deleted
+                and o.user_id = $clientId and o.merchant_id = $merchantId
+        """.trimIndent()
+        )
+        if (filter != null) query.append(" and o.status = '$filter'")
+        if (limit != null) query.append(" limit $limit ")
+        if(offset!=null) query.append(" offset $offset")
+        else{
+            query.append(" limit $limitDefault offset $offsetDefault")
+        }
+        val gson = Gson()
+        val list = mutableListOf<OrderModel>()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query.toString()).executeQuery()
+                while (rs.next()) {
+                    val products = rs.getString("products")
+                    val typeToken = object : TypeToken<List<CartItem>>() {}.type
+                    val cartList = gson.fromJson<List<CartItem>>(products, typeToken)
+                    val dto = OrderModel(
+                        id = rs.getLong("o_id"),
+                        products = cartList,
+                        address = AddressDto(
+                            latitude = rs.getDouble("add_lat"),
+                            longitude = rs.getDouble("add_long"),
+                            description = rs.getString("add_desc")
+                        ),
+                        branch = BranchDto(
+                            id = rs.getLong("b_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            open = rs.getString("open"),
+                            close = rs.getString("close"),
+                            address = rs.getString("address"),
+                            longitude = rs.getDouble("longitude"),
+                            latitude = rs.getDouble("latitude"),
+                        ),
+                        time = rs.getTimestamp("created_at").toString(),
+                        cashbackAmount = rs.getDouble("total_discount"),
+                        paymentType = PaymentTypeDto(
+                            name = rs.getString("pt_name"),
+                            icon = rs.getString("pt_icon")
+                        ),
+                        comment = rs.getString("comment"),
+                        orderType = rs.getString("o_type")
+                    )
+                    list.add(dto)
+                }
+                return@withContext list
+            }
+        }
+    }
+
     override suspend fun add(order: OrderWrapper?): ResponseModel {
         if (order?.order == null) return ResponseModel(httpStatus = ResponseModel.ORDER_NULL)
         if (order.user?.id == null) return ResponseModel(httpStatus = ResponseModel.USER_NULL)
@@ -510,6 +714,7 @@ object OrderRepositoryImpl : OrderRepository {
 
         val activeProducts = getOrderProducts(order.products).body as OrderWrapper
         val merchantId = order.user.merchantId
+        val totalPrice = activeProducts.price?.totalPrice
 
 
         val queryPrice = """
@@ -539,8 +744,10 @@ object OrderRepositoryImpl : OrderRepository {
                 add_desc,
                 created_at,
                 comment,
-                payment_type
+                payment_type,
+                total_price
             ) values (
+                ?,
                 ?,
                 ?,
                 ?,
@@ -570,6 +777,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setTimestamp(10, Timestamp(System.currentTimeMillis()))
                     setString(11, order.details?.comment)
                     setLong(12, order.order.paymentTypeDto?.id ?: 0L)
+                    setLong(13, totalPrice ?: 0L)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -580,13 +788,146 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(1, orderId)
                     setLong(2, activeProducts.price?.productPrice ?: 0L)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
-                    setLong(4, activeProducts.price?.productPrice ?: 0L)
+                    setLong(4, totalPrice ?: 0L)
                     this.closeOnCompletion()
                 }.execute()
-
                 return@withContext ResponseModel(
                     httpStatus = ResponseModel.OK,
                     body = orderId
+                )
+            }
+        }
+    }
+
+    override suspend fun addModel(order: OrderModel): ResponseModel {
+        val userInfo = order.user
+        val user = UserRepositoryImpl.get(id = userInfo?.id, merchantId = userInfo?.merchantId)
+        var address: AddressDto? = null
+        if (order.orderType == OrderType.DELIVERY.name && order.address?.id == null)
+            return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
+        else if (order.orderType == OrderType.DELIVERY.name && order.address?.id != null) {
+            address = addressService.get(order.address.id)
+                ?: return ResponseModel(httpStatus = ResponseModel.ADDRESS_NOT_FOUND)
+
+            if (address.latitude == null || address.longitude == null)
+                return ResponseModel(httpStatus = ResponseModel.WRONG_ADDRESS_INFO)
+        }
+
+        if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
+
+        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+        val merchantId = order.user?.merchantId
+        val totalPrice = activeProducts.price?.totalPrice
+        var time = Timestamp(System.currentTimeMillis())
+        if (order.time != null)
+            time = toTimeStamp(order.time)!!
+        var prodDiscount = 0L
+        val deliveryPrice = 15000L
+        var deliveryDiscount = 0L
+        val productCount = CartService.productCount(order.products)
+        if (order.promo != null) {
+            val promo = PromoService.getPromoByCode(order.promo)
+            deliveryDiscount = CheckoutService.calculateDeliveryPrice(promo)
+            prodDiscount = CheckoutService.calculateProductPromo(promo, order.products)
+        }
+
+
+        val queryPrice = """
+            insert into order_price (
+                order_id,
+                product_price,
+                created,
+                total_price,
+                product_discount,
+                delivery_discount,
+                delivery_price,
+                total_discount
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )
+        """.trimIndent()
+
+        val queryOrder = """
+            insert into orders (
+                user_id,
+                merchant_id, 
+                user_phone,
+                type,
+                products,
+                status,
+                add_lat,
+                add_long,
+                add_desc,
+                created_at,
+                comment,
+                payment_type,
+                total_price,
+                time,
+                product_count,
+                branch_id
+            ) values (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?, 
+                $productCount,
+                ${order.branch?.id}
+            ) returning id
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val statementOrder = it.prepareStatement(queryOrder).apply {
+                    setLong(1, user?.id!!)
+                    setLong(2, merchantId as Long)
+                    setString(3, user.phone)
+                    setString(4, order.orderType)
+                    setString(5, Gson().toJson(activeProducts.products))
+                    setString(6, OrderStatus.OPEN.name)
+                    setDouble(7, order.address?.latitude ?: 0.0)
+                    setDouble(8, order.address?.longitude ?: 0.0)
+                    setString(9, order.address?.description)
+                    setTimestamp(10, Timestamp(System.currentTimeMillis()))
+                    setString(11, order.comment)
+                    setLong(12, order.paymentType?.id ?: 0L)
+                    setLong(13, totalPrice ?: 0L)
+                    setTimestamp(14, time)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val orderId = if (statementOrder.next()) statementOrder.getLong("id")
+                else return@withContext ResponseModel(httpStatus = ResponseModel.SOME_THING_WRONG)
+
+                it.prepareStatement(queryPrice).apply {
+                    setLong(1, orderId)
+                    setLong(2, activeProducts.price?.productPrice ?: 0L)
+                    setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    setLong(4, totalPrice ?: 0L)
+                    setLong(5, prodDiscount)
+                    setLong(6, deliveryDiscount)
+                    setLong(7, deliveryPrice)
+                    setLong(8, prodDiscount + deliveryDiscount)
+                    this.closeOnCompletion()
+                }.execute()
+                return@withContext ResponseModel(
+                    httpStatus = ResponseModel.OK,
+                    body = getModel(id = orderId)
                 )
             }
         }
@@ -604,7 +945,6 @@ object OrderRepositoryImpl : OrderRepository {
         val order = get(id).order ?: return ResponseModel(httpStatus = ResponseModel.ORDER_NOT_FOUND)
         if (order.status != OrderStatus.OPEN.name)
             return ResponseModel(httpStatus = HttpStatusCode.Forbidden)
-
         return ResponseModel(
             body = repository.deleteData("orders", whereValue = id),
             httpStatus = ResponseModel.OK
@@ -612,31 +952,35 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<OrderWrapper> {
-        val query =
-            "select *," +
-                    " p.id p_id," +
-                    " p.name p_name, " +
-                    " p.icon p_icon," +
-                    " op.total_price op_total_price," +
-                    " op.delivery_price op_delivery_price ," +
-                    " op.product_price op_product_price" +
-                    " " +
-                    " from $ORDER_TABLE_NAME o " +
-                    " inner join payment_type p on o.payment_type =p.id or o.payment_type=0 " +
-                    " inner join order_price op on o.id = op.order_id " +
-                    " where " +
-                    " o.user_id =$clientId " +
-                    " and o.merchant_id = $merchantId " +
-                    " and not o.deleted"
+        val query = StringBuilder()
+        query.append(
+            """
+                select o.*,
+       p.id              p_id,
+       p.name            p_name,
+       p.icon            p_icon,
+       op.total_price    op_total_price,
+       op.delivery_price op_delivery_price,
+       op.product_price  op_product_price
+            from orders o
+                     left join payment_type p on o.payment_type = p.id or o.payment_type = 0
+                     left join order_price op on o.id = op.order_id
+            where o.user_id = $clientId
+              and o.merchant_id = $merchantId
+              and not o.deleted  
+            """
+        )
 
-        if (filter != null) query.plus(" and order.status = $filter")
+        if (filter != null) {
+            query.append(" and o.status = '$filter'")
+        }
         val orders = arrayListOf<OrderWrapper>()
         val gson = Gson()
         println("Query = $query")
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query.toString()).executeQuery()
                 var cartList: List<CartItem>?
                 while (rs.next()) {
                     val products = rs.getString("products")
@@ -724,12 +1068,11 @@ object OrderRepositoryImpl : OrderRepository {
         """.trimIndent()
 
         var totalPrice = 0L
+        var totalDiscount = 0L
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val statement = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val statement = it.prepareStatement(query).executeQuery()
 
                 while (statement.next()) {
                     val productTable = ProductTable(
@@ -742,15 +1085,22 @@ object OrderRepositoryImpl : OrderRepository {
                         descriptionEng = statement.getString("description_eng"),
                         image = statement.getString("image"),
                         active = statement.getBoolean("active"),
-                        costPrice = statement.getLong("cost_price")
+                        costPrice = statement.getLong("cost_price"),
+                        discount = statement.getDouble("discount")
                     )
-
                     sortedProducts?.forEach { cartItem ->
-                        if (cartItem.product?.id == productTable.id) {
-                            totalPrice += productTable.costPrice?.times(cartItem.count?.toLong() ?: 0L) ?: 0L
-                            cartItem.product = productMapper.toProductDto(productTable)
-                            readyProducts.add(cartItem)
+
+                        totalPrice += productTable.costPrice?.times(cartItem.count?.toLong() ?: 0L) ?: 0L
+                        if (cartItem.product?.discount != null) {
+                            totalDiscount += (productTable.costPrice!! / 100).times(productTable.discount!!)
+                                .toLong()
+                            println("totaldiscount = $totalDiscount")
+                            println((productTable.costPrice / 100).times(productTable.discount).toLong())
+                            println("Cost Price = ${productTable.costPrice}")
+                            println("Discount = ${productTable.discount}")
                         }
+                        cartItem.product = productMapper.toProductDto(productTable)
+                        readyProducts.add(cartItem)
                     }
                 }
                 readyProducts.ifEmpty {
@@ -758,12 +1108,13 @@ object OrderRepositoryImpl : OrderRepository {
                 }
             }
         }
-
+        println("totaldiscount = $totalDiscount")
         return ResponseModel(
             body = OrderWrapper(
                 products = readyProducts,
                 price = OrderPriceDto(
-                    productPrice = totalPrice
+                    totalPrice = totalPrice,
+                    totalDiscount = totalDiscount.toLong()
                 )
             ),
             httpStatus = ResponseModel.OK
@@ -771,6 +1122,65 @@ object OrderRepositoryImpl : OrderRepository {
 
     }
 
+
+    suspend fun getOrderProducts2(products: List<CartItem?>?): ResponseModel {
+        products?.forEach {
+            if (it?.product?.id == null || it.count == null)
+                return ResponseModel(httpStatus = ResponseModel.BAD_PRODUCT_ITEM)
+        }
+        val readyProducts = arrayListOf<CartItem>()
+
+        val query = """
+            select * from product
+            where not deleted and active
+            and id in (${products?.joinToString { it?.product?.id.toString() }}) 
+            order by id
+        """.trimIndent()
+
+        var totalPrice = 0L
+        var totalDiscount = 0L
+
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val statement = it.prepareStatement(query).executeQuery()
+                val productDiscountList: MutableList<Pair<Long, Long>> = mutableListOf()
+                while (statement.next()) {
+                    val productTable = ProductTable(
+                        id = statement.getLong("id"),
+                        nameUz = statement.getString("name_uz"),
+                        nameRu = statement.getString("name_ru"),
+                        nameEng = statement.getString("name_eng"),
+                        descriptionUz = statement.getString("description_uz"),
+                        descriptionRu = statement.getString("description_ru"),
+                        descriptionEng = statement.getString("description_eng"),
+                        image = statement.getString("image"),
+                        active = statement.getBoolean("active"),
+                        costPrice = statement.getLong("cost_price"),
+                        discount = statement.getDouble("discount")
+                    )
+                    totalDiscount += (productTable.costPrice!! / 100).times(productTable.discount!!)
+                        .toLong()
+                    val pairToAdd: Pair<Long, Long> = Pair(productTable.costPrice, productTable.discount.toLong())
+                    productDiscountList.add(pairToAdd)
+                }
+                readyProducts.ifEmpty {
+                    return@withContext ResponseModel(httpStatus = ResponseModel.PRODUCT_NOT_FOUND)
+                }
+            }
+        }
+        println("totaldiscount = $totalDiscount")
+        return ResponseModel(
+            body = OrderWrapper(
+                products = readyProducts,
+                price = OrderPriceDto(
+                    totalPrice = totalPrice,
+                    totalDiscount = totalDiscount.toLong()
+                )
+            ),
+            httpStatus = ResponseModel.OK
+        )
+
+    }
 
     suspend fun getOrder(id: Long?) = withContext(Dispatchers.IO) {
         val query = """
@@ -805,5 +1215,25 @@ object OrderRepositoryImpl : OrderRepository {
                 return@use null
             }
         }
+    }
+
+    override suspend fun updateDetails(detail: OrderDetails?): Boolean {
+        val query = """
+            update $ORDER_TABLE_NAME
+            set delivery_at = ?, 
+            delivered_at = ?, 
+            updated_at = ?, 
+            courier_id = ?, 
+            collector_id = ?, 
+            comment = ?, 
+            total_price = ? where id = ${detail?.orderId}
+        """.trimIndent()
+
+        val queryPrice = """
+            update order_price set
+            delivery_price = ${15000},
+            delivery_discount = 
+        """.trimIndent()
+        TODO("Not yet implemented")
     }
 }

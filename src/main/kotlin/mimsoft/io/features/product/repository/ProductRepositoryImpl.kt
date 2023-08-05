@@ -41,6 +41,7 @@ object ProductRepositoryImpl : ProductRepository {
                 p.id_jowi,
                 p.id_join_poster,
                 p.active,
+                p.discount,
                 COALESCE( pan.count, -1) pan_count, 
                 c.id              c_id,
                 c.name_uz         c_name_uz,
@@ -53,9 +54,7 @@ object ProductRepositoryImpl : ProductRepository {
             where p.merchant_id = $merchantId and p.deleted = false""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<ProductInfoDto>()
                 while (rs.next()) {
                     val dto = ProductInfoDto(
@@ -76,6 +75,7 @@ object ProductRepositoryImpl : ProductRepository {
                             timeCookingMax = rs.getLong("time_cooking_max"),
                             timeCookingMin = rs.getLong("time_cooking_min"),
                             deliveryEnabled = rs.getBoolean("delivery_enabled"),
+                            discount = rs.getDouble("discount"),
                             productIntegration = ProductIntegrationDto(
                                 idRkeeper = rs.getLong("id_rkeeper"),
                                 idJowi = rs.getLong("id_jowi"),
@@ -120,6 +120,7 @@ object ProductRepositoryImpl : ProductRepository {
             p.id_jowi,
             p.id_join_poster,
             p.active,
+            p.discount,
             COALESCE( pan.count, -1) pan_count 
             from product p
             left join pantry pan on pan.product_id = p.id
@@ -161,10 +162,11 @@ object ProductRepositoryImpl : ProductRepository {
                         ),
                         image = rs.getString("p_image"),
                         costPrice = rs.getLong("p_cost_price"),
-                        category = CategoryDto(id = rs.getLong("category_id"),),
+                        category = CategoryDto(id = rs.getLong("category_id")),
                         timeCookingMax = rs.getLong("time_cooking_max"),
                         timeCookingMin = rs.getLong("time_cooking_min"),
                         deliveryEnabled = rs.getBoolean("delivery_enabled"),
+                        discount = rs.getDouble("discount"),
                         productIntegration = ProductIntegrationDto(
                             idRkeeper = rs.getLong("id_rkeeper"),
                             idJowi = rs.getLong("id_jowi"),
@@ -303,12 +305,13 @@ object ProductRepositoryImpl : ProductRepository {
                 " delivery_enabled = ${dto?.deliveryEnabled}," +
                 " time_cooking_max = ${dto?.timeCookingMax}," +
                 " time_cooking_min = ${dto?.timeCookingMin}," +
+                " discount = ? " +
                 " updated = ?" +
                 " WHERE id = ${dto?.id} and merchant_id = $merchantId "
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     this.setString(1, dto?.name?.uz)
                     this.setString(2, dto?.name?.ru)
                     this.setString(3, dto?.name?.eng)
@@ -316,7 +319,8 @@ object ProductRepositoryImpl : ProductRepository {
                     this.setString(5, dto?.description?.ru)
                     this.setString(6, dto?.description?.eng)
                     this.setString(7, dto?.image)
-                    this.setTimestamp(8, Timestamp(System.currentTimeMillis()))
+                    this.setDouble(8, dto?.discount!!)
+                    this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
                 }.execute()
                 println(query)
@@ -329,9 +333,7 @@ object ProductRepositoryImpl : ProductRepository {
         val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.execute()
+                val rs = it.prepareStatement(query).execute()
                 return@withContext !rs
             }
         }
@@ -348,9 +350,7 @@ object ProductRepositoryImpl : ProductRepository {
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     return@withContext ProductInfoDto(
                         product = ProductDto(
@@ -385,7 +385,8 @@ object ProductRepositoryImpl : ProductRepository {
                             ),
                             timeCookingMin = rs.getLong("time_cooking_min"),
                             timeCookingMax = rs.getLong("time_cooking_max"),
-                            deliveryEnabled = rs.getBoolean("delivery_enabled")
+                            deliveryEnabled = rs.getBoolean("delivery_enabled"),
+                            discount = rs.getDouble("discount")
                         ),
                         labels = ProductLabelService.getLabelsByProductId(id, merchantId = merchantId),
                         options = OptionRepositoryImpl.getOptionsByProductId(merchantId = merchantId, productId = id),
@@ -403,9 +404,7 @@ object ProductRepositoryImpl : ProductRepository {
         val listProduct = arrayListOf<ProductDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use { c ->
-                val rs = c.prepareStatement(sql).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = c.prepareStatement(sql).executeQuery()
                 while (rs.next()) {
                     val product = ProductDto(
                         id = rs.getLong("id"),
@@ -420,16 +419,17 @@ object ProductRepositoryImpl : ProductRepository {
                             eng = rs.getString("description_eng")
                         ),
                         image = rs.getString("image"),
-                        costPrice =  rs.getLong("cost_price"),
+                        costPrice = rs.getLong("cost_price"),
                         active = rs.getBoolean("active"),
                         productIntegration = ProductIntegrationDto(
                             idJowi = rs.getLong("id_jowi"),
                             idRkeeper = rs.getLong("id_rkeeper"),
                             idJoinPoster = rs.getLong("id_join_poster"),
                         ),
-                         timeCookingMin = rs.getLong("time_cooking_min"),
-                         timeCookingMax = rs.getLong("time_cooking_max"),
+                        timeCookingMin = rs.getLong("time_cooking_min"),
+                        timeCookingMax = rs.getLong("time_cooking_max"),
                         deliveryEnabled = rs.getBoolean("delivery_enabled"),
+                        discount = rs.getDouble("discount")
                     )
                     listProduct.add(product)
                 }
@@ -468,12 +468,12 @@ object ProductRepositoryImpl : ProductRepository {
                                     ru = rs.getString("description_ru"),
                                     eng = rs.getString("description_eng")
                                 )
-                        ),
+                                ),
                         image = rs.getString("image"),
-                        costPrice = rs.getLong("cost_price")
+                        costPrice = rs.getLong("cost_price"),
+                        discount = rs.getDouble("discount")
                     )
                 }
-
             }
         }
         return product

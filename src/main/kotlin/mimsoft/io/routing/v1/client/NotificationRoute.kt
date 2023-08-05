@@ -15,6 +15,7 @@ fun Route.routeToNotification() {
         val user = call.principal<UserPrincipal>()
         val merchantId = user?.merchantId
         val userId = user?.id
+        println(userId)
         val result = NotificationRepositoryImpl.getClient(merchantId = merchantId, userId = userId)
         if(result.isEmpty()){
             call.respond(HttpStatusCode.NoContent)

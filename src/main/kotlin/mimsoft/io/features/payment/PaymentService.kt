@@ -3,6 +3,7 @@ package mimsoft.io.features.payment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
@@ -98,7 +99,7 @@ object PaymentService {
                 "where merchant_id = ${paymentDto?.merchantId} and not deleted "
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     this.setString(1, paymentDto?.paymeSecret)
                     this.setString(2, paymentDto?.apelsinMerchantToken)
                     this.setString(3, paymentDto?.clickKey)
@@ -112,6 +113,31 @@ object PaymentService {
         }
     }
 
+    suspend fun getPaymentTypeClient(merchantId: Long?): List<PaymentTypeDto> {
+        val query = "select " +
+                "       pt.id pt_id, \n" +
+                "       pt.name, \n" +
+                "       pt.icon \n" +
+                "from payment_integration pi \n" +
+                "left join payment_type pt on pi.payment_type_id = pt.id \n" +
+                "where merchant_id = $merchantId \n" +
+                "  and pi.deleted = false"
+        val list = mutableListOf<PaymentTypeDto>()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    val dto = PaymentTypeDto(
+                        id = rs.getLong("pt_id"),
+                        name = rs.getString("name"),
+                        icon = rs.getString("icon")
+                    )
+                    list.add(dto)
+                }
+                return@withContext list
+            }
+        }
+    }
 }
 
 

@@ -7,10 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
 
-fun Route.routeToCheckout(){
-    post("checkout") {
+fun Route.routeToCheckout() {
+    post("order/checkout") {
         val dto = call.receive<CheckoutRequestDto>()
-        val response = CheckoutService.calculate(dto= dto)
+        val response = CheckoutService.calculate(dto = dto)
         call.respond(response)
     }
 }

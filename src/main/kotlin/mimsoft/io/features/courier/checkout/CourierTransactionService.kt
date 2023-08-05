@@ -88,6 +88,5 @@ object CourierTransactionService {
                 return@withContext list
             }
         }
-
     }
 }

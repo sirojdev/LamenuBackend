@@ -9,6 +9,7 @@ import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.cashback.routeToCashback
 import mimsoft.io.features.category.routeToCategory
 import mimsoft.io.features.category_group.routeToCategoryGroup
+import mimsoft.io.features.client_promo.routeToClientPromo
 import mimsoft.io.features.courier.checkout.routeToCourierTransaction
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
@@ -27,6 +28,7 @@ import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
 import mimsoft.io.features.outcome_type.routeToOutcomeType
 import mimsoft.io.features.pantry.routeToPantry
+import mimsoft.io.features.payment.payment_integration.routeToPaymentIntegration
 import mimsoft.io.features.payment.routeToPayment
 import mimsoft.io.features.poster.routeToPoster
 import mimsoft.io.features.product.product_extra.routeToProductExtra
@@ -57,7 +59,7 @@ fun Route.routeToMerchant() {
         routeToMerchantInfo()
 
         authenticate("merchant") {
-
+            routeToPaymentIntegration()
             routeToVisits()
             routeToPantry()
             routeToKitchen()
@@ -70,6 +72,7 @@ fun Route.routeToMerchant() {
             routeToCategoryGroup()
             routeToAnnounce()
             routeToCourierTransaction()
+            routeToClientPromo()
 
 
             route("settings") {

@@ -90,7 +90,8 @@ object SessionRepository {
                     SessionTable(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
-                        userId = rs.getLong("user_id")
+                        userId = rs.getLong("user_id"),
+                        isExpired = rs.getBoolean("is_expired")
                     )
                 } else null
             }
@@ -195,8 +196,12 @@ object SessionRepository {
 
 
     suspend fun getUserDevices(userId: Long?, merchantId: Long?, uuid: String?): List<DeviceModel?> {
-        val query = "select d.* , s.uuid s_uuid  from session s left join device d on d.id = s.device_id " +
-                "where not s.is_expired and s.user_id = $userId and s.merchant_id = $merchantId and d.id is not null"
+        val query = """
+            select d.*, s.uuid s_uuid
+            from session s
+            left join device d on d.id = s.device_id
+            where s.merchant_id = and s.user_id = $userId and not s.is_expired
+        """.trimIndent()
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
