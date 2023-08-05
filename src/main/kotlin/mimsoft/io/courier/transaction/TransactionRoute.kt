@@ -63,7 +63,7 @@ fun Route.routeToCourierTransaction() {
             val courierId = pr?.staffId
             val result = transactionService.getById(courierId = courierId, merchantId = merchantId, transactionId)
             if (result == null) {
-                call.respond(HttpStatusCode.NoContent)
+                call.respond(HttpStatusCode.NotFound)
                 return@get
             }
             call.respond(result)

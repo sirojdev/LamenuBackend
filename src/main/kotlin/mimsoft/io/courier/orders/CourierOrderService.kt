@@ -59,7 +59,7 @@ object CourierOrderService {
     }
 
     suspend fun getAccepted(merchantId: Long?, status: String?): ArrayList<OrderDto> {
-        var query = " select o.id o_id," +
+        val query = " select o.id o_id," +
                 " o.total_price o_price," +
                 " o.delivery_at o_delivery_at," +
                 " o.delivered_at o_delivered_at ," +
@@ -77,9 +77,9 @@ object CourierOrderService {
                 "  from orders o" +
                 "  left join payment_type pt on o.payment_type = pt.id" +
                 "  left join branch b on o.branch_id = b.id " +
-                "  where o.merchant_id = $merchantId and o.status = ? and o.type = ? and o.deleted = false "
+                "  where o.merchant_id = $merchantId and o.status = ? and o.type = ? and o.deleted = false and courier_id is  null" +
+                " order by o.updated_at desc"
 
-        query += " order by o.updated_at desc "
         val list = ArrayList<OrderDto>()
         return withContext(Dispatchers.IO) {
             CourierService.repository.connection().use {

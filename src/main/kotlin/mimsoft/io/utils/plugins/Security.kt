@@ -176,22 +176,8 @@ fun Application.configureSecurity() {
                     }
                 } else null
             }
-
-            verifier(JwtConfig.verifierStaff)
-            validate { credential ->
-                val session = SessionRepository.getStaffSession(
-                    sessionUuid = credential.payload.getClaim("uuid").asString()
-                )
-
-                if (session != null && session.isExpired != true) {
-                    StaffPrincipal(
-                        uuid = session.uuid,
-                        staffId = session.stuffId,
-                        merchantId = credential.payload.getClaim("merchantId").asLong()
-                    )
-                } else null
-            }
         }
+
 
         jwt("merchant") {
             realm = JwtConfig.issuer

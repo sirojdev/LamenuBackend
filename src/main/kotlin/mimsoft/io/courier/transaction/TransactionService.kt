@@ -49,6 +49,7 @@ object TransactionService {
             left join courier c on ct.courier_id = c.id
             where ct.merchant_id = $merchantId and ct.courier_id = $courierId and 
              not ct.deleted
+              order by ct.created desc
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {

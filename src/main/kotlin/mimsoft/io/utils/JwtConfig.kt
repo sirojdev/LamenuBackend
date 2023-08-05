@@ -126,6 +126,7 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
 
+
     fun generateStaffToken(merchantId: Long?, uuid: String?): String = JWT.create()
         .withSubject("stuff")
         .withIssuer(issuer)
