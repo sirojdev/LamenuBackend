@@ -8,6 +8,7 @@ import mimsoft.io.features.order.utils.CartItem
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.payment_type.PaymentTypeDto
+import mimsoft.io.features.staff.StaffDto
 
 object OrderMapper {
 
@@ -15,6 +16,7 @@ object OrderMapper {
         return if (orderTable != null)
             OrderDto(
                 id = orderTable.id,
+                courier = StaffDto(id=orderTable.courierId),
                 status = orderTable.status,
                 type = orderTable.type?: OrderType.DELIVERY.name,
                 paymentTypeDto = PaymentTypeDto(id = orderTable.paymentType, isPaid = orderTable.isPaid)

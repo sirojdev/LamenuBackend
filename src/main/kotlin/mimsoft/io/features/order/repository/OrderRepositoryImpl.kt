@@ -430,6 +430,7 @@ object OrderRepositoryImpl : OrderRepository {
                         userId = statement.getLong("user_id"),
                         userPhone = statement.getString("user_phone"),
                         type = statement.getString("type"),
+                        courierId = statement.getLong("courier_id"),
                         products = statement.getString("products"),
                         status = statement.getString("status"),
                         addLat = statement.getDouble("add_lat"),

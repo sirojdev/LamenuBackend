@@ -1,4 +1,4 @@
-package mimsoft.io.courier
+package mimsoft.io.courier.auth
 
 class AuthDto {
     var phone: String? = null

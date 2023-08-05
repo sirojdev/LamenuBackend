@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.courier.CourierOrderService
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.OrderStatus
@@ -48,13 +47,13 @@ fun Route.routeToCourierOrders() {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
             val merchantId = principal?.merchantId
-            val orderList = courierOrderService.getOrdersBySomething(merchantId, OrderStatus.ACCEPTED.name, null)
+            val orderList = courierOrderService.getAccepted(merchantId, OrderStatus.ACCEPTED.name)
             if (orderList.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
         }
-        put("get") {
+        get("get") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
@@ -68,7 +67,7 @@ fun Route.routeToCourierOrders() {
                 call.respond(HttpStatusCode.OK, result)
             }
         }
-        put("onway") {
+        get("onway") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
@@ -82,7 +81,7 @@ fun Route.routeToCourierOrders() {
                 call.respond(HttpStatusCode.OK, result)
             }
         }
-        put("delivered") {
+        get("delivered") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId

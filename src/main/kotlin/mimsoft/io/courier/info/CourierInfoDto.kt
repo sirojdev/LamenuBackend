@@ -1,4 +1,4 @@
-package mimsoft.io.courier
+package mimsoft.io.courier.info
 
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import java.sql.Timestamp

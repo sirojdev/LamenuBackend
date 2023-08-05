@@ -2,10 +2,8 @@ package mimsoft.io.features.courier
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.courier.AuthDto
-import mimsoft.io.courier.CourierInfoDto
+import mimsoft.io.courier.info.CourierInfoDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
-import mimsoft.io.features.order.ORDER_TABLE_NAME
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
@@ -109,7 +107,7 @@ object CourierService {
         }
     }
 
-    suspend fun getById(staffId: Long?):CourierInfoDto? {
+    suspend fun getById(staffId: Long?): CourierInfoDto? {
         val query = "select s.*,c.id c_id ,c.balance c_balance from staff s " +
                 " inner join courier c on c.staff_id = s.id " +
                 " where s.id = $staffId and s.deleted = false and c.deleted = false"

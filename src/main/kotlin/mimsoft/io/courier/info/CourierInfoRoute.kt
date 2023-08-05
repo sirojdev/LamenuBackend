@@ -1,4 +1,4 @@
-package mimsoft.io.courier
+package mimsoft.io.courier.info
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,7 +10,7 @@ import mimsoft.io.features.staff.StaffPrincipal
 
 fun Route.routeToCouriersInfo() {
     val courierService = CourierService
-    get("") {
+    get("profile") {
         val principal = call.principal<StaffPrincipal>()
         val courierId = principal?.staffId
         val dto = courierService.getById(courierId)

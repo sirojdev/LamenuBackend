@@ -16,6 +16,22 @@ import mimsoft.io.utils.TextModel
 object TransactionService {
     private val repository: BaseRepository = DBManager
     private val mapper = CourierTransactionMapper
+//    suspend fun add(dto: CourierTransactionDto?): Int {
+//        val query = "insert into courier_transaction (merchant_id, courier_id, time, " +
+//                "amount,from_order_id," +
+//                "branch_id,created,updated )" +
+//                " values(${dto?.merchantId},${dto?.courier},now()," +
+//                "${dto?.amount},${dto?.order?.order?.id},${dto?.branch?.id},now(),now()"
+//        return withContext(Dispatchers.IO) {
+//            repository.connection().use {
+//                val rs = it.prepareStatement(query).apply {
+//                    this.closeOnCompletion()
+//                }.executeUpdate()
+//                return@withContext rs
+//            }
+//        }
+//    }
+
     suspend fun getList(courierId: Long?, merchantId: Long?): List<CourierTransactionDto> {
         val query = """
             select ct.id     ct_id,
