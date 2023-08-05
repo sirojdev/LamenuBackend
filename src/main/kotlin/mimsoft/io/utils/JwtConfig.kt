@@ -117,6 +117,15 @@ object JwtConfig {
         .withClaim("uuid", uuid)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
+    fun generateStaffToken(merchantId: Long?,courierId:Long?, uuid: String?): String = JWT.create()
+        .withSubject("staff")
+        .withIssuer(issuer)
+        .withClaim("merchantId", merchantId)
+        .withClaim("uuid", uuid)
+        .withClaim("courierId", courierId)
+        .withExpiresAt(getExpiration(validityAccessUser))
+        .sign(algorithmUser)
+
 
     fun generateStaffToken(merchantId: Long?, uuid: String?): String = JWT.create()
         .withSubject("stuff")

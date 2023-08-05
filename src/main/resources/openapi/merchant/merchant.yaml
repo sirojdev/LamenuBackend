@@ -2912,6 +2912,7 @@ components:
         phone:
           type: "string"
         password:
+        password:
           type: "string"
         firstName:
           type: "string"

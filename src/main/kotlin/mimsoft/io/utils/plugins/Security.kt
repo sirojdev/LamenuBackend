@@ -158,21 +158,26 @@ fun Application.configureSecurity() {
 
         jwt("staff") {
             realm = JwtConfig.issuer
-            verifier(JwtConfig.verifierStaff)
-            validate { credential ->
-                val session = SessionRepository.getStaffSession(
-                    sessionUuid = credential.payload.getClaim("uuid").asString()
-                )
-
-                if (session != null && session.isExpired != true) {
-                    StaffPrincipal(
-                        uuid = session.uuid,
-                        staffId = session.stuffId,
-                        merchantId = credential.payload.getClaim("merchantId").asLong()
-                    )
+            verifier(JwtConfig.verifierUser)
+            validate { cr ->
+                val merchantId = cr.payload.getClaim("merchantId").asLong()
+                val courierId = cr.payload.getClaim("courierId").asLong()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                if (merchantId != null && uuid != null) {
+                    val session = SessionRepository.getMerchantByUUID(uuid)
+                    if (session != null && session.merchantId == merchantId && session.isExpired != true)  {
+                        StaffPrincipal(
+                            merchantId = merchantId,
+                            uuid = uuid,
+                            staffId = courierId
+                        )
+                    } else {
+                        null
+                    }
                 } else null
             }
         }
+
 
         jwt("merchant") {
             realm = JwtConfig.issuer
@@ -183,7 +188,7 @@ fun Application.configureSecurity() {
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
 
-                    if (session != null && session.merchantId == merchantId) {
+                    if (session != null && session.merchantId == merchantId && session.isExpired != true)  {
                         MerchantPrincipal(
                             merchantId = session.merchantId,
                             uuid = uuid

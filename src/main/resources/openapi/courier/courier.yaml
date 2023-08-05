@@ -1,0 +1,190 @@
+openapi: 3.0.3
+info:
+  title: Courier documentation
+  description: Courier documentation
+  version: 1.0.0
+servers:
+  - url: 'http://127.0.0.1:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+tags:
+  - name: Profile
+    description: information about profile
+  - name: Order courier's
+    description: get orders courier's
+
+
+paths:
+  /courier:
+    get:
+      tags:
+        - Profile
+      security:
+        - bearerAuth: [ ]
+      description: "Get profile info"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: "#/components/schemas/CourierDto"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+
+  /courier/orders/open:
+    get:
+      tags:
+        - Order courier's
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No content"
+
+  /courier/orders/active:
+    get:
+      tags:
+        - Order courier's
+      description: Get active orders courier's
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No content"
+
+  /courier/orders/archive:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Order courier's
+      description: Get archive orders  courier's
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No content"
+
+#//==================================================================================================SCHEMAS
+components:
+  schemas:
+
+    CourierDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        image:
+          type: "string"
+        gender:
+          type: "string"
+        status:
+          type: "boolean"
+        balance:
+          type: "integer"
+          format: "double"
+
+
+    TextModel:
+      type: "object"
+      properties:
+        uz:
+          type: "string"
+        ru:
+          type: "string"
+        eng:
+          type: "string"
+
+    BranchDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          $ref: "#/components/schemas/TextModel"
+
+    OrderDto:
+        type: "object"
+        properties:
+          id:
+            type: "integer"
+            format: "long"
+          branch:
+            $ref: "#/components/schemas/BranchDto"
+          productCount:
+            type: "integer"
+          totalPrice:
+            type: "integer"
+            format: "double"
+          created:
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+          latitude:
+            type: "integer"
+            format: "double"
+          longitude:
+            type: "integer"
+            format: "double"
+          addressName:
+            type: "string"
+          deliveryAt:
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+          deliveredAt:
+            type: "string"
+            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        default:
+          id: 0
+          productCount: 0
+          totalPrice: 0.0
+          latitude: 0.0
+          longitude: 0.0
+
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

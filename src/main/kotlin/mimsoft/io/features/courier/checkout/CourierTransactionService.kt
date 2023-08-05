@@ -22,7 +22,7 @@ object CourierTransactionService {
         )
     }
 
-    suspend fun getByCourierId(courierId: String?, merchantId: String?): List<CourierTransactionDto> {
+    suspend fun getByCourierId(courierId: Long?, merchantId: Long?): List<CourierTransactionDto> {
         val query = """
             select ct.id     ct_id,
                 ct.time      ct_time,
