@@ -577,14 +577,23 @@ object OrderRepositoryImpl : OrderRepository {
                         comment = rs.getString("comment"),
                         orderType = rs.getString("o_type")
                     )
-                }else return@withContext null
+                } else return@withContext null
             }
         }
     }
 
-    suspend fun getModelList(clientId: Long?, merchantId: Long?, filter: String? = null): List<OrderModel> {
+    suspend fun getModelList(
+        clientId: Long?,
+        merchantId: Long?,
+        filter: String? = null,
+        limit: Long? = null,
+        offset: Long? = null
+    ): List<OrderModel> {
+        val limitDefault = 10
+        val offsetDefault = 0
         val query = StringBuilder()
-        query.append("""
+        query.append(
+            """
             select o.id    o_id,
                 o.products,
                 o.status,
@@ -627,19 +636,24 @@ object OrderRepositoryImpl : OrderRepository {
                 where not o.deleted
                 and not op.deleted
                 and o.user_id = $clientId and o.merchant_id = $merchantId
-        """.trimIndent())
-        if (filter != null)
-            query.append(" and o.status = '$filter'")
+        """.trimIndent()
+        )
+        if (filter != null) query.append(" and o.status = '$filter'")
+        if (limit != null) query.append(" limit $limit ")
+        if(offset!=null) query.append(" offset $offset")
+        else{
+            query.append(" limit $limitDefault offset $offsetDefault")
+        }
         val gson = Gson()
         val list = mutableListOf<OrderModel>()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement( query.toString()).executeQuery()
+                val rs = it.prepareStatement(query.toString()).executeQuery()
                 while (rs.next()) {
                     val products = rs.getString("products")
                     val typeToken = object : TypeToken<List<CartItem>>() {}.type
                     val cartList = gson.fromJson<List<CartItem>>(products, typeToken)
-                    val dto =  OrderModel(
+                    val dto = OrderModel(
                         id = rs.getLong("o_id"),
                         products = cartList,
                         address = AddressDto(
@@ -885,7 +899,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setString(4, order.orderType)
                     setString(5, Gson().toJson(activeProducts.products))
                     setString(6, OrderStatus.OPEN.name)
-                    setDouble(7, order.address?.latitude?:0.0)
+                    setDouble(7, order.address?.latitude ?: 0.0)
                     setDouble(8, order.address?.longitude ?: 0.0)
                     setString(9, order.address?.description)
                     setTimestamp(10, Timestamp(System.currentTimeMillis()))
@@ -938,7 +952,8 @@ object OrderRepositoryImpl : OrderRepository {
 
     override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<OrderWrapper> {
         val query = StringBuilder()
-        query.append(            """
+        query.append(
+            """
                 select o.*,
        p.id              p_id,
        p.name            p_name,
@@ -952,9 +967,10 @@ object OrderRepositoryImpl : OrderRepository {
             where o.user_id = $clientId
               and o.merchant_id = $merchantId
               and not o.deleted  
-            """)
+            """
+        )
 
-        if (filter != null){
+        if (filter != null) {
             query.append(" and o.status = '$filter'")
         }
         val orders = arrayListOf<OrderWrapper>()
@@ -1219,9 +1235,4 @@ object OrderRepositoryImpl : OrderRepository {
         """.trimIndent()
         TODO("Not yet implemented")
     }
-}
-
-
-fun main() {
-
 }
