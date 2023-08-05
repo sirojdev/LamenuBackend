@@ -11,7 +11,7 @@ fun Route.routeToPaymentTypes() {
     get("payment/types") {
         val pr = call.principal<UserPrincipal>()
         val merchantId = pr?.merchantId
-        val respond = PaymentService.getForClient(merchantId = merchantId)
+        val respond = PaymentService.getPaymentTypeClient(merchantId = merchantId)
         call.respond(respond)
         return@get
     }

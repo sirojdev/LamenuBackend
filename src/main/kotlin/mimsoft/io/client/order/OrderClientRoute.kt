@@ -1,6 +1,5 @@
 package mimsoft.io.client.order
 
-import ch.qos.logback.classic.db.names.ColumnName
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -9,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.UserPrincipal
-import mimsoft.io.config.toTimeStamp
 import mimsoft.io.features.order.OrderModel
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
@@ -18,16 +16,26 @@ import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToClientOrder() {
     val orderService: OrderRepository = OrderRepositoryImpl
-    get("orders") {
-        val principal = call.principal<UserPrincipal>()
-        val orders = orderService.getClientOrders(clientId = principal?.id, merchantId = principal?.merchantId)
-        call.respond(orders.ifEmpty { HttpStatusCode.NoContent })
-    }
+    get ("orders"){
+            val pr = call.principal<UserPrincipal>()
+            val response: Any
+            val clientId = pr?.id
+            val merchantId = pr?.merchantId
+            val filter = call.parameters["filter"].toString()
+            if(filter == null){
+                response = OrderRepositoryImpl.getModelList(clientId = clientId, merchantId = merchantId)
+            } else response = OrderRepositoryImpl.getModelList(clientId = clientId, merchantId = merchantId, filter = filter)
+
+            if (response.isEmpty()) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(response)
+        }
 
     get("order/{id}") {
-        val principal = call.principal<UserPrincipal>()
         val id = call.parameters["id"]?.toLongOrNull()
-        val order = orderService.get(id)
+        val order = OrderRepositoryImpl.getModel(id)
         if (order == null) {
             call.respond(HttpStatusCode.NotFound)
             return@get
