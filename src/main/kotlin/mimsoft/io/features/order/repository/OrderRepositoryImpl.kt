@@ -493,61 +493,62 @@ object OrderRepositoryImpl : OrderRepository {
 
     }
 
-/*    suspend fun getModel(id: Long?, merchantId: Long?): OrderModel {
+    suspend fun getModel(id: Long?, merchantId: Long? = null): OrderModel? {
         val query = """
-            select o.id   o_id,
-       o.products,
-       o.status,
-       o.delivery_at,
-       o.delivered_at,
-       o.type o_type,
-       o.comment,
-       o.product_count,
-       o.grade,
-       o.is_paid,
-       o.total_price,
-       o.add_desc,
-       o.add_long,
-       o.add_lat,
-       op.id  op_id,
-       op.delivery_price,
-       op.delivery_discount,
-       op.delivery_promo,
-       op.product_price,
-       op.product_discount,
-       op.delivery_promo,
-       op.total_price,
-       op.total_discount,
-       b.id b_id,
-       b.name_uz,
-       b.name_ru,
-       b.name_eng,
-       b.longitude,
-       b.latitude,
-       b.address,
-       b.open,
-       b.close
-from orders o
-         left join order_price op on o.id = op.order_id
-         left join branch b on o.branch_id = b.id
-where not o.deleted
-  and not op.deleted
-  and o.id = 150
+            select o.id    o_id,
+                o.products,
+                o.status,
+                o.delivery_at,
+                o.delivered_at,
+                o.type  o_type,
+                o.comment,
+                o.product_count,
+                o.grade,
+                o.is_paid,
+                o.total_price,
+                o.add_desc,
+                o.add_long,
+                o.add_lat,
+                o.created_at,
+                pt.name pt_name,
+                pt.icon pt_icon,
+                op.id   op_id,
+                op.delivery_price,
+                op.delivery_discount,
+                op.delivery_promo,
+                op.product_price,
+                op.product_discount,
+                op.delivery_promo,
+                op.total_price,
+                op.total_discount,
+                b.id    b_id,
+                b.name_uz,
+                b.name_ru,
+                b.name_eng,
+                b.longitude,
+                b.latitude,
+                b.address,
+                b.open,
+                b.close
+                from orders o
+                 left join order_price op on o.id = op.order_id
+                 left join branch b on o.branch_id = b.id
+                 left join payment_type pt on o.payment_type = pt.id
+                where not o.deleted
+                and not op.deleted
+                and o.id = $id
         """.trimIndent()
         if (merchantId != null)
             query.plus(" and o.merchant_id = $merchantId")
-
-        var orderTable: OrderTable? = null
-        var orderPriceTable: OrderPriceTable? = null
         val gson = Gson()
-        withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     val products = rs.getString("products")
                     val typeToken = object : TypeToken<List<CartItem>>() {}.type
                     val cartList = gson.fromJson<List<CartItem>>(products, typeToken)
-                    val model = OrderModel(
+                    return@withContext OrderModel(
                         id = rs.getLong("o_id"),
                         products = cartList,
                         address = AddressDto(
@@ -556,70 +557,125 @@ where not o.deleted
                             description = rs.getString("add_desc")
                         ),
                         branch = BranchDto(
-
+                            id = rs.getLong("b_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            open = rs.getString("open"),
+                            close = rs.getString("close"),
+                            address = rs.getString("address"),
+                            longitude = rs.getDouble("longitude"),
+                            latitude = rs.getDouble("latitude"),
                         ),
+                        time = rs.getTimestamp("created_at").toString(),
+                        cashbackAmount = rs.getDouble("total_discount"),
+                        paymentType = PaymentTypeDto(
+                            name = rs.getString("pt_name"),
+                            icon = rs.getString("pt_icon")
+                        ),
+                        comment = rs.getString("comment"),
+                        orderType = rs.getString("o_type")
                     )
-
-                    order = OrderTable(
-                        id = statement.getLong("o_id"),
-                        userId = statement.getLong("user_id"),
-                        userPhone = statement.getString("user_phone"),
-                        type = statement.getString("type"),
-                        products = statement.getString("products"),
-                        status = statement.getString("status"),
-                        addLat = statement.getDouble("add_lat"),
-                        addLong = statement.getDouble("add_long"),
-                        addDesc = statement.getString("add_desc"),
-                        createdAt = statement.getTimestamp("created_at"),
-                        deliveryAt = statement.getTimestamp("delivery_at"),
-                        deliveredAt = statement.getTimestamp("delivered_at"),
-                        updatedAt = statement.getTimestamp("updated_at"),
-                        deleted = statement.getBoolean("deleted"),
-                        comment = statement.getString("comment"),
-                        paymentType = statement.getLong("payment_type"),
-                        isPaid = statement.getBoolean("is_paid")
-                    )
-                    orderPriceTable = OrderPriceTable(
-                        id = statement.getLong("op_id"),
-                        orderId = statement.getLong("order_id"),
-                        deliveryPrice = statement.getLong("delivery_price"),
-                        deliveryPromo = statement.getLong("delivery_promo"),
-                        deliveryDiscount = statement.getLong("delivery_discount"),
-                        productPrice = statement.getLong("product_price"),
-                        productPromo = statement.getLong("product_promo"),
-                        productDiscount = statement.getLong("product_discount"),
-                        totalPrice = statement.getLong("total_price"),
-                        totalDiscount = statement.getLong("total_discount")
-                    )
-                }
+                }else return@withContext null
             }
         }
+    }
 
-        val cartList: List<CartItem>?
-        val typeToken = object : TypeToken<List<CartItem>>() {}.type
-        val products = orderTable?.products
-        cartList = gson.fromJson(products, typeToken)
-        val p = getOrderProducts(products = cartList)
-        val d = p.body as OrderWrapper
-        val prod = d.products
-        return OrderWrapper(
-            order = orderTable?.let { orderMapper.toDto(it) },
-            user = UserDto(
-                id = orderTable?.userId,
-                phone = orderTable?.userPhone
-            ),
-            details = orderMapper.toDetails(orderPriceTable, orderTable),
-            address = orderTable?.let {
-                AddressDto(
-                    latitude = it.addLat,
-                    longitude = it.addLong,
-                    description = it.addDesc
-                )
-            },
-            products = prod
-        )
-
-    }*/
+    suspend fun getModelList(clientId: Long?, merchantId: Long?, filter: String? = null): List<OrderModel> {
+        val query = StringBuilder()
+        query.append("""
+            select o.id    o_id,
+                o.products,
+                o.status,
+                o.delivery_at,
+                o.delivered_at,
+                o.type  o_type,
+                o.comment,
+                o.product_count,
+                o.grade,
+                o.is_paid,
+                o.total_price,
+                o.add_desc,
+                o.add_long,
+                o.add_lat,
+                o.created_at,
+                pt.name pt_name,
+                pt.icon pt_icon,
+                op.id   op_id,
+                op.delivery_price,
+                op.delivery_discount,
+                op.delivery_promo,
+                op.product_price,
+                op.product_discount,
+                op.delivery_promo,
+                op.total_price,
+                op.total_discount,
+                b.id    b_id,
+                b.name_uz,
+                b.name_ru,
+                b.name_eng,
+                b.longitude,
+                b.latitude,
+                b.address,
+                b.open,
+                b.close
+                from orders o
+                 left join order_price op on o.id = op.order_id
+                 left join branch b on o.branch_id = b.id
+                 left join payment_type pt on o.payment_type = pt.id
+                where not o.deleted
+                and not op.deleted
+                and o.user_id = $clientId and o.merchant_id = $merchantId
+        """.trimIndent())
+        if (filter != null)
+            query.append(" and o.status = '$filter'")
+        val gson = Gson()
+        val list = mutableListOf<OrderModel>()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement( query.toString()).executeQuery()
+                while (rs.next()) {
+                    val products = rs.getString("products")
+                    val typeToken = object : TypeToken<List<CartItem>>() {}.type
+                    val cartList = gson.fromJson<List<CartItem>>(products, typeToken)
+                    val dto =  OrderModel(
+                        id = rs.getLong("o_id"),
+                        products = cartList,
+                        address = AddressDto(
+                            latitude = rs.getDouble("add_lat"),
+                            longitude = rs.getDouble("add_long"),
+                            description = rs.getString("add_desc")
+                        ),
+                        branch = BranchDto(
+                            id = rs.getLong("b_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            open = rs.getString("open"),
+                            close = rs.getString("close"),
+                            address = rs.getString("address"),
+                            longitude = rs.getDouble("longitude"),
+                            latitude = rs.getDouble("latitude"),
+                        ),
+                        time = rs.getTimestamp("created_at").toString(),
+                        cashbackAmount = rs.getDouble("total_discount"),
+                        paymentType = PaymentTypeDto(
+                            name = rs.getString("pt_name"),
+                            icon = rs.getString("pt_icon")
+                        ),
+                        comment = rs.getString("comment"),
+                        orderType = rs.getString("o_type")
+                    )
+                    list.add(dto)
+                }
+                return@withContext list
+            }
+        }
+    }
 
     override suspend fun add(order: OrderWrapper?): ResponseModel {
         if (order?.order == null) return ResponseModel(httpStatus = ResponseModel.ORDER_NULL)
@@ -800,7 +856,8 @@ where not o.deleted
                 payment_type,
                 total_price,
                 time,
-                product_count
+                product_count,
+                branch_id
             ) values (
                 ?,
                 ?,
@@ -816,7 +873,8 @@ where not o.deleted
                 ?,
                 ?,
                 ?, 
-                $productCount
+                $productCount,
+                ${order.branch?.id}
             ) returning id
         """.trimIndent()
         return withContext(Dispatchers.IO) {
@@ -828,9 +886,9 @@ where not o.deleted
                     setString(4, order.orderType)
                     setString(5, Gson().toJson(activeProducts.products))
                     setString(6, OrderStatus.OPEN.name)
-                    setDouble(7, address?.latitude ?: 0.0)
-                    setDouble(8, address?.longitude ?: 0.0)
-                    setString(9, address?.description)
+                    setDouble(7, order.address?.latitude?:0.0)
+                    setDouble(8, order.address?.longitude ?: 0.0)
+                    setString(9, order.address?.description)
                     setTimestamp(10, Timestamp(System.currentTimeMillis()))
                     setString(11, order.comment)
                     setLong(12, order.paymentType?.id ?: 0L)
@@ -855,7 +913,7 @@ where not o.deleted
                 }.execute()
                 return@withContext ResponseModel(
                     httpStatus = ResponseModel.OK,
-                    body = orderId
+                    body = getModel(id = orderId)
                 )
             }
         }

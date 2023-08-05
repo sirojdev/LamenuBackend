@@ -3,9 +3,7 @@ package mimsoft.io.features.payment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.features.payment.payment_integration.IntegrationDto
 import mimsoft.io.features.payment_type.PaymentTypeDto
-import mimsoft.io.features.payment_type.repository.PaymentTypeRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
@@ -101,7 +99,7 @@ object PaymentService {
                 "where merchant_id = ${paymentDto?.merchantId} and not deleted "
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     this.setString(1, paymentDto?.paymeSecret)
                     this.setString(2, paymentDto?.apelsinMerchantToken)
                     this.setString(3, paymentDto?.clickKey)
@@ -115,39 +113,31 @@ object PaymentService {
         }
     }
 
-    suspend fun getForClient(merchantId: Long?): List<PaymentTypeDto> {
-        val query = "select * from payment_integration where merchant_id = $merchantId"
-        val smth = PaymentTypeRepositoryImpl.getAll()
-        val smth2 = mutableListOf(PaymentTypeDto)
-        var paymentIntegration: IntegrationDto? = null
-        val list = mutableListOf(PaymentTypeDto)
+    suspend fun getPaymentTypeClient(merchantId: Long?): List<PaymentTypeDto> {
+        val query = "select " +
+                "       pt.id pt_id, \n" +
+                "       pt.name, \n" +
+                "       pt.icon \n" +
+                "from payment_integration pi \n" +
+                "left join payment_type pt on pi.payment_type_id = pt.id \n" +
+                "where merchant_id = $merchantId \n" +
+                "  and pi.deleted = false"
+        val list = mutableListOf<PaymentTypeDto>()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    paymentIntegration = IntegrationDto(
-                        id = rs.getLong("id"),
-                        merchantId = rs.getLong("merchant_id"),
-                        isPaymeEnabled = rs.getBoolean("is_payme_enabled"),
-                        isClickEnabled = rs.getBoolean("is_click_enabled"),
-                        isCashEnabled = rs.getBoolean("is_cash_enabled"),
-                        isApelsinEnabled = rs.getBoolean("is_apelsin_enabled"),
-                        isPaynetEnabled = rs.getBoolean("is_paynet_enabled"),
-                        isTerminalEnabled = rs.getBoolean("is_terminal_enabled")
+                while (rs.next()) {
+                    val dto = PaymentTypeDto(
+                        id = rs.getLong("pt_id"),
+                        name = rs.getString("name"),
+                        icon = rs.getString("icon")
                     )
+                    list.add(dto)
                 }
-                return@withContext emptyList()
+                return@withContext list
             }
-//            if(paymentIntegration != null){
-//                if(paymentIntegration.isPaymeEnabled){
-//                    smth2.add(smth.get())
-//                }
-//            }
         }
-
     }
-
-
 }
 
 
