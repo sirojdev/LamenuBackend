@@ -3,7 +3,6 @@ package mimsoft.io.integrate.payme
 import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -15,8 +14,7 @@ import mimsoft.io.integrate.payme.models.Receive.Companion.CHECK_TRANSACTION
 import mimsoft.io.integrate.payme.models.Receive.Companion.CREATE_TRANSACTION
 import mimsoft.io.integrate.payme.models.Receive.Companion.GET_STATEMENT
 import mimsoft.io.integrate.payme.models.Receive.Companion.PERFORM_TRANSACTION
-import mimsoft.io.utils.plugins.GSON
-import java.util.Base64
+import java.util.*
 
 fun Route.routeToPayme() {
 

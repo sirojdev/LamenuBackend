@@ -112,7 +112,7 @@ object PromoService {
 
 
    suspend fun getPromoByCode(code: String?): PromoDto? {
-        val query = "select * from $PROMO_TABLE_NAME where name = $code and end_date > CURRENT_TIMESTAMP"
+        val query = "select * from $PROMO_TABLE_NAME where name = '$code' and end_date > CURRENT_TIMESTAMP"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -121,9 +121,9 @@ object PromoService {
                         id = rs.getLong("id"),
                         name = rs.getString("name"),
                         amount = rs.getLong("amount"),
-                        discountType = (rs.getString("type")),
-                        deliveryDiscount = rs.getDouble("delivery"),
-                        productDiscount = rs.getDouble("product"),
+                        discountType = (rs.getString("discount_type")),
+                        deliveryDiscount = rs.getDouble("delivery_discount"),
+                        productDiscount = rs.getDouble("product_discount"),
                         isPublic = rs.getBoolean("is_public"),
                         minAmount = rs.getDouble("min_amount"),
                         startDate = rs.getTimestamp("start_date"),

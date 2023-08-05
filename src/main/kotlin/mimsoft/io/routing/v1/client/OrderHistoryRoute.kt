@@ -17,6 +17,8 @@ fun Route.routeToClientOrderHistory() {
             val clientId = pr?.id
             val merchantId = pr?.merchantId
             val filter = call.parameters["filter"].toString()
+            println(clientId)
+            println(filter)
             if(filter == null){
                     response = OrderRepositoryImpl.getClientOrders(clientId = clientId, merchantId = merchantId)
             } else response = OrderRepositoryImpl.getClientOrders(clientId = clientId, merchantId = merchantId, filter = filter)

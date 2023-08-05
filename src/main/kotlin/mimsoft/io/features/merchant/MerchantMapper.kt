@@ -2,16 +2,16 @@ package mimsoft.io.features.merchant
 import mimsoft.io.utils.TextModel
 
 object MerchantMapper {
-    fun toMerchantTable(restaurantDto: MerchantDto?): MerchantTable? {
-        return if (restaurantDto == null) null else MerchantTable(
-            id = restaurantDto.id,
-            nameUz = restaurantDto.name?.uz,
-            nameRu = restaurantDto.name?.ru,
-            nameEng = restaurantDto.name?.eng,
-            logo = restaurantDto.logo,
-            sub = restaurantDto.sub,
-            phone = restaurantDto.phone,
-            password = restaurantDto.password
+    fun toMerchantTable(dto: MerchantDto?): MerchantTable? {
+        return if (dto == null) null else MerchantTable(
+            id = dto.id,
+            nameUz = dto.name?.uz,
+            nameRu = dto.name?.ru,
+            nameEng = dto.name?.eng,
+            logo = dto.logo,
+            sub = dto.sub,
+            phone = dto.phone,
+            password = dto.password
         )
     }
 

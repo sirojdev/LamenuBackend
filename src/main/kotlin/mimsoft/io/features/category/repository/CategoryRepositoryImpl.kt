@@ -8,8 +8,8 @@ import mimsoft.io.features.category.*
 import mimsoft.io.features.category_group.CategoryGroupDto
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
-import mimsoft.io.features.product.ClientProductDto
 import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.product.ProductInfoDto
 import mimsoft.io.features.product.product_label.ProductLabelService
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
@@ -69,24 +69,24 @@ object CategoryRepositoryImpl : CategoryRepository {
                 val gson = Gson()
                 val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<ClientCategoryDto>()
-                val list1 = arrayListOf<ClientProductDto>()
+                val list1 = arrayListOf<ProductInfoDto>()
                 while (rs.next()) {
                     val product = rs.getString("products")
                     val typeToken = object : TypeToken<List<ProductDto>>() {}.type
                     val products = gson.fromJson<List<ProductDto>>(product, typeToken)
                     products?.map {
                         list1.add(
-                            ClientProductDto(
-                                productDto = it,
-                                option = OptionRepositoryImpl.getOptionsByProductId(
+                            ProductInfoDto(
+                                product = it,
+                                options = OptionRepositoryImpl.getOptionsByProductId(
                                     merchantId = merchantId,
                                     productId = it.id
                                 ),
-                                extra = ExtraRepositoryImpl.getExtrasByProductId(
+                                extras = ExtraRepositoryImpl.getExtrasByProductId(
                                     merchantId = merchantId,
                                     productId = it.id
                                 ),
-                                label = ProductLabelService.getLabelsByProductId(
+                                labels = ProductLabelService.getLabelsByProductId(
                                     merchantId = merchantId,
                                     productId = it.id
                                 )
@@ -168,24 +168,24 @@ object CategoryRepositoryImpl : CategoryRepository {
             repository.connection().use {
                 val gson = Gson()
                 val rs = it.prepareStatement(query).executeQuery()
-                val list1 = arrayListOf<ClientProductDto>()
+                val list1 = arrayListOf<ProductInfoDto>()
                 if (rs.next()) {
                     val product = rs.getString("products")
                     val typeToken = object : TypeToken<List<ProductDto>>() {}.type
                     val products = gson.fromJson<List<ProductDto>>(product, typeToken)
                     products?.map {
                         list1.add(
-                            ClientProductDto(
-                                productDto = it,
-                                option = OptionRepositoryImpl.getOptionsByProductId(
+                            ProductInfoDto(
+                                product = it,
+                                options = OptionRepositoryImpl.getOptionsByProductId(
                                     merchantId = merchantId,
                                     productId = it.id
                                 ),
-                                extra = ExtraRepositoryImpl.getExtrasByProductId(
+                                extras = ExtraRepositoryImpl.getExtrasByProductId(
                                     merchantId = merchantId,
                                     productId = it.id
                                 ),
-                                label = ProductLabelService.getLabelsByProductId(
+                                labels = ProductLabelService.getLabelsByProductId(
                                     merchantId = merchantId,
                                     productId = it.id
                                 )

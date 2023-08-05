@@ -19,15 +19,14 @@ object CartService {
         }
         val getTotalPrice = OrderRepositoryImpl.getOrderProducts(dto.products).body as OrderWrapper
         val productPrice = getTotalPrice.price?.totalPrice ?: 0
+        println("Hello   --- > ${getTotalPrice.price?.totalDiscount?.toDouble()}")
         val products = dto.products
         return CartInfoDto(
             productsPrice = productPrice.toDouble(),
             products = products,
             address = dto.address,
             productCount = productCount(dto.products),
-            productsDiscount = checkProdDiscount(dto.products),
-            deliveryPrice = 15000.0,
-            deliveryDiscount = 0.0,
+            productsDiscount = getTotalPrice.price?.productDiscount?.toDouble(),//checkProdDiscount(dto.products),
             totalPrice = (productPrice.toDouble() + 15000.0 - 0.0 - checkProdDiscount(dto.products)),
             totalDiscount = checkProdDiscount(dto.products) + 0.0
         )
