@@ -8,8 +8,6 @@ data class CartInfoDto(
     val productCount: Int? = null,
     val productsPrice: Double? = null,
     val productsDiscount: Double? = null,
-    val deliveryPrice: Double? = null,
-    val deliveryDiscount: Double? = null,
     val totalPrice: Double? = null,
     val totalDiscount: Double? = null
 )

@@ -13,18 +13,16 @@ object ClientPromoService {
         return DBManager.postData(dataClass = ClientPromoTable::class, dataObject = mapper.toTable(dto), "client_promo")
     }
 
-    suspend fun getByClientId(clientId: Long?): List<ClientPromoDto> {
+    suspend fun getByClientId(clientId: Long?): List<PromoDto> {
         val query = """
             select p.* from client_promo left join promo p on p.id = client_promo.promo_id where client_id = $clientId and not p.deleted
         """.trimIndent()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
-                val list = mutableListOf<ClientPromoDto>()
+                val list = mutableListOf<PromoDto>()
                 while (rs.next()) {
-                    list.add(
-                        ClientPromoDto(
-                        promo = PromoDto(
+                    list.add(PromoDto(
                             id = rs.getLong("id"),
                             merchantId = rs.getLong("merchant_id"),
                             amount = rs.getLong("amount"),
@@ -37,7 +35,6 @@ object ClientPromoService {
                             startDate = rs.getTimestamp("start_date"),
                             endDate = rs.getTimestamp("end_date")
                         )
-                    )
                     )
                 }
                 return@withContext list

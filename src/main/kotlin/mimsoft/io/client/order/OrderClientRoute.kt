@@ -16,7 +16,7 @@ import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.ResponseModel
 
-fun Route.routeToOrderClient() {
+fun Route.routeToClientOrder() {
     val orderService: OrderRepository = OrderRepositoryImpl
     get("orders") {
         val principal = call.principal<UserPrincipal>()
@@ -36,7 +36,7 @@ fun Route.routeToOrderClient() {
         return@get
     }
 
-    post("order") {
+    post("order/model") {
         val principal = call.principal<UserPrincipal>()
         val merchantId = principal?.merchantId
         val order = call.receive<OrderWrapper>()
@@ -48,7 +48,7 @@ fun Route.routeToOrderClient() {
             ResponseModel.SOME_THING_WRONG.description)
     }
 
-    post("order/model") {
+    post("order") {
         val principal = call.principal<UserPrincipal>()
         val merchantId = principal?.merchantId
         val userId = principal?.id

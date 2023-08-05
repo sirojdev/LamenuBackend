@@ -4,7 +4,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.branch.routeToClientBranches
 import mimsoft.io.client.menu.routeToMenu
-import mimsoft.io.client.order.routeToOrderClient
+import mimsoft.io.client.order.routeToClientOrder
 import mimsoft.io.client.table.routeToClientTable
 import mimsoft.io.features.address.routeToAddress
 import mimsoft.io.features.book.routeToBook
@@ -31,10 +31,11 @@ fun Route.routeToClient() {
         routeToClientDevice()
         routeToClientCart()
         authenticate("user") {
+            routeToPaymentTypes()
             routeToClientPromo()
             routeToClientProfile()
             routeToAddress()
-            routeToOrderClient()
+            routeToClientOrder()
             routeToBook()
             routeToFavourites()
             routeToClientOrderInfo()
