@@ -1,0 +1,39 @@
+### merchant 2
+WEBSOCKET ws://localhost:9000/mchat/2
+Content-Type: text/plain
+
+{
+  "message": "salom",
+  "from": 2,
+  "type": "MERCHANT"
+}
+
+###
+WEBSOCKET ws://localhost:9000/mchat/2
+Content-Type: text/plain
+
+{
+  "message": "salom",
+  "from": 2,
+  "type": "COURIER"
+}
+
+###
+WEBSOCKET ws://localhost:9000/mchat/3
+Content-Type: text/plain
+
+{
+  "message": "salom",
+  "from": 2,
+  "type": "MERCHANT"
+}
+
+###
+WEBSOCKET ws://localhost:9000/mchat/2
+Content-Type: text/plain
+
+{
+  "message": "mimsoft",
+  "from": 3,
+  "type": "CORIER"
+}
