@@ -54,7 +54,8 @@ object ChatMessageRepository {
                     from = rs.getLong("from_id"),
                     createdDate = rs.getTimestamp("created_at"),
                     message = rs.getString("message"),
-                    to = rs.getLong("to_id")
+                    to = rs.getLong("to_id"),
+                    type = MessageType.valueOf(rs.getString("from_type"))
                 )
             )
         }
@@ -62,19 +63,18 @@ object ChatMessageRepository {
 
     }
 
-    suspend fun getUserMessages(from: Long?, to: Long) {
-        val query = "select * from chat_message where to_id = $from " +
-                " and status = false"
-
+    suspend fun getUserMessages(from: Long?, to: Long?): ArrayList<ChatMessageDto> {
+        val query = "select * from chat_message where (to_id = $to and from_id = $from) or (to_id = $from and from_id = $to) order by created_at desc"
+        val messageList = ArrayList<ChatMessageDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeQuery()
-                val messageList = ArrayList<ChatMessageDto>()
                 getMessageList(messageList, rs)
             }
         }
+        return messageList
     }
 
     suspend fun readMessages(toId: Long?, type: MessageType?) {
@@ -110,8 +110,10 @@ object ChatMessageRepository {
                             phone = rs.getString("phone"),
                             firstName = rs.getString("first_name"),
                             lastName = rs.getString("last_name"),
-                            image = rs.getString("images"),
-                            position = rs.getString("position")
+                            image = rs.getString("image"),
+                            position = rs.getString("position"),
+                            gender = rs.getString("gender"),
+                            comment = rs.getString("comment")
                         )
                     )
                 }
