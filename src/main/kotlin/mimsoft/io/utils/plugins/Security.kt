@@ -187,10 +187,7 @@ fun Application.configureSecurity() {
                 val uuid = cr.payload.getClaim("uuid").asString()
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
-<<<<<<< HEAD
-=======
 
->>>>>>> 0d7467362f53d8af20629e95c67bb60271a8f162
                     if (session != null && session.merchantId == merchantId && session.isExpired != true) {
                         MerchantPrincipal(
                             merchantId = session.merchantId,
@@ -198,31 +195,50 @@ fun Application.configureSecurity() {
                         )
                     } else null
 
-            } else null
+                } else null
+            }
         }
-    }
 
-    basic(name = "payme") {
-        realm = "Server"
-        validate { credentials ->
-            println("\ncredentials: ${credentials}")
-            val payment = PaymentService.paymeVerify(
-                credentials.password
-            )
-            println("\npayment: ${GSON.toJson(payment)}")
-            if (payment != null) {
-                PaymePrincipal(
-                    username = credentials.name,
-                    password = credentials.password
+        basic(name = "payme") {
+            realm = "Server"
+            validate { credentials ->
+                println("\ncredentials: ${credentials}")
+                val payment = PaymentService.paymeVerify(
+                    credentials.password
                 )
-            } else {
-                PaymePrincipal(
-                    username = credentials.name,
-                    password = credentials.password,
-                    authenticate = false
-                )
+                println("\npayment: ${GSON.toJson(payment)}")
+                if (payment != null) {
+                    PaymePrincipal(
+                        username = credentials.name,
+                        password = credentials.password
+                    )
+                } else {
+                    PaymePrincipal(
+                        username = credentials.name,
+                        password = credentials.password,
+                        authenticate = false
+                    )
+                }
+            }
+        }
+
+        jwt("operator") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierStaff)
+            validate { jwtCredential ->
+                val merchantId = jwtCredential.payload.getClaim("merchantId").asLong()
+                val uuid = jwtCredential.payload.getClaim("uuid").asString()
+
+                val session = SessionRepository.get(uuid)
+                LOGGER.info("session: {}, merchantId {}, uuid {}", session, merchantId, uuid)
+                if (session != null) {
+                    StaffPrincipal(
+                        merchantId = merchantId,
+                        uuid = uuid
+                    )
+                } else null
+
             }
         }
     }
-}
 }
