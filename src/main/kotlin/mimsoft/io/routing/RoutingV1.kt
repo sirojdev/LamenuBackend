@@ -3,6 +3,7 @@ package mimsoft.io.routing
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.routeToUser
 import mimsoft.io.courier.routeToCouriers
+import mimsoft.io.features.operator.routeToOperator
 import mimsoft.io.files.routeToFiles
 import mimsoft.io.routing.v1.device.routeToDevice
 import mimsoft.io.routing.v1.routeToAdmin
@@ -17,6 +18,7 @@ fun Route.routeToV1() {
     routeToMerchant()
     routeToClient()
     routeToUser()
+    routeToOperator()
     routeToFiles()
     routeToDevice()
     routeToIntegration()

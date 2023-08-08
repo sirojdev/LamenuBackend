@@ -60,6 +60,35 @@ object SessionRepository {
         }
     }
 
+    suspend fun get(uuid: String?): SessionTable? {
+        val query = "select * from session where uuid = ? and not is_expired and not deleted"
+        return withContext(Dispatchers.IO) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, uuid)
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                return@withContext if (rs.next()) {
+                    SessionTable(
+                        id = rs.getLong("id"),
+                        phone = rs.getString("phone"),
+                        uuid = rs.getString("uuid"),
+                        deviceId = rs.getLong("device_id"),
+                        userId = rs.getLong("user_id"),
+                        stuffId = rs.getLong("stuff_id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        role = rs.getString("role"),
+                        updated = rs.getTimestamp("updated"),
+                        created = rs.getTimestamp("created"),
+                        isExpired = rs.getBoolean("is_expired"),
+                        deleted = rs.getBoolean("deleted")
+                    )
+                } else null
+            }
+        }
+    }
+
     private suspend fun expireOtherSession(deviceId: Long?, merchantId: Long?): Boolean {
         val query = "update session set is_expired = true, updated = ? where device_id = $deviceId " +
                 "and merchant_id = $merchantId"

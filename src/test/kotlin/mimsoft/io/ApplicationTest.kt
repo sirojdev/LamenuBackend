@@ -6,6 +6,7 @@ import io.ktor.server.testing.*
 import kotlin.test.*
 import io.ktor.http.*
 import mimsoft.io.utils.plugins.configureRouting
+import mimsoft.io.utils.plugins.configureSecurity
 
 class ApplicationTest {
     @Test

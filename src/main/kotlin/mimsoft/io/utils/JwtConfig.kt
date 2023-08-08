@@ -142,5 +142,13 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityLogin))
         .sign(algorithmLogin)
 
+    fun generateOperatorToken(merchantId: Long?, uuid: String?): String? = JWT.create()
+        .withSubject("operator")
+        .withIssuer(issuer)
+        .withClaim("merchantId", merchantId)
+        .withClaim("uuid", uuid)
+        .withExpiresAt(getExpiration(validityAccessUser))
+        .sign(algorithmStaff)
+
     private fun getExpiration(validate: Long) = Date(System.currentTimeMillis() + validate)
 }
