@@ -1,9 +1,8 @@
 package mimsoft.io.courier.location
 
 import io.ktor.websocket.*
-import mimsoft.io.courier.merchantChat.MessageType
+import mimsoft.io.courier.merchantChat.Sender
 import java.sql.Timestamp
-import java.util.concurrent.atomic.AtomicInteger
 
 data class Connection(
     val merchantId: Long? = null,
@@ -22,5 +21,5 @@ data class ChatConnections(
     val id: Long? = null,
     val connectAt: Timestamp? = null,
     var session: DefaultWebSocketSession? = null,
-    var type: MessageType? = null
+    var sender: Sender? = null
 )

@@ -12,13 +12,17 @@ object ChatMessageService {
     val messageService = ChatMessageRepository
     suspend fun sendMessage(
         to: Long?,
-        message: ChatMessageDto
+        message: ChatMessageSaveDto
     ) {
-        val connection = chatConnections.find { it.id == to && it.type != message.type }
-        if (connection?.session != null && connection.session!!.isActive) {
+        println(ChatMessageService.chatConnections)
+        val connection = chatConnections.find { it.id == to && it.sender != message.sender }
+        println(connection.toString())
+        if (connection?.session != null ) {
+            println("inside connection")
             val rs = connection?.session?.send(message.message.toString())
             messageService.addMessage(message, to, true)
         }else{
+            println(" no connection")
             messageService.addMessage(message, to, false)
         }
     }

@@ -1,5 +1,5 @@
 package mimsoft.io.courier.merchantChat
 
-enum class  MessageType {
+enum class  Sender {
     MERCHANT,COURIER
 }

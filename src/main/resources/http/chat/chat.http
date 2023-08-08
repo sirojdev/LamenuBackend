@@ -1,13 +1,23 @@
 ### merchant 2
 WEBSOCKET ws://localhost:9000/mchat/2
-Content-Type: text/plain
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtZXJjaGFudCIsImlzcyI6Im1pbXNvZnQuaW8iLCJtZXJjaGFudElkIjoxLCJ1dWlkIjoiYWFiNjYwMzEtZTc4OC00Zjc0LTk0NmEtZmQxNDFiNGVjM2U3KzE2OTE0NzczMDA5ODUiLCJleHAiOjE3Mjc0NzczMDF9.OmG2p3WzWVCafk9sKjDHI_oX8mUk_FexJywSztZ037nmCUEyvUi4Mvzt6N6sPRVkDVn4Mubn8ne04Mo2Rn4WaQ
 
 {
   "message": "salom",
   "from": 2,
   "type": "MERCHANT"
 }
+### merchant 3
+WEBSOCKET ws://localhost:9000/mchat/2
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtZXJjaGFudCIsImlzcyI6Im1pbXNvZnQuaW8iLCJtZXJjaGFudElkIjoxLCJ1dWlkIjoiYWFiNjYwMzEtZTc4OC00Zjc0LTk0NmEtZmQxNDFiNGVjM2U3KzE2OTE0NzczMDA5ODUiLCJleHAiOjE3Mjc0NzczMDF9.OmG2p3WzWVCafk9sKjDHI_oX8mUk_FexJywSztZ037nmCUEyvUi4Mvzt6N6sPRVkDVn4Mubn8ne04Mo2Rn4WaQ
 
+{
+  "message": "salom",
+  "from": 2,
+  "type": "MERCHANT"
+}
 ###
 WEBSOCKET ws://localhost:9000/mchat/2
 Content-Type: text/plain

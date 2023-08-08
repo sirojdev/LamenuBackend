@@ -4,9 +4,9 @@ import io.ktor.util.reflect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.courier.merchantChat.ChatMessageDto
-import mimsoft.io.courier.merchantChat.MessageType
-import mimsoft.io.features.courier.CourierDto
-import mimsoft.io.features.merchant.MerchantDto
+import mimsoft.io.courier.merchantChat.ChatMessageInfoDto
+import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
+import mimsoft.io.courier.merchantChat.Sender
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -14,15 +14,15 @@ import java.sql.ResultSet
 
 object ChatMessageRepository {
     val repository: BaseRepository = DBManager
-    suspend fun addMessage(message: ChatMessageDto, to: Long?, isSend: Boolean) {
-        val query = " INSERT INTO chat_message (from_id,to_id,status,created_at,from_type,message) " +
-                " values (${message.from},$to,?,now(),?,?)"
+    suspend fun addMessage(message: ChatMessageSaveDto, to: Long?, isSend: Boolean) {
+        val query = " INSERT INTO chat_message (from_id,to_id,is_send,send_time,sender,message) " +
+                " values (${message.fromId},$to,?,now(),?,?)"
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     setBoolean(1, isSend)
-                    setString(2, message.type?.name)
+                    setString(2, message.sender?.name)
                     setString(3, message.message)
                     this.closeOnCompletion()
                 }.executeUpdate()
@@ -31,11 +31,11 @@ object ChatMessageRepository {
 
     }
 
-    suspend fun getNotReadMessages(from: Long?): ArrayList<ChatMessageDto>? {
+    suspend fun getNotReadMessages(from: Long?): ArrayList<ChatMessageSaveDto>? {
         val query = "select * from chat_message where to_id = $from " +
                 " and is_send = false"
 
-        val messageList = ArrayList<ChatMessageDto>()
+        val messageList = ArrayList<ChatMessageSaveDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
@@ -47,15 +47,19 @@ object ChatMessageRepository {
         return messageList
     }
 
-    private fun getMessageList(messageList: ArrayList<ChatMessageDto>, rs: ResultSet): ArrayList<ChatMessageDto> {
+    private fun getMessageList(
+        messageList: ArrayList<ChatMessageSaveDto>,
+        rs: ResultSet
+    ): ArrayList<ChatMessageSaveDto> {
         while (rs.next()) {
             messageList.add(
-                ChatMessageDto(
-                    from = rs.getLong("from_id"),
-                    createdDate = rs.getTimestamp("created_at"),
+                ChatMessageSaveDto(
+                    id = rs.getLong("id"),
+                    fromId = rs.getLong("from_id"),
+                    time = rs.getTimestamp("send_time"),
                     message = rs.getString("message"),
-                    to = rs.getLong("to_id"),
-                    type = MessageType.valueOf(rs.getString("from_type"))
+                    toId = rs.getLong("to_id"),
+                    sender = Sender.valueOf(rs.getString("sender"))
                 )
             )
         }
@@ -63,9 +67,10 @@ object ChatMessageRepository {
 
     }
 
-    suspend fun getUserMessages(from: Long?, to: Long?): ArrayList<ChatMessageDto> {
-        val query = "select * from chat_message where (to_id = $to and from_id = $from) or (to_id = $from and from_id = $to) order by created_at desc"
-        val messageList = ArrayList<ChatMessageDto>()
+    suspend fun getUserMessages(from: Long?, to: Long?): ArrayList<ChatMessageSaveDto> {
+        val query =
+            "select * from chat_message where (to_id = $to and from_id = $from) or (to_id = $from and from_id = $to) order by created_at desc"
+        val messageList = ArrayList<ChatMessageSaveDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
@@ -77,9 +82,9 @@ object ChatMessageRepository {
         return messageList
     }
 
-    suspend fun readMessages(toId: Long?, type: MessageType?) {
+    suspend fun readMessages(toId: Long?, type: Sender?) {
         val query = "update chat_message set is_send = true " +
-                " where to_id = $toId and type = ?"
+                " where to_id = $toId and sender = ?"
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
@@ -123,5 +128,34 @@ object ChatMessageRepository {
 
     }
 
-
+    suspend fun getNotReadMessagesInfo(toId: Long?, sender: Sender): ArrayList<ChatMessageInfoDto> {
+        val query =
+            "select count(*) count,to_id, from_id, sender,get_latest_message_with_time(to_id,from_id, ? ) msg \n" +
+                    "from chat_message\n" +
+                    "where to_id =  $toId  \n" +
+                    "  and sender =? and is_send = false\n" +
+                    "group by from_id, to_id, sender"
+        val messageList = ArrayList<ChatMessageInfoDto>()
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, sender.name)
+                    setString(2, sender.name)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    messageList.add(
+                        ChatMessageInfoDto(
+                            count = rs.getInt("count"),
+                            toId = rs.getLong("to_id"),
+                            fromId = rs.getLong("from_id"),
+                            sender = Sender.valueOf(rs.getString("sender")),
+                            lastMessage = rs.getString("msg")
+                        )
+                    )
+                }
+            }
+        }
+        return messageList
+    }
 }
