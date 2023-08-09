@@ -85,7 +85,7 @@ object OperatorService {
             s.status as staff_status
             from operator o
             left join staff s on o.staff_id = s.id
-            where o.id = $id
+            where o.id = $id or o.staff_id = $id
             and o.deleted = false
             and s.deleted = false
         """.trimIndent()

@@ -234,7 +234,8 @@ fun Application.configureSecurity() {
                 if (session != null) {
                     StaffPrincipal(
                         merchantId = merchantId,
-                        uuid = uuid
+                        uuid = uuid,
+                        staffId = session.stuffId
                     )
                 } else null
 
