@@ -13,7 +13,7 @@ import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 
-fun Route.routeToOperator() {
+fun Route.routeToOperatorEntity() {
 
     post("operator/auth") {
         val staff = call.receive<StaffDto>()
