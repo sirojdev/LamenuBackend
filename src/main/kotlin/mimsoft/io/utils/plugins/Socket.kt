@@ -24,6 +24,7 @@ import mimsoft.io.services.socket.MessageModel
 import mimsoft.io.services.socket.SocketEntity
 import mimsoft.io.services.socket.SocketService
 import mimsoft.io.services.socket.StatusConnection
+import mimsoft.io.utils.principal.MerchantPrincipal
 import java.sql.Timestamp
 import java.time.Duration
 
@@ -36,86 +37,109 @@ fun Application.configureSocket() {
         masking = false
     }
     routing {
-        routeToMerchantChat()
-        webSocket("location") {
-            try {
-                for (frame in incoming) {
-                    frame as? Frame.Text ?: continue
-                    val receivedText = frame.readText()
-                    println(receivedText)
-                    val location: CourierLocationHistoryDto? = try {
-                        Gson().fromJson(receivedText, CourierLocationHistoryDto::class.java)
-                    } catch (e: Exception) {
-                        null
-                    }
-                    CourierSocketService.connections.removeIf { it.staffId == location?.staffId }
-                    if (location != null) {
-                        val isExist = CourierSocketService.connect(
-                            Connection(
-                                staffId = location.staffId,
-                                session = this,
-                                merchantId = location.merchantId
-                            )
-                        )
-                        if (isExist) {
-                            val adminChannel =
-                                CourierSocketService.adminConnections.find { it.merchantId == location.merchantId }
-                            if (adminChannel?.session != null) {
-                                adminChannel.session?.send(receivedText)
-                            }
-                            CourierLocationHistoryService.add(location)
-                        } else {
-                            this.close()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                println(e.localizedMessage)
-            } finally {
-                close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
-                CourierSocketService.connections.removeIf { it.session == this }
-            }
-        }
-        webSocket("admin") {
-            try {
-                send("admin connected")
-                for (frame in incoming) {
-                    frame as? Frame.Text ?: continue
-                    val receivedText = frame.readText()
-                    val admin: AdminConnection? = try {
-                        Gson().fromJson(receivedText, AdminConnection::class.java)
-                    } catch (e: Exception) {
-                        null
-                    }
-                    CourierSocketService.adminConnections.removeIf { it.merchantId == admin?.merchantId }
-                    if (admin != null) {
-                        val isExist = CourierSocketService.adminConnect(
-                            AdminConnection(
-                                session = this,
-                                merchantId = admin.merchantId
-                            )
-                        )
-                        if (!isExist) {
-                            this.close()
-                        }
-                    }
-                }
+        authenticate("staff") {
+            webSocket("location") {
                 try {
-                    while (isActive) {
-                        // Just keep the WebSocket open
+                    val principal = call.principal<StaffPrincipal>()
+                    val staffId = principal?.staffId
+                    val merchantId = principal?.merchantId
+                    val connection = CourierSocketService.connections.find { it.staffId == staffId }
+                    if (connection == null) {
+                        CourierSocketService.connections += Connection(
+                            staffId = staffId,
+                            session = this,
+                            merchantId = principal?.merchantId,
+                            connectAt = Timestamp(System.currentTimeMillis())
+                        )
                     }
+                    for (frame in incoming) {
+                        frame as? Frame.Text ?: continue
+                        val receivedText = frame.readText()
+                        val location: CourierLocationHistoryDto? = try {
+                            Gson().fromJson(receivedText, CourierLocationHistoryDto::class.java)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (location != null) {
+                            CourierLocationHistoryService.add(
+                                location.copy(
+                                    merchantId = merchantId,
+                                    staffId = staffId,
+                                    time = Timestamp(System.currentTimeMillis())
+                                )
+                            )
+                            val adminChannel =
+                                CourierSocketService.adminConnections.filter { it.merchantId == merchantId }
+
+                            for(channel in adminChannel){
+                                if (channel?.session != null) {
+                                    channel.session?.send(receivedText)
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    println(e.localizedMessage)
                 } finally {
-                    println("Admin disconnected")
+                    close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
+                    CourierSocketService.connections.removeIf { it.session == this }
                 }
-            } catch (e: Exception) {
-                println(e.localizedMessage)
-            } finally {
-                close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
-                CourierSocketService.connections.removeIf { it.session == this }
             }
-
         }
+        authenticate("operator", "merchant","staff") {
+            webSocket("admin") {
+                try {
+                    val staffP = call.principal<StaffPrincipal>()
+                    val merchantP = call.principal<MerchantPrincipal>()
+                    var operatorId: Long? = null
+                    var merchantId: Long? = null
+                    if (staffP != null) {
+                        merchantId = staffP.merchantId?.toLong()
+                        operatorId = staffP.staffId
+                    } else {
+                        merchantId = merchantP?.merchantId?.toLong()
+                    }
+                    val connection =
+                        CourierSocketService.adminConnections.find { it.merchantId == merchantId && it.operatorId == operatorId }
+                    if (connection == null) {
+                        CourierSocketService.adminConnections += AdminConnection(
+                            merchantId = merchantId,
+                            operatorId = operatorId,
+                            session = this,
+                            connectAt = Timestamp(System.currentTimeMillis())
+                        )
+                    }
 
+                    for (frame in incoming) {
+//                        frame as? Frame.Text ?: continue
+//                        val receivedText = frame.readText()
+//                        val admin: AdminConnection? = try {
+//                            Gson().fromJson(receivedText, AdminConnection::class.java)
+//                        } catch (e: Exception) {
+//                            null
+//                        }
+//                        val connection =
+//                            CourierSocketService.adminConnections.find { it.merchantId == merchantId && it.operatorId == operatorId }
+//                        if (admin != null) {
+//
+//                        }
+                    }
+                    try {
+                        while (isActive) {
+                            // Just keep the WebSocket open
+                        }
+                    } finally {
+                        println("Admin disconnected")
+                    }
+                } catch (e: Exception) {
+                    println(e.localizedMessage)
+                } finally {
+                    close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
+                    CourierSocketService.connections.removeIf { it.session == this }
+                }
+
+            }
+        }
 
         authenticate("staff", "operator") {
             webSocket("mchat") {
@@ -157,7 +181,7 @@ fun Application.configureSocket() {
                         ChatMessageService.chatConnections += ChatConnections(
                             id = fromId,
                             sender = sender,
-                            operatorId = operatorId ,
+                            operatorId = operatorId,
                             connectAt = Timestamp(System.currentTimeMillis()),
                             session = this
                         )
@@ -170,7 +194,7 @@ fun Application.configureSocket() {
                     }
                     for (frame in incoming) {
                         val connection =
-                            ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender && it.operatorId == operatorId}
+                            ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender && it.operatorId == operatorId }
                         println(connection.toString())
                         frame as? Frame.Text ?: continue
                         val receivedText = frame.readText()
@@ -186,7 +210,7 @@ fun Application.configureSocket() {
                                 toId, ChatMessageSaveDto(
                                     fromId = fromId,
                                     toId = toId,
-                                    operatorId=operatorId,
+                                    operatorId = operatorId,
                                     sender = sender,
                                     time = Timestamp(System.currentTimeMillis()),
                                     message = chatMessage?.message

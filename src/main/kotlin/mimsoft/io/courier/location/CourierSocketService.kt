@@ -12,22 +12,5 @@ object CourierSocketService {
     val adminConnections = Collections.synchronizedSet<AdminConnection?>(LinkedHashSet())
 
 
-    suspend fun connect(connection: Connection): Boolean {
-        val courier = CourierService.getByStaffId(staffId = connection.staffId, merchantId = connection.merchantId)
-            ?: return false
-        connections += connection.copy(
-            connectAt = Timestamp(System.currentTimeMillis())
-        )
-        return true
-    }
 
-
-    suspend fun adminConnect(admin: AdminConnection): Boolean {
-        val courier = MerchantRepositoryImp.get(admin.merchantId)
-            ?: return false
-        adminConnections += admin.copy(
-            connectAt = Timestamp(System.currentTimeMillis())
-        )
-        return true
-    }
 }
