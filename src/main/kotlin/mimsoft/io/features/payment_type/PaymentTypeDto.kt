@@ -1,11 +1,14 @@
 package mimsoft.io.features.payment_type
 
+import mimsoft.io.utils.TextModel
+
 data class PaymentTypeDto(
     val id: Long? = null,
     val name: String? = null,
     val icon: String? = null,
     val isPrePaid: Boolean? = null,
-    val isPaid: Boolean? = null
+    val isPaid: Boolean? = null,
+    val title: TextModel? = null
 ){
     companion object{
         val PAYME = PaymentTypeDto(1, "Payme", "payme", true)

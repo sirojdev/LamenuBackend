@@ -12,7 +12,8 @@ object CourierMapper {
             balance = table.balance,
             lastLocation = CourierLocationHistoryDto(
                 id = table.lastLocationId
-            )
+            ),
+            type = table.type
         )
     }
 
@@ -23,7 +24,8 @@ object CourierMapper {
             merchantId = dto.merchantId,
             staffId = dto.staffId,
             balance = dto.balance,
-            lastLocationId = dto.lastLocation?.id
+            lastLocationId = dto.lastLocation?.id,
+            type = dto.type
         )
     }
 

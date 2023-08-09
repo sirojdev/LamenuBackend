@@ -11,15 +11,14 @@ import mimsoft.io.utils.principal.MerchantPrincipal
 fun Route.routeToPromo() {
     val promoService = PromoService
     route("promo") {
-        get("") {
+        get {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            val promoList = promoService.getAll(merchantId = merchantId)
-            if (promoList.isEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
+            val limit = call.parameters["limit"]?.toLongOrNull()
+            val offset = call.parameters["offset"]?.toLongOrNull()
+            val promoList = promoService.getAll(merchantId = merchantId, limit = limit, offset = offset)
             call.respond(HttpStatusCode.OK, promoList)
+            return@get
         }
 
         post {

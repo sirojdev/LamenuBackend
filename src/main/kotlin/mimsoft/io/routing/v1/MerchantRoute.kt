@@ -73,7 +73,7 @@ fun Route.routeToMerchant() {
             routeToAnnounce()
             routeToCourierTransaction()
             routeToClientPromo()
-
+            routeToOrder()
 
             route("settings") {
                 routeToApp()
@@ -84,7 +84,6 @@ fun Route.routeToMerchant() {
                 routeToStaff()
                 routeToExtra()
                 routeToLabel()
-                routeToOrder()
                 routeToTable()
                 routeToOption()
                 routeToBranch()

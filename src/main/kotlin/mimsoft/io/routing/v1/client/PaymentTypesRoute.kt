@@ -9,8 +9,7 @@ import mimsoft.io.features.payment.PaymentService
 
 fun Route.routeToPaymentTypes() {
     get("payment/types") {
-        val pr = call.principal<UserPrincipal>()
-        val merchantId = pr?.merchantId
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val respond = PaymentService.getPaymentTypeClient(merchantId = merchantId)
         call.respond(respond)
         return@get

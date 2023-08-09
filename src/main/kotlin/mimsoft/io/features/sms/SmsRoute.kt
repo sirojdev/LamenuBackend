@@ -16,13 +16,8 @@ fun Route.routeToSms() {
         val merchantId = pr?.merchantId
         val limit = call.parameters["limit"]?.toIntOrNull()
         val offset = call.parameters["offset"]?.toIntOrNull()
-        if(limit != null && offset != null){
-            val sms = smsService.getAll(merchantId = merchantId, limit = limit, offset = offset)
-            call.respond(sms.ifEmpty { HttpStatusCode.NoContent })
-            return@get
-
-        }
-        call.respond(HttpStatusCode.BadRequest)
+        val sms = smsService.getAll(merchantId = merchantId, limit = limit, offset = offset)
+        call.respond(sms)
         return@get
     }
 

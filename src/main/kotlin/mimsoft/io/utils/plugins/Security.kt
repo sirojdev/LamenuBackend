@@ -187,10 +187,6 @@ fun Application.configureSecurity() {
                 val uuid = cr.payload.getClaim("uuid").asString()
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
-<<<<<<< HEAD
-=======
-
->>>>>>> 0d7467362f53d8af20629e95c67bb60271a8f162
                     if (session != null && session.merchantId == merchantId && session.isExpired != true) {
                         MerchantPrincipal(
                             merchantId = session.merchantId,

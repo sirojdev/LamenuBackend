@@ -48,8 +48,14 @@ fun Route.routeToNotification() {
 
         get {
             val pr = call.principal<MerchantPrincipal>()
+            val limit = call.parameters["limit"]?.toLongOrNull()
+            val offset = call.parameters["offset"]?.toLongOrNull()
             val merchantId = pr?.merchantId
-            val response = notification.getAll(merchantId = merchantId)
+            val response = notification.getAll(merchantId = merchantId, limit = limit, offset = offset)
+            if(response==null){
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
             call.respond(response)
         }
 

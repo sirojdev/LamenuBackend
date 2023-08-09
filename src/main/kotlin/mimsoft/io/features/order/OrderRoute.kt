@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderDetails
@@ -33,15 +34,23 @@ fun Route.routeToOrder() {
             call.respond(orders)
         }
         get("history") {
-            val orders = repository.getAll()
-            if (orders.total == 0) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(HttpStatusCode.OK, orders)
+            val pr = call.principal<MerchantPrincipal>()
+            val response: Any
+            val merchantId = pr?.merchantId
+            val filter = call.parameters["filter"]
+            val limit = call.parameters["limit"]?.toLongOrNull()
+            val offset = call.parameters["offset"]?.toLongOrNull()
+            response = OrderRepositoryImpl.getOrderHistoryMerchant(
+                merchantId = merchantId,
+                filter = filter,
+                limit = limit,
+                offset = offset
+            )
+            call.respond(response)
+            return@get
         }
 
-        get {
+        /*get {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
             val search = call.parameters["search"]
@@ -49,12 +58,30 @@ fun Route.routeToOrder() {
             val type = call.parameters["type"]
             val limit = call.parameters["limit"]?.toIntOrNull()
             val offset = call.parameters["offset"]?.toIntOrNull()
-            val orders = repository.getAll(search, merchantId, status, type, limit, offset)?.data
+            val orders = repository.getAll(search, merchantId, status, type, limit, offset).data
             if (orders == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }
             call.respond(HttpStatusCode.OK, orders)
+        }*/
+
+
+        get("") {
+            val pr = call.principal<MerchantPrincipal>()
+            val response: Any
+            val merchantId = pr?.merchantId
+            val filter = call.parameters["filter"]
+            val limit = call.parameters["limit"]?.toLongOrNull()
+            val offset = call.parameters["offset"]?.toLongOrNull()
+            response = OrderRepositoryImpl.getModelListMerchant(
+                merchantId = merchantId,
+                filter = filter,
+                limit = limit,
+                offset = offset
+            )
+            call.respond(response)
+            return@get
         }
 
         get("{id}") {

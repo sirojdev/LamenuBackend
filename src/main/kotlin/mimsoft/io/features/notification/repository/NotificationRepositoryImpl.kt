@@ -10,8 +10,10 @@ import mimsoft.io.features.notification.NotificationTable
 import mimsoft.io.features.visit.VISIT_TABLE_NAME
 import mimsoft.io.features.visit.VisitDto
 import mimsoft.io.features.visit.VisitService
+import mimsoft.io.integrate.onlinePbx.Data
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import java.sql.Timestamp
 
 object NotificationRepositoryImpl : NotificationRepository {
@@ -42,13 +44,13 @@ object NotificationRepositoryImpl : NotificationRepository {
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).use { notification ->
-                    notification.setString(1,dto?.body?.uz)
-                    notification.setString(2,dto?.body?.ru)
-                    notification.setString(3,dto?.body?.eng)
-                    notification.setString(4,dto?.title?.uz)
-                    notification.setString(5,dto?.title?.ru)
-                    notification.setString(6,dto?.title?.eng)
-                    notification.setString(7,dto?.image)
+                    notification.setString(1, dto?.body?.uz)
+                    notification.setString(2, dto?.body?.ru)
+                    notification.setString(3, dto?.body?.eng)
+                    notification.setString(4, dto?.title?.uz)
+                    notification.setString(5, dto?.title?.ru)
+                    notification.setString(6, dto?.title?.eng)
+                    notification.setString(7, dto?.image)
                     notification.setTimestamp(8, Timestamp(System.currentTimeMillis()))
                 }
             }
@@ -68,13 +70,16 @@ object NotificationRepositoryImpl : NotificationRepository {
         return mapper.toDto(data)
     }
 
-    override suspend fun getAll(merchantId: Long?): List<NotificationDto?> {
+    override suspend fun getAll(merchantId: Long?, limit: Long?, offset: Long?): DataPage<NotificationDto> {
         val data = repository.getPageData(
             dataClass = NotificationTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
-            tableName = NOTIFICATION_TABLE_NAME
-        )?.data?.map { mapper.toDto(it) }
-        return data ?: emptyList()
+            tableName = NOTIFICATION_TABLE_NAME,
+            limit = limit?.toInt(),
+            offset = offset?.toInt()
+        )
+        val data2 = data?.data?.map { mapper.toDto(it) }
+        return DataPage(data2!!, data.total)
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {

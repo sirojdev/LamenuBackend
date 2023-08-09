@@ -85,6 +85,7 @@ object CourierService {
                         merchantId = rs.getLong("merchant_id"),
                         staffId = rs.getLong("staff_id"),
                         balance = rs.getDouble("balance"),
+                        type = rs.getString("type"),
                         lastLocation = CourierLocationHistoryService.getByStaffId(staffId = id),
                     )
                 } else return@withContext null
@@ -101,6 +102,7 @@ object CourierService {
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
                         staffId = rs.getLong("staff_id"),
+                        type = rs.getString("type")
                     )
                 } else return@withContext null
             }
@@ -108,7 +110,7 @@ object CourierService {
     }
 
     suspend fun getById(staffId: Long?): CourierInfoDto? {
-        val query = "select s.*,c.id c_id ,c.balance c_balance from staff s " +
+        val query = "select s.*,c.id c_id ,c.balance c_balance, c.type from staff s " +
                 " inner join courier c on c.staff_id = s.id " +
                 " where s.id = $staffId and s.deleted = false and c.deleted = false"
         return withContext(Dispatchers.IO) {
@@ -124,6 +126,7 @@ object CourierService {
                         gender  = rs.getString("gender"),
                         status = rs.getBoolean("status"),
                         balance = rs.getDouble("c_balance"),
+                        type = rs.getString("type")
                     )
                 } else return@withContext null
             }

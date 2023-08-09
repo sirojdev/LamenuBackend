@@ -3,6 +3,7 @@ package mimsoft.io.features.client_promo
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.promo.PromoDto
+import mimsoft.io.features.promo.PromoService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 
@@ -15,14 +16,16 @@ object ClientPromoService {
 
     suspend fun getByClientId(clientId: Long?): List<PromoDto> {
         val query = """
-            select p.* from client_promo left join promo p on p.id = client_promo.promo_id where client_id = $clientId and not p.deleted
+            select p.* from client_promo left join promo p on p.id = 
+            client_promo.promo_id where client_id = $clientId and not p.deleted
         """.trimIndent()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 val list = mutableListOf<PromoDto>()
                 while (rs.next()) {
-                    list.add(PromoDto(
+                    list.add(
+                        PromoDto(
                             id = rs.getLong("id"),
                             merchantId = rs.getLong("merchant_id"),
                             amount = rs.getLong("amount"),
@@ -42,7 +45,7 @@ object ClientPromoService {
         }
     }
 
-    suspend fun getAll(merchantId: Long?): List<ClientPromoDto>{
+    suspend fun getAll(merchantId: Long?): List<ClientPromoDto> {
         val query = """
             select
                 cp.id   cp_id,
@@ -89,4 +92,11 @@ object ClientPromoService {
 
     suspend fun delete(id: Long?): Boolean =
         repository.deleteData("client_promo", where = "id", whereValue = id)
+
+    suspend fun check(promoName: String?): PromoDto? {
+        val promo = PromoService.getPromoByCode(promoName)
+        if (promo == null)
+            return null
+        return promo
+    }
 }

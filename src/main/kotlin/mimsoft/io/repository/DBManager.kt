@@ -61,9 +61,6 @@ object DBManager: BaseRepository {
         } else {
             ""
         }
-
-//        val order = if(order != null)
-
         val offsetClause = if (offset != null && offset > 0) {
             "OFFSET $offset"
         } else {

@@ -5,17 +5,26 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import java.sql.Timestamp
 
 object PromoService {
     val repository: BaseRepository = DBManager
     val mapper = PromoMapper
-    suspend fun getAll(merchantId: Long?): List<PromoDto> {
-        val query = "select * from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+    suspend fun getAll(merchantId: Long?, limit: Long? = null, offset: Long? = null): DataPage<PromoDto> {
+        val defaultLimit = 10
+        val defaultOffset = 0
+        var totalCount = 0
+        val tName = PROMO_TABLE_NAME
+        val query = StringBuilder()
+        query.append("select * from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false")
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
+        else query.append(" limit $defaultLimit offset $defaultOffset")
         return withContext(Dispatchers.IO) {
             val promos = arrayListOf<PromoDto>()
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query.toString()).executeQuery()
                 while (rs.next()) {
                     val promo = PromoDto(
                         id = rs.getLong("id"),
@@ -29,10 +38,11 @@ object PromoService {
                         amount = rs.getLong("amount"),
                         name = rs.getString("name")
                     )
-                            promos.add(promo)
+                    promos.add(promo)
                 }
-                return@withContext promos
+                totalCount = tName.let { DBManager.getDataCount(it)!! }
             }
+            return@withContext DataPage(promos, totalCount)
         }
     }
 
@@ -111,7 +121,7 @@ object PromoService {
     }
 
 
-   suspend fun getPromoByCode(code: String?): PromoDto? {
+    suspend fun getPromoByCode(code: String?): PromoDto? {
         val query = "select * from $PROMO_TABLE_NAME where name = '$code' and end_date > CURRENT_TIMESTAMP"
         return withContext(Dispatchers.IO) {
             repository.connection().use {

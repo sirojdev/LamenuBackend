@@ -3,60 +3,66 @@ package mimsoft.io.features.sms
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.message.MessageDto
+import mimsoft.io.features.promo.PROMO_TABLE_NAME
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import java.sql.Timestamp
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
 
 object SmsService {
     val repository: BaseRepository = DBManager
     val mapper: SmsMapper = SmsMapper
 
-
     suspend fun getAll(
         merchantId: Long?,
         limit: Int? = null,
         offset: Int? = null
-    ): List<SmsDto> {
-
-        val where = " where s.merchant_id = $merchantId \n" +
-                "                    and not s.deleted\n" +
-                "                    and not m.deleted "
-        val columns = "s.id   s_id,\n" +
-                "                    s.time s_time,\n" +
-                "                    status,\n" +
-                "                    m.id   m_id,\n" +
-                "                    content,\n" +
-                "                    (select count(*) from users u where u.merchant_id = $merchantId) as count"
-        val tableName = " sms s left join message m on s.message_id = m.id"
-
-        val query = "select $columns from $tableName where $where limit $limit offset $offset "
-        println("query = $query")
-
-        val resultList = arrayListOf<SmsDto>()
-        withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use { connection ->
-                val statement = connection.createStatement()
-                val resultSet = statement.executeQuery(query)
-                val constructor = SmsTable::class.primaryConstructor
-                    ?: throw IllegalStateException("Data class must have a primary constructor")
-
-                while (resultSet.next()) {
-                    val parameters = constructor.parameters.associateWith { parameter ->
-                        val columnName = parameter.name?.let { DBManager.camelToSnakeCase(it) }
-                        resultSet.getObject(columnName)
+    ): DataPage<SmsDto> {
+        val defaultLimit = 10
+        val defaultOffset = 0
+        val query = StringBuilder()
+        query.append(
+            """
+            select s.id         s_id,
+            s.time              s_time,
+            status,
+            m.id                m_id,
+            content,
+            (select count(*) from users u where u.merchant_id = $merchantId) as count
+            from sms s
+            left join message m on s.message_id = m.id
+            where s.merchant_id = $merchantId
+            and not s.deleted
+            and not m.deleted
+            order by s.created desc
+        """.trimIndent()
+        )
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
+        else query.append(" limit $defaultLimit offset $defaultOffset")
+        var totalCount = 0
+        val tName = SMS_TABLE
+        return withContext(DBManager.databaseDispatcher) {
+            val resultList = mutableListOf<SmsDto>()
+            repository.connection().use {
+                val rs = it.prepareStatement(query.toString()).executeQuery()
+                    while (rs.next()) {
+                        val dto = SmsDto(
+                            id = rs.getLong("s_id"),
+                            time = rs.getString("s_time"),
+                            status = Status.valueOf(rs.getString("status")),
+                            clientCount = rs.getLong("count"),
+                            message = MessageDto(
+                                id = rs.getLong("m_id"),
+                                content = rs.getString("content"),
+                            )
+                        )
+                        resultList.add(dto)
                     }
-                    val instance = constructor.callBy(parameters)
-                    resultList.add(mapper.toDto(instance)!!)
-                }
+                totalCount = tName.let { DBManager.getDataCount(it)!! }
             }
+            return@withContext DataPage(resultList, totalCount)
         }
-
-        val totalCount = tableName.let { DBManager.getDataCount(it) }
-
-        return totalCount?.let { DataPage(resultList, it) } as List<SmsDto>
     }
 
 
@@ -65,9 +71,6 @@ object SmsService {
         limit: Int? = null,
         offset: Int? = null
     ): List<SmsDto?> {
-
-
-
         val query =
             """
                 select s.id   s_id,

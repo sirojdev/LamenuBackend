@@ -7,5 +7,6 @@ data class CourierDto(
     val merchantId: Long? = null,
     val staffId: Long? = null,
     val balance: Double? = null,
-    val lastLocation: CourierLocationHistoryDto? = null
+    val lastLocation: CourierLocationHistoryDto? = null,
+    val type: String? = null
 )
