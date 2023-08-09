@@ -27,7 +27,9 @@ fun Route.merchantChatRoute() {
                 val courierId = call.parameters["courierId"]?.toLongOrNull()
                 val principal = call.principal<MerchantPrincipal>()
                 val merchantId = principal?.merchantId
-                val messageList = ChatMessageRepository.getUserMessages(merchantId,courierId);
+                val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+                val messageList = ChatMessageRepository.getUserMessages(merchantId,courierId,limit,offset);
                 if (messageList.isEmpty()){
                     call.respond(HttpStatusCode.NoContent)
                 }
@@ -48,8 +50,10 @@ fun Route.merchantChatRoute() {
             get("/merchant/messages") {
                 val principal = call.principal<StaffPrincipal>()
                 val merchantId = principal?.merchantId
+                val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
                 val courierId = principal?.staffId
-                val messageList = ChatMessageRepository.getUserMessages(courierId,merchantId);
+                val messageList = ChatMessageRepository.getUserMessages(courierId, merchantId, limit, offset);
                 if (messageList.isEmpty()){
                     call.respond(HttpStatusCode.NoContent)
                 }

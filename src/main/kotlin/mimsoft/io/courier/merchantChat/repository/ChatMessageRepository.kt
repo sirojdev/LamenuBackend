@@ -1,9 +1,7 @@
 package mimsoft.io.courier.merchantChat.repository
 
-import io.ktor.util.reflect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.courier.merchantChat.ChatMessageDto
 import mimsoft.io.courier.merchantChat.ChatMessageInfoDto
 import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
 import mimsoft.io.courier.merchantChat.Sender
@@ -31,6 +29,7 @@ object ChatMessageRepository {
         }
 
     }
+
     private fun getMessageList(
         messageList: ArrayList<ChatMessageSaveDto>,
         rs: ResultSet
@@ -41,7 +40,12 @@ object ChatMessageRepository {
                     id = rs.getLong("id"),
                     fromId = rs.getLong("from_id"),
                     toId = rs.getLong("to_id"),
-                    operatorId = rs.getLong("operator_id"),
+                    operator =StaffDto(
+                        id = rs.getLong("s_id"),
+                        lastName = rs.getString("s_last_name"),
+                        firstName = rs.getString("s_first_name"),
+                        image = rs.getString("s_image")
+                    ),
                     time = rs.getTimestamp("send_time"),
                     message = rs.getString("message"),
                     sender = Sender.valueOf(rs.getString("sender"))
@@ -52,9 +56,15 @@ object ChatMessageRepository {
 
     }
 
-    suspend fun getUserMessages(from: Long?, to: Long?): ArrayList<ChatMessageSaveDto> {
-        val query =
-            "select * from chat_message where (to_id = $to and from_id = $from) or (to_id = $from and from_id = $to) order by created_at desc"
+    suspend fun getUserMessages(from: Long?, to: Long?, limit: Int, offset: Int): ArrayList<ChatMessageSaveDto> {
+        val query ="select cm.*,s.id s_id,s.first_name s_first_name,s.last_name s_last_name,s.image s_image\n" +
+                "from chat_message cm\n" +
+                "left join staff s on s.id = cm.operator_id\n" +
+                "where (to_id = $to and from_id =$from)\n" +
+                "   or (to_id = $from and from_id = $to)\n" +
+                "order by send_time desc\n" +
+                " limit $limit " +
+                " offset $offset \n"
         val messageList = ArrayList<ChatMessageSaveDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -82,10 +92,10 @@ object ChatMessageRepository {
     }
 
     suspend fun getAllCourierChat(merchantId: Long?): ArrayList<StaffDto> {
-        val query = "select distinct s.* from chat_message\n" +
+        val query = "select distinct s.* from chat_message \n" +
                 "         inner join courier c on chat_message.from_id = c.id\n" +
                 "                    inner join staff s on c.staff_id = s.id\n" +
-                " where to_id = 2 and s.deleted =false and c.deleted = false"
+                " where to_id = $merchantId and s.deleted =false and c.deleted = false"
 
         val list = ArrayList<StaffDto>()
         withContext(Dispatchers.IO) {
@@ -136,7 +146,10 @@ object ChatMessageRepository {
                             fromId = rs.getLong("from_id"),
                             sender = Sender.valueOf(rs.getString("sender")),
                             lastMessage = rs.getString("msg").split(",")[0].removePrefix("("),
-                            time = Timestamp.valueOf(rs.getString("msg").split(",")[1].removeSuffix(")").removeSuffix("\"").removePrefix("\""))
+                            time = Timestamp.valueOf(
+                                rs.getString("msg").split(",")[1].removeSuffix(")").removeSuffix("\"")
+                                    .removePrefix("\"")
+                            )
                         )
                     )
                 }
