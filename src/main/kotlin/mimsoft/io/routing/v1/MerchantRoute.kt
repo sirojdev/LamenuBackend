@@ -24,6 +24,7 @@ import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.notification.routeToNotification
 import mimsoft.io.features.online_pbx.routeToOnlinePbx
+import mimsoft.io.features.operator.routeToOperatorEntity
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.outcome.routeToOutcome
@@ -104,6 +105,7 @@ fun Route.routeToMerchant() {
                 routeToProductLabel()
                 routeToProductExtra()
                 routeToProductOption()
+                routeToOperatorEntity()
             }
 
             route("finance") {
