@@ -7,6 +7,7 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.services.socket.SocketService
 import mimsoft.io.utils.OkHttp
+import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
 
 object OnlinePbxService {
@@ -23,20 +24,22 @@ object OnlinePbxService {
         val query = """
             insert into pbx_hook
                 (event, direction, caller, callee, body, date)
-            values (?, ?, ?, ?, ?, ?)
+            values (?, ?, ?, ?, ?, ?) returning * 
         """.trimIndent()
+
+        LOGGER.info("query: {}", query)
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                it.prepareStatement(query).use { last ->
-                    last.setString(1, event)
-                    last.setString(2, direction)
-                    last.setString(3, caller)
-                    last.setString(4, callee)
-                    last.setString(5, body)
-                    last.setTimestamp(6, Timestamp(System.currentTimeMillis()))
-                    last.close()
-                }
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, event)
+                    this.setString(2, direction)
+                    this.setString(3, caller)
+                    this.setString(4, callee)
+                    this.setString(5, body)
+                    this.setTimestamp(6, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.executeQuery()
             }
         }
     }
