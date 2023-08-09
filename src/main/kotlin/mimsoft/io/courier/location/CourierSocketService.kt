@@ -11,6 +11,4 @@ object CourierSocketService {
 
     val adminConnections = Collections.synchronizedSet<AdminConnection?>(LinkedHashSet())
 
-
-
 }

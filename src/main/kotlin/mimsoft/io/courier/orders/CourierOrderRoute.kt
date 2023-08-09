@@ -21,7 +21,7 @@ fun Route.routeToCourierOrders() {
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val orderList =
                 courierOrderService.getOrdersBySomething(merchantId, OrderStatus.OPEN.name, null, limit, offset)
-            if (orderList.isNullOrEmpty()) {
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -39,7 +39,7 @@ fun Route.routeToCourierOrders() {
                 limit,
                 offset
             )
-            if (orderList.isNullOrEmpty()) {
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -57,7 +57,7 @@ fun Route.routeToCourierOrders() {
                 limit,
                 offset
             )
-            if (orderList.isNullOrEmpty()) {
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -69,7 +69,7 @@ fun Route.routeToCourierOrders() {
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val orderList = courierOrderService.getAccepted(merchantId, OrderStatus.ACCEPTED.name, limit, offset)
-            if (orderList.isNullOrEmpty()) {
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
