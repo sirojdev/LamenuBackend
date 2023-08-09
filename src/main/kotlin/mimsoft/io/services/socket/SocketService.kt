@@ -3,6 +3,7 @@ package mimsoft.io.services.socket
 import com.google.gson.Gson
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
+import mimsoft.io.integrate.onlinePbx.PbxHookModel
 import mimsoft.io.utils.plugins.GSON
 import java.util.*
 
@@ -17,11 +18,14 @@ object SocketService {
     }
 
     suspend fun send(message: Any?): Boolean {
+        val hook = message as? PbxHookModel
         val text = Gson().toJson(message)
         connections.forEach {
             if (it.session?.isActive == true) {
-                it.session.send(text)
-                println("LOG WEBSOCKET--> ${GSON.toJson(message)} SENT")
+                if (it.details?.get("pbxCode") == hook?.callee){
+                    it.session.send(text)
+                    println("LOG WEBSOCKET--> ${GSON.toJson(message)} SENT")
+                }
             } else connections.remove(it)
         }
         return true

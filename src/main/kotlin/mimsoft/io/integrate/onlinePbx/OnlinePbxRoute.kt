@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.config.FORMATTER
+import mimsoft.io.features.online_pbx.OnlinePbxServiceEntity
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,6 +16,7 @@ import java.time.ZoneOffset
 fun Route.routeOnlinePbx() {
 
     val olinePbxService = OnlinePbxService
+    val onlinePbxServiceEntity = OnlinePbxServiceEntity
 
     route("/onlinePbx") {
 
@@ -26,6 +28,14 @@ fun Route.routeOnlinePbx() {
             val direction = webhook["direction"]
             val caller = webhook["caller"]
             val callee = webhook["callee"]
+            val domain = webhook["domain"]
+
+            onlinePbxServiceEntity.get(domain)?.let {
+                if (it == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@post
+                }
+            }
 
             OnlinePbxService.sendWebSocketMessage(PbxHookModel(event, direction, caller, callee))
             OnlinePbxService.saveHook(event, direction, caller, callee, webhook.toString())
