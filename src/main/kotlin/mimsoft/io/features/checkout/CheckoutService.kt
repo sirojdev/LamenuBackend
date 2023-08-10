@@ -37,13 +37,13 @@ object CheckoutService {
 
     suspend fun calculateProductPromo(promo: PromoDto?, products: List<CartItem?>?): Long {
         val getTotalPrice = OrderRepositoryImpl.getOrderProducts(products).body as OrderWrapper
-        val productPrice = getTotalPrice.price?.totalPrice ?: 0
+        val productPrice = getTotalPrice.price?.totalPrice?.toLong() ?: 0L
         val now = Timestamp(System.currentTimeMillis())
         promo?.let { pr ->
             if (pr.startDate != null && pr.endDate != null) {
                 if (pr.startDate <= now && pr.endDate >= now) {
                     return if (pr.byPercent()) {
-                        if (productPrice >= (pr.minAmount?.toLong() ?: 0L)) {
+                        if (productPrice.toLong() >= (pr.minAmount?.toLong() ?: 0L)) {
                             (productPrice * (pr.deliveryDiscount ?: 0.0)).toLong() / 100
                         } else {
                             productPrice
