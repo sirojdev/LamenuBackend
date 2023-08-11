@@ -207,9 +207,9 @@ object OrderRepositoryImpl : OrderRepository {
             filter.append(
                 """
                 and (
-                    lower(u.name) like '%$s%'
+                    lower(pt.name) like '%$s%'
                     or lower(u.phone) like '%$s%'
-                    or lower(o.id) like '%$s%'
+                    or o.id = ${s.toLongOrNull()}
                 )
                 """.trimIndent()
             )

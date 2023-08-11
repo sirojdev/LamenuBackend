@@ -28,7 +28,7 @@ object CategoryGroupService {
             tableName = CATEGORY_GROUP_TABLE
         )?.data
 
-        return data?.map { mapper.toDto(it) } ?: emptyList()
+        return data?.map { mapper.toDto(it?:CategoryGroupTable()) } ?: emptyList()
     }
 
     suspend fun add(dto: CategoryGroupDto): Long? =

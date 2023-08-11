@@ -11,6 +11,7 @@ import mimsoft.io.client.user.UserMapper
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.MerchantPrincipal
 
@@ -46,21 +47,16 @@ fun Route.routeToUserUser() {
     }
 
     post("user") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val merchantPrincipal = call.principal<MerchantPrincipal>()
+        val staffPrincipal = call.principal<StaffPrincipal>()
+        val merchantId = merchantPrincipal?.merchantId?:staffPrincipal?.merchantId
         try {
             val user = call.receive<UserDto>()
-//
-//            val statusTimestamp = timestampValidator(user.birthDay)
-//
-//            if (statusTimestamp.httpStatus != ResponseModel.OK){
-//                call.respond(statusTimestamp)
-//                return@post
-//            }
 
-            val status = userRepository.add(user.copy(merchantId=merchantId))
-
-            call.respond(status.httpStatus, status)
+            userRepository.add(user.copy(merchantId=merchantId)).let {
+                if (it.body == null) call.respond(it.httpStatus)
+                else call.respond(it.httpStatus, it.body)
+            }
         }catch (e: Exception) {
             e.printStackTrace()
             call.respond(HttpStatusCode.BadRequest)
