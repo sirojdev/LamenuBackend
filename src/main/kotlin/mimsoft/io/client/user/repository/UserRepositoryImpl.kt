@@ -6,8 +6,8 @@ import mimsoft.io.client.user.USER_TABLE_NAME
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.UserMapper
 import mimsoft.io.client.user.UserTable
+import mimsoft.io.config.timestampValidator
 import mimsoft.io.features.badge.BadgeDto
-import mimsoft.io.features.extra.EXTRA_TABLE_NAME
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
@@ -121,6 +121,13 @@ object UserRepositoryImpl : UserRepository {
     }
 
     override suspend fun add(userDto: UserDto?): ResponseModel {
+
+        val statusTimestamp = timestampValidator(userDto?.birthDay.toString())
+
+        if (statusTimestamp.httpStatus != ResponseModel.OK){
+            return statusTimestamp
+        }
+
         when {
             userDto?.phone == null -> return ResponseModel(
                 httpStatus = ResponseModel.PHONE_NULL

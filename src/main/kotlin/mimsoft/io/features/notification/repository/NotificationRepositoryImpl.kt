@@ -12,6 +12,7 @@ import mimsoft.io.features.visit.VisitDto
 import mimsoft.io.features.visit.VisitService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import java.sql.Timestamp
 
 object NotificationRepositoryImpl : NotificationRepository {
@@ -68,13 +69,18 @@ object NotificationRepositoryImpl : NotificationRepository {
         return mapper.toDto(data)
     }
 
-    override suspend fun getAll(merchantId: Long?): List<NotificationDto?> {
-        val data = repository.getPageData(
+    override suspend fun getAll(merchantId: Long?, limit: Int?, offset: Int?): DataPage<NotificationDto> {
+        val dataPage =  repository.getPageData(
             dataClass = NotificationTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
-            tableName = NOTIFICATION_TABLE_NAME
-        )?.data?.map { mapper.toDto(it) }
-        return data ?: emptyList()
+            tableName = NOTIFICATION_TABLE_NAME,
+            limit = limit,
+            offset = offset
+        )
+        return DataPage(
+            data = dataPage?.data?.map { mapper.toDto(it) },
+            total = dataPage?.total
+        )
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {

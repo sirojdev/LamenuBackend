@@ -31,7 +31,7 @@ object CashbackService {
             tableName = CASHBACK_TABLE_NAME
         )?.data
 
-        return data?.map { mapper.toDto(it) } ?: emptyList()
+        return data?.map { mapper.toDto(it?:CashbackTable()) } ?: emptyList()
     }
 
     suspend fun add(dto: CashbackDto): Long? =

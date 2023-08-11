@@ -19,44 +19,15 @@ object SmsService {
         merchantId: Long?,
         limit: Int? = null,
         offset: Int? = null
-    ): List<SmsDto> {
+    ): DataPage<SmsTable>? {
 
-        val where = " where s.merchant_id = $merchantId \n" +
-                "                    and not s.deleted\n" +
-                "                    and not m.deleted "
-        val columns = "s.id   s_id,\n" +
-                "                    s.time s_time,\n" +
-                "                    status,\n" +
-                "                    m.id   m_id,\n" +
-                "                    content,\n" +
-                "                    (select count(*) from users u where u.merchant_id = $merchantId) as count"
-        val tableName = " sms s left join message m on s.message_id = m.id"
-
-        val query = "select $columns from $tableName where $where limit $limit offset $offset "
-        println("query = $query")
-
-        val resultList = arrayListOf<SmsDto>()
-        withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use { connection ->
-                val statement = connection.createStatement()
-                val resultSet = statement.executeQuery(query)
-                val constructor = SmsTable::class.primaryConstructor
-                    ?: throw IllegalStateException("Data class must have a primary constructor")
-
-                while (resultSet.next()) {
-                    val parameters = constructor.parameters.associateWith { parameter ->
-                        val columnName = parameter.name?.let { DBManager.camelToSnakeCase(it) }
-                        resultSet.getObject(columnName)
-                    }
-                    val instance = constructor.callBy(parameters)
-                    resultList.add(mapper.toDto(instance)!!)
-                }
-            }
-        }
-
-        val totalCount = tableName.let { DBManager.getDataCount(it) }
-
-        return totalCount?.let { DataPage(resultList, it) } as List<SmsDto>
+        return repository.getPageData(
+            dataClass = SmsTable::class,
+            tableName = "sms",
+            limit = limit,
+            offset = offset,
+            where = mapOf("merchant_id" to merchantId as Any)
+        )
     }
 
 

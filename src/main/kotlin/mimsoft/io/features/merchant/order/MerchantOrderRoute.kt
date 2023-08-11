@@ -20,7 +20,7 @@ fun Route.routeToMerchantOrder() {
             val search = call.parameters["search"]
 
             val orders = orderService.getAll(merchantId = principal?.merchantId)
-            if (orders==null || orders.data.isEmpty()) {
+            if (orders==null || orders.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }

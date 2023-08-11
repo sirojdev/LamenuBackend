@@ -8,12 +8,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.notification.repository.NotificationRepository
 import mimsoft.io.features.notification.repository.NotificationRepositoryImpl
+import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 import java.sql.Timestamp
 
 fun Route.routeToNotification() {
     val notification: NotificationRepository = NotificationRepositoryImpl
     route("notification") {
+
         post {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
@@ -47,10 +49,13 @@ fun Route.routeToNotification() {
         }
 
         get {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
-            val response = notification.getAll(merchantId = merchantId)
-            call.respond(response)
+            val merchantPrincipal = call.principal<MerchantPrincipal>()
+            val staffPrincipal = call.principal<StaffPrincipal>()
+            val limit = call.parameters["limit"]?.toIntOrNull()
+            val offset = call.parameters["offset"]?.toIntOrNull()
+            val merchantId = merchantPrincipal?.merchantId?: staffPrincipal?.merchantId
+            val response = notification.getAll(merchantId = merchantId, limit = limit, offset = offset)
+            call.respond(response?: HttpStatusCode.NoContent)
         }
 
         delete("{id}") {

@@ -29,7 +29,7 @@ object RoleService {
             where = mapOf("staff_id" to staffId as Any)
         )?.data
 
-        return rolesObject?.map { mimsoft.io.utils.Role.valueOf(it.name.toString()) }
+        return rolesObject?.map { mimsoft.io.utils.Role.valueOf(it?.name.toString()) }
     }
 
 
