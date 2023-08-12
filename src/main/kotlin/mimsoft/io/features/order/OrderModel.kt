@@ -5,6 +5,7 @@ import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.payment_type.PaymentTypeDto
+import mimsoft.io.features.staff.StaffDto
 
 data class OrderModel(
     val id: Long? = null,
@@ -17,5 +18,9 @@ data class OrderModel(
     val time: String? = null,
     val comment: String? = null,
     val user: UserDto? = null,
-    val orderType: String? = null
+    val orderType: String? = null,
+    val courier: StaffDto? = null,
+    val status: String? = null,
+    val totalPrice: Double? = null,
+    val productCount: Int? = null
 )

@@ -62,7 +62,7 @@ object OptionRepositoryImpl : OptionRepository {
         return data ?: emptyList()
     }
 
-     suspend fun getOptionsByProductId(merchantId: Long?, productId: Long?): List<OptionDto>? {
+    suspend fun getOptionsByProductId(merchantId: Long?, productId: Long?): List<OptionDto>? {
         val data = repository.getPageData(
             dataClass = OptionTable::class,
             where = mapOf(
@@ -76,12 +76,17 @@ object OptionRepositoryImpl : OptionRepository {
     }
 
     override suspend fun get(id: Long?, merchantId: Long?): OptionDto? {
+        val where: Map<String, Any>
+        if (merchantId != null){
+            where = mapOf(
+                "id" to id as Any,
+                "merchant_id" to merchantId as Any
+            )
+        }
+        else where = mapOf("id" to id as Any)
         val data = repository.getPageData(
             dataClass = OptionTable::class,
-            where = mapOf(
-                "merchant_id" to merchantId as Any,
-                "id" to id as Any
-            ),
+            where = where,
             tableName = OPTION_TABLE_NAME
         )?.data?.firstOrNull()
         return OptionMapper.toOptionDto(data)

@@ -49,7 +49,7 @@ object PaymeService {
                 )
             } else {
 
-                return@withContext if (amount?.toLong() != price) {
+                return@withContext if (amount != price) {
                     ErrorResult(
                         error = Error(
                             code = -31001,
@@ -396,7 +396,6 @@ object PaymeService {
             Base64.getEncoder().encodeToString("m=${payment?.paymeMerchantId};ac.order_id=$orderId;a=$amount".toByteArray())
         return CheckoutLinkModel(link = "https://checkout.paycom.uz/$params")
     }
-
 }
 
 

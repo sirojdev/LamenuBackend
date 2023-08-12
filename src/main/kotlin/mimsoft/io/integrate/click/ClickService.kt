@@ -207,7 +207,7 @@ object ClickService {
                 "error_note" to ALREADY_PAID.error_note
             )
 
-        if (orderWrapper.details?.totalPrice != amount ||
+        if (orderWrapper.details?.totalPrice?.toLong() != amount ||
             order.paymentTypeDto?.id != CLICK.id
         ) return mutableMapOf(
             "error" to INCORRECT_PARAMETER_AMOUNT.error,

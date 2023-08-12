@@ -9,9 +9,11 @@ import mimsoft.io.client.user.UserTable
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.features.badge.BadgeDto
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.features.promo.PROMO_TABLE_NAME
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
@@ -20,8 +22,14 @@ object UserRepositoryImpl : UserRepository {
 
     val repository: BaseRepository = DBManager
     val mapper = UserMapper
-    override suspend fun getAll(merchantId: Long?): List<UserDto?> {
-        val query = """
+    override suspend fun getAll(merchantId: Long?, limit: Long?, offset: Long?): DataPage<UserDto> {
+        val defaultLimit = 10
+        val defaultOffset = 0
+        var totalCount = 0
+        val tName = USER_TABLE_NAME
+        val query = StringBuilder()
+        query.append(
+            """
             select u.*, 
             b.name_uz b_name_uz, 
             b.name_ru b_name_ru, 
@@ -32,11 +40,15 @@ object UserRepositoryImpl : UserRepository {
                 from users u 
                 left join badge b on b.id = u.badge_id 
                 where u.merchant_id = $merchantId and not u.deleted 
-        """.trimIndent()
+                order by u.created desc 
+        """)
+        if(limit != null) query.append(" limit $limit")
+        if(offset != null) query.append(" offset $offset")
+        else query.append(" limit $defaultLimit offset $defaultOffset")
+        val list = mutableListOf<UserDto>()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                val list = arrayListOf<UserDto>()
+                val rs = it.prepareStatement(query.toString()).executeQuery()
                 while (rs.next()) {
                     val dto = UserDto(
                         id = rs.getLong("id"),
@@ -58,8 +70,9 @@ object UserRepositoryImpl : UserRepository {
                     )
                     list.add(dto)
                 }
-                return@withContext list
+                totalCount = tName.let { DBManager.getDataCount(it)!! }
             }
+            return@withContext DataPage(list, totalCount)
         }
     }
 

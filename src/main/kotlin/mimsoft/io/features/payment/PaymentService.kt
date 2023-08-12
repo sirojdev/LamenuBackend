@@ -7,6 +7,7 @@ import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
 object PaymentService {
@@ -117,11 +118,14 @@ object PaymentService {
         val query = "select " +
                 "       pt.id pt_id, \n" +
                 "       pt.name, \n" +
-                "       pt.icon \n" +
+                "       pt.icon, \n" +
+                "       pt.title_uz, \n" +
+                "       pt.title_ru, \n" +
+                "       pt.title_eng \n" +
                 "from payment_integration pi \n" +
                 "left join payment_type pt on pi.payment_type_id = pt.id \n" +
                 "where merchant_id = $merchantId \n" +
-                "  and pi.deleted = false"
+                "  and pi.deleted = false order by payment_type_id"
         val list = mutableListOf<PaymentTypeDto>()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
@@ -130,7 +134,12 @@ object PaymentService {
                     val dto = PaymentTypeDto(
                         id = rs.getLong("pt_id"),
                         name = rs.getString("name"),
-                        icon = rs.getString("icon")
+                        icon = rs.getString("icon"),
+                        title = TextModel(
+                            uz = rs.getString("title_uz"),
+                            ru = rs.getString("title_ru"),
+                            eng = rs.getString("title_eng")
+                        )
                     )
                     list.add(dto)
                 }

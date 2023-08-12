@@ -3,7 +3,6 @@ package mimsoft.io.features.payment_type.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.label.repository.LabelRepositoryImpl
-import mimsoft.io.features.option.repository.PaymentTypeRepository
 import mimsoft.io.features.payment_type.PAYMENT_TYPE_TABLE_NAME
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.payment_type.PaymentTypeMapper
@@ -15,11 +14,26 @@ import java.sql.Timestamp
 object PaymentTypeRepositoryImpl : PaymentTypeRepository {
     val repository: BaseRepository = DBManager
     override suspend fun getAll(): List<PaymentTypeTable?> {
-        val data = repository.getPageData(
-            dataClass = PaymentTypeTable::class,
-            tableName = PAYMENT_TYPE_TABLE_NAME
-        )?.data
-        return data?: emptyList()
+        val query = "select * from payment_type where not deleted"
+        return withContext(DBManager.databaseDispatcher){
+            repository.connection().use {
+                val list = mutableListOf<PaymentTypeTable>()
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()){
+                    list.add(
+                        PaymentTypeTable(
+                            id = rs.getLong("id"),
+                            name = rs.getString("name"),
+                            icon = rs.getString("icon"),
+                            titleUz = rs.getString("title_uz"),
+                            titleRu = rs.getString("title_ru"),
+                            titleEng = rs.getString("title_eng")
+                        )
+                    )
+                }
+                return@withContext list
+            }
+        }
     }
     override suspend fun get(id: Long?): PaymentTypeDto? {
         val data = repository.getPageData(
@@ -38,6 +52,9 @@ object PaymentTypeRepositoryImpl : PaymentTypeRepository {
                 "SET" +
                 " name = ?, " +
                 " icon = ?," +
+                " title_uz = ?," +
+                " title_ru = ?," +
+                " title_eng = ?," +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and not deleted"
 
@@ -46,6 +63,9 @@ object PaymentTypeRepositoryImpl : PaymentTypeRepository {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.name)
                     ti.setString(2, dto.icon)
+                    ti.setString(3, dto.title?.uz)
+                    ti.setString(4, dto.title?.ru)
+                    ti.setString(5, dto.title?.eng)
                     ti.setTimestamp(3, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }

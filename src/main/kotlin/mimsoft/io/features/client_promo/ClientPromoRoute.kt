@@ -7,11 +7,26 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
+import mimsoft.io.features.promo.PromoDto
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToClientPromo() {
     val service = ClientPromoService
     route("client/promo") {
+        post{
+            val promoName = call.receive<PromoDto>()
+            val response = service.check(promoName = promoName.name)
+            if(response == null){
+                HttpStatusCode.NotAcceptable
+                return@post
+            }
+            call.respond(HttpStatusCode.OK, response)
+            return@post
+        }
+
+
+
+
         post {
             val dto = call.receive<ClientPromoDto>()
             if (dto.client?.id == null || dto.promo?.id == null) {
