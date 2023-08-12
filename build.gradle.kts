@@ -25,6 +25,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-websocket:3.1.2")
+    implementation("org.springframework:spring-messaging:6.0.11")
     implementation("org.slf4j:slf4j-log4j12:2.0.5")
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
@@ -40,7 +42,7 @@ dependencies {
 //    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
 //    implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation ("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")

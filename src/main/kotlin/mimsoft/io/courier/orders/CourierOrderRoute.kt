@@ -17,8 +17,11 @@ fun Route.routeToCourierOrders() {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
             val merchantId = principal?.merchantId
-            val orderList = courierOrderService.getOrdersBySomething(merchantId, OrderStatus.OPEN.name, null)
-            if (orderList.isNullOrEmpty()) {
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orderList =
+                courierOrderService.getOrdersBySomething(merchantId, OrderStatus.OPEN.name, null, limit, offset)
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -27,8 +30,16 @@ fun Route.routeToCourierOrders() {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
             val merchantId = principal?.merchantId
-            val orderList = courierOrderService.getOrdersBySomething(merchantId, OrderStatus.ONWAY.name, courierId)
-            if (orderList.isNullOrEmpty()) {
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orderList = courierOrderService.getOrdersBySomething(
+                merchantId,
+                OrderStatus.ONWAY.name,
+                courierId,
+                limit,
+                offset
+            )
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -37,8 +48,16 @@ fun Route.routeToCourierOrders() {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
             val merchantId = principal?.merchantId
-            val orderList = courierOrderService.getOrdersBySomething(merchantId, OrderStatus.DELIVERED.name, courierId)
-            if (orderList.isNullOrEmpty()) {
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orderList = courierOrderService.getOrdersBySomething(
+                merchantId,
+                OrderStatus.DELIVERED.name,
+                courierId,
+                limit,
+                offset
+            )
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -47,8 +66,10 @@ fun Route.routeToCourierOrders() {
             val principal = call.principal<StaffPrincipal>()
             val courierId = principal?.staffId
             val merchantId = principal?.merchantId
-            val orderList = courierOrderService.getAccepted(merchantId, OrderStatus.ACCEPTED.name)
-            if (orderList.isNullOrEmpty()) {
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orderList = courierOrderService.getAccepted(merchantId, OrderStatus.ACCEPTED.name, limit, offset)
+            if (orderList.data.isNullOrEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
             }
             call.respond(orderList)
@@ -95,5 +116,19 @@ fun Route.routeToCourierOrders() {
                 call.respond(HttpStatusCode.OK, result)
             }
         }
+        get("/{id}") {
+            val principal = call.principal<StaffPrincipal>()
+            val id = call.parameters["id"]?.toLongOrNull()
+            val courierId = principal?.staffId
+            val merchantId = principal?.merchantId
+            val order = OrderRepositoryImpl.get(id, merchantId)
+            if (order == null) {
+                call.respond(HttpStatusCode.NotFound)
+            }else if(order.order?.courier?.id!=courierId){
+                call.respond(HttpStatusCode.MethodNotAllowed)
+            }
+            call.respond(order)
+        }
+
     }
 }

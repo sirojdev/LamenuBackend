@@ -6,7 +6,6 @@ import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.courier.CourierDto
 import mimsoft.io.features.courier.checkout.CourierTransactionDto
 import mimsoft.io.features.courier.checkout.CourierTransactionMapper
-import mimsoft.io.features.courier.checkout.CourierTransactionService
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.repository.BaseRepository
@@ -32,7 +31,7 @@ object TransactionService {
 //        }
 //    }
 
-    suspend fun getList(courierId: Long?, merchantId: Long?): List<CourierTransactionDto> {
+    suspend fun getList(courierId: Long?, merchantId: Long?, limit: Int, offset: Int): List<CourierTransactionDto> {
         val query = """
             select ct.id     ct_id,
                 ct.time      ct_time,
@@ -49,7 +48,9 @@ object TransactionService {
             left join courier c on ct.courier_id = c.id
             where ct.merchant_id = $merchantId and ct.courier_id = $courierId and 
              not ct.deleted
-              order by ct.created desc
+              order by ct.created desc  
+              limit $limit 
+              offset $offset
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {

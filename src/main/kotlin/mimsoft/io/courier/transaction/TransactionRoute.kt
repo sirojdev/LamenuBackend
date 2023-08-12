@@ -47,7 +47,14 @@ fun Route.routeToCourierTransaction() {
             val pr = call.principal<StaffPrincipal>()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId
-            val result = transactionService.getList(courierId = courierId, merchantId = merchantId)
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val result = transactionService.getList(
+                courierId = courierId,
+                merchantId = merchantId,
+                limit = limit,
+                offset = offset
+            )
             if (result.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get

@@ -228,6 +228,7 @@ fun Application.configureSecurity() {
             validate { jwtCredential ->
                 val merchantId = jwtCredential.payload.getClaim("merchantId").asLong()
                 val uuid = jwtCredential.payload.getClaim("uuid").asString()
+                val staffId = jwtCredential.payload.getClaim("staffId").asLong()
 
                 val session = SessionRepository.get(uuid)
                 LOGGER.info("session: {}, merchantId {}, uuid {}", session, merchantId, uuid)
@@ -235,7 +236,7 @@ fun Application.configureSecurity() {
                     StaffPrincipal(
                         merchantId = merchantId,
                         uuid = uuid,
-                        staffId = session.stuffId
+                        staffId = staffId
                     )
                 } else null
 
