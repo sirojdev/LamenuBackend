@@ -53,7 +53,7 @@ fun Route.routeToOperator() {
                     )
                 )
 
-                call.respond(mapOf("token" to JwtConfig.generateOperatorToken(body.merchantId, uuid)))
+                call.respond(mapOf("token" to JwtConfig.generateOperatorToken(body.merchantId, uuid, body.id)))
             }
         }
 
