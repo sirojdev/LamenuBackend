@@ -30,8 +30,8 @@ fun Route.routeToClient() {
         routeToCategoryByGroup()
         routeToClientDevice()
         routeToClientCart()
+        routeToPaymentTypes()
         authenticate("user") {
-            routeToPaymentTypes()
             routeToClientPromo()
             routeToClientProfile()
             routeToAddress()
@@ -39,7 +39,7 @@ fun Route.routeToClient() {
             routeToBook()
             routeToFavourites()
             routeToClientOrderInfo()
-            routeToClientOrderHistory()
+//            routeToClientOrderHistory()
             routeToClientCheckout()
             routeToNotification()
             routeToClientVisit()

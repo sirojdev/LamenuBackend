@@ -16,10 +16,8 @@ fun Route.routeToUser() {
 
     get("users") {
         val users = userRepository.getAll()
-        if (users.isEmpty()) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        } else call.respond(users)
+        call.respond(users)
+        return@get
     }
 
     get("user/{id}") {

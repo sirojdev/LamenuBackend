@@ -16,24 +16,24 @@ import mimsoft.io.utils.ResponseModel
 
 fun Route.routeToClientOrder() {
     val orderService: OrderRepository = OrderRepositoryImpl
-    get ("orders"){
-            val pr = call.principal<UserPrincipal>()
-            val response: Any
-            val clientId = pr?.id
-            val merchantId = pr?.merchantId
-            val filter = call.parameters["filter"]
-            val limit = call.parameters["limit"]?.toLongOrNull()
-            val offset = call.parameters["offset"]
-            if(filter == null){
-                response = OrderRepositoryImpl.getModelList(clientId = clientId, merchantId = merchantId)
-            } else response = OrderRepositoryImpl.getModelList(clientId = clientId, merchantId = merchantId, filter = filter)
-
-            if (response.isEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(response)
-        }
+    get("orders") {
+        val pr = call.principal<UserPrincipal>()
+        val response: Any
+        val clientId = pr?.id
+        val merchantId = pr?.merchantId
+        val filter = call.parameters["status"]
+        val limit = call.parameters["limit"]?.toLongOrNull()
+        val offset = call.parameters["offset"]?.toLongOrNull()
+        response = OrderRepositoryImpl.getModelListUser(
+            clientId = clientId,
+            merchantId = merchantId,
+            filter = filter,
+            limit = limit,
+            offset = offset
+        )
+        call.respond(response)
+        return@get
+    }
 
     get("order/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
@@ -52,10 +52,9 @@ fun Route.routeToClientOrder() {
         val order = call.receive<OrderWrapper>()
         val status = orderService.add(order.copy(user = UserDto(id = principal?.id, merchantId = merchantId)))
         call.respond(
-            status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
-            status?.body?:
-            status?.httpStatus?.description?:
-            ResponseModel.SOME_THING_WRONG.description)
+            status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
+            status?.body ?: status?.httpStatus?.description ?: ResponseModel.SOME_THING_WRONG.description
+        )
     }
 
     post("order") {
@@ -66,17 +65,17 @@ fun Route.routeToClientOrder() {
         val status = orderService.addModel(order.copy(user = UserDto(id = userId, merchantId = merchantId)))
         call.respond(
             status.httpStatus,
-            status.body?:
-            status.httpStatus.description)
+            status.body ?: status.httpStatus.description
+        )
     }
 
     delete("order/{id}") {
-        val principal = call.principal<UserPrincipal>()
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
         call.respond(
-            status?.httpStatus?: ResponseModel.SOME_THING_WRONG,
-            status?.body?: status?.httpStatus?.description?: "Something went wrong")
+            status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
+            status?.body ?: status?.httpStatus?.description ?: "Something went wrong"
+        )
 
     }
 }

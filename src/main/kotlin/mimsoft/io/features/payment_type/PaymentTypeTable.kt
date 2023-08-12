@@ -7,6 +7,9 @@ data class PaymentTypeTable(
     val id: Long? = null,
     val name: String? = null,
     val icon: String? = null,
+    val titleUz: String? = null,
+    val titleRu: String? = null,
+    val titleEng: String? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val deleted: Boolean? = null

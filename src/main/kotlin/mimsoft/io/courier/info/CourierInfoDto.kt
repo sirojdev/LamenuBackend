@@ -12,4 +12,5 @@ data class CourierInfoDto (
     val gender: String? = null,
     val status: Boolean? = null,
     val balance: Double? = null,
+    val type: String? = null
 )

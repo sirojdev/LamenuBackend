@@ -22,12 +22,11 @@ fun Route.routeToUserUser() {
     get("users") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val users = userRepository.getAll(merchantId = merchantId)
-        if (users.isEmpty()) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }
-        else call.respond(users)
+        val limit = call.parameters["limit"]?.toLongOrNull()
+        val offset = call.parameters["offset"]?.toLongOrNull()
+        val users = userRepository.getAll(merchantId = merchantId, limit = limit, offset = offset)
+        call.respond(users)
+        return@get
     }
 
     get("user/{id}") {

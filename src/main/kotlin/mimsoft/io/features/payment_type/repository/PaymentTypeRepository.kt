@@ -1,4 +1,4 @@
-package mimsoft.io.features.option.repository
+package mimsoft.io.features.payment_type.repository
 
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.payment_type.PaymentTypeTable

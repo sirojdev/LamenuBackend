@@ -87,7 +87,7 @@ paths:
               schema:
                 type: "object"
                 items:
-                  $ref: './components.yaml#/components/schemas/LoginResponse'
+                  $ref: "../user.yaml#/components/schemas/LoginResponse"
 
 
   /merchant/settings/staff:
@@ -2037,7 +2037,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CashBackDto"
+                $ref: "#/components/schemas/CashbackDto"
         "204":
           description: "No Content"
         "400":
@@ -2242,31 +2242,31 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-#  /merchant/orders:
-#    get:
-#      tags:
-#        - TakeOut
-#      description: "Returns a order by courierId"
-#      security:
-#        - bearerAuth: [ ]
-#      parameters:
-#        - name: "courierId"
-#          in: "path"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "long"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                $ref: "#/components/schemas/OrderDto"
-#        "204":
-#          description: "No Content"
-#        "400":
-#          description: "Bad Request"
+  #  /merchant/orders:
+  #    get:
+  #      tags:
+  #        - TakeOut
+  #      description: "Returns a order by courierId"
+  #      security:
+  #        - bearerAuth: [ ]
+  #      parameters:
+  #        - name: "courierId"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "long"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                $ref: "#/components/schemas/OrderDto"
+  #        "204":
+  #          description: "No Content"
+  #        "400":
+  #          description: "Bad Request"
 
 
 
@@ -2595,7 +2595,6 @@ components:
         userId:
           type: "integer"
           format: "long"
-        type:
         status:
           type: "string"
         courier:
@@ -2610,13 +2609,13 @@ components:
           type: integer
           format: "double"
         productCount:
-           type: integer
+          type: integer
 
     OrderWrapper:
       type: "object"
       properties:
         details:
-         $ref: "#/components/schemas/OrderDetails"
+          $ref: "#/components/schemas/OrderDetails"
         order:
           $ref: "#/components/schemas/OrderDto"
         address:
@@ -2835,7 +2834,6 @@ components:
         options:
           type: array
           items:
-            type: "object"
             $ref: "#/components/schemas/OptionDto"
         name:
           $ref: "#/components/schemas/TextModel"
@@ -2911,7 +2909,6 @@ components:
           format: "long"
         phone:
           type: "string"
-        password:
         password:
           type: "string"
         firstName:
@@ -3216,17 +3213,14 @@ components:
         labels:
           type: array
           items:
-            type: "object"
             $ref: "#/components/schemas/LabelDto"
         options:
           type: array
           items:
-            type: "object"
             $ref: "#/components/schemas/OptionDto"
         extras:
           type: array
           items:
-            type: "object"
             $ref: "#/components/schemas/ExtraDto"
 
   securitySchemes:

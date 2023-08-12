@@ -11,5 +11,6 @@ data class CourierTable(
     val lastLocationId: Long? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
-    val deleted: Boolean? = null
+    val deleted: Boolean? = null,
+    val type: String? = null
 )

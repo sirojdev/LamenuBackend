@@ -1,7 +1,6 @@
 package mimsoft.io.features.payment_type
 
-import mimsoft.io.features.outcome_type.OutcomeTypeDto
-import mimsoft.io.features.outcome_type.OutcomeTypeTable
+import mimsoft.io.utils.TextModel
 
 object PaymentTypeMapper {
     fun toDto(table: PaymentTypeTable?): PaymentTypeDto? {
@@ -9,7 +8,12 @@ object PaymentTypeMapper {
         else PaymentTypeDto(
             id = table.id,
             name = table.name,
-            icon = table.icon
+            icon = table.icon,
+            title = TextModel(
+                uz = table.titleUz,
+                ru = table.titleRu,
+                eng = table.titleEng
+            )
         )
     }
 
@@ -18,7 +22,10 @@ object PaymentTypeMapper {
         else PaymentTypeTable(
             id = dto.id,
             name = dto.name,
-            icon = dto.icon
+            icon = dto.icon,
+            titleUz = dto.title?.uz,
+            titleRu = dto.title?.ru,
+            titleEng = dto.title?.eng
         )
     }
 }

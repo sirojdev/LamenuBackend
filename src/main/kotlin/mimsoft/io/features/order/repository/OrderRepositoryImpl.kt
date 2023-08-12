@@ -8,18 +8,18 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
-import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.features.branch.BranchDto
-import mimsoft.io.features.order.*
-import mimsoft.io.features.order.price.OrderPriceDto
-import mimsoft.io.features.order.price.OrderPriceTable
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.cart.CartService
 import mimsoft.io.features.checkout.CheckoutService
+import mimsoft.io.features.courier.CourierDto
+import mimsoft.io.features.order.*
+import mimsoft.io.features.order.price.OrderPriceDto
+import mimsoft.io.features.order.price.OrderPriceTable
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderType
 import mimsoft.io.features.order.utils.OrderWrapper
@@ -29,10 +29,13 @@ import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductMapper
 import mimsoft.io.features.product.ProductTable
 import mimsoft.io.features.promo.PromoService
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
-import mimsoft.io.utils.*
+import mimsoft.io.utils.OrderStatus
+import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
 object OrderRepositoryImpl : OrderRepository {
@@ -200,7 +203,6 @@ object OrderRepositoryImpl : OrderRepository {
                where not o.deleted 
             """.trimIndent()
         )
-        println("search = $search")
         if (search != null) {
 
             val s = search.lowercase().replace("'", "_")
@@ -236,8 +238,6 @@ object OrderRepositoryImpl : OrderRepository {
         query.append(joins)
         query.append(filter)
         query.append("order by id desc limit $limit offset $offset")
-        println(query)
-        println(queryCount)
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query.toString()).apply {
@@ -544,6 +544,7 @@ object OrderRepositoryImpl : OrderRepository {
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
+
                 if (rs.next()) {
                     val products = rs.getString("products")
                     val typeToken = object : TypeToken<List<CartItem>>() {}.type
@@ -583,7 +584,7 @@ object OrderRepositoryImpl : OrderRepository {
         }
     }
 
-    suspend fun getModelList(
+    suspend fun getModelListUser(
         clientId: Long?,
         merchantId: Long?,
         filter: String? = null,
@@ -595,12 +596,12 @@ object OrderRepositoryImpl : OrderRepository {
         val query = StringBuilder()
         query.append(
             """
-            select o.id    o_id,
+            select o.id   o_id,
                 o.products,
                 o.status,
                 o.delivery_at,
                 o.delivered_at,
-                o.type  o_type,
+                o.type o_type,
                 o.comment,
                 o.product_count,
                 o.grade,
@@ -610,6 +611,117 @@ object OrderRepositoryImpl : OrderRepository {
                 o.add_long,
                 o.add_lat,
                 o.created_at,
+                o.courier_id,
+                pt.name pt_name,
+                pt.icon pt_icon,
+                op.id  op_id,
+                op.delivery_price,
+                op.delivery_discount,
+                op.delivery_promo,
+                op.product_price,
+                op.product_discount,
+                op.delivery_promo,
+                op.total_price,
+                op.total_discount,
+                b.id   b_id,
+                b.name_uz,
+                b.name_ru,
+                b.name_eng,
+                b.longitude,
+                b.latitude,
+                b.address,
+                b.open,
+                b.close,
+                s.first_name c_first_name,
+                s.last_name c_last_name,
+                s.image
+                from orders o
+                 left join order_price op on o.id = op.order_id
+                 left join branch b on o.branch_id = b.id
+                 left join payment_type pt on o.payment_type = pt.id
+                 left join courier c on o.courier_id = c.id
+                 left join staff s on c.staff_id = s.id
+                 left join address a on c.staff_id = s.id
+                where not o.deleted 
+                and o.user_id = $clientId
+                and o.merchant_id = $merchantId 
+        """.trimIndent()
+        )
+        if (filter != null && filter.equals("done")) query.append(" and o.status = '${OrderStatus.DELIVERED.name}' or o.status = '${OrderStatus.CLOSED.name}'")
+        if (filter != null && filter.equals("active")) query.append(" and not o.status = '${OrderStatus.DELIVERED.name}' and not o.status = '${OrderStatus.CLOSED.name}' and not o.status = '${OrderStatus.CANCELED.name}'")
+        if (filter != null) query.append(" and o.status = '${filter.uppercase()}'")
+        query.append(" order by o.created_at desc ")
+        if (limit != null) query.append(" limit $limit ")
+        if(offset!=null) query.append(" offset $offset")
+        if(limit == null && offset == null )query.append(" limit $limitDefault offset $offsetDefault")
+
+        val gson = Gson()
+        val list = mutableListOf<OrderModel>()
+        println(query)
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query.toString()).executeQuery()
+                println(query)
+                while (rs.next()) {
+                    val products = rs.getString("products")
+                    val typeToken = object : TypeToken<List<CartItem>>() {}.type
+                    val cartList = gson.fromJson<List<CartItem>>(products, typeToken)
+                    val dto = OrderModel(
+                        id = rs.getLong("o_id"),
+                        products = cartList,
+                        address = AddressDto(
+                            latitude = rs.getDouble("add_lat"),
+                            longitude = rs.getDouble("add_long"),
+                            description = rs.getString("add_desc")
+                        ),
+                        branch = BranchDto(
+                            id = rs.getLong("b_id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            open = rs.getString("open"),
+                            close = rs.getString("close"),
+                            address = rs.getString("address"),
+                            longitude = rs.getDouble("longitude"),
+                            latitude = rs.getDouble("latitude"),
+                        ),
+                        time = rs.getTimestamp("created_at").toString(),
+                        cashbackAmount = rs.getDouble("total_discount"),
+                        paymentType = PaymentTypeDto(
+                            name = rs.getString("pt_name"),
+                            icon = rs.getString("pt_icon")
+                        ),
+                        comment = rs.getString("comment"),
+                        orderType = rs.getString("o_type"),
+                        status = rs.getString("status"),
+                        courier = StaffDto(
+                            id = rs.getLong("courier_id"),
+                            firstName = rs.getString("c_first_name"),
+                            lastName = rs.getString("c_last_name")
+                        )
+                    )
+                    list.add(dto)
+                }
+            }
+            return@withContext list
+        }
+    }
+
+    suspend fun getModelListMerchant(
+        merchantId: Long?,
+        filter: String? = null,
+        limit: Long? = null,
+        offset: Long? = null
+    ): DataPage<OrderModel> {
+        val limitDefault = 10
+        val offsetDefault = 0
+        var totalCount = 0
+        val query = StringBuilder()
+        query.append(
+            """
+            select o.*,
                 pt.name pt_name,
                 pt.icon pt_icon,
                 op.id   op_id,
@@ -636,20 +748,23 @@ object OrderRepositoryImpl : OrderRepository {
                  left join payment_type pt on o.payment_type = pt.id
                 where not o.deleted
                 and not op.deleted
-                and o.user_id = $clientId and o.merchant_id = $merchantId
+                and o.merchant_id = $merchantId
         """.trimIndent()
         )
         if (filter != null) query.append(" and o.status = '$filter'")
+        if (filter != null && filter.equals("active")) query.append(" and not o.status = '${OrderStatus.DELIVERED.name}' or not o.status = '${OrderStatus.CLOSED.name}'")
+        query.append(" order by o.created_at desc ")
         if (limit != null) query.append(" limit $limit ")
         if(offset!=null) query.append(" offset $offset")
-        else{
-            query.append(" limit $limitDefault offset $offsetDefault")
-        }
+        if(limit == null && offset == null )query.append(" limit $limitDefault offset $offsetDefault")
+
         val gson = Gson()
         val list = mutableListOf<OrderModel>()
+        println(query)
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query.toString()).executeQuery()
+                println(query)
                 while (rs.next()) {
                     val products = rs.getString("products")
                     val typeToken = object : TypeToken<List<CartItem>>() {}.type
@@ -686,8 +801,9 @@ object OrderRepositoryImpl : OrderRepository {
                     )
                     list.add(dto)
                 }
-                return@withContext list
+                totalCount = ORDER_TABLE_NAME.let { DBManager.getDataCount(it)!! }
             }
+            return@withContext DataPage(list, totalCount)
         }
     }
 
@@ -802,7 +918,7 @@ object OrderRepositoryImpl : OrderRepository {
     override suspend fun addModel(order: OrderModel): ResponseModel {
         val userInfo = order.user
         val user = UserRepositoryImpl.get(id = userInfo?.id, merchantId = userInfo?.merchantId)
-        var address: AddressDto? = null
+        val address: AddressDto?
         if (order.orderType == OrderType.DELIVERY.name && order.address?.id == null)
             return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
         else if (order.orderType == OrderType.DELIVERY.name && order.address?.id != null) {
@@ -830,6 +946,14 @@ object OrderRepositoryImpl : OrderRepository {
             deliveryDiscount = CheckoutService.calculateDeliveryPrice(promo)
             prodDiscount = CheckoutService.calculateProductPromo(promo, order.products)
         }
+        val orderPrice = OrderPriceDto(
+            deliveryPrice = deliveryPrice,
+            deliveryDiscount = deliveryDiscount,
+            productDiscount = prodDiscount,
+            totalPrice = totalPrice,
+            productPrice = activeProducts.price?.productPrice,
+            totalDiscount = prodDiscount + deliveryDiscount
+        )
 
 
         val queryPrice = """
@@ -945,10 +1069,20 @@ object OrderRepositoryImpl : OrderRepository {
         val order = get(id).order ?: return ResponseModel(httpStatus = ResponseModel.ORDER_NOT_FOUND)
         if (order.status != OrderStatus.OPEN.name)
             return ResponseModel(httpStatus = HttpStatusCode.Forbidden)
-        return ResponseModel(
-            body = repository.deleteData("orders", whereValue = id),
-            httpStatus = ResponseModel.OK
-        )
+        val query = "update orders set status = ? where id = $id"
+        val rs : Int
+        return withContext(DBManager.databaseDispatcher){
+            repository.connection().use {
+                rs = it.prepareStatement(query).apply {
+                    this.setString(1, OrderStatus.CANCELED.name)
+                }.executeUpdate()
+            }
+             ResponseModel(
+                body = rs,
+                httpStatus = ResponseModel.OK
+            )
+        }
+
     }
 
     override suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String?): List<OrderWrapper> {
@@ -976,7 +1110,6 @@ object OrderRepositoryImpl : OrderRepository {
         }
         val orders = arrayListOf<OrderWrapper>()
         val gson = Gson()
-        println("Query = $query")
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -1094,10 +1227,6 @@ object OrderRepositoryImpl : OrderRepository {
                         if (cartItem.product?.discount != null) {
                             totalDiscount += (productTable.costPrice!! / 100).times(productTable.discount!!)
                                 .toLong()
-                            println("totaldiscount = $totalDiscount")
-                            println((productTable.costPrice / 100).times(productTable.discount).toLong())
-                            println("Cost Price = ${productTable.costPrice}")
-                            println("Discount = ${productTable.discount}")
                         }
                         cartItem.product = productMapper.toProductDto(productTable)
                         readyProducts.add(cartItem)
@@ -1108,7 +1237,6 @@ object OrderRepositoryImpl : OrderRepository {
                 }
             }
         }
-        println("totaldiscount = $totalDiscount")
         return ResponseModel(
             body = OrderWrapper(
                 products = readyProducts,
@@ -1123,63 +1251,80 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getOrderProducts2(products: List<CartItem?>?): ResponseModel {
-        products?.forEach {
-            if (it?.product?.id == null || it.count == null)
-                return ResponseModel(httpStatus = ResponseModel.BAD_PRODUCT_ITEM)
-        }
-        val readyProducts = arrayListOf<CartItem>()
-
-        val query = """
-            select * from product
-            where not deleted and active
-            and id in (${products?.joinToString { it?.product?.id.toString() }}) 
-            order by id
+    suspend fun getOrderHistoryMerchant(
+        merchantId: Long?,
+        filter: String? = null,
+        limit: Long? = null,
+        offset: Long? = null
+    ): DataPage<OrderModel> {
+        val limitDefault = 10
+        val offsetDefault = 0
+        var totalCount = 0
+        val query = StringBuilder()
+        query.append(
+            """
+                select o.id,
+                       o.type,
+                       o.status,
+                       u.phone,
+                       u.first_name u_first_name,
+                       u.last_name u_last_name,
+                       o.total_price,
+                       pt.name,
+                       pt.icon,
+                       o.product_count,
+                       s.first_name s_first_name,
+                       s.last_name s_last_name,
+                       count(*) over () as total_count
+                from orders o
+                         left join users u on o.user_id = u.id
+                         left join payment_type pt on o.payment_type = pt.id
+                         left join courier c on o.courier_id = c.id
+                         left join staff s on c.staff_id = s.id
+                where o.merchant_id = $merchantId and not o.deleted and o.status = '${OrderStatus.CLOSED.name}' or o.status = '${OrderStatus.CANCELED.name}'
         """.trimIndent()
-
-        var totalPrice = 0L
-        var totalDiscount = 0L
-
-        withContext(DBManager.databaseDispatcher) {
-            repository.connection().use {
-                val statement = it.prepareStatement(query).executeQuery()
-                val productDiscountList: MutableList<Pair<Long, Long>> = mutableListOf()
-                while (statement.next()) {
-                    val productTable = ProductTable(
-                        id = statement.getLong("id"),
-                        nameUz = statement.getString("name_uz"),
-                        nameRu = statement.getString("name_ru"),
-                        nameEng = statement.getString("name_eng"),
-                        descriptionUz = statement.getString("description_uz"),
-                        descriptionRu = statement.getString("description_ru"),
-                        descriptionEng = statement.getString("description_eng"),
-                        image = statement.getString("image"),
-                        active = statement.getBoolean("active"),
-                        costPrice = statement.getLong("cost_price"),
-                        discount = statement.getDouble("discount")
-                    )
-                    totalDiscount += (productTable.costPrice!! / 100).times(productTable.discount!!)
-                        .toLong()
-                    val pairToAdd: Pair<Long, Long> = Pair(productTable.costPrice, productTable.discount.toLong())
-                    productDiscountList.add(pairToAdd)
-                }
-                readyProducts.ifEmpty {
-                    return@withContext ResponseModel(httpStatus = ResponseModel.PRODUCT_NOT_FOUND)
-                }
-            }
-        }
-        println("totaldiscount = $totalDiscount")
-        return ResponseModel(
-            body = OrderWrapper(
-                products = readyProducts,
-                price = OrderPriceDto(
-                    totalPrice = totalPrice,
-                    totalDiscount = totalDiscount.toLong()
-                )
-            ),
-            httpStatus = ResponseModel.OK
         )
+        if (filter != null) query.append(" and o.status = '$filter'")
+        if (filter != null && filter.equals("active")) query.append(" and not o.status = '${OrderStatus.DELIVERED.name}' or not o.status = '${OrderStatus.CLOSED.name}'")
+        query.append(" order by o.created_at desc ")
+        if (limit != null) query.append(" limit $limit ")
+        if(offset!=null) query.append(" offset $offset")
+        if(limit == null && offset == null )query.append(" limit $limitDefault offset $offsetDefault")
 
+        val list = mutableListOf<OrderModel>()
+        println(query)
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query.toString()).executeQuery()
+                println(query)
+                while (rs.next()) {
+                    totalCount = rs.getInt("total_count")
+                    val dto = OrderModel(
+                        id = rs.getLong("id"),
+                        orderType = rs.getString("type"),
+                        status = rs.getString("status"),
+                        user = UserDto(
+                            phone = rs.getString("phone"),
+                            firstName = rs.getString("u_first_name"),
+                            lastName = rs.getString("u_last_name")
+                        ),
+                        totalPrice = rs.getDouble("total_price"),
+                        paymentType = PaymentTypeDto(
+                            icon = rs.getString("icon"),
+                            name = rs.getString("name")
+                        ),
+                        productCount = rs.getInt("product_count"),
+                        courier = StaffDto(
+                            firstName = rs.getString("s_first_name"),
+                            lastName = rs.getString("s_last_name")
+                        )
+                    )
+                    list.add(dto)
+                }
+
+            }
+            return@withContext DataPage(list, totalCount)
+        }
     }
 
     suspend fun getOrder(id: Long?) = withContext(Dispatchers.IO) {

@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.option.repository.PaymentTypeRepository
+import mimsoft.io.features.payment_type.repository.PaymentTypeRepository
 import mimsoft.io.features.payment_type.repository.PaymentTypeRepositoryImpl
 
 fun Route.routeToPaymentType() {
