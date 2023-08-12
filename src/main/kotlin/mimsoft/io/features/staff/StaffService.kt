@@ -390,4 +390,19 @@ object StaffService {
             }
         }
     }
+
+    suspend fun isExist(staffId: Long?, merchantId: Long?): Boolean {
+        val query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $staffId and deleted = false"
+        var result = false;
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    result = true
+                }
+            }
+        }
+        return result
+    }
 }
