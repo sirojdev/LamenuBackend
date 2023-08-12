@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
 
 object PromoService {
@@ -12,6 +13,7 @@ object PromoService {
     val mapper = PromoMapper
     suspend fun getAll(merchantId: Long?): List<PromoDto> {
         val query = "select * from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+        LOGGER.info("getAll query: $query")
         return withContext(Dispatchers.IO) {
             val promos = arrayListOf<PromoDto>()
             repository.connection().use {
@@ -29,7 +31,7 @@ object PromoService {
                         amount = rs.getLong("amount"),
                         name = rs.getString("name")
                     )
-                            promos.add(promo)
+                    promos.add(promo)
                 }
                 return@withContext promos
             }
@@ -111,7 +113,7 @@ object PromoService {
     }
 
 
-   suspend fun getPromoByCode(code: String?): PromoDto? {
+    suspend fun getPromoByCode(code: String?): PromoDto? {
         val query = "select * from $PROMO_TABLE_NAME where name = '$code' and end_date > CURRENT_TIMESTAMP"
         return withContext(Dispatchers.IO) {
             repository.connection().use {

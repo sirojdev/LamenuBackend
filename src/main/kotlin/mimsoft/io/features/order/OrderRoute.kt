@@ -33,7 +33,13 @@ fun Route.routeToOrder() {
             call.respond(orders)
         }
         get("history") {
-            val orders = repository.getAll()
+            val merchantPrincipal = call.principal<MerchantPrincipal>()
+            val staffPrincipal = call.principal<MerchantPrincipal>()
+            val merchantId = merchantPrincipal?.merchantId?:staffPrincipal?.merchantId
+            val search = call.parameters["search"]
+            val limit = call.parameters["limit"]?.toIntOrNull()
+            val offset = call.parameters["offset"]?.toIntOrNull()
+            val orders = repository.getAll(merchantId = merchantId, search = search, limit = limit, offset = offset)
             if (orders.total == 0) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
