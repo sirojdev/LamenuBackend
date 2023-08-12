@@ -11,12 +11,13 @@ import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 object ChatMessageRepository {
     val repository: BaseRepository = DBManager
     suspend fun addMessage(message: ChatMessageSaveDto, to: Long?, isSend: Boolean) {
-        val query = " INSERT INTO chat_message (from_id,to_id,is_send,send_time,sender,message) " +
-                " values (${message.fromId},$to,?,now(),?,?)"
+        val query = " INSERT INTO chat_message (from_id,to_id,is_send,send_time,sender,message,operator_id) " +
+                " values (${message.fromId},$to,?,now(),?,?,${message.operatorId})"
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -30,23 +31,6 @@ object ChatMessageRepository {
         }
 
     }
-
-    suspend fun getNotReadMessages(from: Long?): ArrayList<ChatMessageSaveDto>? {
-        val query = "select * from chat_message where to_id = $from " +
-                " and is_send = false"
-
-        val messageList = ArrayList<ChatMessageSaveDto>()
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
-                getMessageList(messageList, rs)
-            }
-        }
-        return messageList
-    }
-
     private fun getMessageList(
         messageList: ArrayList<ChatMessageSaveDto>,
         rs: ResultSet
@@ -56,9 +40,10 @@ object ChatMessageRepository {
                 ChatMessageSaveDto(
                     id = rs.getLong("id"),
                     fromId = rs.getLong("from_id"),
+                    toId = rs.getLong("to_id"),
+                    operatorId = rs.getLong("operator_id"),
                     time = rs.getTimestamp("send_time"),
                     message = rs.getString("message"),
-                    toId = rs.getLong("to_id"),
                     sender = Sender.valueOf(rs.getString("sender"))
                 )
             )
@@ -150,7 +135,8 @@ object ChatMessageRepository {
                             toId = rs.getLong("to_id"),
                             fromId = rs.getLong("from_id"),
                             sender = Sender.valueOf(rs.getString("sender")),
-                            lastMessage = rs.getString("msg")
+                            lastMessage = rs.getString("msg").split(",")[0].removePrefix("("),
+                            time = Timestamp.valueOf(rs.getString("msg").split(",")[1].removeSuffix(")").removeSuffix("\"").removePrefix("\""))
                         )
                     )
                 }

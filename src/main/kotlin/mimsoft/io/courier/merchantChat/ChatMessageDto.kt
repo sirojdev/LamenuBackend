@@ -14,6 +14,7 @@ data class ChatMessageSaveDto(
     val message: String? = null,
     val fromId: Long? = null,
     val toId: Long? = null,
+    val operatorId:Long?=null,
     val sender: Sender? = null,
     val time: Timestamp? = null
 )

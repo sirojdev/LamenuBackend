@@ -25,6 +25,9 @@ fun Route.routeToOperatorEntity() {
             }
 
             val body = it.body as StaffDto
+            if(body.password==null || body.phone==null){
+                call.respond(HttpStatusCode.NotFound)
+            }
 
             val uuid = SessionRepository.generateUuid()
 
@@ -38,8 +41,7 @@ fun Route.routeToOperatorEntity() {
                     isExpired = false
                 )
             )
-
-            call.respond(mapOf("token" to JwtConfig.generateOperatorToken(body.merchantId, uuid)))
+            call.respond(mapOf("token" to JwtConfig.generateOperatorToken(body.merchantId, uuid,body.id)))
         }
     }
 

@@ -19,11 +19,11 @@ import mimsoft.io.courier.merchantChat.repository.ChatMessageRepository
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
 import mimsoft.io.features.staff.StaffPrincipal
+import mimsoft.io.features.staff.StaffService
 import mimsoft.io.services.socket.MessageModel
 import mimsoft.io.services.socket.SocketEntity
 import mimsoft.io.services.socket.SocketService
 import mimsoft.io.services.socket.StatusConnection
-import mimsoft.io.utils.principal.MerchantPrincipal
 import java.sql.Timestamp
 import java.time.Duration
 
@@ -115,91 +115,31 @@ fun Application.configureSocket() {
             }
 
         }
-//        authenticate("staff", "merchant") {
-//            webSocket("mchat") {
-//                val merchantPrincipal = call.principal<MerchantPrincipal>()
-//                val courierPrincipal = call.principal<StaffPrincipal>()
-//                val chatMessage: ChatMessageDto? = receiveDeserialized<ChatMessageDto?>()
-//                val sender: Sender?
-//                val fromId: Long?
-//                val toId: Long?
-//                // is courier
-//                if (merchantPrincipal == null) {
-//                    fromId = courierPrincipal?.staffId
-//                    sender = Sender.COURIER
-//                    toId = courierPrincipal?.merchantId
-//                } else {
-//                    fromId = merchantPrincipal.merchantId
-//                    sender = Sender.MERCHANT
-//                    toId = chatMessage?.toId
-//                }
-//
-//                try {
-//                    val connection =
-//                        ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender }
-//                    if (connection?.session != null ) {
-//                        ChatMessageService.sendMessage(
-//                            toId, ChatMessageSaveDto(
-//                                fromId = fromId,
-//                                toId = toId,
-//                                sender = sender,
-//                                time = Timestamp(System.currentTimeMillis()),
-//                                message = chatMessage?.message
-//                            )
-//                        )
-//                    } else {
-//                        val notReadMsgInfo = ChatMessageRepository.getNotReadMessagesInfo(fromId)
-//                        if (notReadMsgInfo != null) {
-//                            if (notReadMsgInfo.isNotEmpty()) {
-//                                this.send(Gson().toJson(notReadMsgInfo))
-//                                ChatMessageRepository.readMessages(fromId, sender)
-//                            }
-//                        }
-////                        ChatMessageService.sendMessage(
-////                            toId, ChatMessageSaveDto(
-////                                fromId = fromId,
-////                                toId = toId,
-////                                sender = sender,
-////                                time = Timestamp(System.currentTimeMillis()),
-////                                message = chatMessage?.message
-////                            )
-////                        )
-//                        ChatMessageService.chatConnections += ChatConnections(
-//                            id = fromId,
-//                            sender = sender,
-//                            connectAt = Timestamp(System.currentTimeMillis()),
-//                            session = this
-//                        )
-//                    }
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                } finally {
-//                    close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
-//                    SocketService.connections.removeIf { it.session == this }
-//                }
-//            }
-//        }
 
-        authenticate("staff", "merchant") {
+
+        authenticate("staff", "operator") {
             webSocket("mchat") {
                 try {
-                    val merchantPrincipal = call.principal<MerchantPrincipal>()
-                    val courierPrincipal = call.principal<StaffPrincipal>()
-
+                    val principal = call.principal<StaffPrincipal>()
                     val sender: Sender?
                     val fromId: Long?
-                    if (merchantPrincipal == null) {
-                        LOGGER.info("entity {}", courierPrincipal)
-                        fromId = courierPrincipal?.staffId
+                    var operatorId: Long? = null
+                    val connection: ChatConnections?
+                    val merchantId = principal?.merchantId
+                    val staffId = principal?.staffId
+                    val staff = StaffService.get(staffId, merchantId)
+                    println(" connections  ${ChatMessageService.chatConnections}")
+                    if (staff?.position == "courier") {
+                        fromId = staffId
                         sender = Sender.COURIER
+                        connection = ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender }
                     } else {
-                        fromId = merchantPrincipal.merchantId
+                        fromId = merchantId
                         sender = Sender.MERCHANT
+                        operatorId = staffId
+                        connection =
+                            ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender && it.operatorId == operatorId }
                     }
-                    println("sender   $sender")
-                    println("from id $fromId")
-                    println(ChatMessageService.chatConnections)
-                    val connection = ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender }
                     if (connection == null) {
                         println("connection null")
                         val getter = if (sender == Sender.MERCHANT) {
@@ -217,19 +157,20 @@ fun Application.configureSocket() {
                         ChatMessageService.chatConnections += ChatConnections(
                             id = fromId,
                             sender = sender,
+                            operatorId = operatorId ,
                             connectAt = Timestamp(System.currentTimeMillis()),
                             session = this
                         )
                         println(ChatMessageService.chatConnections.toString())
                     }
                     var toId = if (sender == Sender.COURIER) {
-                        courierPrincipal?.merchantId
+                        principal?.merchantId
                     } else {
-                        merchantPrincipal?.merchantId
+                        null
                     }
                     for (frame in incoming) {
                         val connection =
-                            ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender }
+                            ChatMessageService.chatConnections.find { it.id == fromId && it.sender == sender && it.operatorId == operatorId}
                         println(connection.toString())
                         frame as? Frame.Text ?: continue
                         val receivedText = frame.readText()
@@ -239,13 +180,13 @@ fun Application.configureSocket() {
 
                         println(chatMessage.toString())
 
-                        println(toId)
                         if (connection?.session != null) {
                             println(connection.session)
                             ChatMessageService.sendMessage(
                                 toId, ChatMessageSaveDto(
                                     fromId = fromId,
                                     toId = toId,
+                                    operatorId=operatorId,
                                     sender = sender,
                                     time = Timestamp(System.currentTimeMillis()),
                                     message = chatMessage?.message
@@ -259,7 +200,7 @@ fun Application.configureSocket() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    ChatMessageService.chatConnections.removeIf { it.session ==this }
+                    ChatMessageService.chatConnections.removeIf { it.session == this }
                     println("inside finally ${ChatMessageService.chatConnections}")
                     close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
                     println(ChatMessageService.chatConnections)
