@@ -475,6 +475,7 @@ paths:
       responses:
         "200":
           description: "OK"
+
   /client/book/{id}:
     get:
       tags:
@@ -1016,7 +1017,6 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-
 
   /client/product:
     get:

@@ -37,8 +37,6 @@ import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
-import org.w3c.dom.Text
-import java.sql.ResultSet
 import java.sql.Timestamp
 
 object OrderRepositoryImpl : OrderRepository {
