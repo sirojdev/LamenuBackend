@@ -5,7 +5,7 @@ import java.sql.Timestamp
 const val EXTRA_TABLE_NAME = "extra"
 data class ExtraTable(
     var id: Long? = null,
-    val price: Double? = null,
+    val price: Long? = null,
     val image: String? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,

@@ -35,7 +35,7 @@ object OptionRepositoryImpl : OptionRepository {
                         nameRu = rs.getString("name_ru"),
                         nameEng = rs.getString("name_en"),
                         image = rs.getString("image"),
-                        price = rs.getDouble("price"),
+                        price = rs.getLong("price"),
                         deleted = rs.getBoolean("deleted"),
                         created = rs.getTimestamp("created"),
                         updated = rs.getTimestamp("updated"),

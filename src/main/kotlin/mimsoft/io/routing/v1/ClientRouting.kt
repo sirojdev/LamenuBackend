@@ -11,13 +11,18 @@ import mimsoft.io.features.book.routeToBook
 import mimsoft.io.features.client_promo.routeToClientPromo
 import mimsoft.io.features.favourite.routeToFavourites
 import mimsoft.io.routing.v1.client.*
+import mimsoft.io.routing.v1.device.routeToDevice
 
 fun Route.routeToClient() {
 
     route("client/auth") {
+        authenticate("device"){
+            routeToSMS()
+        }
         routeToClientAuth()
     }
     route("client") {
+        routeToDevice()
         routeToMenu()
         routeToClientProduct()
         routeToClientTable()

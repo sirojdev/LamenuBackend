@@ -26,5 +26,5 @@ data class ProductTable(
     val deliveryEnabled: Boolean? = null,
     val timeCookingMax: Long? = null,
     val timeCookingMin: Long? = null,
-    val discount: Double? = null
+    val discount: Long? = null
 )

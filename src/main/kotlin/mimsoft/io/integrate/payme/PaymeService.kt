@@ -36,7 +36,7 @@ object PaymeService {
 
             orderWrapper = orderRepository.get(id = account?.orderId, merchantId = merchantId)
             val order = orderWrapper?.order
-            val price = orderWrapper?.details?.totalPrice
+            val price = orderWrapper?.details?.totalPrice as Double
             println("\norder-->${GSON.toJson(orderWrapper)}\n")
 
             if (order == null || price == null || order.paymentTypeDto?.isPaid == true || order.paymentTypeDto?.id != PAYME.id) {

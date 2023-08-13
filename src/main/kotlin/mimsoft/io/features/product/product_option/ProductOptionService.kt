@@ -44,7 +44,7 @@ object ProductOptionService {
                             eng = rs.getString("name_eng"),
                         ),
 
-                        price = rs.getDouble("price"),
+                        price = rs.getLong("price"),
                         image = rs.getString("image"),
                         parentId = rs.getLong("parent_id")
                     )

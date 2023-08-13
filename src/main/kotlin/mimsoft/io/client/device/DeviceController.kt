@@ -58,23 +58,23 @@ object DeviceController {
 
     suspend fun auth(device: DeviceModel): DeviceModel {
         val upsert =
-            "with upsert as (\n" + "    " +
-                    "update device set\n" +
+            "with upsert as (\n update device set \n" +
                     "        merchant_id = ${device.merchantId}, " +
                     "        os_version = ?,\n" +
                     "        model = ?,\n" +
                     "        brand = ?,\n" +
                     "        build = ?,\n" +
                     "        updated_at = ?, \n" +
-                    "        ip = ?\n" + "        " +
+                    "        ip = ?\n" +
                     "where uuid = ?\n" +
                     "        returning *\n" +
                     ")\n" +
                     "insert\n" +
                     "into device (merchant_id, os_version, model, brand, build, created_at ,ip, uuid)\n" +
-                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ? , ? \n" +
+                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ?, ? \n" +
                     "where not exists(select * from upsert)"
         return withContext(DBManager.databaseDispatcher) {
+            println(upsert)
             DBManager.connection().use { connection ->
                 var x = 0
                 connection.prepareStatement(upsert).apply {
@@ -94,7 +94,6 @@ object DeviceController {
                     this.setString(++x, device.uuid)
                     this.closeOnCompletion()
                 }.execute()
-
 
                 return@withContext device.copy(
                     token = JwtConfig.generateDeviceToken(

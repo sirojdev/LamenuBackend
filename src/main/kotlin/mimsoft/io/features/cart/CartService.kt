@@ -22,13 +22,13 @@ object CartService {
         println("Hello   --- > ${getTotalPrice.price?.totalDiscount}")
         val products = dto.products
         return CartInfoDto(
-            productsPrice = productPrice.toDouble(),
+            productsPrice = productPrice,
             products = products,
             address = dto.address,
             productCount = productCount(dto.products),
             productsDiscount = getTotalPrice.price?.productDiscount,
-            totalPrice = (productPrice.toDouble() + 15000.0 - 0.0 - checkProdDiscount(dto.products)),
-            totalDiscount = checkProdDiscount(dto.products) + 0.0
+            totalPrice = (productPrice + 15000L - 0L - checkProdDiscount(dto.products)),
+            totalDiscount = checkProdDiscount(dto.products) + 0L
         )
     }
 
@@ -39,15 +39,15 @@ object CartService {
         return totalCount
     }
 
-    private fun checkProdDiscount(products: List<CartItem>): Double {
+    private fun checkProdDiscount(products: List<CartItem>): Long {
         val id = products.map { it.product?.id }
         val ids = id.joinToString (", ")
-        var result = 0.0
+        var result = 0L
         val query = "select sum(discount) sum from product where id in ($ids) "
         DBManager.connection().use {
             val rs = it.prepareStatement(query).executeQuery()
             if (rs.next()) {
-                result = rs.getDouble("sum")
+                result = rs.getLong("sum")
             }
         }
         return result

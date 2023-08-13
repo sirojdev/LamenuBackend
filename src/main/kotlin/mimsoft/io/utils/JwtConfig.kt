@@ -54,7 +54,7 @@ object JwtConfig {
             .withClaim("uuid", uuid)
             .withClaim("hash", hash)
             .withClaim("phone", phone)
-            .withExpiresAt(Date(System.currentTimeMillis() + 0))
+            .withExpiresAt(getExpiration(validityRefresh))
             .sign(algorithmDevice)
     }
 

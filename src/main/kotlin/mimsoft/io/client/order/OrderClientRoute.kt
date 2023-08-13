@@ -22,8 +22,8 @@ fun Route.routeToClientOrder() {
         val clientId = pr?.id
         val merchantId = pr?.merchantId
         val filter = call.parameters["status"]
-        val limit = call.parameters["limit"]?.toLongOrNull()
-        val offset = call.parameters["offset"]?.toLongOrNull()
+        val limit = call.parameters["limit"]?.toLongOrNull() ?: 10
+        val offset = call.parameters["offset"]?.toLongOrNull() ?: 0
         response = OrderRepositoryImpl.getModelListUser(
             clientId = clientId,
             merchantId = merchantId,
