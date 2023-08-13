@@ -13,6 +13,9 @@ servers:
 
 
 tags:
+
+  - name: User
+    description: Endpoints related to table
   - name: Device
     description: Endpoints related to device
 
@@ -38,6 +41,121 @@ tags:
     description: Endpoints related to address
 
 paths:
+
+  /users:
+    get:
+      tags:
+        - User
+      description: "get all users "
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /user:
+    get:
+      tags:
+        - User
+      description: "get  user "
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+    post:
+      tags:
+        - User
+      description: "post user"
+      requestBody:
+        required: true  # Moved outside the content section
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResponseModel"
+        "404":
+          description: "Not Found"
+        "400":
+          description: "Bad Request"
+
+    put:
+      tags:
+        - User
+      description: "update user"
+      requestBody:
+        required: true  # Moved outside the content section
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResponseModel"
+
+    delete:
+      tags:
+        - User
+      description: "delete user"
+      requestBody:
+        required: true  # Moved outside the content section
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResponseModel"
+
 
   /client/tables:
     get:
@@ -1720,6 +1838,32 @@ components:
         merchantId:
           type: integer
           format: "long"
+
+    DataPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDto"
+          format: "long"
+        total:
+          type: integer
+          format: "long"
+
+    ResponseModel:
+      type: object
+      properties:
+        body:
+          type: object  # This allows any type for the body
+        httpStatus:
+          type: integer  # Assuming HttpStatusCode is represented as an integer
+          format: int32  # You might need to adjust the format based on your HttpStatusCode representation
+      required:
+        - body
+
+
+
 
 
 

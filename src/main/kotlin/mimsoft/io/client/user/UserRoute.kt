@@ -28,7 +28,7 @@ fun Route.routeToUser() {
         }
         val user = userRepository.get(id)
         if (user == null) {
-            call.respond(HttpStatusCode.NoContent)
+            call.respond(HttpStatusCode.NotFound    )
             return@get
         }
         call.respond(user)
