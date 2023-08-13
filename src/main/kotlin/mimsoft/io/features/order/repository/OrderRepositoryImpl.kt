@@ -1049,7 +1049,7 @@ object OrderRepositoryImpl : OrderRepository {
                 }.execute()
                 return@withContext ResponseModel(
                     httpStatus = ResponseModel.OK,
-                    body = getModel(id = orderId)?:""
+                    body = getModel(id = orderId) ?: ""
                 )
             }
         }
@@ -1307,176 +1307,269 @@ object OrderRepositoryImpl : OrderRepository {
         )
     }
 
+    suspend fun getOrderProducts1(products: List<CartItem?>?): ResponseModel {
+        if (products.isNullOrEmpty()) {
+            return ResponseModel(httpStatus = HttpStatusCode.BadRequest)
+        }
+
+        var totalPrice = 0L
+        var totalDiscount = 0L
+
+        products.forEach { cartItem ->
+
+            if (cartItem?.count == null)
+                return ResponseModel(httpStatus = ResponseModel.BAD_PRODUCT_ITEM)
+
+            var productPrice: Long? = 0L
+            var productDiscount: Long? = 0L
+
+            val sortedExtras = cartItem.extras?.sortedWith(compareBy { it1 -> it1.id })?.map { mapOf(it.id to it) }
+
+            val query = """
+                select
+                p.id p_id,
+                e.id e_id,
+                o.id o_id,
+                o.price o_price,
+                e.price e_price,
+                p.cost_price p_price,
+                p.discount p_discount
+                from product p
+                left join extra e on p.id = e.product_id
+                left join options o on p.id = o.product_id
+                where (not p.deleted or not e.deleted or not o.deleted)
+                and p.id = ${cartItem.product?.id}
+            """.trimIndent()
+
+            if (cartItem.option?.id != null) {
+                query.plus("and o.id = ${cartItem.option.id}")
+            }
+
+            query.plus("order by p_id, o_id, e_id")
+
+            repository.selectList(query = query).let { let ->
+
+                if(let[0]["p_price"] == null){
+                    return ResponseModel(
+                        httpStatus = HttpStatusCode.BadRequest,
+                        body = "Product with id = ${cartItem.product?.id} not found"
+                    )
+                }
+
+                productPrice = productPrice?.plus((let[0]["p_price"] as? Long)?:0L)
+                productDiscount = productDiscount?.times(((let[0]["p_discount"] as? Long) ?: 0L)/100)
+
+                if (let.isEmpty()) {
+                    return ResponseModel(
+                        httpStatus = HttpStatusCode.BadRequest,
+                        body = "Product with id = ${cartItem.product?.id} " +
+                                "or option with id = ${cartItem.option?.id} not found"
+                    )
+                }
+
+                productPrice = productPrice?.plus((let[0]["o_price"] as? Long)?:0L)
+
+                let.forEach { list ->
+
+                    list.forEach { (key, value) ->
+                        if (key == "e_id") {
+                            if (sortedExtras?.get(value as Int) == null) {
+                                return ResponseModel(
+                                    httpStatus = HttpStatusCode.BadRequest,
+                                    body = "Extra with id = $value not found"
+                                )
+                            }
+                        }
+
+                        if(key == "e_price" && value != null) productPrice = productPrice?.plus((value as? Long)?:0L)
+                        else return ResponseModel(
+                            httpStatus = HttpStatusCode.BadRequest,
+                            body = "Extra with id = $value not found"
+                        )
+                    }
+                }
+            }
+
+            totalPrice = totalPrice.plus((productPrice ?: 0L).times(cartItem.count!!))
+            totalDiscount = totalDiscount.plus(productDiscount?:0L)
+            cartItem.totalPrice = totalPrice
+        }
+
+        return ResponseModel(
+            body = products
+        )
+    }
+
 
     /*   suspend fun getOrderProducts(products: List<CartItem?>?): ResponseModel {
 
-           val responseModel = validateProducts(products)
-           if (responseModel != null) {
-               return responseModel
-           }
+       val responseModel = validateProducts(products)
+       if (responseModel != null) {
+           return responseModel
+       }
 
-           val (extraPrice, sortedExtras) = calculateExtraPrice(products)
-           val optionPrice = calculateOptionPrice(products)
-           val (totalPrice, totalDiscount) = calculateTotalPriceAndDiscount(products)
+       val (extraPrice, sortedExtras) = calculateExtraPrice(products)
+       val optionPrice = calculateOptionPrice(products)
+       val (totalPrice, totalDiscount) = calculateTotalPriceAndDiscount(products)
 
-           val readyProducts = prepareProducts(products)
+       val readyProducts = prepareProducts(products)
 
-           if (readyProducts.isEmpty()) {
-               return ResponseModel(httpStatus = ResponseModel.PRODUCT_NOT_FOUND)
-           }
+       if (readyProducts.isEmpty()) {
+           return ResponseModel(httpStatus = ResponseModel.PRODUCT_NOT_FOUND)
+       }
 
-           val orderWrapper = OrderWrapper(
-               products = readyProducts,
-               price = OrderPriceDto(
-                   totalPrice = totalPrice,
-                   totalDiscount = totalDiscount
-               )
+       val orderWrapper = OrderWrapper(
+           products = readyProducts,
+           price = OrderPriceDto(
+               totalPrice = totalPrice,
+               totalDiscount = totalDiscount
            )
+       )
 
-           return ResponseModel(body = orderWrapper, httpStatus = ResponseModel.OK)
-       }
+       return ResponseModel(body = orderWrapper, httpStatus = ResponseModel.OK)
+   }
 
-       private fun validateProducts(products: List<CartItem?>?): ResponseModel? {
-           products?.forEach {
-               if (it?.product?.id == null || it.count == null) {
-                   return ResponseModel(httpStatus = ResponseModel.BAD_PRODUCT_ITEM)
-               }
+   private fun validateProducts(products: List<CartItem?>?): ResponseModel? {
+       products?.forEach {
+           if (it?.product?.id == null || it.count == null) {
+               return ResponseModel(httpStatus = ResponseModel.BAD_PRODUCT_ITEM)
            }
-           return null
        }
+       return null
+   }
 
-       private suspend fun calculateExtraPrice(products: List<CartItem?>?): Pair<Double, List<Long>> {
-           var extraPrice = 0.0
-           val sortedExtras = mutableListOf<Long>()
+   private suspend fun calculateExtraPrice(products: List<CartItem?>?): Pair<Double, List<Long>> {
+       var extraPrice = 0.0
+       val sortedExtras = mutableListOf<Long>()
 
-           products?.forEach {
-               val sortedExtraIds = it?.extras?.mapNotNull { extra -> extra.id }?.sorted()
-               sortedExtraIds?.let { extras ->
-                   sortedExtras.addAll(extras)
-                   val query = "SELECT * FROM extra WHERE NOT deleted AND id IN (${extras.joinToString()})"
-                   withContext(Dispatchers.IO) {
-                       repository.connection().use { connection ->
-                           val statement = connection.prepareStatement(query).executeQuery()
-                           while (statement.next()) {
-                               val extraDto = extractExtraDto(statement)
-                               extraPrice += extraDto.price!!
-                           }
+       products?.forEach {
+           val sortedExtraIds = it?.extras?.mapNotNull { extra -> extra.id }?.sorted()
+           sortedExtraIds?.let { extras ->
+               sortedExtras.addAll(extras)
+               val query = "SELECT * FROM extra WHERE NOT deleted AND id IN (${extras.joinToString()})"
+               withContext(Dispatchers.IO) {
+                   repository.connection().use { connection ->
+                       val statement = connection.prepareStatement(query).executeQuery()
+                       while (statement.next()) {
+                           val extraDto = extractExtraDto(statement)
+                           extraPrice += extraDto.price!!
                        }
                    }
                }
            }
-
-           return Pair(extraPrice, sortedExtras)
        }
 
-       private fun extractExtraDto(rs: ResultSet?): ExtraDto {
-           return ExtraDto(
-               id = rs?.getLong("id"),
-               image = rs?.getString("image"),
-               price = rs?.getDouble("price"),
-               name = TextModel(
-                   uz = rs?.getString("name_uz"),
-                   ru = rs?.getString("name_ru"),
-                   eng = rs?.getString("name_eng")
-               ),
-               productId = rs?.getLong("product_id")
-           )
+       return Pair(extraPrice, sortedExtras)
+   }
+
+   private fun extractExtraDto(rs: ResultSet?): ExtraDto {
+       return ExtraDto(
+           id = rs?.getLong("id"),
+           image = rs?.getString("image"),
+           price = rs?.getDouble("price"),
+           name = TextModel(
+               uz = rs?.getString("name_uz"),
+               ru = rs?.getString("name_ru"),
+               eng = rs?.getString("name_eng")
+           ),
+           productId = rs?.getLong("product_id")
+       )
+   }
+
+   private suspend fun calculateOptionPrice(products: List<CartItem?>?): Double {
+       var optionPrice = 0.0
+       val queryOption = "SELECT SUM(price) FROM options WHERE NOT deleted AND id IN (${products?.mapNotNull { it?.option?.id }?.joinToString()}) "
+       withContext(Dispatchers.IO) {
+           repository.connection().use { connection ->
+               val rs = connection.prepareStatement(queryOption).executeQuery()
+               if (rs.next()) {
+                   optionPrice = rs.getDouble("sum")
+               }
+           }
+       }
+       return optionPrice
+   }
+
+   private suspend fun calculateTotalPriceAndDiscount(products: List<CartItem?>?): Pair<Double, Double> {
+       var totalPrice = 0.0
+       var totalDiscount = 0.0
+
+       val sortedProducts = products?.filterNotNull()?.sortedBy { it.product?.id }
+
+       sortedProducts?.forEach { cartItem ->
+           val productTable = fetchProductTable(cartItem)
+           totalPrice += productTable.costPrice?.times(cartItem.count?.toLong() ?: 0L) ?: 0L
+
+           if (cartItem.product?.discount != null) {
+               totalDiscount += (productTable.costPrice!! / 100).times(productTable.discount!!).toLong()
+           }
        }
 
-       private suspend fun calculateOptionPrice(products: List<CartItem?>?): Double {
-           var optionPrice = 0.0
-           val queryOption = "SELECT SUM(price) FROM options WHERE NOT deleted AND id IN (${products?.mapNotNull { it?.option?.id }?.joinToString()}) "
-           withContext(Dispatchers.IO) {
-               repository.connection().use { connection ->
-                   val rs = connection.prepareStatement(queryOption).executeQuery()
-                   if (rs.next()) {
-                       optionPrice = rs.getDouble("sum")
+       return Pair(totalPrice, totalDiscount)
+   }
+
+   private suspend fun fetchProductTable(cartItem: CartItem): ProductTable {
+       val query = "SELECT * FROM product WHERE NOT deleted AND active AND id = ? ORDER BY id"
+       val productTable: ProductTable
+       withContext(Dispatchers.IO) {
+           repository.connection().use { connection ->
+               val statement = connection.prepareStatement(query)
+               statement.setLong(1, cartItem.product?.id ?: -1)
+               val resultSet = statement.executeQuery()
+               resultSet.next()
+               productTable = extractProductTable(resultSet)
+           }
+       }
+       return productTable
+   }
+
+   private fun extractProductTable(rs: ResultSet?): ProductTable {
+       return ProductTable(
+           id = rs?.getLong("id"),
+           nameUz = rs?.getString("name_uz"),
+           nameRu = rs?.getString("name_ru"),
+           nameEng = rs?.getString("name_eng"),
+           descriptionUz = rs?.getString("description_uz"),
+           descriptionRu = rs?.getString("description_ru"),
+           descriptionEng = rs?.getString("description_eng"),
+           image = rs?.getString("image"),
+           active = rs?.getBoolean("active"),
+           costPrice = rs?.getLong("cost_price"),
+           discount = rs?.getDouble("discount")
+       )
+   }
+
+   private suspend fun prepareProducts(products: List<CartItem?>?): List<CartItem> {
+       val sortedProducts = products?.filterNotNull()?.sortedBy { it.product?.id }
+       val readyProducts = mutableListOf<CartItem>()
+
+       val query = "SELECT * FROM product WHERE NOT deleted AND active AND id IN (${sortedProducts?.mapNotNull { it.product?.id }?.joinToString()}) ORDER BY id"
+       withContext(Dispatchers.IO) {
+           repository.connection().use { connection ->
+               val statement = connection.prepareStatement(query).executeQuery()
+               while (statement.next()) {
+                   val productTable = extractProductTable(statement)
+                   sortedProducts?.forEach { cartItem ->
+                       val totalPrice = 0L
+                       val costPrice = productTable.costPrice ?: 0L
+                       val discount = cartItem.product?.discount ?: 0.0
+                       val count = cartItem.count ?: 0L
+                       val productDto = productMapper.toProductDto(productTable)
+                       val totalPriceForProduct = costPrice / count.toLong()
+                       val discountAmount = (costPrice * discount / 100).toLong()
+                       val finalPrice = totalPriceForProduct - discountAmount
+
+                       val modifiedCartItem = cartItem.copy(
+                           product = productDto,
+                           totalPrice = finalPrice.toDouble()
+                       )
+                       readyProducts.add(modifiedCartItem)
                    }
                }
            }
-           return optionPrice
        }
-
-       private suspend fun calculateTotalPriceAndDiscount(products: List<CartItem?>?): Pair<Double, Double> {
-           var totalPrice = 0.0
-           var totalDiscount = 0.0
-
-           val sortedProducts = products?.filterNotNull()?.sortedBy { it.product?.id }
-
-           sortedProducts?.forEach { cartItem ->
-               val productTable = fetchProductTable(cartItem)
-               totalPrice += productTable.costPrice?.times(cartItem.count?.toLong() ?: 0L) ?: 0L
-
-               if (cartItem.product?.discount != null) {
-                   totalDiscount += (productTable.costPrice!! / 100).times(productTable.discount!!).toLong()
-               }
-           }
-
-           return Pair(totalPrice, totalDiscount)
-       }
-
-       private suspend fun fetchProductTable(cartItem: CartItem): ProductTable {
-           val query = "SELECT * FROM product WHERE NOT deleted AND active AND id = ? ORDER BY id"
-           val productTable: ProductTable
-           withContext(Dispatchers.IO) {
-               repository.connection().use { connection ->
-                   val statement = connection.prepareStatement(query)
-                   statement.setLong(1, cartItem.product?.id ?: -1)
-                   val resultSet = statement.executeQuery()
-                   resultSet.next()
-                   productTable = extractProductTable(resultSet)
-               }
-           }
-           return productTable
-       }
-
-       private fun extractProductTable(rs: ResultSet?): ProductTable {
-           return ProductTable(
-               id = rs?.getLong("id"),
-               nameUz = rs?.getString("name_uz"),
-               nameRu = rs?.getString("name_ru"),
-               nameEng = rs?.getString("name_eng"),
-               descriptionUz = rs?.getString("description_uz"),
-               descriptionRu = rs?.getString("description_ru"),
-               descriptionEng = rs?.getString("description_eng"),
-               image = rs?.getString("image"),
-               active = rs?.getBoolean("active"),
-               costPrice = rs?.getLong("cost_price"),
-               discount = rs?.getDouble("discount")
-           )
-       }
-
-       private suspend fun prepareProducts(products: List<CartItem?>?): List<CartItem> {
-           val sortedProducts = products?.filterNotNull()?.sortedBy { it.product?.id }
-           val readyProducts = mutableListOf<CartItem>()
-
-           val query = "SELECT * FROM product WHERE NOT deleted AND active AND id IN (${sortedProducts?.mapNotNull { it.product?.id }?.joinToString()}) ORDER BY id"
-           withContext(Dispatchers.IO) {
-               repository.connection().use { connection ->
-                   val statement = connection.prepareStatement(query).executeQuery()
-                   while (statement.next()) {
-                       val productTable = extractProductTable(statement)
-                       sortedProducts?.forEach { cartItem ->
-                           val totalPrice = 0L
-                           val costPrice = productTable.costPrice ?: 0L
-                           val discount = cartItem.product?.discount ?: 0.0
-                           val count = cartItem.count ?: 0L
-                           val productDto = productMapper.toProductDto(productTable)
-                           val totalPriceForProduct = costPrice / count.toLong()
-                           val discountAmount = (costPrice * discount / 100).toLong()
-                           val finalPrice = totalPriceForProduct - discountAmount
-
-                           val modifiedCartItem = cartItem.copy(
-                               product = productDto,
-                               totalPrice = finalPrice.toDouble()
-                           )
-                           readyProducts.add(modifiedCartItem)
-                       }
-                   }
-               }
-           }
-           return readyProducts
-       }*/
+       return readyProducts
+   }*/
 
 
     suspend fun getOrderHistoryMerchant(
