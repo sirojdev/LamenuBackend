@@ -172,11 +172,9 @@ fun Application.configureSocket() {
                             Sender.MERCHANT
                         }
                         val notReadMsgInfo = ChatMessageRepository.getNotReadMessagesInfo(fromId, getter)
-                        if (notReadMsgInfo != null) {
-                            if (notReadMsgInfo.isNotEmpty()) {
-                                this.send(Gson().toJson(notReadMsgInfo))
-                                ChatMessageRepository.readMessages(fromId, getter)
-                            }
+                        if (notReadMsgInfo.isNotEmpty()) {
+                            this.send(Gson().toJson(notReadMsgInfo))
+                            ChatMessageRepository.readMessages(fromId, getter)
                         }
                         ChatMessageService.chatConnections += ChatConnections(
                             id = fromId,
@@ -207,7 +205,8 @@ fun Application.configureSocket() {
                         if (connection?.session != null) {
                             println(connection.session)
                             ChatMessageService.sendMessage(
-                                toId, ChatMessageSaveDto(
+                                toId,
+                                ChatMessageSaveDto(
                                     fromId = fromId,
                                     toId = toId,
                                     operatorId = operatorId,
