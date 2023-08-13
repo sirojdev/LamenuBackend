@@ -6,10 +6,8 @@ import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.product.*
-import mimsoft.io.features.product.product_extra.ProductExtraService
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
 import mimsoft.io.features.product.product_label.ProductLabelService
-import mimsoft.io.features.product.product_option.ProductOptionService
 import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -75,7 +73,7 @@ object ProductRepositoryImpl : ProductRepository {
                             timeCookingMax = rs.getLong("time_cooking_max"),
                             timeCookingMin = rs.getLong("time_cooking_min"),
                             deliveryEnabled = rs.getBoolean("delivery_enabled"),
-                            discount = rs.getDouble("discount"),
+                            discount = rs.getLong("discount"),
                             productIntegration = ProductIntegrationDto(
                                 idRkeeper = rs.getLong("id_rkeeper"),
                                 idJowi = rs.getLong("id_jowi"),
@@ -166,7 +164,7 @@ object ProductRepositoryImpl : ProductRepository {
                         timeCookingMax = rs.getLong("time_cooking_max"),
                         timeCookingMin = rs.getLong("time_cooking_min"),
                         deliveryEnabled = rs.getBoolean("delivery_enabled"),
-                        discount = rs.getDouble("discount"),
+                        discount = rs.getLong("discount"),
                         productIntegration = ProductIntegrationDto(
                             idRkeeper = rs.getLong("id_rkeeper"),
                             idJowi = rs.getLong("id_jowi"),
@@ -319,7 +317,7 @@ object ProductRepositoryImpl : ProductRepository {
                     this.setString(5, dto?.description?.ru)
                     this.setString(6, dto?.description?.eng)
                     this.setString(7, dto?.image)
-                    this.setDouble(8, dto?.discount!!)
+                    this.setLong(8, dto?.discount!!)
                     this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
                 }.execute()
@@ -386,7 +384,7 @@ object ProductRepositoryImpl : ProductRepository {
                             timeCookingMin = rs.getLong("time_cooking_min"),
                             timeCookingMax = rs.getLong("time_cooking_max"),
                             deliveryEnabled = rs.getBoolean("delivery_enabled"),
-                            discount = rs.getDouble("discount")
+                            discount = rs.getLong("discount")
                         ),
                         labels = ProductLabelService.getLabelsByProductId(id, merchantId = merchantId),
                         options = OptionRepositoryImpl.getOptionsByProductId(merchantId = merchantId, productId = id),
@@ -429,7 +427,7 @@ object ProductRepositoryImpl : ProductRepository {
                         timeCookingMin = rs.getLong("time_cooking_min"),
                         timeCookingMax = rs.getLong("time_cooking_max"),
                         deliveryEnabled = rs.getBoolean("delivery_enabled"),
-                        discount = rs.getDouble("discount")
+                        discount = rs.getLong("discount")
                     )
                     listProduct.add(product)
                 }
@@ -471,7 +469,7 @@ object ProductRepositoryImpl : ProductRepository {
                                 ),
                         image = rs.getString("image"),
                         costPrice = rs.getLong("cost_price"),
-                        discount = rs.getDouble("discount")
+                        discount = rs.getLong("discount")
                     )
                 }
             }

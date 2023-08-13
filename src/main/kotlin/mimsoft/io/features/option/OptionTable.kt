@@ -12,7 +12,7 @@ data class OptionTable(
     val nameRu: String? = null,
     val nameEng: String? = null,
     val image: String? = null,
-    val price: Double? = null,
+    val price: Long? = null,
     val productId: Long? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,

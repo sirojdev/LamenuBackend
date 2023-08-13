@@ -43,7 +43,7 @@ object ProductExtraService {
                             ru = rs.getString("name_ru"),
                             eng = rs.getString("name_eng"),
                         ),
-                        price = rs.getDouble("price"),
+                        price = rs.getLong("price"),
                     )
                     extraList.add(extra)
                 }

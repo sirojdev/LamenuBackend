@@ -10,5 +10,5 @@ data class OptionDto(
     var options: List<OptionDto?>? = null,
     val name: TextModel? = null,
     val image: String? = null,
-    val price: Double? = null
+    val price: Long? = null
 )

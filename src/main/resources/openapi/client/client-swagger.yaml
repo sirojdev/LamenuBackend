@@ -36,7 +36,7 @@ tags:
 
 paths:
 
-  /device:
+  /client/device:
     post:
       tags:
         - Auth
@@ -128,7 +128,7 @@ paths:
               type: object
               properties:
                 phone:
-                  type: "string"
+                  type: string
                 hash:
                   type: string
       responses:
@@ -1336,6 +1336,9 @@ components:
           type: "boolean"
         phone:
           type: "string"
+        appKey:
+          type: integer
+          format: "long"
 
     BookDto:
       type: "object"
