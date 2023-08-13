@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 
@@ -18,8 +19,8 @@ fun Route.routeToCourier() {
         routeToCourierLocation()
 
         get("all") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             println(merchantId)
             val couriers = staffService.getAllCourier(merchantId = merchantId)
             if (couriers.isEmpty()) {
@@ -29,8 +30,8 @@ fun Route.routeToCourier() {
         }
 
         get("/{id}") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -45,8 +46,8 @@ fun Route.routeToCourier() {
         }
 
         post(""){
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val dto = call.receive<CourierDto>()
             val result = courierService.add(dto.copy(merchantId = merchantId))
             call.respond(HttpStatusCode.OK, CourierId(result))
@@ -54,8 +55,8 @@ fun Route.routeToCourier() {
         }
 
         put(""){
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val dto = call.receive<CourierDto>()
             val result = courierService.update(dto.copy(merchantId = merchantId))
             call.respond(result)
@@ -63,8 +64,8 @@ fun Route.routeToCourier() {
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             val result = courierService.delete(id = id, merchantId = merchantId)
             call.respond(result)

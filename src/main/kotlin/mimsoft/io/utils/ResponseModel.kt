@@ -4,7 +4,7 @@ import io.ktor.http.*
 
 
 data class ResponseModel(
-    val body: Any? = null,
+    val body: Any = "",
     val httpStatus: HttpStatusCode = HttpStatusCode.OK,
 ) {
     companion object {

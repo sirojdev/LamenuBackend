@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.notification.repository.NotificationRepository
 import mimsoft.io.features.notification.repository.NotificationRepositoryImpl
 import mimsoft.io.features.staff.StaffPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 import java.sql.Timestamp
 
@@ -17,24 +18,24 @@ fun Route.routeToNotification() {
     route("notification") {
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val dto = call.receive<NotificationDto>()
             val response = notification.add(dto.copy(merchantId = merchantId, date = Timestamp(System.currentTimeMillis())))
             call.respond(HttpStatusCode.OK, CategoryGroupId(response))
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val dto = call.receive<NotificationDto>()
             val response = notification.update(dto.copy(merchantId = merchantId))
             call.respond(response)
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -49,18 +50,18 @@ fun Route.routeToNotification() {
         }
 
         get {
-            val merchantPrincipal = call.principal<MerchantPrincipal>()
-            val staffPrincipal = call.principal<StaffPrincipal>()
             val limit = call.parameters["limit"]?.toIntOrNull()
             val offset = call.parameters["offset"]?.toIntOrNull()
-            val merchantId = merchantPrincipal?.merchantId?: staffPrincipal?.merchantId
-            val response = notification.getAll(merchantId = merchantId, limit = limit, offset = offset)
+            val search = call.parameters["search"]
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
+            val response = notification.getAll(merchantId = merchantId, limit = limit, offset = offset, search = search)
             call.respond(response?: HttpStatusCode.NoContent)
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)

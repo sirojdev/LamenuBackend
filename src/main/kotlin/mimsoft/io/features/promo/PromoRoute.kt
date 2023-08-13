@@ -9,15 +9,15 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.plugins.GSON
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToPromo() {
     val promoService = PromoService
     route("promo") {
         get {
-            val merchantPrincipal = call.principal<MerchantPrincipal>()
-            val staffPrincipal = call.principal<StaffPrincipal>()
-            val merchantId = merchantPrincipal?.merchantId?: staffPrincipal?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val promoList = promoService.getAll(merchantId = merchantId)
             mimsoft.io.utils.plugins.LOGGER.info("promoList: ${GSON.toJson(promoList)}")
             if (promoList.isEmpty()) {
@@ -28,16 +28,16 @@ fun Route.routeToPromo() {
         }
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val promoDto = call.receive<PromoDto>()
             val response = promoService.add(promoDto.copy(merchantId = merchantId))
             call.respond(HttpStatusCode.OK, PromoId(response))
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val promo = call.receive<PromoDto>()
             val updated = promoService.update(promo.copy(merchantId = merchantId))
             if (updated) call.respond(HttpStatusCode.OK)
@@ -45,8 +45,8 @@ fun Route.routeToPromo() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -61,8 +61,8 @@ fun Route.routeToPromo() {
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id != null) {
                 val deleted = promoService.delete(id = id, merchantId = merchantId)

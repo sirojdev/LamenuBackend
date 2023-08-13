@@ -8,7 +8,9 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.utils.principal.MerchantPrincipal
-
+/**
+ * Created by Mimosa on 11/30/2020 at 12:00 PM
+ */
 fun Route.routeToOrderByCourierAndCollector() {
     val orderRepository: OrderRepository = OrderRepositoryImpl
     get("orders") {

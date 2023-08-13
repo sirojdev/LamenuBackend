@@ -8,5 +8,4 @@ data class MessageModel(
 enum class StatusConnection(val value: String) {
     CONNECTED("CONNECTED"),
     DISCONNECTED("DISCONNECTED"),
-
 }

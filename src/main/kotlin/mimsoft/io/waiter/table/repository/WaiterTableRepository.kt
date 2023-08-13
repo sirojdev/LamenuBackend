@@ -75,8 +75,7 @@ object WaiterTableRepository {
                 " values($waiterId,$tableId,now()) "
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                }.executeUpdate()
+                it.prepareStatement(query).executeUpdate()
             }
         }
     }

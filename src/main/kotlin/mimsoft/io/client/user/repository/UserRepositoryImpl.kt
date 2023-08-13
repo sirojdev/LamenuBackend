@@ -166,7 +166,7 @@ object UserRepositoryImpl : UserRepository {
                 dataClass = UserTable::class,
                 dataObject = mapper.toUserTable(userDto),
                 tableName = USER_TABLE_NAME
-            ),
+            )?:0,
             httpStatus = ResponseModel.OK
         )
     }

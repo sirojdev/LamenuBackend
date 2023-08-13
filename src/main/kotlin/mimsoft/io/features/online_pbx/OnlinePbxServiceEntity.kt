@@ -19,7 +19,7 @@ object OnlinePbxServiceEntity {
                 dataClass = OnlinePbxEntity::class,
                 dataObject = onlinePbx,
                 tableName = "online_pbx"
-            ),
+            )?:0,
             httpStatus = ResponseModel.OK
         )
     }

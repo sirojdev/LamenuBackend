@@ -4,7 +4,8 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.utils.Role
+import mimsoft.io.utils.plugins.LOGGER
+import mimsoft.io.utils.principal.Role
 
 import java.sql.Connection
 import java.sql.Statement
@@ -22,6 +23,7 @@ object DBManager: BaseRepository {
 //        createTable(tableName = "role", dataClass = Role::class)
 //        createTable(tableName = "staff", dataClass = StaffTable::class)
     }
+
     val databaseDispatcher = Dispatchers.IO
 
     private val dataSource = createDataSource()
@@ -40,7 +42,7 @@ object DBManager: BaseRepository {
     }
 
 
-    override  fun connection(): Connection {
+    override fun connection(): Connection {
         return dataSource.connection
     }
 
@@ -66,13 +68,13 @@ object DBManager: BaseRepository {
         } else {
             ""
         }
-        var query:String?=null
+        var query: String? = null
         if (where == null) {
             val whereClause = "WHERE "
-             query = "SELECT $columns FROM $tName $whereClause  deleted = false $limitClause $offsetClause  "
+            query = "SELECT $columns FROM $tName $whereClause  deleted = false $limitClause $offsetClause  "
         } else {
             val whereClause = generateWhereClause(where)
-             query = "SELECT $columns FROM $tName $whereClause and deleted = false $limitClause $offsetClause  "
+            query = "SELECT $columns FROM $tName $whereClause and deleted = false $limitClause $offsetClause  "
         }
 
 
@@ -370,7 +372,7 @@ object DBManager: BaseRepository {
         }
     }
 
-     suspend fun getDataCount(tableName: String): Int? {
+    suspend fun getDataCount(tableName: String): Int? {
         val query = "SELECT COUNT(*) FROM $tableName WHERE NOT deleted"
         var count: Int?
         withContext(Dispatchers.IO) {
@@ -385,8 +387,55 @@ object DBManager: BaseRepository {
         return count
     }
 
-    fun camelToSnakeCase(input: String): String {
+    private fun camelToSnakeCase(input: String): String {
         return input.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
     }
 
+    override suspend fun selectList(query: String, args: Map<Int, *>?): List<Map<String, *>> {
+        LOGGER.info("selectList --> $query")
+        val list = mutableListOf<Map<String, Any?>>()
+        withContext(databaseDispatcher) {
+            connection().use {
+                it.prepareStatement(query).use { statement ->
+                    args?.forEach { (key, value) ->
+                        when (value) {
+                            is String -> statement.setString(key, value)
+                            is Boolean -> statement.setBoolean(key, value)
+                            is Double -> statement.setDouble(key, value)
+                            is java.sql.Date -> statement.setDate(key, value)
+                            is java.sql.Time -> statement.setTime(key, value)
+                            is Timestamp -> statement.setTimestamp(key, value)
+                            else -> statement.setObject(key, value)
+                        }
+                    }
+                    statement.executeQuery().use { result ->
+                        while (result.next()) {
+                            val map = mutableMapOf<String, Any?>()
+                            for (i in 1..result.metaData.columnCount) {
+                                map[result.metaData.getColumnName(i)] = result.getObject(i)
+                            }
+                            LOGGER.info("selectMap --> $map")
+                            list.add(map)
+                        }
+                    }
+                }
+            }
+        }
+        return list
+    }
+
+    override suspend fun selectOne(query: String, args: Map<Int, *>?): Map<String, *>? {
+        val list = selectList(query, args)
+        return if (list.isNotEmpty()) list[0] else null
+    }
+
+    override suspend fun selectOne(query: String, vararg args: Any?): Map<String, *>? {
+        val list = selectList(query, args.mapIndexed { index, any -> index + 1 to any }.toMap())
+        LOGGER.info("selectOne --> $list")
+        return if (list.isNotEmpty()) list[0] else null
+    }
+
+    override suspend fun selectList(query: String, vararg args: Any?): List<Map<String, *>> {
+        return selectList(query, args.mapIndexed { index, any -> index + 1 to any }.toMap())}
 }
+

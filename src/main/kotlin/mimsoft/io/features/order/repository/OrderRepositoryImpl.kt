@@ -1052,7 +1052,7 @@ object OrderRepositoryImpl : OrderRepository {
                 }.execute()
                 return@withContext ResponseModel(
                     httpStatus = ResponseModel.OK,
-                    body = getModel(id = orderId)
+                    body = getModel(id = orderId)?:""
                 )
             }
         }

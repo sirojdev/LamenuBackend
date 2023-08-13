@@ -7,29 +7,28 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToSms() {
     val smsService = SmsService
 
-    get("smss") {
-        val merchantPrincipal = call.principal<MerchantPrincipal>()
-        val staffPrincipal = call.principal<StaffPrincipal>()
-        val merchantId = merchantPrincipal?.merchantId?: staffPrincipal?.merchantId
+    get("sms") {
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
         val limit = call.parameters["limit"]?.toIntOrNull()
         val offset = call.parameters["offset"]?.toIntOrNull()
         if (limit != null && offset != null) {
             val sms = smsService.getAll(merchantId = merchantId, limit = limit, offset = offset)
             call.respond(sms?: HttpStatusCode.NoContent)
             return@get
-
         }
         call.respond(HttpStatusCode.BadRequest)
         return@get
     }
 
     get("sms/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -41,7 +40,7 @@ fun Route.routeToSms() {
     }
 
     post("sms") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val smsDto = call.receive<SmsDto>()
         val id = smsService.post(smsDto.copy(merchantId = merchantId))
@@ -49,7 +48,7 @@ fun Route.routeToSms() {
     }
 
     delete("sms/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {

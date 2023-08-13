@@ -1,8 +1,7 @@
 package mimsoft.io.auth.role
 
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.Role
-import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.principal.Role
 
 object RoleService {
 
@@ -29,7 +28,7 @@ object RoleService {
             where = mapOf("staff_id" to staffId as Any)
         )?.data
 
-        return rolesObject?.map { mimsoft.io.utils.Role.valueOf(it?.name.toString()) }
+        return rolesObject?.map { Role.valueOf(it?.name.toString()) }
     }
 
 

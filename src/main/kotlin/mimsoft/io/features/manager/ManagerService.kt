@@ -40,7 +40,7 @@ object ManagerService {
             body = repository.postData(
                 dataClass = ManagerTable::class,
                 dataObject = ManagerMapper.toTable(managerDto),
-                tableName = "manager")
+                tableName = "manager")?:0
         )
     }
     suspend fun update(managerDto: ManagerDto?): ResponseModel {

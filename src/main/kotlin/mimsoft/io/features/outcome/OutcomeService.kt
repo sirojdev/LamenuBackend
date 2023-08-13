@@ -54,7 +54,7 @@ object OutcomeService {
                 dataClass = OutcomeTable::class,
                 dataObject = mapper.toOutcomeTable(outcomeDto),
                 tableName = OUTCOME_TABLE_NAME
-            ),
+            )?:0,
             httpStatus = ResponseModel.OK
         )
     }

@@ -23,9 +23,12 @@ import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 fun Route.routeToOperator() {
 
+    val log: Logger = LoggerFactory.getLogger("routeToOperator")
 
     route("operator") {
 
@@ -33,27 +36,8 @@ fun Route.routeToOperator() {
             val staff = call.receive<StaffDto>()
 
             StaffService.auth(staff).let {
-                if (it.body == null) {
-                    call.respond(it.httpStatus)
-                    return@post
-                }
-
-                val body = it.body as StaffDto
-
-                val uuid = SessionRepository.generateUuid()
-
-                SessionRepository.add(
-                    SessionTable(
-                        uuid = uuid,
-                        merchantId = body.merchantId,
-                        phone = body.phone,
-                        stuffId = body.id,
-                        role = "operator",
-                        isExpired = false
-                    )
-                )
-
-                call.respond(mapOf("token" to JwtConfig.generateOperatorToken(body.merchantId, uuid, body.id)))
+                log.info("auth: $it")
+                call.respond(it.httpStatus, it.body)
             }
         }
 
