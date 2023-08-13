@@ -3,8 +3,8 @@ package mimsoft.io.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.google.gson.stream.JsonWriter
 import mimsoft.io.rsa.GeneratorModel
+import mimsoft.io.utils.principal.Role
 import java.util.*
 
 object JwtConfig {

@@ -5,6 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.LaPrincipal
+import mimsoft.io.utils.principal.Role
 
 /*class AuthorizeRouteSelector(private val roles: List<Role>) : RouteSelector() {
     override fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {

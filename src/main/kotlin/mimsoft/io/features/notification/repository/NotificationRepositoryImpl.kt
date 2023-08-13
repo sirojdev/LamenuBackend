@@ -69,7 +69,7 @@ object NotificationRepositoryImpl : NotificationRepository {
         return mapper.toDto(data)
     }
 
-    override suspend fun getAll(merchantId: Long?, limit: Int?, offset: Int?): DataPage<NotificationDto> {
+    override suspend fun getAll(merchantId: Long?, limit: Int?, offset: Int?, search: String?): DataPage<NotificationDto> {
         val dataPage =  repository.getPageData(
             dataClass = NotificationTable::class,
             where = mapOf("merchant_id" to merchantId as Any),

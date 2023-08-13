@@ -1,10 +1,6 @@
 package mimsoft.io.repository
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import mimsoft.io.features.product.ProductTable
 import java.sql.Connection
-import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 interface BaseRepository {
@@ -47,5 +43,11 @@ interface BaseRepository {
 
     fun connection(): Connection
 
+    suspend fun selectList(query: String, args: Map<Int, *>? = null): List<Map<String, *>>
 
+    suspend fun selectOne(query: String, args: Map<Int, *>? = null): Map<String, *>?
+
+    suspend fun selectOne(query: String, vararg args: Any? = arrayOf(null)): Map<String, *>?
+
+    suspend fun selectList(query: String, vararg args: Any? = arrayOf(null)): List<Map<String, *>>
 }

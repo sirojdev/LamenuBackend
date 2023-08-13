@@ -1,4 +1,4 @@
-package mimsoft.io.utils
+package mimsoft.io.utils.principal
 
 import io.ktor.server.auth.*
 
@@ -16,3 +16,10 @@ enum class Role {
     COURIER,
     COLLECTOR
 }
+
+data class BasePrincipal(
+    val id: Long? = null,
+    val uuid: String? = null,
+    val merchantId: Long? = null,
+    val staffId: Long? = null
+) : Principal

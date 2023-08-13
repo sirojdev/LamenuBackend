@@ -7,6 +7,11 @@ interface NotificationRepository {
     suspend fun add(dto: NotificationDto?): Long?
     suspend fun update(dto: NotificationDto?): Boolean
     suspend fun getById(id: Long, merchantId: Long?): NotificationDto?
-    suspend fun getAll(merchantId: Long?, limit: Int?, offset :Int?): DataPage<NotificationDto>?
+    suspend fun getAll(
+        merchantId: Long?,
+        limit: Int? = null,
+        offset :Int? = null,
+        search: String? = null
+    ): DataPage<NotificationDto>?
     suspend fun delete(id: Long, merchantId: Long?): Boolean
 }

@@ -17,7 +17,7 @@ fun timestampValidator(time: String?, format: String? = "yyyy-MM-dd"): ResponseM
     }
 
     return ResponseModel(
-        body = validated,
+        body = validated?: "Invalid timestamp",
         httpStatus = ResponseModel.OK
     )
 }

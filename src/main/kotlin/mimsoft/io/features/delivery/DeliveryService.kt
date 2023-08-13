@@ -41,7 +41,7 @@ object DeliveryService {
             body = repository.postData(
                 dataClass = DeliveryTable::class,
                 dataObject = mapper.toDeliveryTable(deliveryDto), tableName = DELIVERY_TABLE_NAME
-            ),
+            )?:0,
             httpStatus = ResponseModel.OK
         )
     }

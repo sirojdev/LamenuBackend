@@ -19,29 +19,7 @@ fun Route.routeToOperatorEntity() {
         val staff = call.receive<StaffDto>()
 
         StaffService.auth(staff).let {
-            if (it.body == null) {
-                call.respond(it.httpStatus)
-                return@post
-            }
-
-            val body = it.body as StaffDto
-            if(body.password==null || body.phone==null){
-                call.respond(HttpStatusCode.NotFound)
-            }
-
-            val uuid = SessionRepository.generateUuid()
-
-            SessionRepository.add(
-                SessionTable(
-                    uuid = uuid,
-                    merchantId = body.merchantId,
-                    phone = body.phone,
-                    stuffId = body.id,
-                    role = "operator",
-                    isExpired = false
-                )
-            )
-            call.respond(mapOf("token" to JwtConfig.generateOperatorToken(body.merchantId, uuid,body.id)))
+            call.respond(it.httpStatus, it.body)
         }
     }
 

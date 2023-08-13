@@ -11,6 +11,7 @@ import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToOrder() {
@@ -33,9 +34,8 @@ fun Route.routeToOrder() {
             call.respond(orders)
         }
         get("history") {
-            val merchantPrincipal = call.principal<MerchantPrincipal>()
-            val staffPrincipal = call.principal<MerchantPrincipal>()
-            val merchantId = merchantPrincipal?.merchantId?:staffPrincipal?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val search = call.parameters["search"]
             val limit = call.parameters["limit"]?.toIntOrNull()
             val offset = call.parameters["offset"]?.toIntOrNull()
@@ -48,8 +48,8 @@ fun Route.routeToOrder() {
         }
 
         get {
-            val pr = call.principal<MerchantPrincipal>()
-            val merchantId = pr?.merchantId
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val search = call.parameters["search"]
             val status = call.parameters["status"]
             val type = call.parameters["type"]

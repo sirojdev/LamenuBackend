@@ -8,14 +8,20 @@ import mimsoft.io.features.courier.courier_location_history.CourierLocationHisto
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.session.SessionRepository
+import mimsoft.io.session.SessionTable
+import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 import java.util.*
 
 object StaffService {
     val mapper = StaffMapper
     val repository: BaseRepository = DBManager
+    private val log: Logger = LoggerFactory.getLogger(StaffService::class.java)
     suspend fun auth(staff: StaffDto?): ResponseModel {
         LOGGER.info("auth: $staff")
         when {
@@ -32,18 +38,47 @@ object StaffService {
             }
         }
 
-        return ResponseModel(
-            body = mapper.toDto(
-                repository.getPageData(
-                    dataClass = StaffTable::class,
-                    tableName = STAFF_TABLE_NAME,
-                    where = mapOf(
-                        "phone" to staff?.phone as Any,
-                        "password" to staff.password as Any
+        repository.selectOne(
+            query = "select * from $STAFF_TABLE_NAME where phone = '${staff?.phone}' and password = ? and deleted = false",
+            args = mapOf(1 to staff?.password)
+        ).let {
+            if (it == null) {
+                return ResponseModel(
+                    httpStatus = ResponseModel.STAFF_NOT_FOUND
+                )
+            } else {
+                val uuid = SessionRepository.generateUuid()
+                val staffDto = StaffDto(
+                    id = it["id"] as? Long,
+                    merchantId = it["merchant_id"] as? Long,
+                    position = it["position"] as? String,
+                    phone = it["phone"] as String,
+                    password = it["password"] as? String,
+                    firstName = it["first_name"] as? String,
+                    lastName = it["last_name"] as? String,
+                    birthDay = it["birth_day"].toString(),
+                    image = it["image"] as? String,
+                    comment = it["comment"] as? String,
+                    status = it["status"] as? Boolean
+                )
+
+                log.info("staffDto: $staffDto")
+
+                SessionRepository.add(
+                    SessionTable(
+                        uuid = uuid,
+                        merchantId = staffDto.merchantId,
+                        phone = staffDto.phone,
+                        stuffId = staffDto.id,
+                        role = "operator",
+                        isExpired = false
                     )
-                )?.data?.firstOrNull()
-            ),
-        )
+                )
+                return ResponseModel(
+                    body = mapOf("token" to JwtConfig.generateOperatorToken(staffDto.merchantId, uuid, staffDto.id))
+                )
+            }
+        }
     }
 
     suspend fun getAll(merchantId: Long?): List<StaffDto?> {
@@ -133,20 +168,20 @@ object StaffService {
     suspend fun getByPhone(phone: String?, merchantId: Long? = null): StaffTable? {
         if (merchantId != null) {
             return DBManager.getPageData(
-                    dataClass = StaffTable::class,
-                    tableName = STAFF_TABLE_NAME,
-                    where = mapOf(
-                        "phone" to phone as Any,
-                        "merchant_id" to merchantId as Any
-                    )
-                )?.data?.firstOrNull()
+                dataClass = StaffTable::class,
+                tableName = STAFF_TABLE_NAME,
+                where = mapOf(
+                    "phone" to phone as Any,
+                    "merchant_id" to merchantId as Any
+                )
+            )?.data?.firstOrNull()
 
         } else {
             return DBManager.getPageData(
-                    dataClass = StaffTable::class,
-                    tableName = STAFF_TABLE_NAME,
-                    where = mapOf("phone" to phone as String)
-                )?.data?.firstOrNull()
+                dataClass = StaffTable::class,
+                tableName = STAFF_TABLE_NAME,
+                where = mapOf("phone" to phone as String)
+            )?.data?.firstOrNull()
 
         }
 
@@ -177,7 +212,7 @@ object StaffService {
                 dataClass = StaffTable::class,
                 dataObject = mapper.toTable(staff),
                 tableName = STAFF_TABLE_NAME
-            ),
+            ) ?: 0,
         )
 
     }

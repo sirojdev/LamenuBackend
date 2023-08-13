@@ -1,10 +1,6 @@
 package mimsoft.io.auth.role
 
-import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.Role
-import mimsoft.io.utils.authorize
 
 fun Route.routeToRole() {
 

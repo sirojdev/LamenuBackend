@@ -13,6 +13,7 @@ import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToUserUser() {
@@ -20,8 +21,8 @@ fun Route.routeToUserUser() {
     val userRepository : UserRepository = UserRepositoryImpl
 
     get("users") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
         val limit = call.parameters["limit"]?.toLongOrNull()
         val offset = call.parameters["offset"]?.toLongOrNull()
         val users = userRepository.getAll(merchantId = merchantId, limit = limit, offset = offset)
@@ -30,8 +31,8 @@ fun Route.routeToUserUser() {
     }
 
     get("user/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null) {
             call.respond(HttpStatusCode.BadRequest)
@@ -46,9 +47,8 @@ fun Route.routeToUserUser() {
     }
 
     post("user") {
-        val merchantPrincipal = call.principal<MerchantPrincipal>()
-        val staffPrincipal = call.principal<StaffPrincipal>()
-        val merchantId = merchantPrincipal?.merchantId?:staffPrincipal?.merchantId
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
         try {
             val user = call.receive<UserDto>()
 
@@ -63,8 +63,8 @@ fun Route.routeToUserUser() {
     }
 
     put("user") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
         val user = call.receive<UserDto>()
 //        val statusTimestamp = timestampValidator(user.birthDay)
 //
@@ -79,8 +79,8 @@ fun Route.routeToUserUser() {
     }
 
     delete("user/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
-        val merchantId = pr?.merchantId
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null){
             call.respond(HttpStatusCode.BadRequest)

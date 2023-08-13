@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
@@ -13,12 +12,11 @@ import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.integrate.payme.models.PaymePrincipal
-import mimsoft.io.integrate.payme.models.Receive
-import mimsoft.io.session.SessionPrincipal
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.utils.LaPrincipal
+import mimsoft.io.utils.principal.LaPrincipal
 import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.Role
+import mimsoft.io.utils.principal.BasePrincipal
+import mimsoft.io.utils.principal.Role
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Application.configureSecurity() {
@@ -166,7 +164,7 @@ fun Application.configureSecurity() {
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
                     if (session != null && session.merchantId == merchantId && session.isExpired != true) {
-                        StaffPrincipal(
+                        BasePrincipal(
                             merchantId = merchantId,
                             uuid = uuid,
                             staffId = courierId
@@ -189,7 +187,7 @@ fun Application.configureSecurity() {
                     val session = SessionRepository.getMerchantByUUID(uuid)
 
                     if (session != null && session.merchantId == merchantId && session.isExpired != true) {
-                        MerchantPrincipal(
+                        BasePrincipal(
                             merchantId = session.merchantId,
                             uuid = uuid
                         )
@@ -224,7 +222,9 @@ fun Application.configureSecurity() {
 
         jwt("operator") {
             realm = JwtConfig.issuer
+
             verifier(JwtConfig.verifierStaff)
+
             validate { jwtCredential ->
                 val merchantId = jwtCredential.payload.getClaim("merchantId").asLong()
                 val uuid = jwtCredential.payload.getClaim("uuid").asString()
@@ -234,6 +234,11 @@ fun Application.configureSecurity() {
                 LOGGER.info("session: {}, merchantId {}, uuid {}", session, merchantId, uuid)
                 if (session != null) {
                     StaffPrincipal(
+                        merchantId = merchantId,
+                        uuid = uuid,
+                        staffId = staffId
+                    )
+                    BasePrincipal(
                         merchantId = merchantId,
                         uuid = uuid,
                         staffId = staffId
