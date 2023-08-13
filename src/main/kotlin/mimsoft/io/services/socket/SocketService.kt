@@ -22,9 +22,8 @@ object SocketService {
         val text = Gson().toJson(message)
         connections.forEach {
             if (it.session?.isActive == true) {
-                if (it.details?.get("pbxCode") == hook?.callee){
+                if (hook?.domain == it.domain) {
                     it.session.send(text)
-                    println("LOG WEBSOCKET--> ${GSON.toJson(message)} SENT")
                 }
             } else connections.remove(it)
         }

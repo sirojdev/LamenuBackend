@@ -142,6 +142,7 @@ fun Application.configureSocket() {
         }
 
         authenticate("staff", "operator") {
+
             webSocket("mchat") {
                 try {
                     val principal = call.principal<StaffPrincipal>()
@@ -229,48 +230,49 @@ fun Application.configureSocket() {
                     println(ChatMessageService.chatConnections)
                 }
             }
-        }
 
+            webSocket("online_pbx") {
 
-        webSocket("api/v1/ws") {
-
-            send(
-                Gson().toJson(
-                    MessageModel(
-                        message = StatusConnection.CONNECTED.value
+                send(
+                    Gson().toJson(
+                        MessageModel(
+                            message = StatusConnection.CONNECTED.value
+                        )
                     )
                 )
-            )
 
-            try {
+                try {
 
-                for (frame in incoming) {
-                    frame as? Frame.Text ?: continue
-                    val receivedText = frame.readText()
+                    for (frame in incoming) {
+                        frame as? Frame.Text ?: continue
+                        val receivedText = frame.readText()
 
-                    val socketEntity: SocketEntity? = try {
-                        Gson().fromJson(receivedText, SocketEntity::class.java)
-                    } catch (e: Exception) {
-                        null
+                        val socketEntity: SocketEntity? = try {
+                            Gson().fromJson(receivedText, SocketEntity::class.java)
+                        } catch (e: Exception) {
+                            null
+                        }
+
+                        if (socketEntity != null) {
+                            SocketService.connections.removeIf { it.phone == socketEntity.phone }
+                            val isAdded = SocketService.connect(
+                                socketEntity.copy(session = this)
+                            )
+                        }
+
+                        println("receivedText: $receivedText")
                     }
-
-                    if (socketEntity != null) {
-                        SocketService.connections.removeIf { it.phone == socketEntity.phone }
-                        val isAdded = SocketService.connect(
-                            socketEntity.copy(session = this)
-                        )
-                    }
-
-                    println("receivedText: $receivedText")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    // закрытие сокета и удаление связанной с ним информации
+                    close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
+                    SocketService.connections.removeIf { it.session == this }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                // закрытие сокета и удаление связанной с ним информации
-                close(CloseReason(CloseReason.Codes.NORMAL, "/////////////////////-->Connection closed"))
-                SocketService.connections.removeIf { it.session == this }
             }
         }
+
+
 
     }
 }

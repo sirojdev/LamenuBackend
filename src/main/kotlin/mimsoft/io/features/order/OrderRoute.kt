@@ -19,6 +19,7 @@ fun Route.routeToOrder() {
     val repository: OrderRepository = OrderRepositoryImpl
 
     route("orders") {
+
         get("live") {
             val type = call.parameters["type"]
             val orders = repository.getLiveOrders(type = type.toString())
@@ -29,10 +30,12 @@ fun Route.routeToOrder() {
             }
             call.respond(HttpStatusCode.OK, orderDto)
         }
+
         get("all") {
             val orders = repository.getAll()
             call.respond(orders)
         }
+
         get("history") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
@@ -55,8 +58,8 @@ fun Route.routeToOrder() {
             val type = call.parameters["type"]
             val limit = call.parameters["limit"]?.toIntOrNull()
             val offset = call.parameters["offset"]?.toIntOrNull()
-            val orders = repository.getAll(search, merchantId, status, type, limit, offset)?.data
-            if (orders == null) {
+            val orders = repository.getAll(search, merchantId, status, type, limit, offset)
+            if (orders.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }

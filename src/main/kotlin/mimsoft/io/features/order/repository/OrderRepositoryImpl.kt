@@ -37,6 +37,8 @@ import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 
 object OrderRepositoryImpl : OrderRepository {
@@ -46,6 +48,7 @@ object OrderRepositoryImpl : OrderRepository {
     private val productMapper = ProductMapper
     private val userRepo: UserRepository = UserRepositoryImpl
     private val addressService: AddressRepository = AddressRepositoryImpl
+    private val log: Logger = LoggerFactory.getLogger(OrderRepositoryImpl::class.java)
 
     override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?): DataPage<OrderWrapper?> {
         val query = """
@@ -212,7 +215,6 @@ object OrderRepositoryImpl : OrderRepository {
                 and (
                     lower(pt.name) like '%$s%'
                     or lower(u.phone) like '%$s%'
-                    or o.id = ${s.toLongOrNull()}
                 )
                 """.trimIndent()
             )
@@ -239,6 +241,9 @@ object OrderRepositoryImpl : OrderRepository {
         query.append(joins)
         query.append(filter)
         query.append("order by id desc limit $limit offset $offset")
+
+        log.info("get all query: $query")
+
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query.toString()).apply {
