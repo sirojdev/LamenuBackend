@@ -23,6 +23,7 @@ import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
+import mimsoft.io.utils.principal.BasePrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -47,7 +48,7 @@ fun Route.routeToOperator() {
             route("profile") {
 
                 get {
-                    val principal = call.principal<StaffPrincipal>()
+                    val principal = call.principal<BasePrincipal>()
 
                     OperatorService.get(principal?.staffId).let {
                         call.respond(it ?: HttpStatusCode.NoContent)
