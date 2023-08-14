@@ -1140,7 +1140,7 @@ object OrderRepositoryImpl : OrderRepository {
                             )
                         ),
                         products = prod,
-                        orderPrice = OrderPriceDto(
+                        price = OrderPriceDto(
                             deliveryPrice = rs.getLong("op_delivery_price"),
                             productPrice = rs.getLong("op_product_price"),
                             totalPrice = rs.getLong("op_total_price")
