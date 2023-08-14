@@ -64,14 +64,15 @@ object DeviceController {
                     "        model = ?,\n" +
                     "        brand = ?,\n" +
                     "        build = ?,\n" +
+                    "        firebase_token = ?,\n" +
                     "        updated_at = ?, \n" +
                     "        ip = ?\n" +
                     "where uuid = ?\n" +
                     "        returning *\n" +
                     ")\n" +
                     "insert\n" +
-                    "into device (merchant_id, os_version, model, brand, build, created_at ,ip, uuid)\n" +
-                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ?, ? \n" +
+                    "into device (merchant_id, os_version, model, brand, build, firebase_token, created_at ,ip, uuid)\n" +
+                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ?, ?, ? \n" +
                     "where not exists(select * from upsert)"
         return withContext(DBManager.databaseDispatcher) {
             println(upsert)
@@ -82,6 +83,7 @@ object DeviceController {
                     this.setString(++x, device.model)
                     this.setString(++x, device.brand)
                     this.setString(++x, device.build)
+                    this.setString(++x, device.firebaseToken)
                     this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     this.setString(++x, device.ip)
                     this.setString(++x, device.uuid)
@@ -89,6 +91,7 @@ object DeviceController {
                     this.setString(++x, device.model)
                     this.setString(++x, device.brand)
                     this.setString(++x, device.build)
+                    this.setString(++x, device.firebaseToken)
                     this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     this.setString(++x, device.ip)
                     this.setString(++x, device.uuid)

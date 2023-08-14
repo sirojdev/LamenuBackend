@@ -72,12 +72,9 @@ object CheckoutService {
 
 
     suspend fun calculate(dto: OrderModel): CheckoutResponseDto {
-        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(dto.products).body as Map<*, *>
-        var totalPrice = 0L //getTotalPrice["totalPrice"] as? Long
-        if(getTotalPrice.keys.equals("totalPrice")){
-            totalPrice = getTotalPrice.values as Long
-        }
-        val productDiscount = getTotalPrice["totalDiscount"] as? Long
+        val getTotalPrice = OrderRepositoryImpl.getProductCalculate(dto.products)
+        val totalPrice = getTotalPrice?.total
+        val productDiscount = getTotalPrice?.discountProduct
         return CheckoutResponseDto(
             productCount = productCount(dto.products),
             discountProduct = productDiscount,

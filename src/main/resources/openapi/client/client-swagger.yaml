@@ -14,16 +14,11 @@ servers:
 
 tags:
 
-  - name: User
-    description: Endpoints related to table
   - name: Device
     description: Endpoints related to device
 
   - name: Auth
     description: Endpoints related to client authentication
-
-  - name: Menus
-    description: Endpoints related to menu
 
   - name: Profile
     description: Endpoints related to profile
@@ -41,121 +36,6 @@ tags:
     description: Endpoints related to address
 
 paths:
-
-  /users:
-    get:
-      tags:
-        - User
-      description: "get all users "
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UserDto"
-
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
-
-  /user:
-    get:
-      tags:
-        - User
-      description: "get  user "
-      parameters:
-        - name: "id"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "long"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UserDto"
-
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
-
-    post:
-      tags:
-        - User
-      description: "post user"
-      requestBody:
-        required: true  # Moved outside the content section
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserDto"
-
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ResponseModel"
-        "404":
-          description: "Not Found"
-        "400":
-          description: "Bad Request"
-
-    put:
-      tags:
-        - User
-      description: "update user"
-      requestBody:
-        required: true  # Moved outside the content section
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserDto"
-
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ResponseModel"
-
-    delete:
-      tags:
-        - User
-      description: "delete user"
-      requestBody:
-        required: true  # Moved outside the content section
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserDto"
-
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ResponseModel"
-
 
   /client/tables:
     get:
@@ -227,7 +107,7 @@ paths:
   /device:
     post:
       tags:
-        - Auth
+        - Device
       description: "Get device token"
       requestBody:
         description: "A JSON object receive device token"
@@ -395,30 +275,6 @@ paths:
         "204":
           description: "No Content"
 
-  /client/menu:
-    get:
-      tags:
-        - Menus
-      description: "Returns a list of all menus"
-      parameters:
-        - name: "appKey"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/MenuDto"
-        "204":
-          description: "No Content"
-
   /client/profile:
     get:
       tags:
@@ -497,7 +353,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DeviceModel"
+              type: "object"
+              properties:
+                firebaseToken:
+                  type: string
       responses:
         "200":
           description: "OK"

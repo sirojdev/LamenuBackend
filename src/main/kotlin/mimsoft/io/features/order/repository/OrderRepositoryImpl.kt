@@ -1284,6 +1284,8 @@ object OrderRepositoryImpl : OrderRepository {
         var totalPrice = 0L
         var totalDiscount = 0L
 
+        log.info("product: {}", products)
+
         products?.forEach { cartItem ->
 
             var productPrice: Long? = 0L
@@ -1291,7 +1293,7 @@ object OrderRepositoryImpl : OrderRepository {
 
             cartItem?.extras?.sortedWith(compareBy { it1 -> it1.id })?.map { mapOf(it.id to it) }
 
-            val query = """
+            var query = """
                 select
                 p.id p_id,
                 e.id e_id,
@@ -1308,24 +1310,28 @@ object OrderRepositoryImpl : OrderRepository {
             """.trimIndent()
 
             if (cartItem?.option?.id != null) {
-                query.plus("and o.id = ${cartItem.option.id}")
+                query+=(" and o.id = ${cartItem.option.id}")
             }
 
-            query.plus("order by p_id, o_id, e_id")
+            query+=(" order by p_id, o_id, e_id")
 
             repository.selectList(query = query).let { rs ->
+                log.info("rs: {}", rs)
                 productPrice = productPrice?.plus((rs[0]["p_price"] as? Long) ?: 0L)
+                log.info("productPrice: {}", productPrice)
 
-                productDiscount = productDiscount?.times(((rs[0]["p_discount"] as? Long) ?: 0L) / 100)
+                productDiscount = productPrice?.times(((rs[0]["p_discount"] as? Long) ?: 0L) / 100)
+                log.info("productDiscount: {}", productDiscount)
 
 
                 productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
+                log.info("productPrice: {}", productPrice)
 
                 rs.forEach { list ->
 
                     list.forEach { (key, value) ->
                         if (key == "e_price" && value != null) productPrice = productPrice?.plus((value as? Long) ?: 0L)
-                        return null
+                        else return null
                     }
                 }
             }
@@ -1334,6 +1340,8 @@ object OrderRepositoryImpl : OrderRepository {
             totalDiscount = totalDiscount.plus(productDiscount ?: 0L)
             cartItem.totalPrice = totalPrice
         }
+        log.info("totalPrice: {}", totalPrice)
+        log.info("totalDiscount: {}", totalDiscount)
         return CheckoutResponseDto(
             total = totalPrice,
             discountProduct = totalDiscount,

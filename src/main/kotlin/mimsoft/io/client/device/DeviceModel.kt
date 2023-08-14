@@ -5,7 +5,7 @@ import java.sql.Timestamp
 
 data class DeviceModel(
     val id: Long? = null,
-    val merchantId: Long? = null,
+    var merchantId: Long? = null,
     val uuid: String? = null,
     val osVersion: String? = null,
     val model: String? = null,
