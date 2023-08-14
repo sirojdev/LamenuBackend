@@ -10,6 +10,13 @@ servers:
     description: "Host server"
   - url: 'https://api.lamenu.uz/v1/'
     description: "Domain server"
+  - url: 'https:// api-beta.lamenu.uz/v1/'
+    description: "Beta  server"
+  - url: 'https://api-dev.lamenu.uz/v1/'
+    description: "Developer server"
+  - url: 'https://api-back.lamenu.uz/v1/'
+    description: "Backend server"
+
 
 
 tags:
