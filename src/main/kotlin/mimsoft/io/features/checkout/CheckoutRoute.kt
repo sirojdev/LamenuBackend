@@ -16,6 +16,6 @@ fun Route.routeToCheckout() {
         val dto = call.receive<OrderModel>()
         log.info("CheckoutRoute: $dto")
         val response = CheckoutService.calculate(dto = dto)
-        call.respond(response)
+        call.respond(response.httpStatus, response.body)
     }
 }

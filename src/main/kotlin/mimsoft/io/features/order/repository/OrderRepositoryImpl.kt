@@ -15,8 +15,8 @@ import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.cart.CartService
-import mimsoft.io.features.checkout.CheckoutResponseDto
 import mimsoft.io.features.checkout.CheckoutService
+import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
 import mimsoft.io.features.order.price.OrderPriceTable
@@ -35,6 +35,7 @@ import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
+import mimsoft.io.utils.plugins.GSON
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
@@ -48,66 +49,47 @@ object OrderRepositoryImpl : OrderRepository {
     private val addressService: AddressRepository = AddressRepositoryImpl
     private val log: Logger = LoggerFactory.getLogger(OrderRepositoryImpl::class.java)
 
-    override suspend fun getLiveOrders(
-        type: String?,
-        limit: Int?,
-        offset: Int?,
-        merchantId: Long?
-    ): DataPage<OrderWrapper?>? {
-
-
-        var query = """
+    override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?, merchantId: Long?): DataPage<OrderWrapper?>? {
+        val query = """
             select 
             o.id  o_id,
             op.id op_id,
             o.*,
-            op.*,
-            count(*) over() as total
+            op.*
             from orders o
             left join order_price op on o.id = op.order_id
             where not o.deleted
-            and not op.deleted 
-             and merchant_id = $merchantId""".trimIndent()
-
+            and not op.deleted""".trimIndent()
 
         when (type) {
-            OrderType.DELIVERY.name -> {
-                query = query.plus(" and type = ? and status  in (?, ?, ?, ?, ?) ")
-            }
-            OrderType.TAKEAWAY.name -> {
-                query = query.plus(" and type = ? and status  in (?, ?, ?, ?)  ")
-            }
-
+            OrderType.DELIVERY.name -> query.plus(" and type = ? and status = in (?, ?, ?, ?, ?) returning *")
+            OrderType.TAKEAWAY.name -> query.plus(" and type = ? and status = in (?, ?, ?, ?) returning * ")
             else -> query.plus("")
         }
+
         val orderWrappers = mutableListOf<OrderWrapper>()
-        var totalCount = 0
 
         return withContext(Dispatchers.IO) {
             DBManager.connection().use {
-                val resultSet = it.prepareStatement(query).apply {
-                    var x = 0
-                    if (type == OrderType.DELIVERY.name) {
-                        setString(++x, OrderType.DELIVERY.name)
-                        setString(++x, OrderStatus.ONWAY.name)
-                        setString(++x, OrderStatus.OPEN.name)
-                        setString(++x, OrderStatus.ACCEPTED.name)
-                        setString(++x, OrderStatus.COOKING.name)
-                        setString(++x, OrderStatus.DONE.name)
-                    } else if (type == OrderType.TAKEAWAY.name) {
-                        setString(++x, OrderType.TAKEAWAY.name)
-                        setString(++x, OrderStatus.OPEN.name)
-                        setString(++x, OrderStatus.ACCEPTED.name)
-                        setString(++x, OrderStatus.COOKING.name)
-                        setString(++x, OrderStatus.DONE.name)
-                    }
+                val statement = it.prepareStatement(query)
+                var x = 0
+                if (type == OrderType.DELIVERY.name) {
+                    statement.setString(++x, OrderType.DELIVERY.name)
+                    statement.setString(++x, OrderStatus.ONWAY.name)
+                } else if (type == OrderType.TAKEAWAY.name) {
+                    statement.setString(++x, OrderType.TAKEAWAY.name)
+                }
+                statement.setString(++x, OrderStatus.OPEN.name)
+                statement.setString(++x, OrderStatus.ACCEPTED.name)
+                statement.setString(++x, OrderStatus.COOKING.name)
+                statement.setString(++x, OrderStatus.DONE.name)
+                statement.close()
 
-                }.executeQuery()
+                val resultSet = statement.executeQuery()
 
+                val data = mutableListOf<OrderTable>()
                 while (resultSet.next()) {
-                    if (totalCount == 0) {
-                        totalCount = resultSet.getInt("total")
-                    }
+
                     val orderId = resultSet.getLong("o_id")
                     val rUserId = resultSet.getLong("user_id")
                     val userPhone = resultSet.getString("user_phone")
@@ -138,7 +120,7 @@ object OrderRepositoryImpl : OrderRepository {
                         OrderWrapper(
                             order = OrderDto(
                                 id = orderId,
-                                type = rType,
+                                serviceType = rType,
                                 status = status
                             ),
                             details = OrderDetails(
@@ -172,7 +154,8 @@ object OrderRepositoryImpl : OrderRepository {
                         )
                     )
                 }
-                return@withContext DataPage(data = orderWrappers, total = totalCount)
+                return@withContext DataPage(data = orderWrappers, total = data.size)
+
             }
         }
     }
@@ -189,6 +172,7 @@ object OrderRepositoryImpl : OrderRepository {
         paymentTypeId: Long?
     ): DataPage<OrderDto?> {
 
+        val queryCount = "select count(*) from orders o "
         val query = StringBuilder()
         query.append(
             """
@@ -201,8 +185,7 @@ object OrderRepositoryImpl : OrderRepository {
                pt.name pt_name,
                o.product_count,
                o.grade,
-               o.status,
-               count(*) over() as total
+               o.status
                from orders o 
             
         """.trimIndent()
@@ -212,20 +195,15 @@ object OrderRepositoryImpl : OrderRepository {
             """
                      left join order_price op on o.id = op.order_id
                      left join users u on o.user_id = u.id
-                     left join payment_type pt on o.payment_type = pt.id 
+                     left join payment_type pt on o.deleted = pt.deleted
+                     left join staff cl on cl.id = o.collector_id
+                     left join staff cr on cr.id = o.courier_id 
         """.trimIndent()
         )
-
-        if (collectorId != null) {
-            joins.append(" left join staff cl on cl.id = o.collector_id) ")
-        }
-        if (courierId != null) {
-            joins.append(" left join staff cr on cr.id = o.courier_id) ")
-        }
         val filter = StringBuilder()
         filter.append(
             """
-                 where not o.deleted 
+               where not o.deleted 
             """.trimIndent()
         )
         if (search != null) {
@@ -261,10 +239,9 @@ object OrderRepositoryImpl : OrderRepository {
 //        queryCount.plus(joins.append(filter))
         query.append(joins)
         query.append(filter)
-        query.append(" order by id desc limit $limit offset $offset")
+        query.append("order by id desc limit $limit offset $offset")
 
         log.info("get all query: $query")
-        var totalCount = 0
 
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
@@ -277,9 +254,6 @@ object OrderRepositoryImpl : OrderRepository {
 
                 val orderList = arrayListOf<OrderDto>()
                 while (rs.next()) {
-                    if (totalCount == 0) {
-                        totalCount = rs.getInt("total")
-                    }
                     orderList.add(
                         OrderDto(
                             id = rs.getLong("id"),
@@ -301,7 +275,18 @@ object OrderRepositoryImpl : OrderRepository {
                     )
                 }
 
-                return@withContext DataPage(data = orderList, total = totalCount)
+                val rc = it.prepareStatement(queryCount).apply {
+                    stringsList.forEach { p ->
+                        this.setString(p.first, p.second)
+                    }
+                    this.closeOnCompletion()
+                }.executeQuery()
+
+                val count = if (rc.next()) {
+                    rc.getInt("count")
+                } else 0
+
+                return@withContext DataPage(data = orderList, total = count)
             }
         }
         /*val where = mutableMapOf<String, Any>()
@@ -385,7 +370,7 @@ object OrderRepositoryImpl : OrderRepository {
                         OrderWrapper(
                             order = OrderDto(
                                 id = orderId,
-                                type = type,
+                                serviceType = type,
                                 status = status
                             ),
                             details = OrderDetails(
@@ -455,7 +440,7 @@ object OrderRepositoryImpl : OrderRepository {
                         id = statement.getLong("o_id"),
                         userId = statement.getLong("user_id"),
                         userPhone = statement.getString("user_phone"),
-                        type = statement.getString("type"),
+                        serviceType = statement.getString("type"),
                         courierId = statement.getLong("courier_id"),
                         products = statement.getString("products"),
                         status = statement.getString("status"),
@@ -833,9 +818,9 @@ object OrderRepositoryImpl : OrderRepository {
             UserRepositoryImpl.get(userId, order.user.merchantId) ?: return ResponseModel(ResponseModel.USER_NOT_FOUND)
         var address: AddressDto? = null
 
-        if (order.order.type == OrderType.DELIVERY.name && order.address?.id == null)
+        if (order.order.serviceType == OrderType.DELIVERY.name && order.address?.id == null)
             return ResponseModel(httpStatus = ResponseModel.ADDRESS_NULL)
-        else if (order.order.type == OrderType.DELIVERY.name && order.address?.id != null) {
+        else if (order.order.serviceType == OrderType.DELIVERY.name && order.address?.id != null) {
             address = addressService.get(order.address.id)
                 ?: return ResponseModel(httpStatus = ResponseModel.ADDRESS_NOT_FOUND)
 
@@ -901,7 +886,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(1, userId)
                     setLong(2, merchantId as Long)
                     setString(3, user.phone)
-                    setString(4, order.order.type)
+                    setString(4, order.order.serviceType)
                     setString(5, Gson().toJson(activeProducts.products))
                     setString(6, OrderStatus.OPEN.name)
                     setDouble(7, address?.latitude ?: 0.0)
@@ -1293,18 +1278,26 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getProductCalculate(products: List<CartItem?>?): CheckoutResponseDto? {
-        var totalPrice = 0L
+    suspend fun getProductCalculate(products: List<CartItem?>?): ResponseModel {
+        var totalPriceWithDiscount = 0L
         var totalDiscount = 0L
-
-        log.info("product: {}", products)
 
         products?.forEach { cartItem ->
 
-            var productPrice: Long? = 0L
-            var productDiscount: Long? = 0L
+            log.info("cartItem: {}", GSON.toJson(cartItem))
 
-            cartItem?.extras?.sortedWith(compareBy { it1 -> it1.id })?.map { mapOf(it.id to it) }
+            if (cartItem?.option?.id == null) {
+                return ResponseModel(
+                    httpStatus = HttpStatusCode.BadRequest,
+                    body = "Option with id = ${cartItem?.option?.id} not found"
+                )
+            }
+
+            var productPriceWithDiscount: Long? = 0L
+            var productDiscount: Long? = 0L
+            var productPrice: Long? = 0L
+
+            val sortedSetCartItem = cartItem.extras?.sortedWith(compareBy { it1 -> it1.id })?.map { setOf(it) }
 
             var query = """
                 select
@@ -1319,47 +1312,86 @@ object OrderRepositoryImpl : OrderRepository {
                 left join extra e on p.id = e.product_id 
                 left join options o on p.id = o.product_id
                 where (not p.deleted or not e.deleted or not o.deleted)
-                and p.id = ${cartItem?.product?.id}
+                and p.id = ${cartItem.product?.id}
+                and o.id = ${cartItem.option.id}
             """.trimIndent()
 
-            if (cartItem?.option?.id != null) {
-                query+=(" and o.id = ${cartItem.option.id}")
-            }
 
-            query+=(" order by p_id, o_id, e_id")
+
+            query += (" order by p_id, o_id, e_id")
 
             repository.selectList(query = query).let { rs ->
-                log.info("rs: {}", rs)
-                productPrice = productPrice?.plus((rs[0]["p_price"] as? Long) ?: 0L)
-                log.info("productPrice: {}", productPrice)
 
-                productDiscount = productPrice?.times(((rs[0]["p_discount"] as? Long) ?: 0L) / 100)
-                log.info("productDiscount: {}", productDiscount)
-
-
-                productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
-                log.info("productPrice: {}", productPrice)
-
-                rs.forEach { list ->
-
-                    list.forEach { (key, value) ->
-                        if (key == "e_price" && value != null) productPrice = productPrice?.plus((value as? Long) ?: 0L)
-                        else return null
+                if (rs.isEmpty()) {
+                    OptionRepositoryImpl.get(cartItem.option.id).let {
+                        if (it != null) {
+                            return ResponseModel(
+                                httpStatus = HttpStatusCode.BadRequest,
+                                body = "Option id = ${cartItem.option.id}  not found "
+                            )
+                        }
+                        else {
+                            return ResponseModel(
+                                httpStatus = HttpStatusCode.BadRequest,
+                                body = "Product id = ${cartItem.product?.id}  not found "
+                            )
+                        }
                     }
                 }
+
+                val result = mutableMapOf(
+                        "p_id" to rs[0]["p_id"],
+                        "p_price" to rs[0]["p_price"],
+                        "o_id" to rs[0]["o_id"],
+                        "o_price" to rs[0]["o_price"],
+                        "p_discount" to rs[0]["p_discount"],
+                        "e" to arrayListOf<Map<String, *>>()
+                    )
+
+
+                result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
+                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as Long).toInt() }
+                log.info("result: {}", result)
+
+                val gettingExtras = result["e"] as List<*>
+                sortedSetCartItem?.intersect(gettingExtras.toSet()).let {
+                    if (it?.isNotEmpty() == true) {
+                        return ResponseModel(
+                            httpStatus = HttpStatusCode.BadRequest,
+                            body = "Extras ${it.joinToString(",")} not found"
+                        )
+                    }
+                }
+
+                productPrice = productPrice?.plus(result["p_price"] as Long)
+                log.info("productPrice: {}", productPrice)
+
+                productDiscount = (productPrice?.times((result["p_discount"] as? Long)?:0L)?.div(100))
+                log.info("productDiscount: {}", productDiscount)
+                productPriceWithDiscount = productPriceWithDiscount?.plus((productPrice?.minus(productDiscount?:0)?: 0L))
+                log.info("productPriceWithDiscount: {}", productPriceWithDiscount)
+
+
+                productPriceWithDiscount = productPriceWithDiscount?.plus((rs[0]["o_price"] as? Long) ?: 0L)
+                log.info("productPriceWithDiscount: {}", productPriceWithDiscount)
+
+                productPriceWithDiscount = productPriceWithDiscount?.plus((result["e_total_price"] as Int).toLong())
+                log.info("productPriceWithDiscount: {}", productPriceWithDiscount)
+
             }
 
-            totalPrice = totalPrice.plus((productPrice ?: 0L).times(cartItem?.count!!))
-            totalDiscount = totalDiscount.plus(productDiscount ?: 0L)
-            cartItem.totalPrice = totalPrice
+            totalPriceWithDiscount = totalPriceWithDiscount.plus((productPriceWithDiscount ?: 0L).times(cartItem.count!!))
+            totalDiscount = totalDiscount.plus((productDiscount ?: 0L).times(cartItem.count!!))
+            log.info("totalPrice: {}", totalPriceWithDiscount)
+            log.info("totalDiscount: {}", totalDiscount)
         }
-        log.info("totalPrice: {}", totalPrice)
-        log.info("totalDiscount: {}", totalDiscount)
-        return CheckoutResponseDto(
-            total = totalPrice,
-            discountProduct = totalDiscount,
+        return ResponseModel(
+            body = mapOf(
+                "products" to products,
+                "totalPrice" to totalPriceWithDiscount,
+                "totalDiscount" to totalDiscount
+            )
         )
-
     }
 
     suspend fun getOrderHistoryMerchant(
@@ -1457,7 +1489,7 @@ object OrderRepositoryImpl : OrderRepository {
                     id = statement.getLong("id"),
                     userId = statement.getLong("user_id"),
                     userPhone = statement.getString("user_phone"),
-                    type = statement.getString("type"),
+                    serviceType = statement.getString("type"),
                     products = statement.getString("products"),
                     status = statement.getString("status"),
                     addLat = statement.getDouble("add_lat"),

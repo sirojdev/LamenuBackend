@@ -7,10 +7,15 @@ import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.promo.PromoDto
 import mimsoft.io.features.promo.PromoService
 import mimsoft.io.features.stoplist.StopListService
+import mimsoft.io.utils.ResponseModel
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 import kotlin.math.max
 
 object CheckoutService {
+
+    val log: Logger = LoggerFactory.getLogger("CheckoutService")
     suspend fun calculateDeliveryPrice(promoCode: String?): Long {
         val promo = PromoService.getPromoByCode(promoCode)
         val deliveryPrice = 15000L
@@ -40,7 +45,7 @@ object CheckoutService {
 
     suspend fun calculateProductPromo(promo: PromoDto?, products: List<CartItem?>?): Long {
         val getTotalPrice = OrderRepositoryImpl.getOrderProducts(products).body as OrderWrapper
-        val productPrice = getTotalPrice.price?.totalPrice?: 0L
+        val productPrice = getTotalPrice.price?.totalPrice ?: 0L
         val now = Timestamp(System.currentTimeMillis())
         promo?.let { pr ->
             if (pr.startDate != null && pr.endDate != null) {
@@ -71,18 +76,25 @@ object CheckoutService {
     }
 
 
-    suspend fun calculate(dto: OrderModel): CheckoutResponseDto {
+    suspend fun calculate(dto: OrderModel): ResponseModel {
         val getTotalPrice = OrderRepositoryImpl.getProductCalculate(dto.products)
-        val totalPrice = getTotalPrice?.total
-        val productDiscount = getTotalPrice?.discountProduct
-        return CheckoutResponseDto(
-            productCount = productCount(dto.products),
-            discountProduct = productDiscount,
-            discountDelivery = calculateDeliveryPrice(dto.promo),
-            promoCode = dto.promo,
-            deliveryPrice = 15000L,
-            total = totalPrice
-        )
+        log.info("getTotalPrice: {}", getTotalPrice)
+        val body = getTotalPrice.body
+        if (body is Map<*, *>) {
+            val totalPrice = body["totalPrice"] as? Long
+            val productDiscount = body["totalDiscount"] as? Long
+            return ResponseModel(
+                body = CheckoutResponseDto(
+                    productCount = productCount(dto.products),
+                    discountProduct = productDiscount,
+                    discountDelivery = calculateDeliveryPrice(dto.promo),
+                    promoCode = dto.promo,
+                    deliveryPrice = 15000L,
+                    total = totalPrice
+                )
+            )
+        }
+        return getTotalPrice
     }
 
 
@@ -90,8 +102,8 @@ object CheckoutService {
         val prodCheck = StopListService.getAll(merchantId = merchantId)
         for (stopListDto in prodCheck) {
             dto.order?.products?.forEach {
-                if(stopListDto.id == it?.product?.id){
-                    if(stopListDto.count!! < it?.count!!){
+                if (stopListDto.id == it?.product?.id) {
+                    if (stopListDto.count!! < it?.count!!) {
                         it.count = stopListDto.count.toInt()
                     }
                 }

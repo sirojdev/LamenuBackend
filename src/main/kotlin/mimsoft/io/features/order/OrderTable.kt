@@ -7,7 +7,7 @@ data class OrderTable(
     val id: Long? = null,
     val userId: Long? = null,
     val userPhone: String? = null,
-    val type: String? = null,
+    val serviceType: String? = null,
     val products: String? = null,
     val status: String? = null,
     val addLat: Double? = null,

@@ -18,7 +18,7 @@ object OrderMapper {
                 id = orderTable.id,
                 courier = StaffDto(id=orderTable.courierId),
                 status = orderTable.status,
-                type = orderTable.type?: OrderType.DELIVERY.name,
+                serviceType = orderTable.serviceType?: OrderType.DELIVERY.name,
                 paymentTypeDto = PaymentTypeDto(id = orderTable.paymentType, isPaid = orderTable.isPaid)
             )
         else null
@@ -53,7 +53,7 @@ object OrderMapper {
                 id = orderDto.id,
                 userId = user?.id,
                 userPhone = user?.phone,
-                type = orderDto.type,
+                serviceType = orderDto.serviceType,
                 products = productsJson,
                 status = orderDto.status,
                 addLat = address?.latitude,
