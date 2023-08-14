@@ -1,9 +1,9 @@
-package mimsoft.io.features.announcement
+package mimsoft.io.features.news
 
 import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
-data class AnnouncementDto(
+data class NewsDto(
     val id: Long? = null,
     val merchantId: Long? = null,
     val title: TextModel? = null,

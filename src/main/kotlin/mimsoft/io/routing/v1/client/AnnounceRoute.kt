@@ -4,13 +4,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.announcement.repository.AnnounceRepositoryImpl
+import mimsoft.io.features.news.repository.NewsRepositoryImpl
 
 
-fun Route.routeToAnnouncement() {
-    get("announcement") {
+fun Route.routeToNews() {
+    get("news") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
-        val result = AnnounceRepositoryImpl.getAll(merchantId = merchantId)
+        val result = NewsRepositoryImpl.getAll(merchantId = merchantId)
         if(result.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get

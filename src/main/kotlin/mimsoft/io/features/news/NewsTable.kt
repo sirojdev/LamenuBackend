@@ -1,8 +1,8 @@
-package mimsoft.io.features.announcement
+package mimsoft.io.features.news
 
 import java.sql.Timestamp
 
-data class AnnouncementTable(
+data class NewsTable(
     val id: Long? = null,
     val type: Int? = null,
     val bodyUz: String? = null,

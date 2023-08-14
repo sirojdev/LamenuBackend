@@ -29,7 +29,6 @@ fun Route.routeToClient() {
         routeToClientStory()
         clientStoryInfoRoute()
         routeToClientBasket()
-        routeToAnnouncement()
         routeToCategoryByGroup()
         routeToClientCart()
         routeToPaymentTypes()
