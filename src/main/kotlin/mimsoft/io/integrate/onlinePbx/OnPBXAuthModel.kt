@@ -12,4 +12,8 @@ data class Data(
     @SerializedName("key_id")
     val keyId : String? = null,
     val new : Int? = null
-)
+){
+    companion object {
+
+    }
+}

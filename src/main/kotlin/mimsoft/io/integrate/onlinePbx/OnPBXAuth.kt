@@ -18,7 +18,12 @@ object OnPBXAuth {
 
         val client = OkHttp.client(request)
 
+
         return Gson().fromJson(client, OnPBXAuthModel::class.java)
+    }
+
+    fun authMap(auth: OnPBXAuthModel? = null): Map<String?, String?> {
+        return mapOf(auth?.data?.keyId to auth?.data?.key)
     }
 
 }

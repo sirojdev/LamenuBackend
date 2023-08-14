@@ -3,6 +3,7 @@ package mimsoft.io.features.order.utils
 import java.sql.Timestamp
 
 data class OrderDetails(
+    val orderId: Long? = null,
     val createdAt: Timestamp? = null,
     val deliveryAt: Timestamp? = null,
     val deliveredAt: Timestamp? = null,
@@ -11,6 +12,5 @@ data class OrderDetails(
     val totalDiscount: Long? = null,
     val comment: String? = null,
     val courierId: Long? = null,
-    val collectorId: Long? = null,
-    val orderId: Long? = null
+    val collectorId: Long? = null
 )

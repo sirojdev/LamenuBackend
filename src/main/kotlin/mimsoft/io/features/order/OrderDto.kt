@@ -20,7 +20,6 @@ data class OrderDto(
     val productCount: Int? = null,
     val totalPrice: Double? = null,
     val created: Timestamp? = null,
-
     val latitude: Double? = null,
     val longitude: Double? = null,
     val addressName:String?=null,

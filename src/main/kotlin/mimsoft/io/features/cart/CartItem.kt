@@ -9,5 +9,6 @@ data class CartItem(
     val option: OptionDto? = null,
     val extras: List<ExtraDto>? = null,
     var count: Int? = null,
-    var totalPrice: Long? = null
+    var totalPrice: Long? = null,
+    var totalDiscount: Long? = null
 )

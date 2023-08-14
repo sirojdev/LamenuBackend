@@ -19,7 +19,7 @@ fun Route.routeOnlinePbx() {
     val olinePbxService = OnlinePbxService
     val onlinePbxServiceEntity = OnlinePbxServiceEntity
 
-    route("/onlinePbx") {
+    route("/online_pbx") {
 
         post("hook") {
             val webhook = call.receiveParameters()
@@ -37,7 +37,8 @@ fun Route.routeOnlinePbx() {
             OnlinePbxService.saveHook(event, direction, caller, callee, webhook.toString())
         }
 
-        get("callsHistory") {
+        get("calls_history") {
+            val domain = call.parameters["domain"]
             val startStampFrom = call.parameters["startStampFrom"]?.take(10)
             if (startStampFrom.isNullOrBlank()) {
                 call.respond(HttpStatusCode.BadRequest)
