@@ -50,6 +50,7 @@ import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.telegram_bot.routeToBot
 import mimsoft.io.features.telephony.routeToTelephony
 import mimsoft.io.features.visit.routeToVisits
+import mimsoft.io.features.waiters.routToMerchantWaiters
 import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
 import mimsoft.io.routing.merchant.routeToOrderByCourierAndCollector
@@ -76,7 +77,7 @@ fun Route.routeToMerchant() {
             routeToCourierTransaction()
             routeToClientPromo()
             routeToOnlinePbx()
-
+            routToMerchantWaiters()
 
             route("settings") {
                 routeToApp()

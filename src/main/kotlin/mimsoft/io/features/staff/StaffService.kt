@@ -8,6 +8,7 @@ import mimsoft.io.features.courier.courier_location_history.CourierLocationHisto
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
@@ -389,5 +390,57 @@ object StaffService {
                 } else return@withContext null
             }
         }
+    }
+
+    suspend fun isExist(staffId: Long?, merchantId: Long?): Boolean {
+        val query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $staffId and deleted = false"
+        var result = false;
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    result = true
+                }
+            }
+        }
+        return result
+    }
+    suspend fun getAllWaiters(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
+        val query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and position='waiter' and deleted = false " +
+                    " limit $limit " +
+                    " offset  $offset"
+
+        val countQuery =
+            "select count(*) count from $STAFF_TABLE_NAME where merchant_id = $merchantId and position='waiter' and deleted = false "
+        val waiters = arrayListOf<StaffDto?>()
+        var total: Int? = null
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    waiters.add(
+                        StaffDto(
+                            id = rs.getLong("id"),
+                            merchantId = rs.getLong("merchant_id"),
+                            position = rs.getString("position"),
+                            phone = rs.getString("phone"),
+                            firstName = rs.getString("first_name"),
+                            lastName = rs.getString("last_name"),
+                            birthDay = rs.getTimestamp("birth_day").toString(),
+                            image = rs.getString("image"),
+                            gender = rs.getString("gender"),
+                        )
+                    )
+                }
+
+                val crs = it.prepareStatement(countQuery).executeQuery()
+                if (crs.next()) {
+                    total = crs.getInt("count")
+                }
+            }
+        }
+        return DataPage(waiters,total)
     }
 }

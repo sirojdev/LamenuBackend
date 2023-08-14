@@ -47,7 +47,7 @@ fun Route.routeToCourierAuth() {
                     call.respond(
                         authStaff?.copy(
                             token = JwtConfig.generateStaffToken(
-                                courierId = authStaff.id,
+                                staffId = authStaff.id,
                                 merchantId = authStaff.merchantId,
                                 uuid = uuid,
                             )

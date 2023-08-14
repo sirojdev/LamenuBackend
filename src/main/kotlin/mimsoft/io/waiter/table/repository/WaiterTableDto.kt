@@ -1,5 +1,6 @@
 package mimsoft.io.waiter.table.repository
 
+import mimsoft.io.features.table.TableDto
 import java.sql.Timestamp
 
 class WaiterTableDto(
@@ -8,4 +9,5 @@ class WaiterTableDto(
     val tableId: Long? = null,
     val joinTime: Timestamp? = null,
     val finishTime: Timestamp? = null,
+    val table: TableDto? = null
 )
