@@ -6,7 +6,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToCollector() {
     val staffService = StaffService
@@ -14,9 +13,10 @@ fun Route.routeToCollector() {
         get("all") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
-            println(merchantId)
-            val couriers = staffService.getAllCollector(merchantId = merchantId)
-            if (couriers.isEmpty()) {
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val couriers = staffService.getAllCollector(merchantId = merchantId,limit,offset)
+            if (couriers.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             } else call.respond(couriers)

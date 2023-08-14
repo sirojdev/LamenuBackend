@@ -5,20 +5,27 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
 
 object PromoService {
     val repository: BaseRepository = DBManager
     val mapper = PromoMapper
-    suspend fun getAll(merchantId: Long?): List<PromoDto> {
-        val query = "select * from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+    suspend fun getAll(merchantId: Long?, limit: Int, offset: Int): DataPage<PromoDto> {
+        val query =
+            "select * ,count(*) over() as total from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false  limit $limit offset $offset"
         LOGGER.info("getAll query: $query")
+        var totalCount = 0
+
         return withContext(Dispatchers.IO) {
             val promos = arrayListOf<PromoDto>()
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 while (rs.next()) {
+                    if (totalCount == 0) {
+                        totalCount = rs.getInt("total")
+                    }
                     val promo = PromoDto(
                         id = rs.getLong("id"),
                         discountType = (rs.getString("discount_type")),
@@ -33,7 +40,8 @@ object PromoService {
                     )
                     promos.add(promo)
                 }
-                return@withContext promos
+
+                return@withContext DataPage(promos, totalCount)
             }
         }
     }

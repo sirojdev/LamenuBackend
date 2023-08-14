@@ -1,16 +1,13 @@
 package mimsoft.io.features.promo
 
-import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.plugins.GSON
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToPromo() {
     val promoService = PromoService
@@ -18,9 +15,11 @@ fun Route.routeToPromo() {
         get {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
-            val promoList = promoService.getAll(merchantId = merchantId)
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val promoList = promoService.getAll(merchantId = merchantId,limit,offset)
             mimsoft.io.utils.plugins.LOGGER.info("promoList: ${GSON.toJson(promoList)}")
-            if (promoList.isEmpty()) {
+            if (promoList.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }

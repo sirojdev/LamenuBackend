@@ -15,7 +15,7 @@ fun Route.routeToWaitersTables() {
             val staffPrincipal = call.principal<StaffPrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = staffPrincipal?.staffId
-                val rs = waterTableRepository.joinToWaiter(waiterId, tableId)
+                val rs = waterTableRepository.joinToWaiter(waiterId, tableId, staffPrincipal?.merchantId)
                 if(rs!=null){
                     call.respond(HttpStatusCode.OK,rs)
                 }else{
