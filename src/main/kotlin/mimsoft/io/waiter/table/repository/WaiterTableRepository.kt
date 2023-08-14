@@ -130,7 +130,7 @@ object WaiterTableRepository {
         return isOpen
     }
 
-    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?): WaiterTableDto? {
+    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?, merchantId: Long?): WaiterTableDto? {
         val query = "INSERT INTO waiter_table (waiter_id, table_id, join_time)\n" +
                 "SELECT $waiterId,$tableId, now()\n" +
                 "WHERE\n" +

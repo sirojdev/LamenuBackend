@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.principal.MerchantPrincipal
 import mimsoft.io.waiter.table.repository.WaiterTableRepository
