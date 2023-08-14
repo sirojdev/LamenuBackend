@@ -64,18 +64,18 @@ object DeviceController {
                     "        model = ?,\n" +
                     "        brand = ?,\n" +
                     "        build = ?,\n" +
-                    "        firebase_token = ?,\n" +
+                    "        fb_token = ?,\n" +
                     "        updated_at = ?, \n" +
                     "        ip = ?\n" +
                     "where uuid = ?\n" +
                     "        returning *\n" +
                     ")\n" +
                     "insert\n" +
-                    "into device (merchant_id, os_version, model, brand, build, firebase_token, created_at ,ip, uuid)\n" +
+                    "into device (merchant_id, os_version, model, brand, build, fb_token, created_at ,ip, uuid)\n" +
                     "select ${device.merchantId}, ?, ?, ?, ?, ?, ?, ?, ? \n" +
                     "where not exists(select * from upsert)"
         return withContext(DBManager.databaseDispatcher) {
-            println(upsert)
+            println("upsert -> $upsert")
             DBManager.connection().use { connection ->
                 var x = 0
                 connection.prepareStatement(upsert).apply {
