@@ -10,9 +10,9 @@ import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderDetails
 import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToOrder() {
 
@@ -21,28 +21,40 @@ fun Route.routeToOrder() {
     route("orders") {
 
         get("live") {
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val type = call.parameters["type"]
-            val orders = repository.getLiveOrders(type = type.toString())
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orders = repository.getLiveOrders(type = type, limit = limit, offset = offset, merchantId = merchantId)
             val orderDto = orders?.data
             if (orderDto == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }
-            call.respond(HttpStatusCode.OK, orderDto)
+            call.respond(HttpStatusCode.OK, orders)
         }
 
         get("all") {
-            val orders = repository.getAll()
+            val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orders = repository.getAll(merchantId = merchantId, limit = limit, offset = offset)
             call.respond(orders)
         }
 
         get("history") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
-            val search = call.parameters["search"]
-            val limit = call.parameters["limit"]?.toIntOrNull()
-            val offset = call.parameters["offset"]?.toIntOrNull()
-            val orders = repository.getAll(merchantId = merchantId, search = search, limit = limit, offset = offset)
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val orders = repository.getAll(
+                merchantId = merchantId,
+                limit = limit,
+                offset = offset,
+                status = OrderStatus.CLOSED.name
+            )
             if (orders.total == 0) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -56,8 +68,8 @@ fun Route.routeToOrder() {
             val search = call.parameters["search"]
             val status = call.parameters["status"]
             val type = call.parameters["type"]
-            val limit = call.parameters["limit"]?.toIntOrNull()
-            val offset = call.parameters["offset"]?.toIntOrNull()
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val orders = repository.getAll(search, merchantId, status, type, limit, offset)
             if (orders.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
@@ -108,9 +120,9 @@ fun Route.routeToOrder() {
             }
         }
 
-        put("update/details"){
+        put("update/details") {
             val detail = call.receive<OrderDetails>()
-            if(detail.orderId == null){
+            if (detail.orderId == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@put
             }

@@ -263,11 +263,12 @@ object StaffService {
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 
-    suspend fun getAllCourier(merchantId: Long?): List<StaffDto?> {
+    suspend fun getAllCourier(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query = """select s.*, 
                 A.count today_orders, 
                 B.count all_orders,  
-                status.count active_orders 
+                status.count active_orders ,
+                count(*) over() as total
                 from staff s 
         left join(select courier_id, count(*) 
                     from orders 
@@ -281,12 +282,18 @@ object StaffService {
                     where status = 'OPEN' 
                     group by courier_id) as status on status.courier_id=s.id 
         where s.merchant_id = $merchantId 
+        limit $limit offset $offset
         """.trimMargin()
+        var totalCount = 0
+
         return withContext(Dispatchers.IO) {
             val staffs = arrayListOf<StaffDto?>()
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 while (rs.next()) {
+                    if (totalCount == 0) {
+                        totalCount = rs.getInt("total")
+                    }
                     val staff = StaffDto(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
@@ -307,17 +314,18 @@ object StaffService {
                     staff.lastLocation = CourierLocationHistoryService.getByStaffId(staff.id)
                     staffs.add(staff)
                 }
-                return@withContext staffs
+                return@withContext DataPage(staffs,totalCount)
             }
         }
     }
 
 
-    suspend fun getAllCollector(merchantId: Long?): List<StaffDto?> {
+    suspend fun getAllCollector(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query = """select s.*, 
                 A.count today_orders, 
                 B.count all_orders,  
-                status.count active_orders 
+                status.count active_orders ,
+                count(*) over() as total
                 from staff s 
         left join(select collector_id, count(*) 
                     from orders 
@@ -331,13 +339,17 @@ object StaffService {
                     where status = 'OPEN' 
                     group by collector_id) as status on status.collector_id=s.id 
         where s.merchant_id = $merchantId and s.position = 'collector' and s.deleted = false 
-        
+        limit $limit offset $offset
         """.trimMargin()
+        var totalCount = 0
         return withContext(Dispatchers.IO) {
             val staffs = arrayListOf<StaffDto?>()
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 while (rs.next()) {
+                    if (totalCount == 0) {
+                        totalCount = rs.getInt("total")
+                    }
                     val staff = StaffDto(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
@@ -357,7 +369,7 @@ object StaffService {
                     )
                     staffs.add(staff)
                 }
-                return@withContext staffs
+                return@withContext DataPage(staffs, totalCount)
             }
         }
     }
