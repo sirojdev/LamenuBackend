@@ -35,7 +35,233 @@ tags:
   - name: Address
     description: Endpoints related to address
 
+  - name: Cart
+    description: Endpoints related to Cart
+
+  - name: Payment
+    description: Endpoints related to Payment
+
+  - name: Promo
+    description: Endpoints related to Promo
+
+  - name: Visit
+    description: Endpoints related to Visit
+
 paths:
+
+  /client/visit:
+    post:
+      tags:
+        - Visit
+      description: "post visitDto  "
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: " receive visitDto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitId"
+        "400":
+          description: "Bad Request"
+    get:
+      tags:
+        - Visit
+      description: "get all visit dto "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitDto"
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+  /client/client/promo:
+
+    post:
+      tags:
+        - Promo
+      description: "post promoDto  "
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: " receive PromoDto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromoDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PromoDto"
+
+        "406":
+          description: "Not Acceptable"
+        "400":
+          description: "Bad Request"
+
+    delete:
+      tags:
+        - Promo
+      description: "delete promo "
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+
+  /client/client/promo/all:
+    get:
+      tags:
+        - Promo
+      description: "get all client promo dto "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClientPromoDto"
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+
+
+  /client/client/promos:
+    get:
+      tags:
+        - Promo
+      description: "get all  promo dto "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PromoDto"
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+  /client/payment/type:
+    get:
+      tags:
+        - Payment
+      description: "get payment type "
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/cart:
+    get:
+      tags:
+        - Cart
+      description: "post cart"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+          description: "A JSON object receive cart info dto"
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartInfoDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CartInfoDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
 
   /client/tables:
     get:
@@ -862,6 +1088,37 @@ paths:
         "400":
           description: "Bad Request"
 
+  /client/categoryByGroup/{id}:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of product list"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
   /client/order/info/{id}:
     get:
       tags:
@@ -1663,7 +1920,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TableDto"
-
+    PaymentDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        paymeMerchantId:
+          type: "integer"
+          format: "long"
+        paymeSecret:
+          type: "string"
+        apelsinMerchantId:
+          type: "integer"
+          format: "long"
+        apelsinMerchantToken:
+          type: "string"
+        clickServiceId:
+          type: "integer"
+          format: "long"
+        clickKey:
+          type: "string"
 
     RoomDto:
       type: object
@@ -1720,6 +2000,114 @@ components:
           format: int32  # You might need to adjust the format based on your HttpStatusCode representation
       required:
         - body
+
+    CartInfoDto:
+      type: "object"
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        address:
+          $ref: "#/components/schemas/AddressDto"
+        productCount:
+          type: integer
+        productsPrice:
+          type: "integer"
+          format: "long"
+        productsDiscount:
+          type: "integer"
+          format: "long"
+        totalPrice:
+          type: "integer"
+          format: "long"
+        totalDiscount:
+          type: "integer"
+          format: "long"
+
+    PromoDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        amount:
+          type: "integer"
+          format: "long"
+        name:
+          type: string
+        discountType:
+          type: string
+        deliveryDiscount:
+          type: "integer"
+          format: "double"
+        productDiscount:
+          type: "integer"
+          format: "double"
+        isPublic:
+          type: "boolean"
+        minAmount:
+          type: "integer"
+          format: "double"
+        startDate:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        endDate:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+
+    VisitDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderWrapper"
+        waiter:
+          $ref: "#/components/schemas/StaffDto"
+        table:
+          $ref: "#/components/schemas/TableDto"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        status:
+          type: string
+        payment:
+          $ref: "#/components/schemas/PaymentDto"
+        price:
+          type: integer
+          format: "double"
+        clientCount:
+          type: integer
+
+    ClientPromoDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        client:
+          $ref: "#/components/schemas/UserDto"
+        promo:
+          $ref: "#/components/schemas/PromoDto"
+
+    VisitId:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
 
 
 
