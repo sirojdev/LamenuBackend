@@ -1,11 +1,11 @@
-package mimsoft.io.features.announcement
+package mimsoft.io.features.news
 
 import mimsoft.io.utils.TextModel
 
-object AnnouncementMapper {
-    fun toDto(table: AnnouncementTable?): AnnouncementDto? {
+object NewsMapper {
+    fun toDto(table: NewsTable?): NewsDto? {
         if(table==null) return null
-        return AnnouncementDto(
+        return NewsDto(
             id = table.id,
             merchantId = table.merchantId,
             title = TextModel(
@@ -24,8 +24,8 @@ object AnnouncementMapper {
         )
     }
 
-    fun toTable(dto: AnnouncementDto?): AnnouncementTable {
-        return AnnouncementTable(
+    fun toTable(dto: NewsDto?): NewsTable {
+        return NewsTable(
             id = dto?.id,
             merchantId = dto?.merchantId,
             titleUz = dto?.title?.uz,

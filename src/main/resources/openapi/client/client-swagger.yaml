@@ -1029,11 +1029,11 @@ paths:
         "400":
           description: "Bad Request"
 
-  /client/announcement:
+  /client/news:
     get:
       tags:
         - Get
-      description: "A Json object returns list of announcements"
+      description: "A Json object returns list of news"
       responses:
         "200":
           description: "OK"
@@ -1042,7 +1042,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AnnouncementDto"
+                  $ref: "#/components/schemas/NewsDto"
         "204":
           description: "No Content"
         "400":
@@ -1394,7 +1394,7 @@ paths:
 #//==================================================================================================SCHEMAS
 components:
   schemas:
-    AnnouncementDto:
+    NewsDto:
       type: "object"
       properties:
         id:
