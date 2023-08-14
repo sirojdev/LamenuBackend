@@ -159,7 +159,7 @@ fun Application.configureSecurity() {
             verifier(JwtConfig.verifierUser)
             validate { cr ->
                 val merchantId = cr.payload.getClaim("merchantId").asLong()
-                val courierId = cr.payload.getClaim("courierId").asLong()
+                val staffId = cr.payload.getClaim("staffId").asLong()
                 val uuid = cr.payload.getClaim("uuid").asString()
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
@@ -167,7 +167,7 @@ fun Application.configureSecurity() {
                         BasePrincipal(
                             merchantId = merchantId,
                             uuid = uuid,
-                            staffId = courierId
+                            staffId = staffId
                         )
                     } else {
                         null
