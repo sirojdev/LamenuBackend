@@ -45,6 +45,6 @@ fun Route.routeToMerchantOrder() {
         delete("order/{id}") {
 
         }
-        aaa
+
     }
 }
