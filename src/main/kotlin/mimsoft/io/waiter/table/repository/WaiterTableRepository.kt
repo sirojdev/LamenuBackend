@@ -114,14 +114,28 @@ object WaiterTableRepository {
     }
 
 
+    suspend fun isOpenTable(tableId: Long?): Boolean {
+        val query = "select * from $WAITER_TABLE_NAME " +
+                " where table_id =$tableId and deleted = false and  finish_time is null "
+        var isOpen = true;
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                }.executeQuery()
+                if (rs.next()) {
+                    isOpen = false;
+                }
+            }
+        }
+        return isOpen
+    }
 
-
-    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?,merchantId:Long?): WaiterTableDto? {
+    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?): WaiterTableDto? {
         val query = "INSERT INTO waiter_table (waiter_id, table_id, join_time)\n" +
                 "SELECT $waiterId,$tableId, now()\n" +
                 "WHERE\n" +
-                "    EXISTS (SELECT 1 FROM staff WHERE id = $waiterId and merchant_id = $merchantId)\n" +
-                "  AND EXISTS (SELECT 1 FROM tables WHERE id = $tableId and merchant_id = $merchantId)\n" +
+                "    EXISTS (SELECT 1 FROM staff WHERE id = $waiterId)\n" +
+                "  AND EXISTS (SELECT 1 FROM tables WHERE id = $tableId)\n" +
                 "  AND NOT EXISTS (\n" +
                 "    SELECT 1 FROM waiter_table\n" +
                 "    WHERE  table_id = $tableId AND finish_time is null\n" +
