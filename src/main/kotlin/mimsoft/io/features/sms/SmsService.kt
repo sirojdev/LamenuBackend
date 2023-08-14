@@ -35,7 +35,7 @@ object SmsService {
         merchantId: Long?,
         limit: Int? = null,
         offset: Int? = null
-    ): List<SmsDto?> {
+    ): DataPage<SmsDto> {
 
 
 
@@ -46,18 +46,23 @@ object SmsService {
                     status,
                     m.id   m_id,
                     content,
-                    (select count(*) from users u where u.merchant_id = $merchantId) as count 
+                    client_count,
+                   count(*) over() as total 
                     from sms s
                 left join message m on s.message_id = m.id
                 where s.merchant_id = $merchantId 
                     and not s.deleted
                     and not m.deleted limit $limit offset $offset 
             """
+        var total = -1
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<SmsDto>()
                 while (rs.next()) {
+                    if(total==-1){
+                        total = rs.getInt("total")
+                    }
                     val dto = SmsDto(
                         id = rs.getLong("s_id"),
                         time = rs.getString("s_time"),
@@ -66,11 +71,11 @@ object SmsService {
                             id = rs.getLong("m_id"),
                             content = rs.getString("content"),
                         ),
-                        clientCount = rs.getLong("count")
+                        clientCount = rs.getLong("client_count")
                     )
                     list.add(dto)
                 }
-                return@withContext list
+                return@withContext DataPage(list,total)
             }
         }
     }
