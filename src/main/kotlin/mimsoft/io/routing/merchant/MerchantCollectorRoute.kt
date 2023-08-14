@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.principal.MerchantPrincipal
 
@@ -17,9 +16,10 @@ fun Route.routeToCollector() {
         get("") {
             val pr = call.principal<MerchantPrincipal>()
             val merchantId = pr?.merchantId
-            println(merchantId)
-            val collectors = staffService.getAllCourier(merchantId = merchantId)
-            if (collectors.isEmpty()) {
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val collectors = staffService.getAllCourier(merchantId = merchantId, limit = limit, offset = offset)
+            if (collectors.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             } else call.respond(collectors)

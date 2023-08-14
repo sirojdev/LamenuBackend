@@ -1,6 +1,5 @@
 package mimsoft.io.features.order.repository
 
-import mimsoft.io.features.order.ClientOrderDto
 import mimsoft.io.features.order.OrderDto
 import mimsoft.io.features.order.OrderModel
 import mimsoft.io.features.order.utils.OrderDetails
@@ -14,6 +13,7 @@ interface OrderRepository {
         type: String? = null,
         limit: Int? = null,
         offset: Int? = null,
+        merchantId: Long?,
     ): DataPage<OrderWrapper?>?
 
     suspend fun getAll(
