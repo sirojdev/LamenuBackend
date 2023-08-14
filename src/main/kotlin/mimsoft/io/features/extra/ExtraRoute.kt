@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.extra.ropository.ExtraRepository
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 import kotlin.collections.map
 
@@ -16,7 +17,7 @@ fun Route.routeToExtra() {
     val extraRepository: ExtraRepository = ExtraRepositoryImpl
     val mapper = ExtraMapper
     get("/extras") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val extras = extraRepository.getAll(merchantId = merchantId).map { mapper.toExtraDto(it) }
         if (extras.isEmpty()) {
