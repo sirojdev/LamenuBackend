@@ -13,8 +13,6 @@ import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.session.SessionTable
-import mimsoft.io.utils.OK
 
 fun Route.routeToClientProfile() {
 
