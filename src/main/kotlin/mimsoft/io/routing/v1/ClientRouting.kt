@@ -21,6 +21,7 @@ fun Route.routeToClient() {
         routeToClientAuth()
     }
     route("client") {
+        routeToClientDevice()
         routeToClientProduct()
         routeToClientTable()
         routeToClientBranches()
@@ -30,7 +31,6 @@ fun Route.routeToClient() {
         routeToClientBasket()
         routeToAnnouncement()
         routeToCategoryByGroup()
-        routeToClientDevice()
         routeToClientCart()
         routeToPaymentTypes()
         authenticate("user") {
