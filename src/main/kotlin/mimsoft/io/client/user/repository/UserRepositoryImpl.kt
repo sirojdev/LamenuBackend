@@ -57,6 +57,7 @@ object UserRepositoryImpl : UserRepository {
                         lastName = rs.getString("last_name"),
                         image = rs.getString("image"),
                         birthDay = rs.getTimestamp("birth_day"),
+                        cashbackBalance = rs.getDouble("balance"),
                         badge = BadgeDto(
                             name = TextModel(
                                 uz = rs.getString("b_name_uz"),
@@ -109,6 +110,7 @@ object UserRepositoryImpl : UserRepository {
                             bgColor = rs.getString("bg_color"),
                             icon = rs.getString("b_icon"),
                         ),
+                        cashbackBalance = rs.getDouble("balance"),
                         firstName = rs.getString("first_name"),
                         phone = rs.getString("phone"),
                         lastName = rs.getString("last_name"),
