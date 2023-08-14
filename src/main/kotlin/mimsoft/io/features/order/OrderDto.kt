@@ -9,7 +9,7 @@ import java.sql.Timestamp
 data class OrderDto(
     val id: Long? = null,
     val userId: Long? = null,
-    val type: String? = null,
+    val serviceType: String? = null,
     val status: String? = null,
     val courier: StaffDto? = null,
     val user: UserDto? = null,
