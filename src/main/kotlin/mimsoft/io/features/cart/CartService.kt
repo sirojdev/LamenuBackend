@@ -18,7 +18,7 @@ object CartService {
             }
         }
 
-        return OrderRepositoryImpl.getProductCalculate(dto)
+        return OrderRepositoryImpl.getProductCalculate(cart = dto, merchantId = merchantId)
     }
 
 

@@ -1279,7 +1279,7 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getProductCalculate(cart: CartInfoDto?): ResponseModel {
+    suspend fun getProductCalculate(cart: CartInfoDto?, merchantId: Long?): ResponseModel {
 
         val products = cart?.products
         var totalPriceWithDiscount = 0L
@@ -1291,10 +1291,14 @@ object OrderRepositoryImpl : OrderRepository {
             log.info("cartItem: {}", GSON.toJson(cartItem))
 
             if (cartItem.option?.id == null) {
-                return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = "Option with id = ${cartItem.option?.id} not found"
-                )
+                OptionRepositoryImpl.getOptionsByProductId(cartItem.product?.id, merchantId).let { options ->
+                    if (options?.isNotEmpty() == true) {
+                        return ResponseModel(
+                            httpStatus = HttpStatusCode.BadRequest,
+                            body = "Option with id = ${cartItem.option?.id} not found"
+                        )
+                    }
+                }
             }
 
             var productDiscount: Long? = 0L
@@ -1316,7 +1320,7 @@ object OrderRepositoryImpl : OrderRepository {
                 left join options o on p.id = o.product_id
                 where (not p.deleted or not e.deleted or not o.deleted)
                 and p.id = ${cartItem.product?.id}
-                and o.id = ${cartItem.option.id}
+                and o.id = ${cartItem.option?.id}
             """.trimIndent()
 
 
@@ -1326,11 +1330,11 @@ object OrderRepositoryImpl : OrderRepository {
             repository.selectList(query = query).let { rs ->
 
                 if (rs.isEmpty()) {
-                    OptionRepositoryImpl.get(cartItem.option.id).let {
+                    OptionRepositoryImpl.get(cartItem.option?.id).let {
                         if (it != null) {
                             return ResponseModel(
                                 httpStatus = HttpStatusCode.BadRequest,
-                                body = "Option id = ${cartItem.option.id}  not found "
+                                body = "Option id = ${cartItem.option?.id}  not found "
                             )
                         }
                         else {
