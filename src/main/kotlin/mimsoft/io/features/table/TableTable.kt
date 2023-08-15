@@ -10,6 +10,7 @@ data class TableTable(
     val roomId: Long? = null,
     val qr: String? = null,
     val branchId: Long? = null,
+    val type: Int? = null,
     val merchantId: Long? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,

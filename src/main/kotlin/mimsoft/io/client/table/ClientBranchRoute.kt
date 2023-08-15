@@ -31,7 +31,7 @@ fun Route.routeToClientTable(){
         val roomId = call.parameters["roomId"]?.toLongOrNull()
         val qr = call.parameters["qr"].toString()
         if (roomId!=null || merchantId!=null) {
-            val table = tableRepository.getByTableId(roomId = roomId, merchantId = merchantId)
+            val table = tableRepository.getByRoomId(roomId = roomId, merchantId = merchantId)
             if (table==null){
                 call.respond(HttpStatusCode.NoContent)
                 return@get

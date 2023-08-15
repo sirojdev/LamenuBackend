@@ -6,9 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToSms() {
     val smsService = SmsService
@@ -19,10 +17,7 @@ fun Route.routeToSms() {
         val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
         val sms = smsService.getAll2(merchantId = merchantId, limit = limit, offset = offset)
-        call.respond(sms ?: HttpStatusCode.NoContent)
-        return@get
-        call.respond(HttpStatusCode.BadRequest)
-        return@get
+        call.respond(sms)
     }
 
     get("sms/{id}") {

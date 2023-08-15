@@ -1,8 +1,6 @@
 package mimsoft.io.features.book
 
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.book.BookDto
-import mimsoft.io.features.book.BookTable
 import mimsoft.io.features.table.TableDto
 
 object BookMapper {
@@ -12,8 +10,8 @@ object BookMapper {
             BookTable(
                 id = bookDto.id,
                 merchantId = bookDto.merchantId,
-                clientId = bookDto.id,
-                tableId = bookDto.id,
+                clientId = bookDto.client?.id,
+                tableId = bookDto.table?.id,
                 time = bookDto.time,
                 comment = bookDto.comment
             )
@@ -25,8 +23,12 @@ object BookMapper {
         else BookDto(
             id = bookTable.id,
             merchantId = bookTable.merchantId,
-            clientId = bookTable.clientId,
-            tableId = bookTable.tableId,
+            client = UserDto(
+                id = bookTable.clientId
+            ),
+            table = TableDto(
+                id = bookTable.tableId
+            ),
             time = bookTable.time,
             comment = bookTable.comment
         )

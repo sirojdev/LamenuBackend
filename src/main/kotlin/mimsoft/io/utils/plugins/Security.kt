@@ -145,8 +145,8 @@ fun Application.configureSecurity() {
                 )
 
                 if (session != null && session.isExpired != true) {
-                    UserPrincipal(
-                        id = session.userId,
+                    BasePrincipal(
+                        userId = session.userId,
                         uuid = session.uuid,
                         merchantId = credential.payload.getClaim("merchantId").asLong()
                     )
