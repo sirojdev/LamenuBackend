@@ -10,15 +10,250 @@ servers:
     description: "Host server"
   - url: 'https://api.lamenu.uz/v1/'
     description: "Domain server"
+  - url: 'https:// api-beta.lamenu.uz/v1/'
+    description: "Beta  server"
+  - url: 'https://api-dev.lamenu.uz/v1/'
+    description: "Developer server"
+  - url: 'https://api-back.lamenu.uz/v1/'
+    description: "Backend server"
 tags:
+  - name: Auth
+    description: information about profile
   - name: Profile
     description: information about profile
   - name: Order courier's
     description: get orders courier's
-
+  - name:  Transactions
+    description: get transactions courier's
+  - name: Chat
+    description: get chat messages
 
 paths:
-  /courier:
+
+  /chat:
+    get:
+      tags:
+        - Chat
+      security:
+        - bearerAuth: [ ]
+      description: Get all courier that merchant send message
+      responses:
+        '200':
+          description: Successfully retrieved chat messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffDto"
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+  /chat/messages:
+    get:
+      tags:
+        - Chat
+      security:
+        - bearerAuth: [ ]
+      description: Get messages from courier
+      parameters:
+        - name: "courierId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        '200':
+            description: Successfully retrieved messages
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ChatMessageSaveDto"
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+
+  /chat/merchant:
+    get:
+      tags:
+        - Chat
+      security:
+        - bearerAuth: [ ]
+      description: courier get merchant info for chat
+      responses:
+        '200':
+          description: Successfully retrieved messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MerchantDto"
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+
+  /chat/merchant/messages:
+    get:
+      tags:
+        - Chat
+      security:
+        - bearerAuth: [ ]
+      description: courier get message from merchant
+      responses:
+        '200':
+          description: Successfully retrieved messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessageSaveDto"
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+
+  /courier/transaction:
+    post:
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: [ ]
+      description: "new transaction"
+      requestBody:
+        description: " if branch id not null courier give money to branch if orderId not null courier get money from client"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourierTransactionDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourierInfoDto"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+    get:
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: [ ]
+      description: "Get all  transactions"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourierTransactionDto"
+        "204":
+          description: "No Content"
+        "401":
+          description: "Unauthorized"
+
+  /courier/transaction/{id}:
+    get:
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: [ ]
+      description: "Get by id  transactions"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourierTransactionDto"
+        "404":
+          description: "Not Found"
+        "401":
+          description: "Unauthorized"
+
+  /device:
+    post:
+      tags:
+        - Auth
+      description: "Get device token"
+      requestBody:
+        description: "A JSON object receive device token"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                merchantId:
+                  type: "integer"
+                  format: "long"
+                uuid:
+                  type: string
+                brand:
+                  type: string
+                build:
+                  type: string
+                model:
+                  type: string
+                phone:
+                  type: string
+                osVersion:
+                  type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+  /courier/auth:
+    post:
+      tags:
+        - Auth
+      description: "Auth courier sign in"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive with sign up"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: "string"
+                password:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/StaffDto"
+        "204":
+          description: "No Content"
+
+  /courier/profile:
     get:
       tags:
         - Profile
@@ -31,9 +266,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
-                items:
-                  $ref: "#/components/schemas/CourierDto"
+                $ref: "#/components/schemas/CourierInfoDto"
         "404":
           description: "Not found"
         "401":
@@ -51,9 +284,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
-                items:
-                  $ref: "#/components/schemas/OrderDto"
+                $ref: "#/components/schemas/DataPage"
         "204":
           description: "No content"
 
@@ -70,9 +301,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
-                items:
-                  $ref: "#/components/schemas/OrderDto"
+                  $ref: "#/components/schemas/DataPage"
         "204":
           description: "No content"
 
@@ -89,11 +318,107 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
-                items:
-                  $ref: "#/components/schemas/OrderDto"
+                  $ref: "#/components/schemas/DataPage"
         "204":
           description: "No content"
+
+  /courier/orders/get:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Order courier's
+      description: Get order (join courier) if orderId is null or order belong to other courier 405
+      parameters:
+        - name: "orderId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWrapper"
+        "405":
+          description: "Method not allowed"
+
+  /courier/orders/onway:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Order courier's
+      description: get ready order from branch READY->ON WAY  if order status not READY or this order belong to other courier 405 method not allowed
+      parameters:
+        - name: "orderId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWrapper"
+        "405":
+          description: "Method not allowed"
+
+  /courier/orders/delivered:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Order courier's
+      description: delivered order  if order status not ONWAY or this order belong to other courier 405 method not allowed
+      parameters:
+        - name: "orderId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWrapper"
+        "405":
+          description: "Method not allowed"
+
+  /courier/orders/{id}:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Order courier's
+      description: get order by id if this order belong to other courier 405 , order not found  404
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWrapper"
+        "405":
+          description: "Method not allowed"
+        "404":
+          description: "Not Found"
 
 #//==================================================================================================SCHEMAS
 components:
@@ -132,6 +457,39 @@ components:
           type: "string"
         eng:
           type: "string"
+    DeviceModel:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        uuid:
+          type: "string"
+        osVersion:
+          type: "string"
+        model:
+          type: "string"
+        brand:
+          type: "string"
+        build:
+          type: "string"
+        firebaseToken:
+          type: "string"
+        ip:
+          type: "string"
+        token:
+          type: "string"
+        blockedUntil:
+          type: "string"
+          format: "date-time"
+        code:
+          type: "string"
+        action:
+          type: "string"
+        expAction:
+          type: "boolean"
+        phone:
+          type: "string"
 
     BranchDto:
       type: "object"
@@ -140,6 +498,214 @@ components:
           type: "integer"
         name:
           $ref: "#/components/schemas/TextModel"
+
+    StaffDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        token:
+          type: "string"
+        image:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        phone:
+          type: "string"
+        position:
+          type: string
+        gender:
+          type: string
+
+    CourierInfoDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        gender:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        type:
+          type: string
+        phone:
+          type: string
+        balance:
+          type: integer
+          format: "double"
+
+    DataPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderDto"
+        total:
+          type: integer
+          format: "long"
+
+    OrderWrapper:
+      type: "object"
+      properties:
+        details:
+          $ref: "#/components/schemas/Details"
+        order:
+          $ref: "#/components/schemas/OrderDto"
+        address:
+          $ref: "#/components/schemas/AddressDto"
+        products:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CartItem"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        price:
+          $ref: "#/components/schemas/OrderPriceDto"
+
+    Details:
+      type: object
+      properties:
+        createdAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        updatedAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveredAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveryAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        totalPrice:
+          type: "number"
+          format: "double"
+        totalDiscount:
+          type: "number"
+          format: "double"
+        comment:
+          type: "string"
+        collectorId:
+          type: integer
+          format: "long"
+        courierId:
+          type: integer
+          format: "long"
+    AddressDetails:
+      type: "object"
+      properties:
+        building:
+          type: "string"
+        entrance:
+          type: "string"
+        code:
+          type: "string"
+        floor:
+          type: integer
+        comment:
+          type: "string"
+    AddressDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        type:
+          type: "string"
+        status:
+          type: "string"
+        details:
+          $ref: "#/components/schemas/AddressDetails"
+        description:
+          type: "string"
+        latitude:
+          type: "integer"
+          format: "double"
+        longitude:
+          type: "integer"
+          format: "double"
+
+    OrderPriceDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        orderId:
+          type: integer
+          format: "long"
+        deliveryPrice:
+          type: integer
+          format: "long"
+        deliveryDiscount:
+          type: integer
+          format: "long"
+        deliveryPromo:
+          type: integer
+          format: "long"
+        productPrice:
+          type: integer
+          format: "long"
+        productDiscount:
+          type: integer
+          format: "long"
+        productPromo:
+          type: integer
+          format: "long"
+        totalPrice:
+          type: integer
+          format: "long"
+        totalDiscount:
+          type: integer
+          format: "long"
+
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        badge:
+          $ref: '#/components/schemas/BadgeDto'
+        phone:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+        token:
+          type: "string"
+
+    CartItem:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        count:
+          type: integer
+          format: "long"
 
     OrderDto:
         type: "object"
@@ -177,6 +743,72 @@ components:
           totalPrice: 0.0
           latitude: 0.0
           longitude: 0.0
+
+    ChatMessageSaveDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+        fromId:
+          type: integer
+        toId:
+          type: integer
+        operatorId:
+          type: integer
+        operator:
+          $ref: "#/components/schemas/StaffDto"
+        sender:
+          type: string
+        time:
+          type: string
+          format: date-time
+
+    MerchantDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        sub:
+          type: string
+        logo:
+          type: string
+        name:
+          $ref: "#/components/schemas/TextModel"
+        phone:
+          type: string
+        password:
+          type: string
+        isActive:
+          type: boolean
+        token:
+          type: string
+
+    CourierTransactionDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        orderId:
+          type: "integer"
+          format: "long"
+        courier:
+          $ref: "#/components/schemas/CourierDto"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        branch:
+          $ref: "#/components/schemas/BranchDto"
+        order:
+          $ref: "#/components/schemas/OrderWrapper"
+        amount:
+          type: "integer"
+          format: "double"
 
 
   securitySchemes:
