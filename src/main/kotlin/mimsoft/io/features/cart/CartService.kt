@@ -1,12 +1,12 @@
 package mimsoft.io.features.cart
 
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.features.stoplist.StopListService
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.ResponseModel
 
 object CartService {
-    suspend fun check(dto: CartInfoDto, merchantId: Long?): CartInfoDto {
+    suspend fun check(dto: CartInfoDto, merchantId: Long?): ResponseModel {
         val prodCheck = StopListService.getAll(merchantId = merchantId)
         for (stopListDto in prodCheck) {
             dto.products.forEach {
@@ -17,19 +17,8 @@ object CartService {
                 }
             }
         }
-        val getTotalPrice = OrderRepositoryImpl.getOrderProducts(dto.products).body as OrderWrapper
-        val productPrice = getTotalPrice.price?.totalPrice ?: 0
-        println("Hello   --- > ${getTotalPrice.price?.totalDiscount}")
-        val products = dto.products
-        return CartInfoDto(
-            productsPrice = productPrice,
-            products = products,
-            address = dto.address,
-            productCount = productCount(dto.products),
-            productsDiscount = getTotalPrice.price?.productDiscount,
-            totalPrice = (productPrice + 15000L - 0L - checkProdDiscount(dto.products)),
-            totalDiscount = checkProdDiscount(dto.products) + 0L
-        )
+
+        return OrderRepositoryImpl.getProductCalculate(dto)
     }
 
 
