@@ -7,17 +7,17 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.book.BookDto
-import mimsoft.io.features.book.repository.BookService
-import mimsoft.io.features.book.repository.BookServiceImpl
+import mimsoft.io.features.book.repository.BookRepository
+import mimsoft.io.features.book.repository.BookRepositoryImpl
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToMerchantBook() {
-    val bookService: BookService = BookServiceImpl
+    val bookRepository: BookRepository = BookRepositoryImpl
 
     get("books") {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
-        val books = bookService.getAllMerchantBook(merchantId = merchantId)
+        val books = bookRepository.getAllMerchantBook(merchantId = merchantId)
         if (books.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -32,7 +32,7 @@ fun Route.routeToMerchantBook() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val book = bookService.getMerchantBook(id = id, merchantId = merchantId)
+        val book = bookRepository.getMerchantBook(id = id, merchantId = merchantId)
         if (book == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -44,7 +44,7 @@ fun Route.routeToMerchantBook() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
-        val id = bookService.addMerchantBook(book.copy(merchantId = merchantId))
+        val id = bookRepository.addMerchantBook(book.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK, BookId(id))
     }
 
@@ -52,7 +52,7 @@ fun Route.routeToMerchantBook() {
         val pr = call.principal<MerchantPrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
-        bookService.updateMerchantBook(book.copy(merchantId = merchantId))
+        bookRepository.updateMerchantBook(book.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
@@ -64,7 +64,7 @@ fun Route.routeToMerchantBook() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        bookService.deleteMerchantBook(id = id, merchantId = merchantId)
+        bookRepository.deleteMerchantBook(id = id, merchantId = merchantId)
         call.respond(HttpStatusCode.OK)
     }
 }

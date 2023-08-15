@@ -38,7 +38,7 @@ object TableService : TableRepository {
         return data
     }
 
-    override suspend fun getByTableId(roomId: Long?, merchantId: Long?): TableTable? {
+    override suspend fun getByRoomId(roomId: Long?, merchantId: Long?): TableTable? {
         val data = repository.getPageData(
             dataClass = TableTable::class,
             where = mapOf(
@@ -61,6 +61,7 @@ object TableService : TableRepository {
                 "SET" +
                 " name = ?, " +
                 " qr = ?," +
+                " type = ${dto.type}," +
                 " room_id = ${dto.room?.id}," +
                 " branch_id = ${dto.branch?.id}, " +
                 " updated = ?" +
@@ -93,6 +94,7 @@ object TableService : TableRepository {
                 t.id          t_id,
                 t.merchant_id t_merchant_id,
                 qr,
+                type,
                 t.name        t_name,
                 r.id r_id,
                 r.name r_name,
@@ -123,6 +125,7 @@ object TableService : TableRepository {
                         id = rs.getLong("t_id"),
                         merchantId = rs.getLong("t_merchant_id"),
                         qr = rs.getString("qr"),
+                        type = rs.getInt("type"),
                         name = rs.getString("t_name"),
                         room = RoomDto(
                             id = rs.getLong("r_id"),
