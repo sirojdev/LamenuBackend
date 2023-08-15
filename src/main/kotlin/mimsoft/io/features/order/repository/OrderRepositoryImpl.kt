@@ -1359,7 +1359,7 @@ object OrderRepositoryImpl : OrderRepository {
 
 
                 result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
-                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as Long).toInt() }
+                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as? Long)?.toInt()?:0 }
                 log.info("result: {}", result)
 
                 val gettingExtras = result["e"] as List<*>
@@ -1372,7 +1372,7 @@ object OrderRepositoryImpl : OrderRepository {
                     }
                 }
 
-                productPrice = productPrice?.plus(result["p_price"] as Long)
+                productPrice = productPrice?.plus((result["p_price"] as? Long)?:0L)
                 log.info("productPrice: {}", productPrice)
 
                 productDiscount = (productPrice?.times((result["p_discount"] as? Long)?:0L)?.div(100))
@@ -1382,7 +1382,7 @@ object OrderRepositoryImpl : OrderRepository {
                 productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
                 log.info("productPrice: {}", productPrice)
 
-                productPrice = productPrice?.plus((result["e_total_price"] as Int).toLong())
+                productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong()?:0L)
                 log.info("productPrice: {}", productPrice)
 
             }
