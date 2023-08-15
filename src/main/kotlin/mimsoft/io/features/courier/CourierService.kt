@@ -126,7 +126,9 @@ object CourierService {
                         gender  = rs.getString("gender"),
                         status = rs.getBoolean("status"),
                         balance = rs.getDouble("c_balance"),
-                        type = rs.getString("type")
+                        type = rs.getString("type"),
+                        phone  = rs.getString("phone")
+
                     )
                 } else return@withContext null
             }
