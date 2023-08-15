@@ -121,7 +121,7 @@ object DeviceController {
                 }.executeQuery()
 
                 if (rs.next()) {
-                    DeviceModel(
+                 return@withContext   DeviceModel(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
                         action = rs.getString("action"),
@@ -142,6 +142,7 @@ object DeviceController {
         }
 
     }
+
 
     suspend fun get(id: Long?): DeviceModel? {
         val query = "select * from device where id = $id"
