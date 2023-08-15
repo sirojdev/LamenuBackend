@@ -95,10 +95,7 @@ fun Route.routeToOrder() {
         post("/create") {
             val order = call.receive<OrderWrapper>()
             val status = repository.add(order)
-            call.respond(
-                status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
-                status?.body ?: "Something went wrong"
-            )
+            call.respond(status.httpStatus, status.body)
         }
 
         put {
