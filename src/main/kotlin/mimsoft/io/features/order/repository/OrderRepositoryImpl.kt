@@ -1290,6 +1290,7 @@ object OrderRepositoryImpl : OrderRepository {
 
             log.info("cartItem: {}", GSON.toJson(cartItem))
 
+            var optionCondition = "and o.id = ${cartItem.option?.id}"
             if (cartItem.option?.id == null) {
                 OptionRepositoryImpl.getOptionsByProductId(cartItem.product?.id, merchantId).let { options ->
                     if (options?.isNotEmpty() == true) {
@@ -1298,6 +1299,7 @@ object OrderRepositoryImpl : OrderRepository {
                             body = "Option with id = ${cartItem.option?.id} not found"
                         )
                     }
+                    optionCondition = ""
                 }
             }
 
@@ -1320,7 +1322,7 @@ object OrderRepositoryImpl : OrderRepository {
                 left join options o on p.id = o.product_id
                 where (not p.deleted or not e.deleted or not o.deleted)
                 and p.id = ${cartItem.product?.id}
-                and o.id = ${cartItem.option?.id}
+                $optionCondition
             """.trimIndent()
 
 
@@ -1330,7 +1332,7 @@ object OrderRepositoryImpl : OrderRepository {
             repository.selectList(query = query).let { rs ->
 
                 if (rs.isEmpty()) {
-                    OptionRepositoryImpl.get(cartItem.option?.id).let {
+                    OptionRepositoryImpl.get(cartItem.option?.id, merchantId).let {
                         if (it != null) {
                             return ResponseModel(
                                 httpStatus = HttpStatusCode.BadRequest,

@@ -78,7 +78,7 @@ object CheckoutService {
 
 
     suspend fun calculate(dto: OrderModel): ResponseModel {
-        val getTotalPrice = OrderRepositoryImpl.getProductCalculate(CartInfoDto())
+        val getTotalPrice = OrderRepositoryImpl.getProductCalculate(CartInfoDto(), 1L)
         log.info("getTotalPrice: {}", getTotalPrice)
         val body = getTotalPrice.body
         if (body is Map<*, *>) {
