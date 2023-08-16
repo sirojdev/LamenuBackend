@@ -13,6 +13,7 @@ import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.session.SessionRepository
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToClientProfile() {
 
@@ -20,20 +21,20 @@ fun Route.routeToClientProfile() {
     route("profile") {
 
         get {
-            val pr = call.principal<UserPrincipal>()
-            val user = userRepository.get(id = pr?.id, merchantId = pr?.merchantId)
+            val pr = call.principal<BasePrincipal>()
+            val user = userRepository.get(id = pr?.userId, merchantId = pr?.merchantId)
             call.respond(user ?: HttpStatusCode.NoContent)
         }
 
         put {
-            val pr = call.principal<UserPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val user = call.receive<UserDto>()
-            userRepository.update(user.copy(id = pr?.id, merchantId = pr?.merchantId))
+            userRepository.update(user.copy(id = pr?.userId, merchantId = pr?.merchantId))
             call.respond(HttpStatusCode.OK)
         }
 
         put("firebase") {
-            val pr = call.principal<UserPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val device = call.receive<DeviceModel>()
             DeviceController.editFirebase(
                 sessionUUID = pr?.uuid,
@@ -43,14 +44,14 @@ fun Route.routeToClientProfile() {
         }
 
         post("logout") {
-            val pr = call.principal<UserPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             SessionRepository.expire(pr?.uuid)
             call.respond(HttpStatusCode.OK)
         }
 
         delete{
-            val pr = call.principal<UserPrincipal>()
-            userRepository.delete(id = pr?.id, merchantId = pr?.merchantId)
+            val pr = call.principal<BasePrincipal>()
+            userRepository.delete(id = pr?.userId, merchantId = pr?.merchantId)
             call.respond(HttpStatusCode.OK)
         }
     }
