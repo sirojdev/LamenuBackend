@@ -8,6 +8,7 @@ object CourierSocketService {
     val locationConnection: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
 
     val adminConnections: MutableSet<AdminConnection> = Collections.synchronizedSet(LinkedHashSet())
+    val courierNewOrder: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
     fun findConnection(
         staffId: Long?,
         merchantId: Long?,
@@ -17,6 +18,24 @@ object CourierSocketService {
         if (connection == null) {
             locationConnection += Connection(
                 staffId = staffId,
+                session = defaultWebSocketServerSession,
+                merchantId = merchantId,
+                connectAt = Timestamp(System.currentTimeMillis())
+            )
+        }
+    }
+
+    fun findCourierListenNewOrder(
+        staffId: Long?,
+        merchantId: Long?,
+        uuid: String?,
+        defaultWebSocketServerSession: DefaultWebSocketServerSession
+    ) {
+        val connection = courierNewOrder.find { it.staffId == staffId && it.uuid == uuid }
+        if (connection == null) {
+            courierNewOrder += Connection(
+                staffId = staffId,
+                uuid = uuid,
                 session = defaultWebSocketServerSession,
                 merchantId = merchantId,
                 connectAt = Timestamp(System.currentTimeMillis())

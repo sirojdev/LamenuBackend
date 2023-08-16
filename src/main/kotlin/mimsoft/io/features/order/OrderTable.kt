@@ -1,8 +1,10 @@
 package mimsoft.io.features.order
 
+import mimsoft.io.features.branch.BranchId
 import java.sql.Timestamp
 
 const val ORDER_TABLE_NAME = "orders"
+
 data class OrderTable(
     val id: Long? = null,
     val userId: Long? = null,
@@ -25,5 +27,6 @@ data class OrderTable(
     val courierId: Long? = null,
     val collectorId: Long? = null,
     val productCount: Int? = null,
-    val grade: Double? = null
+    val grade: Double? = null,
+    val branchId: Long? = null
 )

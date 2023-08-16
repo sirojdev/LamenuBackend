@@ -3,6 +3,7 @@ package mimsoft.io.features.order
 import com.google.gson.Gson
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.address.AddressDto
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.order.price.OrderPriceTable
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.utils.OrderDetails
@@ -16,10 +17,11 @@ object OrderMapper {
         return if (orderTable != null)
             OrderDto(
                 id = orderTable.id,
-                courier = StaffDto(id=orderTable.courierId),
+                courier = StaffDto(id = orderTable.courierId),
                 status = orderTable.status,
-                serviceType = orderTable.serviceType?: OrderType.DELIVERY.name,
-                paymentTypeDto = PaymentTypeDto(id = orderTable.paymentType, isPaid = orderTable.isPaid)
+                serviceType = orderTable.serviceType ?: OrderType.DELIVERY.name,
+                paymentTypeDto = PaymentTypeDto(id = orderTable.paymentType, isPaid = orderTable.isPaid),
+                branch = BranchDto(id = orderTable.branchId)
             )
         else null
     }
