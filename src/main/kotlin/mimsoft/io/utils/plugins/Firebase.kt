@@ -10,7 +10,7 @@ import java.io.FileInputStream
 
 
 fun Application.configureFirebase() {
-    val serviceAccount = FileInputStream("amazing-gearing-369511-firebase-adminsdk-aank9-93221e88bd.json")
+    val serviceAccount = FileInputStream("mimcafeuz-firebase-adminsdk.json")
 
     val options = FirebaseOptions.builder()
         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
