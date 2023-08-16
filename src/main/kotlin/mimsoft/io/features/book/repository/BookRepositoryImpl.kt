@@ -1,5 +1,6 @@
 package mimsoft.io.features.book.repository
 
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
@@ -14,13 +15,14 @@ import mimsoft.io.features.room.RoomDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
 
-object BookServiceImpl : BookService {
+object BookRepositoryImpl : BookRepository {
     private val mapper = BookMapper
     private val repository: BaseRepository = DBManager
-    override suspend fun getAll(merchantId: Long?): List<BookResponseDto?> {
+    override suspend fun getAll(merchantId: Long?): List<BookDto?> {
         val query = "select book.*,  " +
                 "u.phone  u_phone, " +
                 "u.first_name u_first_name, " +
@@ -37,9 +39,9 @@ object BookServiceImpl : BookService {
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
-                val mazgi = arrayListOf<BookResponseDto>()
+                val list = arrayListOf<BookDto>()
                 while (rs.next()) {
-                    val book = BookResponseDto(
+                    val book = BookDto(
                         client = UserDto(
                             phone = rs.getString("u_phone"),
                             firstName = rs.getString("u_first_name"),
@@ -52,12 +54,11 @@ object BookServiceImpl : BookService {
                             branch = BranchDto(
                                 id = rs.getLong("t_branch_id"),
                             )
-
                         )
                     )
-                    mazgi.add(book)
+                    list.add(book)
                 }
-                return@withContext mazgi
+                return@withContext list
             }
         }
     }
@@ -74,7 +75,7 @@ object BookServiceImpl : BookService {
             )?.data?.firstOrNull()
         )
     }*/
-    override suspend fun get(id: Long?, merchantId: Long?): BookResponseDto? {
+    override suspend fun get(id: Long?, merchantId: Long?): BookDto? {
         val query = "select book.*,  " +
                 "u.phone  u_phone, " +
                 "u.first_name u_first_name, " +
@@ -92,7 +93,7 @@ object BookServiceImpl : BookService {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
-                    return@withContext BookResponseDto(
+                    return@withContext BookDto(
                         client = UserDto(
                             phone = rs.getString("u_phone"),
                             firstName = rs.getString("u_first_name"),
@@ -108,22 +109,26 @@ object BookServiceImpl : BookService {
                 } else return@withContext null
             }
         }
-
-
     }
 
-    override suspend fun add(bookDto: BookDto?): Long? =
+    override suspend fun add(bookDto: BookDto?): ResponseModel {
+        val get = getByTable(bookDto?.table?.id, bookDto?.time)
+        if (get != null){
+            return ResponseModel(httpStatus = HttpStatusCode.BadRequest)
+        }
         DBManager.postData(
             dataClass = BookTable::class,
             dataObject = mapper.toBookTable(bookDto),
             tableName = BOOK_TABLE_NAME
         )
+        return ResponseModel(httpStatus = HttpStatusCode.OK)
+    }
 
     override suspend fun update(bookDto: BookDto): Boolean {
         val query = "update $BOOK_TABLE_NAME " +
                 "SET" +
-                " client_id = ${bookDto.clientId}, " +
-                " table_id = ${bookDto.tableId}," +
+                " client_id = ${bookDto.client?.id}, " +
+                " table_id = ${bookDto.table?.id}," +
                 " time = ?," +
                 " updated = ?" +
                 " WHERE id = ${bookDto.id} and merchant_id = ${bookDto.merchantId} and not deleted"
@@ -138,6 +143,26 @@ object BookServiceImpl : BookService {
             }
         }
         return true
+    }
+
+    private suspend fun getByTable(tableId: Long?, time: Timestamp?): BookTable? {
+        val query = "select * from book where table_id = $tableId and time = ? and not deleted"
+        return withContext(DBManager.databaseDispatcher){
+           repository.connection().use {
+               val rs = it.prepareStatement(query).apply {
+                    this.setTimestamp(1, time)
+                }.executeQuery()
+               if(rs.next()){
+                   return@withContext BookTable(
+                       id = rs.getLong("id"),
+                       clientId = rs.getLong("client_id"),
+                       tableId = rs.getLong("table_id"),
+                       time = rs.getTimestamp("time")
+                   )
+               }
+                else return@withContext null
+            }
+        }
     }
 
     override suspend fun delete(id: Long?): Boolean =
@@ -218,7 +243,7 @@ object BookServiceImpl : BookService {
     override suspend fun updateMerchantBook(bookDto: BookDto): Boolean {
         val query = "update $BOOK_TABLE_NAME " +
                 "SET" +
-                " table_id = ${bookDto.tableId}," +
+                " table_id = ${bookDto.table?.id}," +
                 " time = ?," +
                 " comment = ?," +
                 " updated = ?" +
