@@ -2,6 +2,7 @@ package mimsoft.io.client.device
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.JwtConfig
 import org.slf4j.LoggerFactory
@@ -9,6 +10,7 @@ import java.sql.Timestamp
 
 object DeviceController {
     private val logger = LoggerFactory.getLogger(DeviceController::class.java)
+    val repository: BaseRepository = DBManager
 
     suspend fun getCode(id: Long?, merchantId: Long?): DeviceModel? {
         val query = "select code, action, exp_action from device where id = $id and merchant_id = $merchantId"
@@ -195,6 +197,33 @@ object DeviceController {
             }
         }
         return true
+    }
+
+    suspend fun get(phone: String?): List<DeviceModel> {
+        val query = "select * from device where phone = ? order by id"
+        val devises = mutableListOf<DeviceModel>()
+
+        repository.selectList(query, phone).forEach {
+            devises.add(
+                DeviceModel(
+                    id = it["id"] as Long,
+                    merchantId = it["merchant_id"] as? Long,
+                    action = it["action"] as? String?,
+                    uuid = it["uuid"] as? String,
+                    osVersion = it["os_version"] as String,
+                    model = it["model"] as? String,
+                    brand = it["brand"] as? String,
+                    build = it["build"] as? String,
+                    phone = it["phone"] as? String,
+                    firebaseToken = it["fb_token"] as? String,
+                    ip = it["ip"] as? String,
+                    code = it["code"] as? String,
+                    expAction = it["exp_action"] as? Boolean,
+                    blockedUntil = it["blocked_until"] as? Timestamp?
+                )
+            )
+        }
+        return devises
     }
 }
 

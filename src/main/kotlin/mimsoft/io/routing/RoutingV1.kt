@@ -7,6 +7,7 @@ import mimsoft.io.courier.routeToCouriers
 import mimsoft.io.files.routeToFiles
 import mimsoft.io.routing.v1.*
 import mimsoft.io.routing.v1.device.routeToDevice
+import mimsoft.io.services.firebase.routeToFirebase
 import mimsoft.io.waiter.routeToWaiter
 
 
@@ -22,4 +23,6 @@ fun Route.routeToV1() {
     routeToFiles()
     routeToIntegration()
     routeToOperator()
+
+    routeToFirebase()
 }

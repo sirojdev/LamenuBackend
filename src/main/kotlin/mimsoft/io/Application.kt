@@ -19,5 +19,6 @@ fun Application.module() = runBlocking {
     configureSerialization()
     configureRouting()
     configureSocket()
+    configureFirebase()
     DBManager.init()
 }
