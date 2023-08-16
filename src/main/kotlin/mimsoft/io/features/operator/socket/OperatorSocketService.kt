@@ -6,7 +6,6 @@ import io.ktor.websocket.*
 import mimsoft.io.courier.location.CourierSocketService
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
-import mimsoft.io.features.order.OrderDto
 import mimsoft.io.features.order.utils.OrderWrapper
 import java.util.*
 
@@ -48,13 +47,17 @@ object OperatorSocketService {
         }
     }
 
-    suspend fun findNearCourierAndSendOrderToCourier(order: OrderDto?,offset:Int?) {
-        val courier = CourierService.findNearCourier(order?.branch?.id,0)
-        val connection = CourierSocketService.courierNewOrder.find { it.staffId == courier?.staffId }
-        if (connection?.session != null) {
-            connection.session?.send(Gson().toJson(order))
-        } else {
-            findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
+    suspend fun findNearCourierAndSendOrderToCourier(order: OrderWrapper, offset:Int?) {
+        val courier = CourierService.findNearCourier(order?.order?.branch?.id,0)
+        if(courier!=null){
+            if(CourierSocketService.courierNewOrder.isNotEmpty()){
+                val connection = CourierSocketService.courierNewOrder.find { it.staffId == courier?.staffId }
+                if (connection?.session != null) {
+                    connection.session?.send(Gson().toJson(order))
+                } else {
+                    findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
+                }
+            }
         }
     }
 }

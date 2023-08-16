@@ -82,7 +82,7 @@ ORDER BY
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                   return@withContext  CourierDto(
-                        id = rs.getLong("c_staff_id"),
+                        staffId = rs.getLong("c_staff_id"),
                     )
                 } else return@withContext null
             }
