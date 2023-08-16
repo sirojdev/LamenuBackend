@@ -2,35 +2,38 @@ package mimsoft.io.features.book
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.book.repository.BookService
-import mimsoft.io.features.book.repository.BookServiceImpl
+import mimsoft.io.features.book.repository.BookRepository
+import mimsoft.io.features.book.repository.BookRepositoryImpl
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToBook() {
 
-    val bookService: BookService = BookServiceImpl
+    val bookRepository: BookRepository = BookRepositoryImpl
 
     get("books") {
-        val merchantId = 1L
-        val books = bookService.getAll(merchantId = merchantId)
+        val pr = call.principal<BasePrincipal>()
+        val merchantId = pr?.merchantId
+        val books = bookRepository.getAll(merchantId = merchantId)
         if (books.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
-        }
-        else call.respond(books)
+        } else call.respond(books)
     }
 
     get("book/{id}") {
-        val merchantId = 1L
+        val pr = call.principal<BasePrincipal>()
+        val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null) {
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val book = bookService.get(id=id, merchantId = merchantId)
-        if (book==null){
+        val book = bookRepository.get(id = id, merchantId = merchantId)
+        if (book == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -38,27 +41,28 @@ fun Route.routeToBook() {
     }
 
     post("book") {
-        val merchantId = 1L
+        val pr = call.principal<BasePrincipal>()
+        val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
-        val id = bookService.add(book.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK, BookId(id))
+        val response = bookRepository.add(book.copy(merchantId = merchantId))
+        call.respond(response.httpStatus, response.body)
     }
 
     put("book") {
-        val merchantId = 1L
+        val pr = call.principal<BasePrincipal>()
+        val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
-        bookService.update(book.copy(merchantId = merchantId))
+        bookRepository.update(book.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("book/{id}") {
-        val merchantId = 1L
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        bookService.delete(id)
+        bookRepository.delete(id)
         call.respond(HttpStatusCode.OK)
     }
 }

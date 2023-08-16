@@ -7,6 +7,7 @@ data class TableDto (
     val id: Long? = null,
     val qr: String? = null,
     val name: String? = null,
+    val type: Int? = null,
     val room: RoomDto? = null,
     val branch: BranchDto? = null,
     val merchantId: Long? = null

@@ -21,7 +21,7 @@ fun Route.routeToClientDevice() {
             device.merchantId = merchantId
             println(Gson().toJson(device))
             if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-                || device.uuid.isNullOrBlank() || device.merchantId == null) {
+                || device.uuid.isNullOrBlank() || device.merchantId == null || device.firebaseToken == null) {
                 println(device.brand)
                 println(device.model)
                 println(device.build)

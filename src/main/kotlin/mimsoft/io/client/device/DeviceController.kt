@@ -195,6 +195,5 @@ object DeviceController {
         }
         return true
     }
-
 }
 

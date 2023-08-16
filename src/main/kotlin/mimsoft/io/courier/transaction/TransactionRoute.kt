@@ -13,6 +13,7 @@ import mimsoft.io.features.courier.checkout.CourierTransactionService
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.OrderStatus
+import mimsoft.io.utils.principal.BasePrincipal
 import java.sql.Timestamp
 
 fun Route.routeToCourierTransaction() {
@@ -20,7 +21,7 @@ fun Route.routeToCourierTransaction() {
     val courierTransactionService = CourierTransactionService
     route("transaction") {
         post {
-            val pr = call.principal<StaffPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId
             val dto = call.receive<CourierTransactionDto>()
@@ -44,7 +45,7 @@ fun Route.routeToCourierTransaction() {
         }
 
         get("") {
-            val pr = call.principal<StaffPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
@@ -64,7 +65,7 @@ fun Route.routeToCourierTransaction() {
         }
 
         get("{id}") {
-            val pr = call.principal<StaffPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val transactionId = call.parameters["id"]?.toLongOrNull()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId

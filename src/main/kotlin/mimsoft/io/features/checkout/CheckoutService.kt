@@ -1,5 +1,6 @@
 package mimsoft.io.features.checkout
 
+import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.OrderModel
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
@@ -77,7 +78,7 @@ object CheckoutService {
 
 
     suspend fun calculate(dto: OrderModel): ResponseModel {
-        val getTotalPrice = OrderRepositoryImpl.getProductCalculate(dto.products)
+        val getTotalPrice = OrderRepositoryImpl.getProductCalculate(CartInfoDto(), 1L)
         log.info("getTotalPrice: {}", getTotalPrice)
         val body = getTotalPrice.body
         if (body is Map<*, *>) {

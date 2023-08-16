@@ -14,11 +14,6 @@ fun Route.routeToClientCart(){
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val dto = call.receive<CartInfoDto>()
         val response = cartService.check(dto = dto, merchantId = merchantId)
-        if(response == null){
-            call.respond(HttpStatusCode.NoContent)
-            return@post
-        }
-        call.respond(response)
-        return@post
+        call.respond(response.httpStatus, response.body)
     }
 }

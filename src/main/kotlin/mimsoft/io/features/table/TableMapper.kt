@@ -9,6 +9,7 @@ object TableMapper {
         else TableTable(
             id = tableDto.id,
             name = tableDto.name,
+            type = tableDto.type,
             qr = tableDto.qr,
             roomId = tableDto.room?.id,
             branchId = tableDto.branch?.id,
@@ -21,6 +22,7 @@ object TableMapper {
         else TableDto(
             id = tableTable.id,
             name = tableTable.name,
+            type = tableTable.type,
             room = RoomDto(
                 id = tableTable.roomId
             ),

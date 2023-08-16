@@ -13,6 +13,7 @@ import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.cart.CartService
 import mimsoft.io.features.checkout.CheckoutService
@@ -1278,22 +1279,30 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getProductCalculate(products: List<CartItem?>?): ResponseModel {
+    suspend fun getProductCalculate(cart: CartInfoDto?, merchantId: Long?): ResponseModel {
+
+        val products = cart?.products
         var totalPriceWithDiscount = 0L
+        var totalProductPrice = 0L
         var totalDiscount = 0L
 
         products?.forEach { cartItem ->
 
             log.info("cartItem: {}", GSON.toJson(cartItem))
 
-            if (cartItem?.option?.id == null) {
-                return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = "Option with id = ${cartItem?.option?.id} not found"
-                )
+            var optionCondition = "and o.id = ${cartItem.option?.id}"
+            if (cartItem.option?.id == null) {
+                OptionRepositoryImpl.getOptionsByProductId(cartItem.product?.id, merchantId).let { options ->
+                    if (options?.isNotEmpty() == true) {
+                        return ResponseModel(
+                            httpStatus = HttpStatusCode.BadRequest,
+                            body = "Option with id = ${cartItem.option?.id} not found"
+                        )
+                    }
+                    optionCondition = ""
+                }
             }
 
-            var productPriceWithDiscount: Long? = 0L
             var productDiscount: Long? = 0L
             var productPrice: Long? = 0L
 
@@ -1313,7 +1322,7 @@ object OrderRepositoryImpl : OrderRepository {
                 left join options o on p.id = o.product_id
                 where (not p.deleted or not e.deleted or not o.deleted)
                 and p.id = ${cartItem.product?.id}
-                and o.id = ${cartItem.option.id}
+                $optionCondition
             """.trimIndent()
 
 
@@ -1323,11 +1332,11 @@ object OrderRepositoryImpl : OrderRepository {
             repository.selectList(query = query).let { rs ->
 
                 if (rs.isEmpty()) {
-                    OptionRepositoryImpl.get(cartItem.option.id).let {
+                    OptionRepositoryImpl.get(cartItem.option?.id, merchantId).let {
                         if (it != null) {
                             return ResponseModel(
                                 httpStatus = HttpStatusCode.BadRequest,
-                                body = "Option id = ${cartItem.option.id}  not found "
+                                body = "Option id = ${cartItem.option?.id}  not found "
                             )
                         }
                         else {
@@ -1350,7 +1359,7 @@ object OrderRepositoryImpl : OrderRepository {
 
 
                 result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
-                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as Long).toInt() }
+                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as? Long)?.toInt()?:0 }
                 log.info("result: {}", result)
 
                 val gettingExtras = result["e"] as List<*>
@@ -1363,35 +1372,41 @@ object OrderRepositoryImpl : OrderRepository {
                     }
                 }
 
-                productPrice = productPrice?.plus(result["p_price"] as Long)
+                productPrice = productPrice?.plus((result["p_price"] as? Long)?:0L)
                 log.info("productPrice: {}", productPrice)
 
                 productDiscount = (productPrice?.times((result["p_discount"] as? Long)?:0L)?.div(100))
                 log.info("productDiscount: {}", productDiscount)
-                productPriceWithDiscount = productPriceWithDiscount?.plus((productPrice?.minus(productDiscount?:0)?: 0L))
-                log.info("productPriceWithDiscount: {}", productPriceWithDiscount)
 
 
-                productPriceWithDiscount = productPriceWithDiscount?.plus((rs[0]["o_price"] as? Long) ?: 0L)
-                log.info("productPriceWithDiscount: {}", productPriceWithDiscount)
+                productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
+                log.info("productPrice: {}", productPrice)
 
-                productPriceWithDiscount = productPriceWithDiscount?.plus((result["e_total_price"] as Int).toLong())
-                log.info("productPriceWithDiscount: {}", productPriceWithDiscount)
+                productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong()?:0L)
+                log.info("productPrice: {}", productPrice)
 
             }
 
-            totalPriceWithDiscount = totalPriceWithDiscount.plus((productPriceWithDiscount ?: 0L).times(cartItem.count!!))
+            totalProductPrice = totalProductPrice.plus((productPrice ?: 0L).times(cartItem.count!!))
             totalDiscount = totalDiscount.plus((productDiscount ?: 0L).times(cartItem.count!!))
-            log.info("totalPrice: {}", totalPriceWithDiscount)
+            log.info("totalPrice: {}", totalProductPrice)
             log.info("totalDiscount: {}", totalDiscount)
         }
-        return ResponseModel(
-            body = mapOf(
-                "products" to products,
-                "totalPrice" to totalPriceWithDiscount,
-                "totalDiscount" to totalDiscount
+
+        totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
+
+        if (cart?.productsPrice != totalProductPrice || cart.productsDiscount != totalDiscount) {
+            return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest,
+                body = mapOf(
+                    "totalPrice" to totalProductPrice,
+                    "totalDiscount" to totalDiscount,
+                    "totalPriceWithDiscount" to totalPriceWithDiscount,
+                    "message" to "Product price or product discount not equal"
+                )
             )
-        )
+        }
+        return ResponseModel()
     }
 
     suspend fun getOrderHistoryMerchant(
