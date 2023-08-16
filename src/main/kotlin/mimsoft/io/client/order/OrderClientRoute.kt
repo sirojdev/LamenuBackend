@@ -13,6 +13,7 @@ import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToClientOrder() {
     val orderService: OrderRepository = OrderRepositoryImpl
@@ -47,10 +48,10 @@ fun Route.routeToClientOrder() {
     }
 
     post("order/model") {
-        val principal = call.principal<UserPrincipal>()
+        val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
         val order = call.receive<OrderWrapper>()
-        val status = orderService.add(order.copy(user = UserDto(id = principal?.id, merchantId = merchantId)))
+        val status = orderService.add(order.copy(user = UserDto(id = principal?.userId, merchantId = merchantId)))
         call.respond(
             status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
             status?.body ?: status?.httpStatus?.description ?: ResponseModel.SOME_THING_WRONG.description
@@ -58,7 +59,7 @@ fun Route.routeToClientOrder() {
     }
 
     post("order") {
-        val principal = call.principal<UserPrincipal>()
+        val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
         val userId = principal?.id
         val order = call.receive<OrderModel>()

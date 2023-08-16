@@ -14,6 +14,7 @@ import mimsoft.io.courier.location.CourierSocketService
 import mimsoft.io.courier.merchantChat.*
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
+import mimsoft.io.features.operator.socket.toOperatorSocket
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.services.socket.MessageModel
@@ -34,6 +35,7 @@ fun Application.configureSocket() {
         masking = false
     }
     routing {
+        toOperatorSocket()
         authenticate("staff") {
             /**
              * COURIER locationlarini jo'natib turishi uchun WebSocket

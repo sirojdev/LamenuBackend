@@ -56,6 +56,40 @@ object CourierService {
         )
     }
 
+    suspend fun findNearCourier(branchId: Long?,offset:Int): CourierDto? {
+        val query = """
+            SELECT
+    c.staff_id c_staff_id,
+    6371 * ACOS(
+                    COS(RADIANS(b.latitude)) * COS(RADIANS(clh.latitude)) *
+                    COS(RADIANS(clh.longitude) - RADIANS(b.longitude)) +
+                    SIN(RADIANS(b.latitude)) * SIN(RADIANS(clh.latitude))
+        ) AS distance
+FROM
+    courier c
+        INNER JOIN
+    courier_location_history clh ON clh.id = c.last_location_id and clh.merchant_id = c.merchant_id and clh.staff_id = c.staff_id
+        INNER JOIN
+    branch b ON c.merchant_id = b.merchant_id AND b.id = $branchId
+ORDER BY
+    distance
+    limit 1
+    offset $offset
+        """.trimIndent()
+
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                  return@withContext  CourierDto(
+                        id = rs.getLong("c_staff_id"),
+                    )
+                } else return@withContext null
+            }
+        }
+
+    }
+
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 
 
@@ -92,8 +126,10 @@ object CourierService {
             }
         }
     }
+
     suspend fun getByStaffId(staffId: Long?, merchantId: Long?): CourierDto? {
-        val query = "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and staff_id = $staffId and deleted = false"
+        val query =
+            "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and staff_id = $staffId and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -123,11 +159,11 @@ object CourierService {
                         lastName = rs.getString("last_name"),
                         birthDay = rs.getTimestamp("birth_day"),
                         image = rs.getString("image"),
-                        gender  = rs.getString("gender"),
+                        gender = rs.getString("gender"),
                         status = rs.getBoolean("status"),
                         balance = rs.getDouble("c_balance"),
                         type = rs.getString("type"),
-                        phone  = rs.getString("phone")
+                        phone = rs.getString("phone")
 
                     )
                 } else return@withContext null

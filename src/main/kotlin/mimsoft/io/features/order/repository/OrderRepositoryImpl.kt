@@ -51,7 +51,12 @@ object OrderRepositoryImpl : OrderRepository {
     private val addressService: AddressRepository = AddressRepositoryImpl
     private val log: Logger = LoggerFactory.getLogger(OrderRepositoryImpl::class.java)
 
-    override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?, merchantId: Long?): DataPage<OrderWrapper?>? {
+    override suspend fun getLiveOrders(
+        type: String?,
+        limit: Int?,
+        offset: Int?,
+        merchantId: Long?
+    ): DataPage<OrderWrapper?>? {
         val query = """
             select 
             o.id  o_id,
@@ -832,7 +837,8 @@ object OrderRepositoryImpl : OrderRepository {
 
         if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
-        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+//        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+        val activeProducts = order!!
         val merchantId = order.user.merchantId
         val totalPrice = activeProducts.price?.totalPrice
 
@@ -911,6 +917,20 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(4, totalPrice ?: 0L)
                     this.closeOnCompletion()
                 }.execute()
+
+                /**
+                 * SOCKET UCHUN
+                 * */
+                OperatorSocketService.sendOrderToOperators(
+                    order.copy(
+                        price = OrderPriceDto(
+                            orderId = orderId,
+                            productPrice = activeProducts.price?.productPrice ?: 0L,
+                            totalPrice = totalPrice
+                        )
+                    )
+                )
+
                 return@withContext ResponseModel(
                     httpStatus = ResponseModel.OK,
                     body = orderId
@@ -1345,8 +1365,7 @@ object OrderRepositoryImpl : OrderRepository {
                                 httpStatus = HttpStatusCode.BadRequest,
                                 body = "Option id = ${cartItem.option?.id}  not found "
                             )
-                        }
-                        else {
+                        } else {
                             return ResponseModel(
                                 httpStatus = HttpStatusCode.BadRequest,
                                 body = "Product id = ${cartItem.product?.id}  not found "
@@ -1356,17 +1375,17 @@ object OrderRepositoryImpl : OrderRepository {
                 }
 
                 val result = mutableMapOf(
-                        "p_id" to rs[0]["p_id"],
-                        "p_price" to rs[0]["p_price"],
-                        "o_id" to rs[0]["o_id"],
-                        "o_price" to rs[0]["o_price"],
-                        "p_discount" to rs[0]["p_discount"],
-                        "e" to arrayListOf<Map<String, *>>()
-                    )
+                    "p_id" to rs[0]["p_id"],
+                    "p_price" to rs[0]["p_price"],
+                    "o_id" to rs[0]["o_id"],
+                    "o_price" to rs[0]["o_price"],
+                    "p_discount" to rs[0]["p_discount"],
+                    "e" to arrayListOf<Map<String, *>>()
+                )
 
 
                 result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
-                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as? Long)?.toInt()?:0 }
+                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as? Long)?.toInt() ?: 0 }
                 log.info("result: {}", result)
 
                 val gettingExtras = result["e"] as List<*>
@@ -1379,17 +1398,17 @@ object OrderRepositoryImpl : OrderRepository {
                     }
                 }
 
-                productPrice = productPrice?.plus((result["p_price"] as? Long)?:0L)
+                productPrice = productPrice?.plus((result["p_price"] as? Long) ?: 0L)
                 log.info("productPrice: {}", productPrice)
 
-                productDiscount = (productPrice?.times((result["p_discount"] as? Long)?:0L)?.div(100))
+                productDiscount = (productPrice?.times((result["p_discount"] as? Long) ?: 0L)?.div(100))
                 log.info("productDiscount: {}", productDiscount)
 
 
                 productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
                 log.info("productPrice: {}", productPrice)
 
-                productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong()?:0L)
+                productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong() ?: 0L)
                 log.info("productPrice: {}", productPrice)
 
             }
@@ -1519,7 +1538,8 @@ object OrderRepositoryImpl : OrderRepository {
                     addDesc = statement.getString("add_desc"),
                     createdAt = statement.getTimestamp("created_at"),
                     comment = statement.getString("comment"),
-                    paymentType = statement.getLong("payment_type")
+                    paymentType = statement.getLong("payment_type"),
+                    branchId = statement.getLong("branch_id")
                 )
             } else {
                 return@use null
@@ -1544,6 +1564,19 @@ object OrderRepositoryImpl : OrderRepository {
             delivery_price = ${15000},
             delivery_discount = 
         """.trimIndent()
-        TODO("Not yet implemented")
+        TODO()
+    }
+
+    override suspend fun accepted(merchantId: Long?, orderId: Long?): Boolean {
+        val query = "update $ORDER_TABLE_NAME  set status ='ACCEPTED' " +
+                " where order_id = $orderId and status = 'OPEN' and merchant_id = $merchantId "
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val re = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                return@withContext re==1
+            }
+        }
     }
 }

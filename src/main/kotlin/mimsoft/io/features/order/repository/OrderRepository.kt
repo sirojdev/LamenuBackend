@@ -18,18 +18,24 @@ interface OrderRepository {
 
     suspend fun getAll(
         search: String? = null,
-        merchantId: Long?= null,
+        merchantId: Long? = null,
         status: String? = null,
         type: String? = null,
         limit: Int? = null,
         offset: Int? = null,
         courierId: Long? = null,
-        collectorId : Long? = null,
-        paymentTypeId : Long? = null,
+        collectorId: Long? = null,
+        paymentTypeId: Long? = null,
 
-    ): DataPage<OrderDto?>
+        ): DataPage<OrderDto?>
 
-    suspend fun getBySomethingId(userId: Long?=null, courierId: Long?=null, collectorId: Long?=null, merchantId: Long?=null): List<OrderWrapper?>
+    suspend fun getBySomethingId(
+        userId: Long? = null,
+        courierId: Long? = null,
+        collectorId: Long? = null,
+        merchantId: Long? = null
+    ): List<OrderWrapper?>
+
     suspend fun get(id: Long?, merchantId: Long? = null): OrderWrapper?
     suspend fun add(order: OrderWrapper?): ResponseModel
     suspend fun addModel(order: OrderModel): ResponseModel
@@ -38,4 +44,5 @@ interface OrderRepository {
     suspend fun getClientOrders(clientId: Long?, merchantId: Long?, filter: String? = null): List<OrderWrapper>
     suspend fun editPaidOrder(order: OrderDto?)
     suspend fun updateDetails(detail: OrderDetails?): Boolean
+    suspend fun accepted(merchantId: Long?, orderId: Long?): Any
 }

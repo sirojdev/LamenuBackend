@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.utils.OrderDetails
@@ -19,6 +20,24 @@ fun Route.routeToOrder() {
     val repository: OrderRepository = OrderRepositoryImpl
 
     route("orders") {
+        /**
+         * OPERATOR ORDER NI QQABUL QILADI
+         * */
+        get("accepted") {
+            val principal = call.principal<BasePrincipal>()
+            val operatorId = principal?.staffId
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = principal?.merchantId
+            val rs = OrderRepositoryImpl.accepted(merchantId, orderId)
+            val order = OrderMapper.toDto(OrderRepositoryImpl.getOrder(orderId))
+            if (rs) {
+                var offsett= 0
+                OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offsett)
+                call.respond(rs)
+            }else{
+                call.respond(HttpStatusCode.MethodNotAllowed)
+            }
+        }
 
         get("live") {
             val principal = call.principal<BasePrincipal>()
