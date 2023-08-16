@@ -17,8 +17,7 @@ import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.cart.CartService
 import mimsoft.io.features.checkout.CheckoutService
-import mimsoft.io.features.favourite.merchant
-import mimsoft.io.features.operator.socket.OperatorSocketService
+import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
@@ -1325,6 +1324,11 @@ object OrderRepositoryImpl : OrderRepository {
                 }
             }
 
+
+            val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
+                "and e.id in (${cartItem.extras.joinToString { it.id.toString() }})"
+            } else ""
+
             var productDiscount: Long? = 0L
             var productPrice: Long? = 0L
 
@@ -1345,6 +1349,7 @@ object OrderRepositoryImpl : OrderRepository {
                 where (not p.deleted or not e.deleted or not o.deleted)
                 and p.id = ${cartItem.product?.id}
                 $optionCondition
+                $extraCondition
             """.trimIndent()
 
 
@@ -1427,7 +1432,7 @@ object OrderRepositoryImpl : OrderRepository {
                 )
             )
         }
-        return ResponseModel()
+        return ResponseModel(body = "{}")
     }
 
     suspend fun getOrderHistoryMerchant(

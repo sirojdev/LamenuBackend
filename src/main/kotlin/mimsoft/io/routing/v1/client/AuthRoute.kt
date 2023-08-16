@@ -23,7 +23,9 @@ import java.util.*
 
 fun Route.routeToClientAuth() {
     val userRepository: UserRepository = UserRepositoryImpl
-
+    authenticate("device"){
+        routeToSMS()
+    }
 
     authenticate("modify") {
         post("sign-up") {

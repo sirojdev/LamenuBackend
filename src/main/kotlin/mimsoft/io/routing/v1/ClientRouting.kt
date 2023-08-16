@@ -15,11 +15,9 @@ import mimsoft.io.routing.v1.client.*
 fun Route.routeToClient() {
 
     route("client/auth") {
-        authenticate("device"){
-            routeToSMS()
-        }
         routeToClientAuth()
     }
+
     route("client") {
         routeToClientDevice()
         routeToClientProduct()
