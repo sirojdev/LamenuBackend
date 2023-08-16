@@ -115,6 +115,24 @@ paths:
           description: "Not found"
         "401":
           description: "Unauthorized"
+  /waiter/firebase:
+    get:
+      tags:
+        - Profile
+      security:
+        - bearerAuth: [ ]
+      description: "Get profile device model"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceModel"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
 
   /waiter/table/join:
     put:
