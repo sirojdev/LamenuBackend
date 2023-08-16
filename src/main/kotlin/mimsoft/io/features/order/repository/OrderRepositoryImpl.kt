@@ -18,6 +18,7 @@ import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.cart.CartService
 import mimsoft.io.features.checkout.CheckoutService
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.*
 import mimsoft.io.features.order.price.OrderPriceDto
