@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.SOME_THING_WRONG
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToVisits() {
@@ -26,7 +27,11 @@ fun Route.routeToVisits() {
             val merchantId = pr?.merchantId
             val visit = call.receive<VisitDto>()
             val id = visitService.add(visit.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK, VisitId(id))
+            if(id == null){
+                call.respond(HttpStatusCode.Conflict)
+                return@post
+            }
+            else call.respond(id)
         }
 
         get("/{id}") {

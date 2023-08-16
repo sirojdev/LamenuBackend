@@ -5,17 +5,15 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.notification.repository.NotificationRepositoryImpl
+import mimsoft.io.utils.principal.BasePrincipal
 
 
 fun Route.routeToNotification() {
-//    authenticate("user", optional = true) {
     get("notification") {
-        val user = call.principal<UserPrincipal>()
+        val user = call.principal<BasePrincipal>()
         val merchantId = user?.merchantId
-        val userId = user?.id
-        println(userId)
+        val userId = user?.userId
         val result = NotificationRepositoryImpl.getClient(merchantId = merchantId, userId = userId)
         if(result.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
@@ -24,6 +22,4 @@ fun Route.routeToNotification() {
         call.respond(HttpStatusCode.OK, result)
         return@get
     }
-//    }
-
 }
