@@ -8,7 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.promo.PromoDto
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToClientPromo() {
     val service = ClientPromoService
@@ -42,7 +42,7 @@ fun Route.routeToClientPromo() {
         }
 
         get("all") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val response = service.getAll(merchantId = merchantId)
             if (response.isEmpty()) {

@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCashback() {
     val cashbackService = CashbackService
     route("cashback") {
         get("") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val cashbackList = cashbackService.getAll(merchantId = merchantId)
             if (cashbackList.isEmpty()) {
@@ -23,7 +23,7 @@ fun Route.routeToCashback() {
         }
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val cashbackDto = call.receive<CashbackDto>()
             val response = cashbackService.add(cashbackDto.copy(merchantId = merchantId))
@@ -31,7 +31,7 @@ fun Route.routeToCashback() {
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val cashback = call.receive<CashbackDto>()
             val updated = cashbackService.update((cashback.copy(merchantId = merchantId)))
@@ -40,7 +40,7 @@ fun Route.routeToCashback() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -56,7 +56,7 @@ fun Route.routeToCashback() {
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id != null) {

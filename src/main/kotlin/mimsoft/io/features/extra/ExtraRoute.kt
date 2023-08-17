@@ -9,7 +9,6 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.extra.ropository.ExtraRepository
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 import kotlin.collections.map
 
 fun Route.routeToExtra() {
@@ -28,7 +27,7 @@ fun Route.routeToExtra() {
     }
 
     get("/extra/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null) {
@@ -44,7 +43,7 @@ fun Route.routeToExtra() {
     }
 
     post("/extra") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val extra = call.receive<ExtraDto>()
         println(extra)
@@ -55,14 +54,14 @@ fun Route.routeToExtra() {
     put("/extra") {
         val extra = call.receive<ExtraDto>()
         println("Extra-------------------------------->>>$extra")
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         extraRepository.update(extra.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("/extra/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {

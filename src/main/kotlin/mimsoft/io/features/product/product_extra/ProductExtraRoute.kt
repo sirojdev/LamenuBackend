@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToProductExtra() {
     val productExtraService = ProductExtraService
     route("product/extra") {
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val productExtraDto = call.receive<ProductExtraDto>()
             if (productExtraDto.productId == null) {
@@ -28,7 +28,7 @@ fun Route.routeToProductExtra() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -44,7 +44,7 @@ fun Route.routeToProductExtra() {
         }
 
         delete {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val productExtraDto = call.receive<ProductExtraDto>()
             if (productExtraDto.productId == null) {

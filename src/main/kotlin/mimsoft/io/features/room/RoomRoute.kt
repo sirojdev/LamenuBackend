@@ -6,14 +6,14 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToRoom() {
     val roomService: RoomRepository = RoomService
     val roomMapper = RoomMapper
 
     get("rooms") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val rooms = roomService.getAll(merchantId)
         if (rooms.isEmpty()) {
@@ -23,7 +23,7 @@ fun Route.routeToRoom() {
     }
 
     get("room/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -39,7 +39,7 @@ fun Route.routeToRoom() {
     }
 
     post("room") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val room = call.receive<RoomDto>()
         roomService.add(roomMapper.toRoomTable(room.copy(merchantId = merchantId)))
@@ -47,7 +47,7 @@ fun Route.routeToRoom() {
     }
 
     put("room") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val room = call.receive<RoomDto>()
         roomService.update(room.copy(merchantId=merchantId))
@@ -55,7 +55,7 @@ fun Route.routeToRoom() {
     }
 
     delete("room/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {

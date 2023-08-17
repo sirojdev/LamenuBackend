@@ -6,18 +6,18 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToDelivery(){
     get("delivery"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val delivery = DeliveryService.get(merchantId = merchantId)?: DeliveryDto()
         call.respond(delivery)
     }
 
     put ("delivery"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<DeliveryDto>()
         DeliveryService.add(table.copy(merchantId = merchantId))

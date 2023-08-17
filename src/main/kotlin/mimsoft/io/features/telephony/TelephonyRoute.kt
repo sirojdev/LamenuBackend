@@ -6,11 +6,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToTelephony(){
     get("telephony"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val telephony = TelephonyService.get(merchantId = merchantId)
         if(telephony == null){
@@ -22,7 +22,7 @@ fun Route.routeToTelephony(){
 
     put ("telephony"){
         val telephony = call.receive<TelephonyDto>()
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         TelephonyService.add(telephony.copy(merchantId = merchantId))
         call.respond(HttpStatusCode.OK)

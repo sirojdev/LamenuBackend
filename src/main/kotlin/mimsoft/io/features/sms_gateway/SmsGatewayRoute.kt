@@ -7,21 +7,21 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.services.sms.SmsSenderService
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToSmsGateways() {
 
     val smsSenderService = SmsSenderService
 
     get("sms-gateway") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val sms = SmsGatewayService.get(merchantId = merchantId) ?: SmsGatewayDto()
         call.respond(sms)
     }
 
     put("sms-gateway") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<SmsGatewayDto>()
         SmsGatewayService.add(table.copy(merchantId = merchantId))
@@ -29,7 +29,7 @@ fun Route.routeToSmsGateways() {
     }
 
     post("sms-gateway-test") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val phone = call.receive<Phone01>()
         val status = smsSenderService.send(merchantId = merchantId, phone = phone.phone.toString(), "test message")

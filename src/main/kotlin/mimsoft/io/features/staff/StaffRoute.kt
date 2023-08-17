@@ -8,21 +8,21 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.utils.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToStaff() {
 
     route("staff") {
 
         get {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val staffs = StaffService.getAll(merchantId = merchantId)
             call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -38,7 +38,7 @@ fun Route.routeToStaff() {
         }
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
@@ -51,7 +51,7 @@ fun Route.routeToStaff() {
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
@@ -64,7 +64,7 @@ fun Route.routeToStaff() {
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
 
             val id = call.parameters["id"]?.toLongOrNull()

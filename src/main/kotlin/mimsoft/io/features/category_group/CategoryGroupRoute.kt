@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCategoryGroup() {
     val categoryGroupService = CategoryGroupService
     route("category/group") {
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val dto = call.receive<CategoryGroupDto>()
             val response = categoryGroupService.add(dto.copy(merchantId = merchantId))
@@ -20,7 +20,7 @@ fun Route.routeToCategoryGroup() {
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val dto = call.receive<CategoryGroupDto>()
             val response = categoryGroupService.update(dto.copy(merchantId = merchantId))
@@ -28,7 +28,7 @@ fun Route.routeToCategoryGroup() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -43,7 +43,7 @@ fun Route.routeToCategoryGroup() {
             call.respond(response)
         }
         get {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val response = categoryGroupService.getAll(merchantId = merchantId)
             if (response == null) {
@@ -54,7 +54,7 @@ fun Route.routeToCategoryGroup() {
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {

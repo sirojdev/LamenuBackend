@@ -15,7 +15,7 @@ import mimsoft.io.waiter.WaiterService
 fun Route.routeToWaitersInfo() {
     val waiterService = WaiterService
     get("profile") {
-        val principal = call.principal<StaffPrincipal>()
+        val principal = call.principal<BasePrincipal>()
         val courierId = principal?.staffId
         val dto = waiterService.getById(courierId)
         if (dto == null) {

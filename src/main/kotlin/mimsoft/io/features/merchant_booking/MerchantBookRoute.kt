@@ -9,13 +9,13 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.book.repository.BookRepository
 import mimsoft.io.features.book.repository.BookRepositoryImpl
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToMerchantBook() {
     val bookRepository: BookRepository = BookRepositoryImpl
 
     get("books") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val books = bookRepository.getAllMerchantBook(merchantId = merchantId)
         if (books.isEmpty()) {
@@ -25,7 +25,7 @@ fun Route.routeToMerchantBook() {
     }
 
     get("book/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -41,7 +41,7 @@ fun Route.routeToMerchantBook() {
     }
 
     post("book") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
         val id = bookRepository.addMerchantBook(book.copy(merchantId = merchantId))
@@ -49,7 +49,7 @@ fun Route.routeToMerchantBook() {
     }
 
     put("book") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
         bookRepository.updateMerchantBook(book.copy(merchantId = merchantId))
@@ -57,7 +57,7 @@ fun Route.routeToMerchantBook() {
     }
 
     delete("book/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {

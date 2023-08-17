@@ -8,14 +8,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.label.repository.LabelRepository
 import mimsoft.io.features.label.repository.LabelRepositoryImpl
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 import kotlin.collections.map
 
 fun Route.routeToLabel() {
 
     val labelRepository: LabelRepository = LabelRepositoryImpl
     get("/labels") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val labels = labelRepository.getAll(merchantId = merchantId).map { LabelMapper.toLabelDto(it) }
         if (labels.isEmpty()) {
@@ -26,7 +26,7 @@ fun Route.routeToLabel() {
     }
 
     get("/label/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -42,7 +42,7 @@ fun Route.routeToLabel() {
     }
 
     post("/label") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val label = call.receive<LabelDto>()
         val id = labelRepository.add(LabelMapper.toLabelTable(label.copy(merchantId = merchantId)))
@@ -50,7 +50,7 @@ fun Route.routeToLabel() {
     }
 
     put("/label") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val label = call.receive<LabelDto>()
         labelRepository.update(label.copy(merchantId = merchantId))
@@ -58,7 +58,7 @@ fun Route.routeToLabel() {
     }
 
     delete("/label/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {
