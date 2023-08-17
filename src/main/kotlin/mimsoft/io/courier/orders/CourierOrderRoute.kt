@@ -23,7 +23,7 @@ fun Route.routeToCourierOrders() {
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             if(status==null){
-                call.respond(ResponseModel(body = "status requiered"))
+                call.respond(ResponseModel(body = "status required"))
             }
             val orderList = courierOrderService.getOrdersBySomething(
                 merchantId,

@@ -134,6 +134,28 @@ paths:
         "401":
           description: "Unauthorized"
 
+  /waiter/update:
+    patch:
+      tags:
+        - Profile
+      requestBody:
+        description: "receive staff dto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      security:
+        - bearerAuth: [ ]
+      description: "update profile info"
+      responses:
+        "200":
+          description: "OK"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+
   /waiter/table/join:
     put:
       tags:
