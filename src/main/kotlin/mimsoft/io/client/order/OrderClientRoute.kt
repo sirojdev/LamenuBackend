@@ -61,13 +61,10 @@ fun Route.routeToClientOrder() {
     post("order") {
         val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
-        val userId = principal?.id
+        val userId = principal?.userId
         val order = call.receive<OrderModel>()
         val status = orderService.addModel(order.copy(user = UserDto(id = userId, merchantId = merchantId)))
-        call.respond(
-            status.httpStatus,
-            status.body ?: status.httpStatus.description
-        )
+        call.respond(status.httpStatus, status.body)
     }
 
     delete("order/{id}") {

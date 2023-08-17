@@ -16,8 +16,6 @@ import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.cart.CartService
-import mimsoft.io.features.checkout.CheckoutService
-import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.*
@@ -52,12 +50,7 @@ object OrderRepositoryImpl : OrderRepository {
     private val addressService: AddressRepository = AddressRepositoryImpl
     private val log: Logger = LoggerFactory.getLogger(OrderRepositoryImpl::class.java)
 
-    override suspend fun getLiveOrders(
-        type: String?,
-        limit: Int?,
-        offset: Int?,
-        merchantId: Long?
-    ): DataPage<OrderWrapper?>? {
+    override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?, merchantId: Long?): DataPage<OrderWrapper?>? {
         val query = """
             select 
             o.id  o_id,
@@ -838,8 +831,7 @@ object OrderRepositoryImpl : OrderRepository {
 
         if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
-//        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
-        val activeProducts = order!!
+        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
         val merchantId = order.user.merchantId
         val totalPrice = activeProducts.price?.totalPrice
 
@@ -941,6 +933,7 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun addModel(order: OrderModel): ResponseModel {
+        log.info("OrderModel: $order")
         val userInfo = order.user
         val user = UserRepositoryImpl.get(id = userInfo?.id, merchantId = userInfo?.merchantId)
         val address: AddressDto?
@@ -956,29 +949,20 @@ object OrderRepositoryImpl : OrderRepository {
 
         if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
-        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+        val activeProducts = getProductCalculate(productsCart = order.products)
+        if (activeProducts.httpStatus != HttpStatusCode.OK) return activeProducts
+
+        val body = activeProducts.body as? Map<*, *>
         val merchantId = order.user?.merchantId
-        val totalPrice = activeProducts.price?.totalPrice
-        var time = Timestamp(System.currentTimeMillis())
-        if (order.time != null)
-            time = toTimeStamp(order.time)!!
+        val totalPrice = body?.get("totalPrice") as? Long
         var prodDiscount = 0L
         val deliveryPrice = 15000L
         var deliveryDiscount = 0L
         val productCount = CartService.productCount(order.products)
         if (order.promo != null) {
             val promo = PromoService.getPromoByCode(order.promo)
-            deliveryDiscount = CheckoutService.calculateDeliveryPrice(order.promo)
-            prodDiscount = CheckoutService.calculateProductPromo(promo, order.products)
+
         }
-        val orderPrice = OrderPriceDto(
-            deliveryPrice = deliveryPrice,
-            deliveryDiscount = deliveryDiscount,
-            productDiscount = prodDiscount,
-            totalPrice = totalPrice,
-            productPrice = activeProducts.price?.productPrice,
-            totalDiscount = prodDiscount + deliveryDiscount
-        )
 
 
         val queryPrice = """
@@ -1018,11 +1002,9 @@ object OrderRepositoryImpl : OrderRepository {
                 comment,
                 payment_type,
                 total_price,
-                time,
                 product_count,
                 branch_id
             ) values (
-                ?,
                 ?,
                 ?,
                 ?,
@@ -1047,7 +1029,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(2, merchantId as Long)
                     setString(3, user.phone)
                     setString(4, order.orderType)
-                    setString(5, Gson().toJson(activeProducts.products))
+                    setString(5, Gson().toJson(order.products))
                     setString(6, OrderStatus.OPEN.name)
                     setDouble(7, order.address?.latitude ?: 0.0)
                     setDouble(8, order.address?.longitude ?: 0.0)
@@ -1056,7 +1038,6 @@ object OrderRepositoryImpl : OrderRepository {
                     setString(11, order.comment)
                     setLong(12, order.paymentType?.id ?: 0L)
                     setLong(13, totalPrice ?: 0L)
-                    setTimestamp(14, time)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -1065,7 +1046,7 @@ object OrderRepositoryImpl : OrderRepository {
 
                 it.prepareStatement(queryPrice).apply {
                     setLong(1, orderId)
-                    setLong(2, activeProducts.price?.productPrice ?: 0L)
+                    setLong(2, body?.get("productPrice") as? Long ?: 0)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
                     setLong(4, totalPrice ?: 0L)
                     setLong(5, prodDiscount)
@@ -1301,9 +1282,9 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getProductCalculate(cart: CartInfoDto?, merchantId: Long?): ResponseModel {
+    suspend fun getProductCalculate(cart: CartInfoDto?=null, merchantId: Long?=null, productsCart: List<CartItem>?=null): ResponseModel {
 
-        val products = cart?.products
+        val products = productsCart ?: cart?.products
         var totalPriceWithDiscount = 0L
         var totalProductPrice = 0L
         var totalDiscount = 0L
@@ -1376,13 +1357,13 @@ object OrderRepositoryImpl : OrderRepository {
                 }
 
                 val result = mutableMapOf(
-                    "p_id" to rs[0]["p_id"],
-                    "p_price" to rs[0]["p_price"],
-                    "o_id" to rs[0]["o_id"],
-                    "o_price" to rs[0]["o_price"],
-                    "p_discount" to rs[0]["p_discount"],
-                    "e" to arrayListOf<Map<String, *>>()
-                )
+                        "p_id" to rs[0]["p_id"],
+                        "p_price" to rs[0]["p_price"],
+                        "o_id" to rs[0]["o_id"],
+                        "o_price" to rs[0]["o_price"],
+                        "p_discount" to rs[0]["p_discount"],
+                        "e" to arrayListOf<Map<String, *>>()
+                    )
 
 
                 result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
@@ -1421,6 +1402,14 @@ object OrderRepositoryImpl : OrderRepository {
         }
 
         totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
+
+        if (productsCart!=null) return ResponseModel(
+            body = mapOf(
+                "totalPrice" to totalProductPrice,
+                "totalDiscount" to totalDiscount,
+                "totalPriceWithDiscount" to totalPriceWithDiscount
+            )
+        )
 
         if (cart?.productsPrice != totalProductPrice || cart.productsDiscount != totalDiscount) {
             return ResponseModel(
