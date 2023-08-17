@@ -6,14 +6,17 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.features.courier.CourierService
+import mimsoft.io.features.merchant.repository.MerchantAuthImp
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.principal.BasePrincipal
 import java.util.*
 
 fun Route.routeToCourierAuth() {
@@ -56,6 +59,14 @@ fun Route.routeToCourierAuth() {
                 }
             }
 
+        }
+
+        authenticate("staff") {
+            post("logout") {
+                val merchant = call.principal<BasePrincipal>()
+                CourierService.logout(merchant?.uuid)
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 

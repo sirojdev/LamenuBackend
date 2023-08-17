@@ -207,6 +207,7 @@ paths:
                   $ref: "#/components/schemas/DeviceModel"
         "204":
           description: "No Content"
+
   /courier/auth:
     post:
       tags:
@@ -237,6 +238,18 @@ paths:
                   $ref: "#/components/schemas/StaffDto"
         "204":
           description: "No Content"
+
+  /courier/logout:
+    post:
+      tags:
+        - Auth
+      description: "logout courier "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+
 
   /courier/profile:
     get:

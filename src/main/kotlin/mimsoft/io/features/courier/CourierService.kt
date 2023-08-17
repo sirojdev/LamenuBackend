@@ -15,6 +15,7 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.rsa.Generator
 import mimsoft.io.services.sms.SmsSenderService
+import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
@@ -208,4 +209,10 @@ ORDER BY
             }
         }
     }
+
+    suspend fun logout(uuid: String?): Boolean {
+        SessionRepository.expire(uuid)
+        return true
+    }
+
 }
