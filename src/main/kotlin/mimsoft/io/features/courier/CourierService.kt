@@ -1,18 +1,24 @@
 package mimsoft.io.features.courier
 
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.device.DeviceController
+import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.courier.info.CourierInfoDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
-import mimsoft.io.features.staff.STAFF_TABLE_NAME
-import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.features.staff.StaffService
-import mimsoft.io.features.staff.StaffTable
+import mimsoft.io.features.staff.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.rsa.Generator
+import mimsoft.io.services.sms.SmsSenderService
+import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
+import java.sql.Timestamp
 import java.util.*
 
 object CourierService {
@@ -56,7 +62,7 @@ object CourierService {
         )
     }
 
-    suspend fun findNearCourier(branchId: Long?,offset:Int): CourierDto? {
+    suspend fun findNearCourier(branchId: Long?, offset: Int): CourierDto? {
         val query = """
             SELECT
     c.staff_id c_staff_id,
@@ -81,7 +87,7 @@ ORDER BY
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
-                  return@withContext  CourierDto(
+                    return@withContext CourierDto(
                         staffId = rs.getLong("c_staff_id"),
                     )
                 } else return@withContext null
@@ -91,7 +97,39 @@ ORDER BY
     }
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
-
+    suspend fun updateCourierInfo(dto: StaffDto): Any {
+        val query = """
+             update $STAFF_TABLE_NAME  s
+             set  password = COALESCE(?,s.password) ,
+             first_name = COALESCE(?,s.first_name),
+             last_name = COALESCE(?,s.last_name),
+             birth_day = COALESCE(?,s.birth_day),
+             image = COALESCE(?,s.image),
+             comment = COALESCE(?,s.comment),
+             gender = COALESCE(?,s.gender)  
+             where s.id = ${dto.id} and s.deleted = false
+        """.trimIndent()
+        var rs: Int? = null
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).apply {
+                    setString(1, dto.password)
+                    setString(2, dto.firstName)
+                    setString(3, dto.lastName)
+                    setTimestamp(4, dto.birthDay?.let { Timestamp.valueOf(it) })
+                    setString(5, dto.image)
+                    setString(6, dto.comment)
+                    setString(7, dto.gender)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+        if (rs == 1) {
+            return ResponseModel(body = "Successfully", HttpStatusCode.OK)
+        } else {
+            return ResponseModel(body = "Courier not found ", HttpStatusCode.NotFound)
+        }
+    }
 
     suspend fun update(dto: CourierDto): Boolean =
         repository.updateData(

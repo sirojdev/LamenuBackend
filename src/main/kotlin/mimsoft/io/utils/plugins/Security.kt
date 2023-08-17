@@ -220,6 +220,7 @@ fun Application.configureSecurity() {
             }
         }
 
+
         jwt("operator") {
             realm = JwtConfig.issuer
 

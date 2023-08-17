@@ -8,34 +8,26 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.OrderStatus
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCourierOrders() {
     val orderRepository = OrderRepositoryImpl
     val courierOrderService = CourierOrderService
-    route("orders") {
-        get("open") {
+    route("order") {
+        get("") {
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
             val merchantId = principal?.merchantId
+            val status = call.parameters["status"]
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val orderList =
-                courierOrderService.getOrdersBySomething(merchantId, OrderStatus.OPEN.name, null, limit, offset)
-            if (orderList.data.isNullOrEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
+            if(status==null){
+                call.respond(ResponseModel(body = "status requiered"))
             }
-            call.respond(orderList)
-        }
-        get("active") {
-            val principal = call.principal<BasePrincipal>()
-            val courierId = principal?.staffId
-            val merchantId = principal?.merchantId
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val orderList = courierOrderService.getOrdersBySomething(
                 merchantId,
-                OrderStatus.ONWAY.name,
+                status,
                 courierId,
                 limit,
                 offset
@@ -45,37 +37,7 @@ fun Route.routeToCourierOrders() {
             }
             call.respond(orderList)
         }
-        get("archive") {
-            val principal = call.principal<BasePrincipal>()
-            val courierId = principal?.staffId
-            val merchantId = principal?.merchantId
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val orderList = courierOrderService.getOrdersBySomething(
-                merchantId,
-                OrderStatus.DELIVERED.name,
-                courierId,
-                limit,
-                offset
-            )
-            if (orderList.data.isNullOrEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-            }
-            call.respond(orderList)
-        }
-        get("accepted") {
-            val principal = call.principal<BasePrincipal>()
-            val courierId = principal?.staffId
-            val merchantId = principal?.merchantId
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val orderList = courierOrderService.getAccepted(merchantId, OrderStatus.ACCEPTED.name, limit, offset)
-            if (orderList.data.isNullOrEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-            }
-            call.respond(orderList)
-        }
-        get("get") {
+        post("join") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
