@@ -169,11 +169,18 @@ paths:
 
 
 
-  /device:
+  /courier/device:
     post:
       tags:
         - Auth
       description: "Get device token"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
       requestBody:
         description: "A JSON object receive device token"
         required: true

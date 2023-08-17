@@ -1,5 +1,6 @@
 package mimsoft.io.courier.auth
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -7,6 +8,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
+import mimsoft.io.client.device.DeviceController
+import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.merchant.repository.MerchantAuthImp
@@ -23,6 +26,28 @@ fun Route.routeToCourierAuth() {
     val courierService = CourierService
     val sessionRepo = SessionRepository
     route("courier") {
+        route("device") {
+            post {
+                val device: DeviceModel = call.receive()
+                val merchantId = call.parameters["appKey"]?.toLongOrNull()
+                device.merchantId = merchantId
+                println(Gson().toJson(device))
+                if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
+                    || device.uuid.isNullOrBlank() || device.merchantId == null || device.firebaseToken == null) {
+                    println(device.brand)
+                    println(device.model)
+                    println(device.build)
+                    println(device.osVersion)
+                    println(device.uuid)
+                    println(device.merchantId)
+                    call.respond(HttpStatusCode.BadRequest, "error input")
+                } else {
+                    val ip = call.request.host()
+                    val result = DeviceController.auth(device.copy(ip = ip))
+                    call.respond(result)
+                }
+            }
+        }
 
         authenticate("device") {
             post("auth") {
@@ -49,7 +74,7 @@ fun Route.routeToCourierAuth() {
 
                     call.respond(
                         authStaff?.copy(
-                            token = JwtConfig.generateStaffToken(
+                            token = JwtConfig.generateCourierToken(
                                 staffId = authStaff.id,
                                 merchantId = authStaff.merchantId,
                                 uuid = uuid,
@@ -61,7 +86,7 @@ fun Route.routeToCourierAuth() {
 
         }
 
-        authenticate("staff") {
+        authenticate("courier") {
             post("logout") {
                 val merchant = call.principal<BasePrincipal>()
                 CourierService.logout(merchant?.uuid)

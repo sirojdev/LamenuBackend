@@ -175,7 +175,48 @@ fun Application.configureSecurity() {
                 } else null
             }
         }
-
+        jwt("courier") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierUser)
+            validate { cr ->
+                val merchantId = cr.payload.getClaim("merchantId").asLong()
+                val staffId = cr.payload.getClaim("staffId").asLong()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                if (merchantId != null && uuid != null) {
+                    val session = SessionRepository.getMerchantByUUID(uuid)
+                    if (session != null && session.merchantId == merchantId && session.isExpired != true) {
+                        BasePrincipal(
+                            merchantId = merchantId,
+                            uuid = uuid,
+                            staffId = staffId
+                        )
+                    } else {
+                        null
+                    }
+                } else null
+            }
+        }
+        jwt("waiter") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierUser)
+            validate { cr ->
+                val merchantId = cr.payload.getClaim("merchantId").asLong()
+                val staffId = cr.payload.getClaim("staffId").asLong()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                if (merchantId != null && uuid != null) {
+                    val session = SessionRepository.getMerchantByUUID(uuid)
+                    if (session != null && session.merchantId == merchantId && session.isExpired != true) {
+                        BasePrincipal(
+                            merchantId = merchantId,
+                            uuid = uuid,
+                            staffId = staffId
+                        )
+                    } else {
+                        null
+                    }
+                } else null
+            }
+        }
 
         jwt("merchant") {
             realm = JwtConfig.issuer

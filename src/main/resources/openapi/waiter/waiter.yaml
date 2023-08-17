@@ -28,7 +28,7 @@ tags:
 paths:
 
 
-  /device:
+  /waiter/device:
     post:
       tags:
         - Auth

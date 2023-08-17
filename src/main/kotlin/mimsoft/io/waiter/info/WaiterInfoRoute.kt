@@ -7,10 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.device.DeviceController
-import mimsoft.io.courier.orders.CourierOrderService
-import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.WaiterService
 
@@ -41,6 +38,6 @@ fun Route.routeToWaitersInfo() {
     patch("update") {
         val principal = call.principal<BasePrincipal>()
         val dto = call.receive<StaffDto>()
-        call.respond(waiterService.updateCourierInfo(dto.copy(id = principal?.staffId)))
+        call.respond(waiterService.updateWaiterInfo(dto.copy(id = principal?.staffId)))
     }
 }

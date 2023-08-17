@@ -8,7 +8,7 @@ import mimsoft.io.waiter.table.routeToWaitersTables
 
 fun Route.routeToWaiter(){
     routeToWaiterAuth()
-    authenticate("staff") {
+    authenticate("waiter") {
         route("waiter") {
             routeToWaitersInfo()
             routeToWaitersTables()
