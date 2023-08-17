@@ -933,6 +933,7 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun addModel(order: OrderModel): ResponseModel {
+        log.info("OrderModel: $order")
         val userInfo = order.user
         val user = UserRepositoryImpl.get(id = userInfo?.id, merchantId = userInfo?.merchantId)
         val address: AddressDto?
@@ -948,12 +949,12 @@ object OrderRepositoryImpl : OrderRepository {
 
         if (order.products.isNullOrEmpty()) return ResponseModel(httpStatus = ResponseModel.PRODUCTS_NULL)
 
-        val activeProducts = getOrderProducts(order.products).body as OrderWrapper
+        val activeProducts = getProductCalculate(productsCart = order.products)
+        if (activeProducts.httpStatus != HttpStatusCode.OK) return activeProducts
+
+        val body = activeProducts.body as? Map<*, *>
         val merchantId = order.user?.merchantId
-        val totalPrice = activeProducts.price?.totalPrice
-        var time = Timestamp(System.currentTimeMillis())
-        if (order.time != null)
-            time = toTimeStamp(order.time)!!
+        val totalPrice = body?.get("totalPrice") as? Long
         var prodDiscount = 0L
         val deliveryPrice = 15000L
         var deliveryDiscount = 0L
@@ -1001,11 +1002,9 @@ object OrderRepositoryImpl : OrderRepository {
                 comment,
                 payment_type,
                 total_price,
-                time,
                 product_count,
                 branch_id
             ) values (
-                ?,
                 ?,
                 ?,
                 ?,
@@ -1030,7 +1029,7 @@ object OrderRepositoryImpl : OrderRepository {
                     setLong(2, merchantId as Long)
                     setString(3, user.phone)
                     setString(4, order.orderType)
-                    setString(5, Gson().toJson(activeProducts.products))
+                    setString(5, Gson().toJson(order.products))
                     setString(6, OrderStatus.OPEN.name)
                     setDouble(7, order.address?.latitude ?: 0.0)
                     setDouble(8, order.address?.longitude ?: 0.0)
@@ -1039,7 +1038,6 @@ object OrderRepositoryImpl : OrderRepository {
                     setString(11, order.comment)
                     setLong(12, order.paymentType?.id ?: 0L)
                     setLong(13, totalPrice ?: 0L)
-                    setTimestamp(14, time)
                     this.closeOnCompletion()
                 }.executeQuery()
 
@@ -1048,7 +1046,7 @@ object OrderRepositoryImpl : OrderRepository {
 
                 it.prepareStatement(queryPrice).apply {
                     setLong(1, orderId)
-                    setLong(2, activeProducts.price?.productPrice ?: 0L)
+                    setLong(2, body?.get("productPrice") as? Long ?: 0)
                     setTimestamp(3, Timestamp(System.currentTimeMillis()))
                     setLong(4, totalPrice ?: 0L)
                     setLong(5, prodDiscount)
@@ -1284,9 +1282,9 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getProductCalculate(cart: CartInfoDto?, merchantId: Long?): ResponseModel {
+    suspend fun getProductCalculate(cart: CartInfoDto?=null, merchantId: Long?=null, productsCart: List<CartItem>?=null): ResponseModel {
 
-        val products = cart?.products
+        val products = productsCart ?: cart?.products
         var totalPriceWithDiscount = 0L
         var totalProductPrice = 0L
         var totalDiscount = 0L
@@ -1405,6 +1403,14 @@ object OrderRepositoryImpl : OrderRepository {
 
         totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
 
+        if (productsCart!=null) return ResponseModel(
+            body = mapOf(
+                "totalPrice" to totalProductPrice,
+                "totalDiscount" to totalDiscount,
+                "totalPriceWithDiscount" to totalPriceWithDiscount
+            )
+        )
+
         if (cart?.productsPrice != totalProductPrice || cart.productsDiscount != totalDiscount) {
             return ResponseModel(
                 httpStatus = HttpStatusCode.BadRequest,
@@ -1416,7 +1422,7 @@ object OrderRepositoryImpl : OrderRepository {
                 )
             )
         }
-        return ResponseModel()
+        return ResponseModel(body = "{}")
     }
 
     suspend fun getOrderHistoryMerchant(

@@ -65,9 +65,9 @@ object OptionRepositoryImpl : OptionRepository {
     suspend fun getOptionsByProductId(merchantId: Long?, productId: Long?): List<OptionDto>? {
         val data = repository.getPageData(
             dataClass = OptionTable::class,
-            where = mapOf(
+            where = mutableMapOf(
                 ("merchant_id" to merchantId as Any),
-                ("product_id" to productId as Any),
+                ("product_id" to (productId?:0) as Any),
             ),
             tableName = OPTION_TABLE_NAME
         )?.data

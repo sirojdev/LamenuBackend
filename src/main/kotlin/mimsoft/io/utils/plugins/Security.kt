@@ -18,9 +18,12 @@ import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.Role
 import mimsoft.io.utils.principal.MerchantPrincipal
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 fun Application.configureSecurity() {
 
+    val log: Logger = LoggerFactory.getLogger("Security")
     authentication {
         jwt("access") {
             realm = JwtConfig.issuer
@@ -143,7 +146,7 @@ fun Application.configureSecurity() {
                 val session = SessionRepository.getUserSession(
                     sessionUuid = credential.payload.getClaim("uuid").asString()
                 )
-
+                log.info("session: $session")
                 if (session != null && session.isExpired != true) {
                     BasePrincipal(
                         userId = session.userId,
