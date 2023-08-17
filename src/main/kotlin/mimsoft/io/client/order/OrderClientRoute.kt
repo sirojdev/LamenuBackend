@@ -18,9 +18,9 @@ import mimsoft.io.utils.principal.BasePrincipal
 fun Route.routeToClientOrder() {
     val orderService: OrderRepository = OrderRepositoryImpl
     get("orders") {
-        val pr = call.principal<UserPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val response: Any
-        val clientId = pr?.id
+        val clientId = pr?.userId
         val merchantId = pr?.merchantId
         val filter = call.parameters["status"]
         val limit = call.parameters["limit"]?.toLongOrNull() ?: 10
