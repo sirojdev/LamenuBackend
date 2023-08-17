@@ -437,5 +437,38 @@ object DBManager: BaseRepository {
 
     override suspend fun selectList(query: String, vararg args: Any?): List<Map<String, *>> {
         return selectList(query, args.mapIndexed { index, any -> index + 1 to any }.toMap())}
+
+    override suspend fun insert(query: String, args: Map<Int, *>?): Map<String, *>? {
+        LOGGER.info("insert --> $query")
+        val inset = "$query RETURNING *"
+        var id: Long = 0
+        return withContext(databaseDispatcher) {
+            connection().use {
+                it.prepareStatement(inset).use { statement ->
+                    args?.forEach { (key, value) ->
+                        when (value) {
+                            is String -> statement.setString(key, value)
+                            is Boolean -> statement.setBoolean(key, value)
+                            is Double -> statement.setDouble(key, value)
+                            is java.sql.Date -> statement.setDate(key, value)
+                            is java.sql.Time -> statement.setTime(key, value)
+                            is Timestamp -> statement.setTimestamp(key, value)
+                            else -> statement.setObject(key, value)
+                        }
+                    }
+                    statement.executeQuery().use { result ->
+                        if (result.next()) {
+                            val map = mutableMapOf<String, Any?>()
+                            for (i in 1..result.metaData.columnCount) {
+                                map[result.metaData.getColumnName(i)] = result.getObject(i)
+                            }
+                            LOGGER.info("selectMap --> $map")
+                            return@withContext map
+                        } else null
+                    }
+                }
+            }
+        }
+    }
 }
 

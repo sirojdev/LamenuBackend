@@ -50,4 +50,6 @@ interface BaseRepository {
     suspend fun selectOne(query: String, vararg args: Any? = arrayOf(null)): Map<String, *>?
 
     suspend fun selectList(query: String, vararg args: Any? = arrayOf(null)): List<Map<String, *>>
+
+    suspend fun insert(query: String, args: Map<Int, *>? = null): Map<String, *>?
 }
