@@ -13,5 +13,6 @@ data class BookDto(
     val table: TableDto? = null,
     val time: Timestamp? = null,
     val comment: String? = null,
-    val visitorCount: Int? = null
+    val visitorCount: Int? = null,
+    var status: BookStatus? = null
 )

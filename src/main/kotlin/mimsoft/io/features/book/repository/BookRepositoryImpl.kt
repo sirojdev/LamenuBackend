@@ -4,10 +4,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.book.BOOK_TABLE_NAME
-import mimsoft.io.features.book.BookDto
-import mimsoft.io.features.book.BookMapper
-import mimsoft.io.features.book.BookTable
+import mimsoft.io.features.book.*
 import mimsoft.io.features.branch.BRANCH_TABLE_NAME
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.merchant_booking.MerchantBookResponseDto
@@ -65,6 +62,47 @@ object BookRepositoryImpl : BookRepository {
         }
     }
 
+    override suspend fun getAllClient(merchantId: Long?, clientId: Long?): List<BookDto?> {
+        val query = "select book.*,  " +
+                "u.phone  u_phone, " +
+                "u.first_name u_first_name, " +
+                "u.last_name u_last_name, " +
+                "t.name t_name, " +
+                "t.room_id t_room_id, " +
+                "t.qr t_qr, " +
+                "t.branch_id t_branch_id " +
+                "from book " +
+                "left join users u on book.client_id = u.id " +
+                "left join tables t on book.table_id = t.id " +
+                "where book.merchant_id = $merchantId and book.deleted = false and client_id = $clientId"
+
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val list = arrayListOf<BookDto>()
+                while (rs.next()) {
+                    val book = BookDto(
+                        client = UserDto(
+                            phone = rs.getString("u_phone"),
+                            firstName = rs.getString("u_first_name"),
+                            lastName = rs.getString("u_last_name"),
+                        ),
+                        table = TableDto(
+                            qr = rs.getString("t_qr"),
+                            name = rs.getString("t_name"),
+                            room = RoomDto(id = rs.getLong("t_room_id")),
+                            branch = BranchDto(
+                                id = rs.getLong("t_branch_id"),
+                            )
+                        )
+                    )
+                    list.add(book)
+                }
+                return@withContext list
+            }
+        }
+    }
+
     /*override suspend fun get(id: Long?, merchantId: Long?): BookDto? {
         return mapper.toBookDto(
             repository.getPageData(
@@ -77,7 +115,7 @@ object BookRepositoryImpl : BookRepository {
             )?.data?.firstOrNull()
         )
     }*/
-    override suspend fun get(id: Long?, merchantId: Long?): BookDto? {
+    override suspend fun get(id: Long?, merchantId: Long?, userId: Long?): BookDto? {
         val query = "select book.*,  " +
                 "u.phone  u_phone, " +
                 "u.first_name u_first_name, " +
@@ -89,7 +127,7 @@ object BookRepositoryImpl : BookRepository {
                 "from book " +
                 "left join users u on book.client_id = u.id " +
                 "left join tables t on book.table_id = t.id " +
-                "where book.id = $id and book.merchant_id = $merchantId and book.deleted = false"
+                "where book.id = $id and book.merchant_id = $merchantId and book.deleted = false and client_id = $userId"
 
         return withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -159,7 +197,8 @@ object BookRepositoryImpl : BookRepository {
                                 name = rs.getString("r_name")
                             )
                         ),
-                        time = rs.getTimestamp("time")
+                        time = rs.getTimestamp("time"),
+                        status = BookStatus.NOT_ACCEPTED
                     )
                 }
             }
@@ -311,5 +350,23 @@ object BookRepositoryImpl : BookRepository {
             ProductRepositoryImpl.repository.connection().use { it.prepareStatement(query).execute() }
         }
         return true
+    }
+
+    override suspend fun toAccepted(merchantId: Long?, bookId: Long?): ResponseModel {
+        val query = "update $BOOK_TABLE_NAME set status = ? where merchant_id = $merchantId and id = $bookId"
+        val response: ResponseModel
+        withContext(Dispatchers.IO) {
+            ProductRepositoryImpl.repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, BookStatus.ACCEPTED.name)
+                }.executeUpdate()
+                if (rs == 1) {
+                    response = ResponseModel(body = "successfully", httpStatus = HttpStatusCode.OK)
+                } else {
+                    response = ResponseModel(body = "Method not allowed", httpStatus = HttpStatusCode.MethodNotAllowed)
+                }
+            }
+        }
+        return response
     }
 }

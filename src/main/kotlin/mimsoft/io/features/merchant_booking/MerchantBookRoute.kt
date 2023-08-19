@@ -14,6 +14,59 @@ import mimsoft.io.utils.principal.BasePrincipal
 fun Route.routeToMerchantBook() {
     val bookRepository: BookRepository = BookRepositoryImpl
 
+    route("book"){
+
+        put("accepted") {
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val bookId = call.parameters["bookId"]?.toLongOrNull()
+            call.respond(bookRepository.toAccepted(merchantId = merchantId, bookId = bookId))
+        }
+
+        get("{id}") {
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val id = call.parameters["id"]?.toLongOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
+            val book = bookRepository.getMerchantBook(id = id, merchantId = merchantId)
+            if (book == null) {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+            call.respond(book)
+        }
+
+        post("") {
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val book = call.receive<BookDto>()
+            val id = bookRepository.addMerchantBook(book.copy(merchantId = merchantId))
+            call.respond(HttpStatusCode.OK, BookId(id))
+        }
+
+        put("") {
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val book = call.receive<BookDto>()
+            bookRepository.updateMerchantBook(book.copy(merchantId = merchantId))
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("{id}") {
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val id = call.parameters["id"]?.toLongOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@delete
+            }
+            bookRepository.deleteMerchantBook(id = id, merchantId = merchantId)
+            call.respond(HttpStatusCode.OK)
+        }
+    }
     get("books") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
@@ -24,49 +77,7 @@ fun Route.routeToMerchantBook() {
         } else call.respond(books)
     }
 
-    get("book/{id}") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
-        }
-        val book = bookRepository.getMerchantBook(id = id, merchantId = merchantId)
-        if (book == null) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }
-        call.respond(book)
-    }
 
-    post("book") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val book = call.receive<BookDto>()
-        val id = bookRepository.addMerchantBook(book.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK, BookId(id))
-    }
-
-    put("book") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val book = call.receive<BookDto>()
-        bookRepository.updateMerchantBook(book.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK)
-    }
-
-    delete("book/{id}") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@delete
-        }
-        bookRepository.deleteMerchantBook(id = id, merchantId = merchantId)
-        call.respond(HttpStatusCode.OK)
-    }
 }
 
 data class BookId(

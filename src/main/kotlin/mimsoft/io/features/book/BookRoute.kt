@@ -6,9 +6,12 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.book.repository.BookRepository
 import mimsoft.io.features.book.repository.BookRepositoryImpl
+import mimsoft.io.features.category.ClientCategoryDto
 import mimsoft.io.utils.principal.BasePrincipal
+import okhttp3.internal.userAgent
 
 fun Route.routeToBook() {
 
@@ -17,7 +20,7 @@ fun Route.routeToBook() {
     get("books") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val books = bookRepository.getAll(merchantId = merchantId)
+        val books = bookRepository.getAllClient(merchantId = merchantId, clientId = pr?.userId)
         if (books.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -32,7 +35,7 @@ fun Route.routeToBook() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val book = bookRepository.get(id = id, merchantId = merchantId)
+        val book = bookRepository.get(id = id, merchantId = merchantId, userId = pr?.userId)
         if (book == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -44,7 +47,8 @@ fun Route.routeToBook() {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
-        val response = bookRepository.add(book.copy(merchantId = merchantId))
+        book.status = BookStatus.NOT_ACCEPTED
+        val response = bookRepository.add(book.copy(merchantId = merchantId, client = UserDto(id=pr?.userId)))
         call.respond(response.httpStatus, response.body)
     }
 
@@ -52,7 +56,7 @@ fun Route.routeToBook() {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
-        bookRepository.update(book.copy(merchantId = merchantId))
+        bookRepository.update(book.copy(merchantId = merchantId, client = UserDto(id = pr?.userId)))
         call.respond(HttpStatusCode.OK)
     }
 
