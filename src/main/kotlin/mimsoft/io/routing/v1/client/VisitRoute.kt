@@ -10,11 +10,10 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.visit.VisitDto
 import mimsoft.io.features.visit.VisitService
 import mimsoft.io.utils.principal.BasePrincipal
-import okhttp3.internal.userAgent
 
 fun Route.routeToClientVisit() {
-    route("visit") {
-        post {
+
+        post("visit") {
             val pr = call.principal<BasePrincipal>()
             val userId = pr?.userId
             val merchantId = pr?.merchantId
@@ -27,7 +26,7 @@ fun Route.routeToClientVisit() {
                 call.respond(HttpStatusCode.OK, VisitId(response))
         }
 
-        get {
+        get("visits") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val userId = pr?.userId
@@ -39,7 +38,6 @@ fun Route.routeToClientVisit() {
         }
 
     }
-}
 
 data class VisitId(
     val id: Long? = null
