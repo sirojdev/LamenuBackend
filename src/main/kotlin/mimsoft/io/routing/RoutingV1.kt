@@ -23,6 +23,5 @@ fun Route.routeToV1() {
     routeToFiles()
     routeToIntegration()
     routeToOperator()
-
     routeToFirebase()
 }

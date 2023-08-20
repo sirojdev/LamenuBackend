@@ -5,6 +5,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToPaymentIntegration(){
@@ -18,7 +19,7 @@ fun Route.routeToPaymentIntegration(){
 //        return@post
 //    }
     get("payment/integration"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val respond = service.get(merchantId = merchantId)
         call.respond(respond)

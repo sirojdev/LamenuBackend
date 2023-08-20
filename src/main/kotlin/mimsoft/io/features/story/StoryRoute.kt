@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToStory() {
     val storyService = StoryService
     route("story") {
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val dto = call.receive<StoryDto>()
             val response = storyService.add(dto.copy(merchantId = merchantId))
@@ -20,7 +20,7 @@ fun Route.routeToStory() {
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val dto = call.receive<StoryDto>()
             val response = storyService.update(dto.copy(merchantId = merchantId))
@@ -29,7 +29,7 @@ fun Route.routeToStory() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null)
@@ -43,7 +43,7 @@ fun Route.routeToStory() {
         }
 
         get {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val response = storyService.getAll(merchantId = merchantId)
             call.respond(response)
@@ -52,7 +52,7 @@ fun Route.routeToStory() {
 
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null)
@@ -66,7 +66,7 @@ fun Route.routeToStory() {
         }
 
         put("update/priority") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             val priorityNumber = call.parameters["prNumber"]?.toLongOrNull()

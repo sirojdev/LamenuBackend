@@ -1559,7 +1559,7 @@ object OrderRepositoryImpl : OrderRepository {
 
     override suspend fun accepted(merchantId: Long?, orderId: Long?): Boolean {
         val query = "update $ORDER_TABLE_NAME  set status ='ACCEPTED' " +
-                " where order_id = $orderId and status = 'OPEN' and merchant_id = $merchantId "
+                " where id = $orderId and status = 'OPEN' and merchant_id = $merchantId "
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val re = it.prepareStatement(query).apply {

@@ -6,13 +6,14 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToBot() {
     val botService: BotRepository = BotService
     val botMapper = BotMapper
     get("bots") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val bots = botService.getAll(merchantId=merchantId).map {
             botMapper.toBotDto(it)
@@ -24,7 +25,7 @@ fun Route.routeToBot() {
     }
 
     get("bot/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null){
@@ -40,7 +41,7 @@ fun Route.routeToBot() {
     }
 
     post("bot") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<BotDto>()
         botService.add(botMapper.toBotTable(table.copy(merchantId=merchantId)))
@@ -48,7 +49,7 @@ fun Route.routeToBot() {
     }
 
     put("bot") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<BotDto>()
         botService.update((table.copy(merchantId=merchantId)))
@@ -56,7 +57,7 @@ fun Route.routeToBot() {
     }
 
     delete("bot/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {

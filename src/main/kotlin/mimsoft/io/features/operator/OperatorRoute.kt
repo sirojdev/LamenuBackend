@@ -7,11 +7,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToOperatorEntity() {
 
@@ -27,7 +27,7 @@ fun Route.routeToOperatorEntity() {
 
 
         get("operators") {
-            val principal = call.principal<StaffPrincipal>()
+            val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
             if (merchantId == null) {
                 call.respond(HttpStatusCode.BadRequest, "merchantId must not be null")

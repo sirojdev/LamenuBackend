@@ -8,13 +8,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.option.repository.OptionRepository
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToOption() {
     val optionRepository: OptionRepository = OptionRepositoryImpl
     route("option") {
         get {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val options = optionRepository.getAll(merchantId = merchantId).map { OptionMapper.toOptionDto(it) }
             if (options.isEmpty()) {
@@ -25,7 +25,7 @@ fun Route.routeToOption() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -41,7 +41,7 @@ fun Route.routeToOption() {
         }
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val option = call.receive<OptionDto>()
             val id = optionRepository.add(OptionMapper.toOptionTable(option.copy(merchantId = merchantId)))
@@ -49,14 +49,14 @@ fun Route.routeToOption() {
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val option = call.receive<OptionDto>()
             optionRepository.update(option.copy(merchantId = merchantId))
             call.respond(HttpStatusCode.OK)
         }
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id != null) {

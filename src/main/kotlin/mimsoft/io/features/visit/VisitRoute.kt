@@ -7,13 +7,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.SOME_THING_WRONG
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToVisits() {
     val visitService = VisitService
     route("visit") {
         get {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val visits = visitService.getAll(merchantId = merchantId)
             if (visits.isEmpty()) {
@@ -23,7 +23,7 @@ fun Route.routeToVisits() {
         }
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val visit = call.receive<VisitDto>()
             val id = visitService.add(visit.copy(merchantId = merchantId))
@@ -35,7 +35,7 @@ fun Route.routeToVisits() {
         }
 
         get("/{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -51,7 +51,7 @@ fun Route.routeToVisits() {
         }
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val visit = call.receive<VisitDto>()
             val response = visitService.update(visit.copy(merchantId = merchantId))
@@ -59,7 +59,7 @@ fun Route.routeToVisits() {
         }
 
         delete("{id}"){
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if(id==null){

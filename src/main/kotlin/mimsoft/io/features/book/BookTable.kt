@@ -3,6 +3,7 @@ package mimsoft.io.features.book
 import java.sql.Timestamp
 
 const val BOOK_TABLE_NAME = "book"
+
 data class BookTable(
     var id: Long? = null,
     val clientId: Long? = null,
@@ -12,6 +13,7 @@ data class BookTable(
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null,
-    val comment: String? = null
+    val comment: String? = null,
+    val status: String? = null
 )
 

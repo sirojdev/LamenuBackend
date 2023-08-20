@@ -6,12 +6,12 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToStopList() {
     route("stoplist") {
         get("increment/{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -23,7 +23,7 @@ fun Route.routeToStopList() {
         }
 
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val stopList = call.receive<StopListDto>()
             StopListService.add(stopList.copy(merchantId = merchantId))
@@ -32,7 +32,7 @@ fun Route.routeToStopList() {
 
 
         put {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val stopList = call.receive<StopListDto>()
             StopListService.update(stopList.copy(merchantId = merchantId))

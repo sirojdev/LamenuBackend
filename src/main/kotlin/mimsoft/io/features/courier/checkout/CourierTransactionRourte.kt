@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCourierTransaction() {
     route("courier/transaction") {
         val courierTransactionService = CourierTransactionService
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val dto = call.receive<CourierTransactionDto>()
             val result = courierTransactionService.add(dto.copy(merchantId = merchantId))

@@ -7,13 +7,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.merchant.repository.MerchantInterface
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToMerchantProfile() {
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
 
     get("profile") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         if (merchantId == null) {
             call.respond(HttpStatusCode.BadRequest)

@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToProductLabel() {
     val productLabelService = ProductLabelService
     route("product/label") {
         post("") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val productLabelDto = call.receive<ProductLabelDto>()
             if (productLabelDto.productId == null) {
@@ -28,7 +28,7 @@ fun Route.routeToProductLabel() {
         }
 
         get("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -45,7 +45,7 @@ fun Route.routeToProductLabel() {
 
 
         delete {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val productLabelDto = call.receive<ProductLabelDto>()
             if (productLabelDto.productId == null) {

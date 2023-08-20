@@ -8,7 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.merchant.repository.MerchantAuthImp
 import mimsoft.io.features.merchant.repository.MerchantAuthService
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.merchantAuthRoute() {
     val authService: MerchantAuthService = MerchantAuthImp
@@ -25,7 +25,7 @@ fun Route.merchantAuthRoute() {
 
     authenticate("merchant") {
         post("logout") {
-            val merchant = call.principal<MerchantPrincipal>()
+            val merchant = call.principal<BasePrincipal>()
             authService.logout(merchant?.uuid)
             call.respond(HttpStatusCode.OK)
         }

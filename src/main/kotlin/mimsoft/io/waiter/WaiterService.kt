@@ -1,8 +1,8 @@
 package mimsoft.io.waiter
 
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.courier.info.CourierInfoDto
 import mimsoft.io.features.courier.*
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
@@ -11,8 +11,8 @@ import mimsoft.io.features.staff.StaffTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.plugins.LOGGER
 import mimsoft.io.waiter.info.WaiterInfoDto
+import java.sql.Timestamp
 import java.util.*
 
 object WaiterService {
@@ -48,6 +48,7 @@ object WaiterService {
             ),
         )
     }
+
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 
     suspend fun getById(staffId: Long?): WaiterInfoDto? {
@@ -64,12 +65,48 @@ object WaiterService {
                         lastName = rs.getString("last_name"),
                         birthDay = rs.getTimestamp("birth_day"),
                         image = rs.getString("image"),
-                        gender  = rs.getString("gender"),
+                        gender = rs.getString("gender"),
                         status = rs.getBoolean("status"),
                         balance = rs.getDouble("c_balance"),
                     )
                 } else return@withContext null
             }
         }
+    }
+
+
+    suspend fun updateWaiterInfo(dto: StaffDto): Any {
+        val query = """
+             update $STAFF_TABLE_NAME  s
+             set  password = COALESCE(?,s.password) ,
+             first_name = COALESCE(?,s.first_name),
+             last_name = COALESCE(?,s.last_name),
+             birth_day = COALESCE(?,s.birth_day),
+             image = COALESCE(?,s.image),
+             comment = COALESCE(?,s.comment),
+             gender = COALESCE(?,s.gender)  
+             where s.id = ${dto.id} and s.deleted = false
+        """.trimIndent()
+        var rs: Int? = null
+        withContext(Dispatchers.IO) {
+            CourierService.repository.connection().use {
+                rs = it.prepareStatement(query).apply {
+                    setString(1, dto.password)
+                    setString(2, dto.firstName)
+                    setString(3, dto.lastName)
+                    setTimestamp(4, dto.birthDay?.let { Timestamp.valueOf(it) })
+                    setString(5, dto.image)
+                    setString(6, dto.comment)
+                    setString(7, dto.gender)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+        if (rs == 1) {
+            return ResponseModel(body = "Successfully", HttpStatusCode.OK)
+        } else {
+            return ResponseModel(body = "Courier not found ", HttpStatusCode.NotFound)
+        }
+
     }
 }

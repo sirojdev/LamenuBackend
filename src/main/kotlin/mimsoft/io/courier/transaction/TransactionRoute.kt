@@ -20,7 +20,7 @@ fun Route.routeToCourierTransaction() {
     val transactionService = TransactionService
     val courierTransactionService = CourierTransactionService
     route("transaction") {
-        post {
+        get {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId
@@ -41,10 +41,9 @@ fun Route.routeToCourierTransaction() {
                     )
                 )
             call.respond(CourierTransactionId(result))
-            return@post
         }
 
-        get("") {
+        get("all") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId
@@ -64,19 +63,19 @@ fun Route.routeToCourierTransaction() {
             return@get
         }
 
-        get("{id}") {
-            val pr = call.principal<BasePrincipal>()
-            val transactionId = call.parameters["id"]?.toLongOrNull()
-            val merchantId = pr?.merchantId
-            val courierId = pr?.staffId
-            val result = transactionService.getById(courierId = courierId, merchantId = merchantId, transactionId)
-            if (result == null) {
-                call.respond(HttpStatusCode.NotFound)
-                return@get
-            }
-            call.respond(result)
-            return@get
-        }
+//        get("{id}") {
+//            val pr = call.principal<BasePrincipal>()
+//            val transactionId = call.parameters["id"]?.toLongOrNull()
+//            val merchantId = pr?.merchantId
+//            val courierId = pr?.staffId
+//            val result = transactionService.getById(courierId = courierId, merchantId = merchantId, transactionId)
+//            if (result == null) {
+//                call.respond(HttpStatusCode.NotFound)
+//                return@get
+//            }
+//            call.respond(result)
+//            return@get
+//        }
     }
 
 }
