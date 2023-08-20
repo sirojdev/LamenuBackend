@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.product.repository.ProductRepository
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToProduct() {
 
@@ -17,7 +17,7 @@ fun Route.routeToProduct() {
     val mapper = ProductMapper
 
     get("/products") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
 
         val products = (productRepository.getAllProductInfo(merchantId = merchantId))
@@ -29,7 +29,7 @@ fun Route.routeToProduct() {
     }
 
     get("/product/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -45,7 +45,7 @@ fun Route.routeToProduct() {
     }
 
     post("/product") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val productInfo = call.receive<ProductInfoDto>()
         val categoryId = productInfo.product?.category?.id
@@ -57,7 +57,7 @@ fun Route.routeToProduct() {
     }
 
     put("/product") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val productInfo = call.receive<ProductInfoDto>()
         val product = productInfo.product
@@ -67,7 +67,7 @@ fun Route.routeToProduct() {
     }
 
     delete("/product/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -79,7 +79,7 @@ fun Route.routeToProduct() {
     }
 
     get("product/info/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {

@@ -6,12 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToMerchantWaiterInfoRoute() {
     route("info") {
         get("") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -26,7 +27,7 @@ fun Route.routeToMerchantWaiterInfoRoute() {
             call.respond(staff)
         }
         get("all") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0

@@ -121,7 +121,7 @@ paths:
           description: Unauthorized
 
   /courier/transaction:
-    post:
+    get:
       tags:
         - Transactions
       security:
@@ -145,6 +145,8 @@ paths:
           description: "Not found"
         "401":
           description: "Unauthorized"
+
+  /courier/transaction/all:
     get:
       tags:
         - Transactions
@@ -165,30 +167,20 @@ paths:
         "401":
           description: "Unauthorized"
 
-  /courier/transaction/{id}:
-    get:
-      tags:
-        - Transactions
-      security:
-        - bearerAuth: [ ]
-      description: "Get by id  transactions"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CourierTransactionDto"
-        "404":
-          description: "Not Found"
-        "401":
-          description: "Unauthorized"
 
-  /device:
+
+  /courier/device:
     post:
       tags:
         - Auth
       description: "Get device token"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
       requestBody:
         description: "A JSON object receive device token"
         required: true
@@ -222,6 +214,7 @@ paths:
                   $ref: "#/components/schemas/DeviceModel"
         "204":
           description: "No Content"
+
   /courier/auth:
     post:
       tags:
@@ -253,6 +246,18 @@ paths:
         "204":
           description: "No Content"
 
+  /courier/logout:
+    post:
+      tags:
+        - Auth
+      description: "logout courier "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+
+
   /courier/profile:
     get:
       tags:
@@ -267,6 +272,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CourierInfoDto"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+
+  /courier/update:
+    patch:
+      tags:
+        - Profile
+      requestBody:
+        description: "receive staff dto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      security:
+        - bearerAuth: [ ]
+      description: "update profile info"
+      responses:
+        "200":
+          description: "OK"
         "404":
           description: "Not found"
         "401":
@@ -291,29 +318,21 @@ paths:
         "401":
           description: "Unauthorized"
 
-  /courier/orders/open:
-    get:
-      tags:
-        - Order courier's
-      security:
-        - bearerAuth: [ ]
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DataPage"
-        "204":
-          description: "No content"
 
-  /courier/orders/active:
+
+  /courier/order:
     get:
       tags:
         - Order courier's
       description: Get active orders courier's
       security:
         - bearerAuth: [ ]
+      parameters:
+        - name: "status"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
       responses:
         "200":
           description: "OK"
@@ -324,25 +343,8 @@ paths:
         "204":
           description: "No content"
 
-  /courier/orders/archive:
-    get:
-      security:
-        - bearerAuth: [ ]
-      tags:
-        - Order courier's
-      description: Get archive orders  courier's
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                  $ref: "#/components/schemas/DataPage"
-        "204":
-          description: "No content"
-
-  /courier/orders/get:
-    get:
+  /courier/orders/join:
+    post:
       security:
         - bearerAuth: [ ]
       tags:

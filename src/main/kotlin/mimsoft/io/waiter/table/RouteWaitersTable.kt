@@ -6,13 +6,14 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.table.repository.WaiterTableRepository
 
 fun Route.routeToWaitersTables() {
     val waterTableRepository = WaiterTableRepository
     route("table") {
         put("join") {
-            val staffPrincipal = call.principal<StaffPrincipal>()
+            val staffPrincipal = call.principal<BasePrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = staffPrincipal?.staffId
                 val rs = waterTableRepository.joinToWaiter(waiterId, tableId, staffPrincipal?.merchantId)
@@ -23,7 +24,7 @@ fun Route.routeToWaitersTables() {
                 }
         }
         get("active") {
-            val staffPrincipal = call.principal<StaffPrincipal>()
+            val staffPrincipal = call.principal<BasePrincipal>()
             val waiterId = staffPrincipal?.staffId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
@@ -34,7 +35,7 @@ fun Route.routeToWaitersTables() {
             call.respond(HttpStatusCode.OK, activeTables)
         }
         get("finished") {
-            val staffPrincipal = call.principal<StaffPrincipal>()
+            val staffPrincipal = call.principal<BasePrincipal>()
             val waiterId = staffPrincipal?.staffId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
@@ -45,7 +46,7 @@ fun Route.routeToWaitersTables() {
             call.respond(HttpStatusCode.OK, activeTables)
         }
         put("finish"){
-            val staffPrincipal = call.principal<StaffPrincipal>()
+            val staffPrincipal = call.principal<BasePrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = staffPrincipal?.staffId
             val rs = waterTableRepository.finishTable(waiterId, tableId)

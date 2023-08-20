@@ -8,14 +8,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.category.repository.CategoryRepository
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCategory() {
 
     val categoryRepository: CategoryRepository = CategoryRepositoryImpl
 
     get("categories") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val categories = categoryRepository.getAll(merchantId = merchantId)
         if (categories.isEmpty()) {
@@ -25,7 +25,7 @@ fun Route.routeToCategory() {
     }
 
     get("category/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null) {
@@ -41,7 +41,7 @@ fun Route.routeToCategory() {
     }
 
     post("category") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val category = call.receive<CategoryDto>()
         val status = categoryRepository.add(category.copy(merchantId = merchantId))
@@ -49,7 +49,7 @@ fun Route.routeToCategory() {
     }
 
     put("category") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val category = call.receive<CategoryDto>()
         categoryRepository.update(category.copy(merchantId = merchantId))
@@ -57,7 +57,7 @@ fun Route.routeToCategory() {
     }
 
     delete("category/{id}") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id==null) {

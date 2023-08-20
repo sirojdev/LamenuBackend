@@ -9,7 +9,7 @@ import mimsoft.io.courier.transaction.routeToCourierTransaction
 
 fun Route.routeToCouriers() {
     routeToCourierAuth()
-    authenticate("staff") {
+    authenticate("courier") {
         route("courier") {
             routeToCouriersInfo()
             routeToCourierTransaction()

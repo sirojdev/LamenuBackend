@@ -3,19 +3,18 @@ package mimsoft.io.waiter.info
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.device.DeviceController
-import mimsoft.io.courier.orders.CourierOrderService
-import mimsoft.io.features.courier.CourierService
-import mimsoft.io.features.staff.StaffPrincipal
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.WaiterService
 
 fun Route.routeToWaitersInfo() {
     val waiterService = WaiterService
     get("profile") {
-        val principal = call.principal<StaffPrincipal>()
+        val principal = call.principal<BasePrincipal>()
         val courierId = principal?.staffId
         val dto = waiterService.getById(courierId)
         if (dto == null) {
@@ -34,5 +33,11 @@ fun Route.routeToWaitersInfo() {
         } else {
             call.respond(dto)
         }
+    }
+
+    patch("update") {
+        val principal = call.principal<BasePrincipal>()
+        val dto = call.receive<StaffDto>()
+        call.respond(waiterService.updateWaiterInfo(dto.copy(id = principal?.staffId)))
     }
 }

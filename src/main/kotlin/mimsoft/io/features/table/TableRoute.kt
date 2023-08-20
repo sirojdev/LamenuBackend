@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToTable(){
     val tableService : TableRepository = TableService
     val tableMapper = TableMapper
     get("tables"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val tables = tableService.getAll(merchantId=merchantId).map { tableMapper.toTableDto(it) }
         if(tables.isEmpty()){
@@ -22,7 +22,7 @@ fun Route.routeToTable(){
     }
 
     get("table/{id}"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
@@ -38,7 +38,7 @@ fun Route.routeToTable(){
     }
 
     post ("table"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<TableDto>()
         val toTable = TableMapper.toTableTable(table)
@@ -47,7 +47,7 @@ fun Route.routeToTable(){
     }
 
     put ("table"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<TableDto>()
         tableService.update(table.copy(merchantId = merchantId))
@@ -55,7 +55,7 @@ fun Route.routeToTable(){
     }
 
     delete("table/{id}"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){

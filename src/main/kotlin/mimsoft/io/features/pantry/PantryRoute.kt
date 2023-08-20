@@ -6,13 +6,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToPantry() {
     val pantryService = PantryService
     route("pantry") {
         post {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val pantryDto = call.receive<PantryDto>()
             val result = pantryService.check(pantryDto.copy(merchantId = merchantId))
@@ -21,7 +21,7 @@ fun Route.routeToPantry() {
 
 
         get("{id}"){
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             val response = pantryService.get(id = id, merchantId = merchantId)
@@ -31,7 +31,7 @@ fun Route.routeToPantry() {
         }
 
         get(""){
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val response = pantryService.getAll(merchantId = merchantId)
             if(response.isEmpty()){
@@ -43,7 +43,7 @@ fun Route.routeToPantry() {
         }
 
         delete("{id}") {
-            val pr = call.principal<MerchantPrincipal>()
+            val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             val response = pantryService.delete(id = id, merchantId = merchantId)

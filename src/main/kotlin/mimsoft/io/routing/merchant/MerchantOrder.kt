@@ -7,14 +7,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepository
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 /**
  * Created by Mimosa on 11/30/2020 at 12:00 PM
  */
 fun Route.routeToOrderByCourierAndCollector() {
     val orderRepository: OrderRepository = OrderRepositoryImpl
     get("orders") {
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val courierId = call.parameters["courierId"]?.toLongOrNull()
         val collectorId = call.parameters["collectorId"]?.toLongOrNull()

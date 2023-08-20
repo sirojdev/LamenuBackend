@@ -8,11 +8,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToOutcomeType() {
     get("outcome_types"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val outcomeTypes = OutcomeTypeService.getByMerchantId(merchantId = merchantId)
             if(outcomeTypes.isEmpty()){
@@ -22,7 +22,7 @@ fun Route.routeToOutcomeType() {
     }
 
     get("outcome_type/{id}"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){
@@ -38,7 +38,7 @@ fun Route.routeToOutcomeType() {
     }
 
     post ("outcome_type"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val outcomeType = call.receive<OutcomeTypeDto>()
         OutcomeTypeService.add(outcomeType.copy(merchantId = merchantId))
@@ -46,7 +46,7 @@ fun Route.routeToOutcomeType() {
     }
 
     put ("outcome_type"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<OutcomeTypeDto>()
         OutcomeTypeService.update(table.copy(merchantId = merchantId))
@@ -54,7 +54,7 @@ fun Route.routeToOutcomeType() {
     }
 
     delete("outcome_type/{id}"){
-        val pr = call.principal<MerchantPrincipal>()
+        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if(id==null){

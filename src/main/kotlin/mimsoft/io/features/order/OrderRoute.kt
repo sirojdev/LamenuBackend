@@ -21,7 +21,7 @@ fun Route.routeToOrder() {
 
     route("orders") {
         /**
-         * OPERATOR ORDER NI QQABUL QILADI
+         * OPERATOR ORDER NI QABUL QILADI
          * */
         get("accepted") {
             val principal = call.principal<BasePrincipal>()
@@ -29,7 +29,7 @@ fun Route.routeToOrder() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val merchantId = principal?.merchantId
             val rs = OrderRepositoryImpl.accepted(merchantId, orderId)
-            val order = OrderMapper.toDto(OrderRepositoryImpl.getOrder(orderId))
+            val order = OrderRepositoryImpl.get(orderId,merchantId = merchantId)
             if (rs) {
                 var offsett= 0
                 OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offsett)

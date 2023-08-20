@@ -6,14 +6,14 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffService
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.table.repository.WaiterTableRepository
 
 fun Route.routeToMerchantWaitersTable() {
     route("table") {
         val waterTableRepository = WaiterTableRepository
         put("join") {
-            val merchantPrincipal = call.principal<MerchantPrincipal>()
+            val merchantPrincipal = call.principal<BasePrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = call.parameters["waiterId"]?.toLong()
             val merchantId = merchantPrincipal?.merchantId
@@ -25,7 +25,7 @@ fun Route.routeToMerchantWaitersTable() {
             }
         }
         get("active") {
-            val merchantPrincipal = call.principal<MerchantPrincipal>()
+            val merchantPrincipal = call.principal<BasePrincipal>()
             val waiterId = call.parameters["waiterId"]?.toLong()
             val merchantId = merchantPrincipal?.merchantId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
@@ -43,7 +43,7 @@ fun Route.routeToMerchantWaitersTable() {
 
         }
         get("finished") {
-            val merchantPrincipal = call.principal<MerchantPrincipal>()
+            val merchantPrincipal = call.principal<BasePrincipal>()
             val merchantId = merchantPrincipal?.merchantId
             val waiterId = call.parameters["waiterId"]?.toLong()
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
