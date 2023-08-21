@@ -393,6 +393,7 @@ object DBManager: BaseRepository {
 
     override suspend fun selectList(query: String, args: Map<Int, *>?): List<Map<String, *>> {
         LOGGER.info("selectList --> $query")
+
         val list = mutableListOf<Map<String, Any?>>()
         withContext(databaseDispatcher) {
             connection().use {

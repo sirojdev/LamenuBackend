@@ -5,6 +5,7 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.currentCoroutineContext
 import mimsoft.io.integrate.payme.routeToPayme
 import mimsoft.io.routing.routeToV1
 
@@ -15,6 +16,8 @@ fun Application.configureRouting() {
         }
 
         route("v1"){
+            logApplicationCalls()
+
             routeToV1()
 
             swaggerUI(path = "docs/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {

@@ -1,28 +1,97 @@
 package mimsoft.io.features.order_
 
+import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.badge.BadgeDto
+import mimsoft.io.features.merchant.MerchantDto
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
+import mimsoft.io.utils.TextModel
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.sql.Timestamp
 
 object OrderService {
 
     private val repository: BaseRepository = DBManager
+    private val log:Logger = LoggerFactory.getLogger(OrderService::class.java)
 
     suspend fun getAll(
         params: Map<String, Any>? = null,
-    ): DataPage<Order>? {
+    ): DataPage<Order> {
         val query = if (params?.containsKey("search") == true) search(params) else query(params)
-        val result = if (query is Pair<*, *>) {
-            repository.selectList(query.first as String, query.second as Map<*, *>)
+        var rowCount = ""
+        var result = emptyList<Map<String, *>>()
+            log.info("query: $query")
+        if (query is Pair<*, *>) {
+            result = repository.selectList(query.first as String, query.second as Map<*, *>)
+            rowCount = query.first as String
         } else {
             repository.selectList(query as String)
+            rowCount = query
         }
-        return null
+
+        val rowQuery = """
+            SELECT COUNT(*) 
+            FROM (${rowCount.substringBefore("LIMIT")}) AS row_count
+        """.trimIndent()
+
+        val rowResult = repository.selectOne(rowQuery)
+
+        return DataPage(
+            data = result.map { row ->
+                Order(
+                    id = row["o_id"] as? Long?,
+                    serviceType = row["o_service_type"] as? String?,
+                    status = row["o_status"] as? String?,
+                    user = UserDto(
+                        id = row["u_id"] as? Long?,
+                        firstName = row["u_first_name"] as? String?,
+                        lastName = row["u_last_name"] as? String?,
+                        phone = row["u_phone"] as? String?,
+                        image = row["u_image"] as? String?,
+                        birthDay = row["u_birth_day"] as? Timestamp?,
+                        badge = BadgeDto(id = row["u_badge_id"] as? Long?)
+                        ),
+                    merchant = MerchantDto(
+                        id = row["m_id"] as? Long?,
+                        name = TextModel(
+                            uz = row["m_name_tr"] as? String?,
+                            ru = row["m_name_en"] as? String?,
+                            eng = row["m_name_ar"] as? String?),
+                        phone = row["m_phone"] as? String?,
+                        sub = row["m_sub"] as? String?,
+                        logo = row["m_logo"] as? String?,
+                        isActive = row["m_is_active"] as? Boolean?
+                        ),
+                    collector = StaffDto(
+                        id = row["s_id"] as? Long?,
+                        firstName = row["s_first_name"] as? String?,
+                        lastName = row["s_last_name"] as? String?,
+                        phone = row["s_phone"] as? String?,
+                        image = row["s_image"] as? String?,
+                        birthDay = row["s_birth_day"].toString(),
+                        position = row["s_position"] as? String?,
+                        gender = row["gender"] as? String?,
+                        comment = row["s_comment"] as? String?
+                        ),
+                    products = row["o_products"] as String? ?: "",
+                    paymentType = row["o_payment_type"] as Long? ?: 0,
+                    isPaid = row["o_is_paid"] as Boolean? ?: false,
+                    comment = row["o_comment"] as String? ?: "",
+                    productCount = row["o_product_count"] as Int? ?: 0,
+                    createdAt = row["o_created_at"] as Timestamp? ?: Timestamp(0),
+                    updatedAt = row["o_updated_at"] as Timestamp? ?: Timestamp(0),
+                    deleted = row["o_deleted"] as Boolean? ?: false
+                ) },
+            total = rowResult?.get("count") as Int?
+        )
     }
 
     fun query(params: Map<String, Any>?): String {
 
-        var query = """
+        val query = """
             SELECT 
             o.id o_id,
             o.user_id o_user_id,
@@ -50,7 +119,7 @@ object OrderService {
             o.branch_id o_branch_id
         """.trimIndent()
 
-        var joins = """
+        val joins = """
             FROM orders o
             LEFT JOIN left join order_price op on o.id = op.order_id
         """.trimIndent()
@@ -227,3 +296,5 @@ object OrderService {
         return Pair(query + joins + conditions, queryParams)
     }
 }
+
+
