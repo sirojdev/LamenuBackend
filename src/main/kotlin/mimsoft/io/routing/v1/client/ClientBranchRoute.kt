@@ -1,4 +1,4 @@
-package mimsoft.io.client.branch
+package mimsoft.io.routing.v1.client
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -22,7 +22,7 @@ fun Route.routeToClientBranches() {
             return@get
         } else call.respond(branches)
     }
-    get("branch") {
+    get("branch/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val branchName = call.parameters["branch-name"]
@@ -45,7 +45,7 @@ fun Route.routeToClientBranches() {
         }
         call.respond(branch)
     }
-    get("nearest") {
+    get("branch/nearest") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val latitude = call.parameters["lat"]?.toDoubleOrNull()
         val longitude = call.parameters["long"]?.toDoubleOrNull()

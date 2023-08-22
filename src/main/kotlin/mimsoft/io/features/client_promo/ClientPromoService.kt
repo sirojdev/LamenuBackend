@@ -94,7 +94,9 @@ object ClientPromoService {
         repository.deleteData("client_promo", where = "id", whereValue = id)
 
     suspend fun check(promoName: String?): PromoDto? {
+        println(promoName)
         val promo = PromoService.getPromoByCode(promoName)
+        println("promo $promo")
         if (promo == null)
             return null
         return promo

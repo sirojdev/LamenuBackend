@@ -160,6 +160,7 @@ object SessionRepository {
         DBManager.deleteData(tableName = SESSION_TABLE_NAME, whereValue = id)
 
     suspend fun expire(uuid: String?) = withContext(Dispatchers.IO) {
+        println("uuid -> $uuid")
         val query = "update session set is_expired=true, updated=? where uuid=?"
         DBManager.connection().use {
             it.prepareStatement(query).apply {

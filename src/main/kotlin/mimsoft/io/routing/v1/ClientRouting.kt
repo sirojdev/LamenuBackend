@@ -2,9 +2,7 @@ package mimsoft.io.routing.v1
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
-import mimsoft.io.client.branch.routeToClientBranches
 import mimsoft.io.client.order.routeToClientOrder
-import mimsoft.io.client.table.routeToClientTable
 import mimsoft.io.features.address.routeToAddress
 import mimsoft.io.features.book.routeToBook
 import mimsoft.io.features.client_promo.routeToClientPromo
@@ -18,20 +16,19 @@ fun Route.routeToClient() {
     }
 
     route("client") {
-        routeToClientDevice()
-        routeToClientProduct()
-        routeToClientTable()
-        routeToClientBranches()
-        routeToClientCategory()
-        routeToClientStory()
-        clientStoryInfoRoute()
+        routeToClientDevice() //+
+        routeToClientProduct() //+
+        routeToClientTable() //+
+        routeToClientBranches() //+
+        routeToClientCategory() //+
+        routeToClientStory() //+
         routeToClientBasket()
-        routeToCategoryByGroup()
-        routeToClientCart()
-        routeToPaymentTypes()
+        routeToCategoryByGroup() //+
+        routeToClientCart() //+
+        routeToPaymentTypes() //+
         authenticate("user") {
-            routeToClientPromo()
-            routeToClientProfile()
+            routeToClientPromo() //+
+            routeToClientProfile() //+
             routeToAddress()
             routeToClientOrder()
             routeToBook()

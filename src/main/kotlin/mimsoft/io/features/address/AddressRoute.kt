@@ -10,13 +10,15 @@ import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.address.repository.AddressRepository
 import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.features.branch.BranchId
+import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToAddress() {
     val addressService: AddressRepository = AddressRepositoryImpl
     route("address") {
         get {
-            val pr = call.principal<UserPrincipal>()
-            val clientId = pr?.id
+            val pr = call.principal<BasePrincipal>()
+            println("pr -> $pr")
+            val clientId = pr?.userId
             val addresses = addressService.getAll(clientId = clientId)
             if (addresses.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)

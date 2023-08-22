@@ -10,5 +10,4 @@ data class AddressDto(
     val longitude: Double? = null,
     val clientId: Long? = null,
     val merchantId: Long? = null
-
 )

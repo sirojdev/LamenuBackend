@@ -117,9 +117,7 @@ object TableService : TableRepository {
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.closeOnCompletion()
-                }.executeQuery()
+                val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     return@withContext TableDto(
                         id = rs.getLong("t_id"),
@@ -147,7 +145,6 @@ object TableService : TableRepository {
                         )
                     )
                 } else return@withContext null
-
             }
         }
     }
