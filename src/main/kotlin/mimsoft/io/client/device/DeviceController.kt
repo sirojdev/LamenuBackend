@@ -59,23 +59,30 @@ object DeviceController {
     }
 
     suspend fun auth(device: DeviceModel): DeviceModel {
-        val upsert =
-            "with upsert as (\n update device set \n" +
-                    "        merchant_id = ${device.merchantId}, " +
-                    "        os_version = ?,\n" +
-                    "        model = ?,\n" +
-                    "        brand = ?,\n" +
-                    "        build = ?,\n" +
-                    "        fb_token = ?,\n" +
-                    "        updated_at = ?, \n" +
-                    "        ip = ?\n" +
-                    "where uuid = ?\n" +
-                    "        returning *\n" +
-                    ")\n" +
-                    "insert\n" +
-                    "into device (merchant_id, os_version, model, brand, build, fb_token, created_at ,ip, uuid)\n" +
-                    "select ${device.merchantId}, ?, ?, ?, ?, ?, ?, ?, ? \n" +
-                    "where not exists(select * from upsert)"
+        val upsert = """
+                with upsert as ( update device set
+                    merchant_id = ${device.merchantId},
+                    os_version = ?,
+                    model = ?,
+                    brand = ?,
+                    build = ?,
+                    fb_token = ?,
+                    updated_at = ?,
+                    ip = ?
+                    where uuid = ?
+                    returning *)
+                insert
+                into device (merchant_id, os_version, model, brand, build, fb_token, created_at, ip, uuid)
+                select ${device.merchantId},
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?
+                where not exists(select * from upsert)""".trimIndent()
         return withContext(DBManager.databaseDispatcher) {
             println("upsert -> $upsert")
             DBManager.connection().use { connection ->

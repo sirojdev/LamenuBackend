@@ -1,4 +1,4 @@
-package mimsoft.io.client.table
+package mimsoft.io.routing.v1.client
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -6,7 +6,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.room.RoomRepository
 import mimsoft.io.features.room.RoomService
-import mimsoft.io.features.table.TableMapper
 import mimsoft.io.features.table.TableRepository
 import mimsoft.io.features.table.TableService
 
@@ -14,16 +13,11 @@ fun Route.routeToClientTable(){
     val tableRepository: TableRepository = TableService
     val roomRepository: RoomRepository = RoomService
 
-    get("tables") {
+    get("tablesByRoom") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
-        val table = tableRepository.getAll(merchantId=merchantId).map { TableMapper.toTableDto(it) }
-
-        val rooms = roomRepository.getAll(merchantId=merchantId).map { it }
-        val tables = ClientTableDto(
-            tableList = table,
-            roomList = rooms
-        )
-        call.respond(HttpStatusCode.OK, tables)
+        val branchId = call.parameters["branchId"]?.toLongOrNull()
+        val rooms = roomRepository.getWithTable(branchId = branchId, merchantId=merchantId)
+        call.respond(HttpStatusCode.OK, rooms)
     }
 
     get("table") {

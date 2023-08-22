@@ -9,7 +9,6 @@ import io.ktor.server.routing.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.session.SessionRepository

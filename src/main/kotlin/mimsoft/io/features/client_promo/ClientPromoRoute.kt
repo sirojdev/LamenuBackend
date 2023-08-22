@@ -6,17 +6,16 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.promo.PromoDto
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToClientPromo() {
     val service = ClientPromoService
-    route("client/promo") {
-        post{
+    route("promo") {
+        post("check") {
             val promoName = call.receive<PromoDto>()
             val response = service.check(promoName = promoName.name)
-            if(response == null){
+            if (response == null) {
                 HttpStatusCode.NotAcceptable
                 return@post
             }
@@ -24,16 +23,16 @@ fun Route.routeToClientPromo() {
             return@post
         }
 
-
-
-
         post {
+            val pr = call.principal<BasePrincipal>()
+            val userId = pr?.userId
             val dto = call.receive<ClientPromoDto>()
-            if (dto.client?.id == null || dto.promo?.id == null) {
+            if (dto.promo?.id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
-            val response = service.add(dto = dto)
+            val client = dto.client?.copy(id = userId)
+            val response = service.add(dto = dto.copy(client = client))
             if (response == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@post
@@ -55,14 +54,18 @@ fun Route.routeToClientPromo() {
 
         delete("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
+            if(id == null){
+                call.respond(HttpStatusCode.BadRequest)
+                return@delete
+            }
             val response = service.delete(id = id)
             call.respond(HttpStatusCode.OK, response)
         }
     }
 
     get("promos") {
-        val pr = call.principal<UserPrincipal>()
-        val clientId = pr?.id
+        val pr = call.principal<BasePrincipal>()
+        val clientId = pr?.userId
         val response = service.getByClientId(clientId = clientId)
         if (response.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)

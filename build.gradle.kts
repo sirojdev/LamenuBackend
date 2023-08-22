@@ -58,3 +58,15 @@ dependencies {
     implementation("io.ktor:ktor-network:$ktor_version")
 
 }
+
+ktor {
+//    fatJar {
+//        archiveFileName.set("lamenu-all.jar")
+//    }
+
+    fatJar{
+        archiveFileName.set("lamenu-dev.jar")
+    }
+
+}
+

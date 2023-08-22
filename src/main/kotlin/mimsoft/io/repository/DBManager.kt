@@ -2,8 +2,11 @@ package mimsoft.io.repository
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.ktor.server.application.*
+import io.ktor.server.config.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.utils.plugins.AppConfig
 import mimsoft.io.utils.plugins.LOGGER
 import mimsoft.io.utils.principal.Role
 
@@ -15,25 +18,29 @@ import kotlin.reflect.full.createType
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
-object DBManager: BaseRepository {
+object DBManager : BaseRepository {
 
-    fun init() {
-//        createTable(tableName = ORDER_TABLE_NAME, OrderTable::class)
-//        createTable(tableName = SESSION_TABLE_NAME, SessionTable::class)
-//        createTable(tableName = "role", dataClass = Role::class)
-//        createTable(tableName = "staff", dataClass = StaffTable::class)
-    }
+    var url: String? = ""
+    var user: String? = ""
+    var password: String? = ""
+
 
     val databaseDispatcher = Dispatchers.IO
 
     private val dataSource = createDataSource()
 
     private fun createDataSource(): HikariDataSource {
+        val config = AppConfig.config
+        val dbUrl = config?.propertyOrNull("ktor.dataSource.url")?.getString()
+        val dbPassword = config?.propertyOrNull("ktor.dataSource.password")?.getString()
+        val dbUser = config?.propertyOrNull("ktor.dataSource.username")?.getString()
+
+
         val dataSourceConfig = HikariConfig()
 
-        dataSourceConfig.jdbcUrl = "jdbc:postgresql://188.166.167.80:5432/lamenu"
-        dataSourceConfig.username = "postgres"
-        dataSourceConfig.password = "re_mim_soft"
+        dataSourceConfig.jdbcUrl = dbUrl
+        dataSourceConfig.username = dbUser
+        dataSourceConfig.password = dbPassword
         dataSourceConfig.maximumPoolSize = 10
         dataSourceConfig.minimumIdle = 5
         dataSourceConfig.connectionTimeout = 30000
@@ -436,7 +443,8 @@ object DBManager: BaseRepository {
     }
 
     override suspend fun selectList(query: String, vararg args: Any?): List<Map<String, *>> {
-        return selectList(query, args.mapIndexed { index, any -> index + 1 to any }.toMap())}
+        return selectList(query, args.mapIndexed { index, any -> index + 1 to any }.toMap())
+    }
 
     override suspend fun insert(query: String, args: Map<Int, *>?): Map<String, *>? {
         LOGGER.info("insert --> $query")
