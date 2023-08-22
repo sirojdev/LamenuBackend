@@ -4,10 +4,12 @@ enum class OrderStatus {
     OPEN,
     ACCEPTED,
     CANCELED,
+    ONWAVE,
     READY,
     COOKING,
-    DONE,
+    JOIN,
     ONWAY,
     DELIVERED,
-    CLOSED
+    CLOSED,
+    DONE,
 }
