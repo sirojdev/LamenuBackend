@@ -6,8 +6,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.staff.StaffPrincipal
-import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
@@ -41,7 +39,7 @@ fun Route.routeToCourierOrders() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            val result = courierOrderService.getOrderToCourier(
+            val result = courierOrderService.joinOrderToCourier(
                 courierId = courierId,
                 orderId = orderId,
             )
@@ -90,7 +88,7 @@ fun Route.routeToCourierOrders() {
             }else if(order.order?.courier?.id!=courierId){
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }
-            call.respond(order)
+            call.respond(order!!)
         }
 
     }

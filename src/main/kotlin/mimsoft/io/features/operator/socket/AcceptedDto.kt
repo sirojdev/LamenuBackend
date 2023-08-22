@@ -1,4 +1,6 @@
 package mimsoft.io.features.operator.socket
 
-class AcceptedDto {
-}
+data class AcceptedDto (
+    val orderId:Long,
+    val status:String
+)

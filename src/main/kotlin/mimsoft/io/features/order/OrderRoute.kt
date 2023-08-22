@@ -31,7 +31,7 @@ fun Route.routeToOrder() {
             val rs = OrderRepositoryImpl.accepted(merchantId, orderId)
             val order = OrderRepositoryImpl.get(orderId,merchantId = merchantId)
             if (rs) {
-                var offsett= 0
+                val offsett= 0
                 OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offsett)
                 call.respond(rs)
             }else{

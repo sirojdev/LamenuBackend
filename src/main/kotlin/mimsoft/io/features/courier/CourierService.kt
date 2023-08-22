@@ -75,7 +75,7 @@ object CourierService {
 FROM
     courier c
         INNER JOIN
-    courier_location_history clh ON clh.id = c.last_location_id and clh.merchant_id = c.merchant_id and clh.staff_id = c.staff_id
+    courier_location_history clh ON clh.id = c.last_location_id and clh.merchant_id = c.merchant_id and clh.staff_id = c.staff_id and c.is_active = true
         INNER JOIN
     branch b ON c.merchant_id = b.merchant_id AND b.id = $branchId
 ORDER BY
@@ -95,6 +95,17 @@ ORDER BY
             }
         }
 
+    }
+
+    suspend fun updateIsActive(staffId: Long?, isActive: Boolean){
+        val query = """ update $COURIER_TABLE_NAME set is_active = ? where staff_id = $staffId""".trimIndent()
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setBoolean(1, isActive)
+                }.executeUpdate()
+            }
+        }
     }
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id

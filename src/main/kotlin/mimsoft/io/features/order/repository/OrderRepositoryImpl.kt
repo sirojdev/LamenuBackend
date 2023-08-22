@@ -50,7 +50,12 @@ object OrderRepositoryImpl : OrderRepository {
     private val addressService: AddressRepository = AddressRepositoryImpl
     private val log: Logger = LoggerFactory.getLogger(OrderRepositoryImpl::class.java)
 
-    override suspend fun getLiveOrders(type: String?, limit: Int?, offset: Int?, merchantId: Long?): DataPage<OrderWrapper?>? {
+    override suspend fun getLiveOrders(
+        type: String?,
+        limit: Int?,
+        offset: Int?,
+        merchantId: Long?
+    ): DataPage<OrderWrapper?>? {
         val query = """
             select 
             o.id  o_id,
@@ -441,7 +446,7 @@ object OrderRepositoryImpl : OrderRepository {
                         id = statement.getLong("o_id"),
                         userId = statement.getLong("user_id"),
                         userPhone = statement.getString("user_phone"),
-                        serviceType = statement.getString("type"),
+                        serviceType = statement.getString("service_type"),
                         courierId = statement.getLong("courier_id"),
                         products = statement.getString("products"),
                         status = statement.getString("status"),
@@ -477,9 +482,13 @@ object OrderRepositoryImpl : OrderRepository {
         val typeToken = object : TypeToken<List<CartItem>>() {}.type
         val products = orderTable?.products
         cartList = gson.fromJson(products, typeToken)
-        val p = getOrderProducts(products = cartList)
-        val d = p.body as OrderWrapper
-        val prod = d.products
+//        val p = getOrderProducts(products = cartList)
+//        val d = try {
+//            p.body as OrderWrapper
+//        } catch (e: ClassCastException) {
+//             null
+//        }
+//        val prod = d?.products
         return OrderWrapper(
             order = orderTable?.let { orderMapper.toDto(it) },
             user = UserDto(
@@ -494,7 +503,7 @@ object OrderRepositoryImpl : OrderRepository {
                     description = it.addDesc
                 )
             },
-            products = prod
+//            products = prod
         )
 
     }
@@ -1072,7 +1081,7 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun delete(id: Long?): ResponseModel {
-        val order = get(id).order ?: return ResponseModel(httpStatus = ResponseModel.ORDER_NOT_FOUND)
+        val order = get(id)?.order ?: return ResponseModel(httpStatus = ResponseModel.ORDER_NOT_FOUND)
         if (order.status != OrderStatus.OPEN.name)
             return ResponseModel(httpStatus = HttpStatusCode.Forbidden)
         val query = "update orders set status = ? where id = $id"
@@ -1282,7 +1291,11 @@ object OrderRepositoryImpl : OrderRepository {
     }
 
 
-    suspend fun getProductCalculate(cart: CartInfoDto?=null, merchantId: Long?=null, productsCart: List<CartItem>?=null): ResponseModel {
+    suspend fun getProductCalculate(
+        cart: CartInfoDto? = null,
+        merchantId: Long? = null,
+        productsCart: List<CartItem>? = null
+    ): ResponseModel {
 
         val products = productsCart ?: cart?.products
         var totalPriceWithDiscount = 0L
@@ -1357,13 +1370,13 @@ object OrderRepositoryImpl : OrderRepository {
                 }
 
                 val result = mutableMapOf(
-                        "p_id" to rs[0]["p_id"],
-                        "p_price" to rs[0]["p_price"],
-                        "o_id" to rs[0]["o_id"],
-                        "o_price" to rs[0]["o_price"],
-                        "p_discount" to rs[0]["p_discount"],
-                        "e" to arrayListOf<Map<String, *>>()
-                    )
+                    "p_id" to rs[0]["p_id"],
+                    "p_price" to rs[0]["p_price"],
+                    "o_id" to rs[0]["o_id"],
+                    "o_price" to rs[0]["o_price"],
+                    "p_discount" to rs[0]["p_discount"],
+                    "e" to arrayListOf<Map<String, *>>()
+                )
 
 
                 result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
@@ -1403,7 +1416,7 @@ object OrderRepositoryImpl : OrderRepository {
 
         totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
 
-        if (productsCart!=null) return ResponseModel(
+        if (productsCart != null) return ResponseModel(
             body = mapOf(
                 "totalPrice" to totalProductPrice,
                 "totalDiscount" to totalDiscount,
@@ -1565,7 +1578,35 @@ object OrderRepositoryImpl : OrderRepository {
                 val re = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeUpdate()
-                return@withContext re==1
+                return@withContext re == 1
+            }
+        }
+    }
+
+    override suspend fun updateOnWave(orderId: Long, onWave: Boolean) {
+        val query = "update $ORDER_TABLE_NAME  set on_wave =?" +
+                " where id = $orderId  "
+         withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val re = it.prepareStatement(query).apply {
+                    setBoolean(1,onWave)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                return@withContext re == 1
+            }
+        }
+    }
+
+    suspend fun updateStatus(orderId: Long?, status: OrderStatus): Boolean {
+        val query = "update $ORDER_TABLE_NAME  set status = ? " +
+                " where id = $orderId  "
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val re = it.prepareStatement(query).apply {
+                    setString(1,status.name)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                return@withContext re == 1
             }
         }
     }

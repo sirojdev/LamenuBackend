@@ -183,13 +183,14 @@ object CourierOrderService {
         return result
     }
 
-    suspend fun getOrderToCourier(courierId: Long?, orderId: Long?): OrderWrapper? {
-        val query = " update orders set courier_id = $courierId  " +
+    suspend fun joinOrderToCourier(courierId: Long?, orderId: Long?): OrderWrapper? {
+        val query = " update orders set courier_id = $courierId  ,status  = ? " +
                 " where status = ? and id = $orderId and courier_id is null "
         val result = withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
-                    setString(1, OrderStatus.ACCEPTED.name)
+                    setString(1, OrderStatus.JOIN.name)
+                    setString(2, OrderStatus.ONWAVE.name)
                 }.executeUpdate()
             }
         }

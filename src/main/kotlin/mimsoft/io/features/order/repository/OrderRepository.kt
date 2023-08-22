@@ -45,4 +45,5 @@ interface OrderRepository {
     suspend fun editPaidOrder(order: OrderDto?)
     suspend fun updateDetails(detail: OrderDetails?): Boolean
     suspend fun accepted(merchantId: Long?, orderId: Long?): Any
+    suspend fun updateOnWave(id: Long, b: Boolean)
 }
