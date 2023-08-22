@@ -1,5 +1,7 @@
 package mimsoft.io.features.table
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.branch.BranchDto
@@ -78,6 +80,37 @@ object TableService : TableRepository {
             }
         }
         return true
+    }
+
+    override suspend fun getRoomWithTables(merchantId: Long?, branchId: Long?): ArrayList<RoomDto> {
+        val query = """
+            SELECT
+                r.id AS room_id,
+                r.name as r_name,
+                json_agg(json_build_object('id', t.id, 'name', t.name,'qr',t.qr,'type',t.type)) AS tables
+            FROM room  r
+            left join  tables t on r.id = t.room_id
+            where t.deleted = false and r.deleted = false and t.deleted = false and r.merchant_id = $merchantId and r.branch_id =$branchId
+            group by r.name, r.id
+        """.trimIndent()
+        val rooms: ArrayList<RoomDto> = ArrayList() // Initialize the ArrayList
+        withContext(Dispatchers.IO) {
+            StaffService.repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    val tablesJson = rs.getString("tables")
+                    val roomDto = RoomDto(
+                        id = rs.getLong("room_id"),
+                        name = rs.getString("r_name"),
+                        tables = Gson().fromJson(tablesJson, object : TypeToken<List<TableDto>>() {}.type)
+                    )
+                    rooms.add(roomDto)
+                }
+            }
+        }
+        return rooms
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
