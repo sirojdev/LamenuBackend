@@ -9,7 +9,9 @@ import kotlinx.coroutines.isActive
 import mimsoft.io.courier.location.CourierSocketService
 import mimsoft.io.courier.orders.CourierOrderService
 import mimsoft.io.features.courier.CourierService
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
+
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.toOperatorSocket() {
@@ -54,10 +56,10 @@ fun Route.toOperatorSocket() {
              * */
             webSocket("courier") {
 
-                    val principal = call.principal<BasePrincipal>()
-                    val staffId = principal?.staffId
-                    val merchantId = principal?.merchantId
-                    val uuid = principal?.uuid
+                val principal = call.principal<BasePrincipal>()
+                val staffId = principal?.staffId
+                val merchantId = principal?.merchantId
+                val uuid = principal?.uuid
                 try {
                     /**
                      * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
@@ -79,8 +81,8 @@ fun Route.toOperatorSocket() {
                                         it.courierId == staffId && response.orderId == it.orderId
                                     }
                                     CourierOrderService.joinOrderToCourier(
-                                            courierId = dto.courierId,
-                                    orderId = dto.orderId,
+                                        courierId = dto.courierId,
+                                        orderId = dto.orderId,
                                     )
 //                                    OrderRepositoryImpl.updateOnWave(dto.orderId,true)
                                 }
@@ -93,10 +95,10 @@ fun Route.toOperatorSocket() {
                                         it.courierId == staffId && response.orderId == it.orderId
                                     }
                                     OperatorSocketService.findNearCourierAndSendOrderToCourier(
-                                        OrderRepositoryImpl.get(
-                                            response.orderId,
-                                            merchantId = merchantId
-                                        ), dto.offset!!+1
+                                        OrderService.get(
+                                            response.orderId
+                                        ).body as Order,
+                                        dto.offset!!+1
                                     )
                                 }
                             }

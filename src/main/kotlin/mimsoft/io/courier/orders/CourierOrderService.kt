@@ -3,6 +3,7 @@ package mimsoft.io.courier.orders
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -12,6 +13,24 @@ import mimsoft.io.utils.ResponseModel
 
 object CourierOrderService {
     val repository: BaseRepository = DBManager
+
+    suspend fun joinOrderToCourier(courierId: Long?, orderId: Long?): Order? {
+        val query = " update orders set courier_id = $courierId , on_wave  = ? " +
+                " where status = ? and id = $orderId and courier_id is null "
+        val result = withContext(Dispatchers.IO) {
+            repository.connection().use {
+                it.prepareStatement(query).apply {
+                    setBoolean(1,false)
+                    setString(2, OrderStatus.ACCEPTED.name)
+                }.executeUpdate()
+            }
+        }
+        if (result == 1) {
+            return OrderService.get(orderId).body as Order
+        }
+        return null
+    }
+
 
     suspend fun updateStatus(courierId: Long?, orderId: Long?, status: OrderStatus?): Int {
         var query = "update orders set status = ? , updated_at = now()  "

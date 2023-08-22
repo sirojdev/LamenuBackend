@@ -314,6 +314,21 @@ object OrderService {
         return ResponseModel(body = "{}")
     }
 
+    suspend fun updateOnWave(orderId: Long, onWave: Boolean) {
+        val query = "update orders  set on_wave =?" +
+                " where id = $orderId  "
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val re = it.prepareStatement(query).apply {
+                    setBoolean(1,onWave)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                return@withContext re == 1
+            }
+        }
+    }
+
+
 }
 
 
