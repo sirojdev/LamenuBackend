@@ -6,11 +6,10 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
-import mimsoft.io.features.order.repository.OrderRepository
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.OrderService
 
 fun Route.routeToClientOrderInfo() {
-    val orderRepository: OrderRepository = OrderRepositoryImpl
+    val orderService = OrderService
 
     get("order/info/{id}") {
         val pr = call.principal<UserPrincipal>()
@@ -20,12 +19,8 @@ fun Route.routeToClientOrderInfo() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val get = orderRepository.get(id = id, merchantId = merchantId)
-        if (get == null) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }
-        call.respond(get)
-        return@get
+        val get = orderService.get(id = id)
+
+        call.respond(get.httpStatus, get.body)
     }
 }

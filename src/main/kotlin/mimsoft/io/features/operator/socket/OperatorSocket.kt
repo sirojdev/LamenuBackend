@@ -7,10 +7,12 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
 import mimsoft.io.courier.location.CourierSocketService
-import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
-import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
+import mimsoft.io.courier.orders.CourierOrderService
+import mimsoft.io.features.courier.CourierService
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
+
 import mimsoft.io.utils.principal.BasePrincipal
-import java.sql.Timestamp
 
 fun Route.toOperatorSocket() {
     route("operator") {
@@ -29,7 +31,7 @@ fun Route.toOperatorSocket() {
                      * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
                      * OPERATOR FAQAT ESHITIB TURADI
                      * */
-                    OperatorSocketService.findConnection(staffId, merchantId, uuid,this)
+                    OperatorSocketService.findConnection(staffId, merchantId, uuid, this)
 
                     for (frame in incoming) {
                     }
@@ -50,21 +52,59 @@ fun Route.toOperatorSocket() {
         }
         authenticate("staff") {
             /**
-             * YANGI ORDERLARNI COURIER GA BERIB YUBORADI COURIER ONLY LISTEN
+             * YANGI ORDERLARNI COURIER GA BERIB YUBORADI COURIER LISTEN AND GIVE ANSWER ACCEPTED AND NOT_ACCEPTED
              * */
-            webSocket("newOrder") {
+            webSocket("courier") {
+
+                val principal = call.principal<BasePrincipal>()
+                val staffId = principal?.staffId
+                val merchantId = principal?.merchantId
+                val uuid = principal?.uuid
                 try {
-                    val principal = call.principal<BasePrincipal>()
-                    val staffId = principal?.staffId
-                    val merchantId = principal?.merchantId
-                    val uuid = principal?.uuid
                     /**
                      * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
                      * OPERATOR FAQAT ESHITIB TURADI
                      * */
-                    CourierSocketService.findCourierListenNewOrder(staffId, merchantId, uuid,this)
+                    CourierSocketService.findCourierListenNewOrder(staffId, merchantId, uuid, this)
 
                     for (frame in incoming) {
+                        frame as? Frame.Text ?: continue
+                        val receivedText = frame.readText()
+                        val response = Gson().fromJson(receivedText, AcceptedDto::class.java)
+                        if (response != null) {
+                            if (response.status == "ACCEPTED") {
+                                val dto = OperatorSocketService.sendOrderList.find {
+                                    it.courierId == staffId && response.orderId == it.orderId
+                                }
+                                if (dto != null) {
+                                    OperatorSocketService.sendOrderList.removeIf {
+                                        it.courierId == staffId && response.orderId == it.orderId
+                                    }
+                                    CourierOrderService.joinOrderToCourier(
+                                        courierId = dto.courierId,
+                                        orderId = dto.orderId,
+                                    )
+//                                    OrderRepositoryImpl.updateOnWave(dto.orderId,true)
+                                }
+                            } else if (response.status == "NOT_ACCEPTED") {
+                                val dto = OperatorSocketService.sendOrderList.find {
+                                    it.courierId == staffId && response.orderId == it.orderId
+                                }
+                                if (dto != null) {
+                                    OperatorSocketService.sendOrderList.removeIf {
+                                        it.courierId == staffId && response.orderId == it.orderId
+                                    }
+                                    OperatorSocketService.findNearCourierAndSendOrderToCourier(
+                                        OrderService.get(
+                                            response.orderId
+                                        ).body as Order,
+                                        dto.offset!!+1
+                                    )
+                                }
+                            }
+                        }
+
+
                     }
                     try {
                         while (isActive) {
@@ -75,8 +115,9 @@ fun Route.toOperatorSocket() {
                 } catch (e: Exception) {
                     println(e.localizedMessage)
                 } finally {
+                    CourierService.updateIsActive(staffId, false)
                     close(CloseReason(CloseReason.Codes.NORMAL, "Connection closed"))
-                    CourierSocketService.locationConnection.removeIf { it.session == this }
+                    CourierSocketService.locationConnection.removeIf { it.session == this  }
                 }
             }
         }

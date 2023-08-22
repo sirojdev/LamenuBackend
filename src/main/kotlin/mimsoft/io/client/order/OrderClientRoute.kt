@@ -1,76 +1,65 @@
 package mimsoft.io.client.order
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.UserPrincipal
-import mimsoft.io.features.order.OrderModel
-import mimsoft.io.features.order.repository.OrderRepository
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.merchant.MerchantDto
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 fun Route.routeToClientOrder() {
-    val orderService: OrderRepository = OrderRepositoryImpl
+    val orderService = OrderService
+    val log: Logger = LoggerFactory.getLogger("routeToClientOrder")
     get("orders") {
-        val pr = call.principal<BasePrincipal>()
-        val response: Any
-        val clientId = pr?.userId
-        val merchantId = pr?.merchantId
-        val filter = call.parameters["status"]
-        val limit = call.parameters["limit"]?.toLongOrNull() ?: 10
-        val offset = call.parameters["offset"]?.toLongOrNull() ?: 0
-        response = OrderRepositoryImpl.getModelListUser(
-            clientId = clientId,
-            merchantId = merchantId,
-            filter = filter,
-            limit = limit,
-            offset = offset
+        val pr = getPrincipal()
+        val map: MutableMap<String, *>
+        val status = call.parameters["status"]
+        log.info("status {}", status)
+        val response = OrderService.getAll(
+            mapOf(
+                "clientId" to pr?.userId,
+                "merchantId" to pr?.merchantId,
+                "status" to status,
+                "limit" to call.parameters["limit"]?.toLongOrNull(),
+                "offset" to call.parameters["offset"]?.toLongOrNull()
+            )
         )
-        call.respond(response)
+        call.respond(response.httpStatus, response.body)
         return@get
     }
 
     get("order/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
-        val order = OrderRepositoryImpl.getModel(id)
-        if (order == null) {
-            call.respond(HttpStatusCode.NotFound)
-            return@get
-        }
-        call.respond(order)
-        return@get
-    }
-
-    post("order/model") {
-        val principal = call.principal<BasePrincipal>()
-        val merchantId = principal?.merchantId
-        val order = call.receive<OrderWrapper>()
-        val status = orderService.add(order.copy(user = UserDto(id = principal?.userId, merchantId = merchantId)))
-        call.respond(status.httpStatus, status.body)
+        val order = orderService.get(id)
+        call.respond(order.httpStatus, order.body)
     }
 
     post("order") {
         val principal = call.principal<BasePrincipal>()
-        val merchantId = principal?.merchantId
+        val appKey = call.parameters["appKey"]?.toLongOrNull()
         val userId = principal?.userId
-        val order = call.receive<OrderModel>()
-        val status = orderService.addModel(order.copy(user = UserDto(id = userId, merchantId = merchantId)))
+        val order = call.receive<Order>()
+        val status = orderService.post(
+            order.copy(
+                user = UserDto(id = userId),
+                merchant = MerchantDto(id = appKey)
+            )
+        )
         call.respond(status.httpStatus, status.body)
     }
 
     delete("order/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
-        call.respond(
-            status?.httpStatus ?: ResponseModel.SOME_THING_WRONG,
-            status?.body ?: status?.httpStatus?.description ?: "Something went wrong"
-        )
+        call.respond(status.httpStatus, status.body)
 
     }
 }

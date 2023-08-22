@@ -1,41 +1,36 @@
 package mimsoft.io.courier.orders
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.staff.StaffPrincipal
-import mimsoft.io.utils.OrderStatus
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCourierOrders() {
-    val orderRepository = OrderRepositoryImpl
+
     val courierOrderService = CourierOrderService
     route("order") {
         get("") {
             val principal = call.principal<BasePrincipal>()
-            val courierId = principal?.staffId
-            val merchantId = principal?.merchantId
             val status = call.parameters["status"]
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            if(status==null){
+            if (status == null) {
                 call.respond(ResponseModel(body = "status required"))
             }
-            val orderList = courierOrderService.getOrdersBySomething(
-                merchantId,
-                status,
-                courierId,
-                limit,
-                offset
+            val orderList = OrderService.getAll(
+                mapOf(
+                    "merchantId" to principal?.merchantId as Any,
+                    "courierId" to principal.staffId,
+                    "type" to call.parameters["type"] as Any,
+                    "status" to call.parameters["status"] as Any,
+                    "search" to call.parameters["search"] as Any,
+                    "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
+                    "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
+                )
             )
-            if (orderList.data.isNullOrEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-            }
-            call.respond(orderList)
+
+            call.respond(orderList.httpStatus, orderList.body)
         }
         post("join") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
@@ -45,11 +40,7 @@ fun Route.routeToCourierOrders() {
                 courierId = courierId,
                 orderId = orderId,
             )
-            if (result == null) {
-                call.respond(HttpStatusCode.MethodNotAllowed)
-            } else {
-                call.respond(HttpStatusCode.OK, result)
-            }
+            call.respond(result.httpStatus, result.body)
         }
         get("onway") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
@@ -59,11 +50,9 @@ fun Route.routeToCourierOrders() {
                 courierId = courierId,
                 orderId = orderId,
             )
-            if (result == null) {
-                call.respond(HttpStatusCode.MethodNotAllowed)
-            } else {
-                call.respond(HttpStatusCode.OK, result)
-            }
+
+            call.respond(result.httpStatus, result.body)
+
         }
         get("delivered") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
@@ -73,24 +62,14 @@ fun Route.routeToCourierOrders() {
                 courierId = courierId,
                 orderId = orderId,
             )
-            if (result == null) {
-                call.respond(HttpStatusCode.MethodNotAllowed)
-            } else {
-                call.respond(HttpStatusCode.OK, result)
-            }
+
+            call.respond(result.httpStatus, result.body)
+
         }
         get("/{id}") {
-            val principal = call.principal<BasePrincipal>()
             val id = call.parameters["id"]?.toLongOrNull()
-            val courierId = principal?.staffId
-            val merchantId = principal?.merchantId
-            val order = OrderRepositoryImpl.get(id, merchantId)
-            if (order == null) {
-                call.respond(HttpStatusCode.NotFound)
-            }else if(order.order?.courier?.id!=courierId){
-                call.respond(HttpStatusCode.MethodNotAllowed)
-            }
-            call.respond(order)
+            val order = OrderService.get(id)
+            call.respond(order.httpStatus, order.body)
         }
 
     }

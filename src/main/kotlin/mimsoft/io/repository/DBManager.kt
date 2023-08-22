@@ -9,6 +9,8 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.utils.plugins.AppConfig
 import mimsoft.io.utils.plugins.LOGGER
 import mimsoft.io.utils.principal.Role
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.sql.Connection
 import java.sql.Statement
@@ -400,19 +402,21 @@ object DBManager : BaseRepository {
 
     override suspend fun selectList(query: String, args: Map<Int, *>?): List<Map<String, *>> {
         LOGGER.info("selectList --> $query")
+
         val list = mutableListOf<Map<String, Any?>>()
         withContext(databaseDispatcher) {
             connection().use {
                 it.prepareStatement(query).use { statement ->
-                    args?.forEach { (key, value) ->
+                    args?.forEach { (index, value) ->
+                        log.info("index --> $index")
+                        log.info("value --> $value")
                         when (value) {
-                            is String -> statement.setString(key, value)
-                            is Boolean -> statement.setBoolean(key, value)
-                            is Double -> statement.setDouble(key, value)
-                            is java.sql.Date -> statement.setDate(key, value)
-                            is java.sql.Time -> statement.setTime(key, value)
-                            is Timestamp -> statement.setTimestamp(key, value)
-                            else -> statement.setObject(key, value)
+                            is Long -> statement.setLong(index, value)
+                            is Int -> statement.setInt(index, value)
+                            is String -> statement.setString(index, value)
+                            is Timestamp -> statement.setTimestamp(index, value)
+                            is Boolean -> statement.setBoolean(index, value)
+                            else -> statement.setObject(index, value)
                         }
                     }
                     statement.executeQuery().use { result ->
@@ -421,13 +425,13 @@ object DBManager : BaseRepository {
                             for (i in 1..result.metaData.columnCount) {
                                 map[result.metaData.getColumnName(i)] = result.getObject(i)
                             }
-                            LOGGER.info("selectMap --> $map")
                             list.add(map)
                         }
                     }
                 }
             }
         }
+        log.info("list --> $list")
         return list
     }
 

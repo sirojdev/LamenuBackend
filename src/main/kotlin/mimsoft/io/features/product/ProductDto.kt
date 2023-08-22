@@ -22,7 +22,7 @@ data class ProductDto(
     val deliveryEnabled: Boolean? = null,
     val count: Long? = -1,
     val discount: Long? = null,
-    val options: List<OptionDto>? = null,
-    val extras: List<ExtraDto>? = null,
+    var options: List<OptionDto>? = null,
+    var extras: List<ExtraDto>? = null,
     val labels: List<LabelDto>? = null
 )

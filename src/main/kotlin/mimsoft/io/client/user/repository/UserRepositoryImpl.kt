@@ -89,7 +89,7 @@ object UserRepositoryImpl : UserRepository {
                     "b.icon b_icon \n" +
                     "   from users u \n" +
                     "   left join badge b on b.id = u.badge_id  \n" +
-                    "where u.id = $id and u.merchant_id = $merchantId and not u.deleted"
+                    "where u.id = $id and not u.deleted"
 
         println(query)
 

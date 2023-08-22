@@ -7,8 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
-import mimsoft.io.utils.OK
-import mimsoft.io.utils.ResponseModel
+
 
 fun Route.routeToFavourites() {
     val favouriteService = FavouriteService

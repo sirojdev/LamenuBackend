@@ -2,16 +2,16 @@ package mimsoft.io.features.visit
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.order.Order
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.gsonToList
 import java.sql.Timestamp
 
 object VisitService {
@@ -42,9 +42,8 @@ object VisitService {
                     )
                     if (rs.getString("orders") != null) {
                         val sizes = rs.getString("orders")
-                        val typeToken = object : TypeToken<List<OrderWrapper>>() {}.type
-                        val orders = gson.fromJson<List<OrderWrapper>>(sizes, typeToken)
-                        visit.copy(orders = orders)
+
+                        visit.copy(orders = gsonToList(sizes, Order::class.java))
                     }
                     visitList.add(visit)
                 }
@@ -98,10 +97,7 @@ object VisitService {
                 if (rs.next()) {
                     return@withContext VisitDto(
                         id = rs.getLong("id"),
-                        orders = ObjectMapper().readValue(
-                            rs.getString("orders"),
-                            Array<OrderWrapper>::class.java
-                        ).toList(),
+                        orders = gsonToList(rs.getString("orders"), Order::class.java),
                         user = gson.fromJson(rs.getString("user_data"), UserDto::class.java),
                         waiter = gson.fromJson(rs.getString("waiter_data"), StaffDto::class.java),
                         table = gson.fromJson(rs.getString("table_data"), TableDto::class.java),

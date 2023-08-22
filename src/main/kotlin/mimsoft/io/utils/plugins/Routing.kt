@@ -13,6 +13,8 @@ fun Application.configureRouting() {
         }
 
         route("v1"){
+            logApplicationCalls()
+
             routeToV1()
 
             swaggerUI(path = "docs/merchant", swaggerFile = "openapi/merchant/merchant.yaml") {

@@ -5,7 +5,8 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -159,7 +160,9 @@ object StaffService {
                             status = rs.getBoolean("status"),
                         )
                     ).copy(
-                        orders = OrderRepositoryImpl.getAll(merchantId = merchantId, courierId = id).data
+                        orders = OrderService.getAll(
+                            mapOf("merchantId" to merchantId, "courierId" to id)
+                        ).body as List<Order?>?
                     )
                 } else return@withContext null
             }
@@ -397,7 +400,7 @@ object StaffService {
                             status = rs.getBoolean("status"),
                         )
                     ).copy(
-                        orders = OrderRepositoryImpl.getAll(merchantId = merchantId, collectorId = id).data
+                        orders = OrderService.getAll(mapOf("merchantId" to merchantId, "courierId" to id)).body as? List<Order?>
                     )
                 } else return@withContext null
             }

@@ -1,14 +1,16 @@
 package mimsoft.io.courier.location
 
 import io.ktor.server.websocket.*
+import mimsoft.io.features.courier.CourierService
 import java.sql.Timestamp
 import java.util.*
+import kotlin.collections.ArrayList
 
 object CourierSocketService {
     val locationConnection: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
 
     val adminConnections: MutableSet<AdminConnection> = Collections.synchronizedSet(LinkedHashSet())
-    val courierNewOrder: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
+    val courierNewOrderConnection: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
     fun findConnection(
         staffId: Long?,
         merchantId: Long?,
@@ -25,21 +27,25 @@ object CourierSocketService {
         }
     }
 
-    fun findCourierListenNewOrder(
+    /**
+     * YANGI COURIER QOSHILGANDA CONNECTIONLARGA QOSHADI VA COURIER ISACTIVE NI TRUE QILIB QOYADI
+     * */
+    suspend fun findCourierListenNewOrder(
         staffId: Long?,
         merchantId: Long?,
         uuid: String?,
         defaultWebSocketServerSession: DefaultWebSocketServerSession
     ) {
-        val connection = courierNewOrder.find { it.staffId == staffId && it.uuid == uuid }
+        val connection = courierNewOrderConnection.find { it.staffId == staffId && it.uuid == uuid }
         if (connection == null) {
-            courierNewOrder += Connection(
+            courierNewOrderConnection += Connection(
                 staffId = staffId,
                 uuid = uuid,
                 session = defaultWebSocketServerSession,
                 merchantId = merchantId,
                 connectAt = Timestamp(System.currentTimeMillis())
             )
+            CourierService.updateIsActive(staffId, true)
         }
     }
 
@@ -57,6 +63,18 @@ object CourierSocketService {
                 connectAt = Timestamp(System.currentTimeMillis())
             )
         }
+    }
+
+    fun courierIdList(
+        merchantId: Long?
+    ): ArrayList<Long?> {
+        val list = ArrayList<Long?>()
+        courierNewOrderConnection.forEach{
+            if (it.merchantId==merchantId){
+                list.add(it.staffId)
+            }
+        }
+        return list
     }
 
 

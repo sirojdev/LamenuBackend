@@ -4,6 +4,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.client.user.routeToUser
 import mimsoft.io.courier.merchantChat.merchantChatRoute
 import mimsoft.io.courier.routeToCouriers
+import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.files.routeToFiles
 import mimsoft.io.routing.v1.*
 import mimsoft.io.routing.v1.device.routeToDevice

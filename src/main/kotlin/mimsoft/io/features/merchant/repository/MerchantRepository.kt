@@ -7,7 +7,7 @@ interface MerchantInterface {
     suspend fun getInfo(sub: String?): MerchantDto?
     suspend fun getMerchantById(merchantId: Long?): MerchantDto?
     suspend fun getAll(): List<MerchantTable?>
-    suspend fun get(id: Long?): MerchantTable?
+    suspend fun get(id: Long?): MerchantDto?
     suspend fun add(merchantTable: MerchantTable?): Long?
     suspend fun update(merchantTable: MerchantTable?): Boolean
     suspend fun delete(id: Long?): Boolean

@@ -1,6 +1,7 @@
 package mimsoft.io.features.cart
 
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.stoplist.StopListService
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
@@ -18,7 +19,7 @@ object CartService {
             }
         }
 
-        return OrderRepositoryImpl.getProductCalculate(cart = dto, merchantId = merchantId)
+        return OrderService.getProductCalculate(cart = dto, merchantId = merchantId)
     }
 
 

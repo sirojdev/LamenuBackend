@@ -45,9 +45,9 @@ object MerchantRepositoryImp : MerchantInterface {
         DBManager.getData(dataClass = MerchantTable::class, tableName = MERCHANT_TABLE_NAME)
             .filterIsInstance<MerchantTable?>()
 
-    override suspend fun get(id: Long?): MerchantTable? =
-        DBManager.getData(dataClass = MerchantTable::class, id = id, tableName = MERCHANT_TABLE_NAME)
-            .firstOrNull() as MerchantTable?
+    override suspend fun get(id: Long?): MerchantDto? =
+        mapper.toMerchantDto(DBManager.getData(dataClass = MerchantTable::class, id = id, tableName = MERCHANT_TABLE_NAME)
+            .firstOrNull() as MerchantTable?)
 
     override suspend fun add(merchantTable: MerchantTable?): Long? =
         DBManager.postData(

@@ -52,7 +52,7 @@ import mimsoft.io.features.visit.routeToVisits
 import mimsoft.io.features.waiters.routToMerchantWaiters
 import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
-import mimsoft.io.routing.merchant.routeToOrderByCourierAndCollector
+
 
 fun Route.routeToMerchant() {
 
@@ -68,7 +68,6 @@ fun Route.routeToMerchant() {
             routeToMerchantBook()
             routeToMerchantOrder()
             routeToMerchantProfile()
-            routeToOrderByCourierAndCollector()
             routeToStory()
             routeToStoryInfo()
             routeToCategoryGroup()
