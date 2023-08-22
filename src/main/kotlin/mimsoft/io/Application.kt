@@ -12,7 +12,6 @@ fun main() {
     embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
-
 fun Application.module() = runBlocking {
     configureSecurity()
     configureHTTP()
