@@ -2,8 +2,6 @@ package mimsoft.io.features.story
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.story_info.STORY_INFO_TABLE_NAME
-import mimsoft.io.features.story_info.StoryInfoDto
 import mimsoft.io.features.story_info.StoryInfoService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
