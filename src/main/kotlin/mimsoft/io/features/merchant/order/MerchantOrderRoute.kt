@@ -5,26 +5,19 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.favourite.merchant
-import mimsoft.io.features.order.repository.OrderRepository
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToMerchantOrder() {
 
-    val orderService: OrderRepository = OrderRepositoryImpl
+    val orderService = OrderService
 
     authenticate("merchant") {
         get("orders") {
             val principal = call.principal<BasePrincipal>()
             val search = call.parameters["search"]
-
-            val orders = orderService.getAll(merchantId = principal?.merchantId)
-            if (orders==null || orders.data?.isEmpty() == true) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(orders)
+            val orders = orderService.getAll(mapOf("merchantId" to principal?.merchantId as Any))
+            call.respond(orders.httpStatus, orders.body)
         }
 
         get("orders/{id}") {

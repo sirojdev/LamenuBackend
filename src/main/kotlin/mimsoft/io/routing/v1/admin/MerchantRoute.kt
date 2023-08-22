@@ -31,7 +31,7 @@ fun Route.merchantRoute() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val restaurant = MerchantMapper.toMerchantDto(merchantRepository.get(id))
+            val restaurant = merchantRepository.get(id)
             if (restaurant != null) {
                 call.respond(HttpStatusCode.OK, restaurant)
             } else {

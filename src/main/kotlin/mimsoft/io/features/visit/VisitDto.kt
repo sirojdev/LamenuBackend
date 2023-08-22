@@ -1,7 +1,7 @@
 package mimsoft.io.features.visit
 
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.order.Order
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
@@ -11,7 +11,7 @@ data class VisitDto(
     val id: Long? = null,
     val merchantId: Long? = null,
     val user: UserDto? = null,
-    val orders: List<OrderWrapper>? = null,
+    val orders: List<Order>? = null,
     val waiter: StaffDto? = null,
     val table: TableDto? = null,
     val time: Timestamp? = null,

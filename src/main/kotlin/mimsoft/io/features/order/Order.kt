@@ -1,6 +1,9 @@
-package mimsoft.io.features.order_
+package mimsoft.io.features.order
 
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.address.AddressDto
+import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.staff.StaffDto
 import java.sql.Timestamp
@@ -9,15 +12,19 @@ data class Order(
     val id: Long? = null,
     val serviceType: String? = null,
     val status: String? = null,
-    val user: UserDto? = null,
+    var user: UserDto? = null,
     val collector: StaffDto? = null,
-    val merchant: MerchantDto? = null,
-    val products: String? = null,
+    var merchant: MerchantDto? = null,
+    var branch: BranchDto? = null,
+    val products: List<CartItem>? = null,
     val paymentType: Long? = null,
     val isPaid: Boolean? = null,
     val comment: String? = null,
     val productCount: Int? = null,
-    val details: Map<String, *>? = null,
+    val totalPrice: Long? = null,
+    val totalDiscount: Long? = null,
+    var address: AddressDto? = null,
+    val courier: StaffDto? = null,
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
     val deleted: Boolean? = null

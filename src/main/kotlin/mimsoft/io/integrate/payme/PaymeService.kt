@@ -2,11 +2,9 @@ package mimsoft.io.integrate.payme
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.order.OrderDto
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentService
-import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.payment_type.PaymentTypeDto.Companion.PAYME
 import mimsoft.io.integrate.payme.models.*
 import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_CANCELED
@@ -22,8 +20,7 @@ import java.util.*
 object PaymeService {
 
     private val paymeRepository = PaymeRepo
-    private val orderRepository = OrderRepositoryImpl
-    private var orderWrapper: OrderWrapper? = null
+    private val orderService = OrderService
     const val time_expired = 43_200_000L
 
     suspend fun checkPerform(
@@ -34,12 +31,21 @@ object PaymeService {
     ): Any {
         return withContext(Dispatchers.IO) {
 
-            orderWrapper = orderRepository.get(id = account?.orderId, merchantId = merchantId)
-            val order = orderWrapper?.order
-            val price = orderWrapper?.details?.totalPrice as Double
-            println("\norder-->${GSON.toJson(orderWrapper)}\n")
 
-            if (order == null || price == null || order.paymentTypeDto?.isPaid == true || order.paymentTypeDto?.id != PAYME.id) {
+            val responseModel = orderService.get(id = account?.orderId)
+
+            if (!responseModel.isOk()) return@withContext ErrorResult(
+                error = Error(
+                    code = -31050,
+                    message = Message.ORDER_NOT_FOUND
+                ),
+                id = transactionId
+            )
+
+            val order = responseModel.body as Order
+            val price = order.totalPrice as Double?
+
+            if (order.isPaid == true || order.paymentType != PAYME.id) {
                 return@withContext ErrorResult(
                     error = Error(
                         code = -31050,
@@ -186,8 +192,9 @@ object PaymeService {
     ): Any {
         return withContext(Dispatchers.IO) {
             val transaction = paymeRepository.getByPaycom(paycomId)
-            orderWrapper = orderRepository.get(id = transaction?.orderId)
-            orderWrapper?.order ?: return@withContext ErrorResult(
+            val responseModel = orderService.get(id = transaction?.orderId)
+
+            if (!responseModel.isOk()) return@withContext ErrorResult(
                 error = Error(
                     code = -31050,
                     message = Message.ORDER_NOT_FOUND
@@ -213,10 +220,10 @@ object PaymeService {
                     transaction.state = STATE_DONE
                     transaction.performTime = System.currentTimeMillis()
                     paymeRepository.updateTransaction(transaction)
-                    orderRepository.editPaidOrder(
-                        OrderDto(
+                    orderService.editPaidOrder(
+                        Order(
                             id = transaction.orderId,
-                            paymentTypeDto = PaymentTypeDto(isPaid = true)
+                            isPaid = true
                         )
                     )
                     return@withContext ResultResponse(
@@ -257,14 +264,17 @@ object PaymeService {
     ): Any {
         return withContext(Dispatchers.IO) {
             val transaction = paymeRepository.getByPaycom(paycomId)
-            orderWrapper = orderRepository.get(id = transaction?.orderId)
-            val order = orderWrapper?.order ?: return@withContext ErrorResult(
+
+            val responseModel = orderService.get(id = transaction?.orderId)
+
+            if (!responseModel.isOk()) return@withContext ErrorResult(
                 error = Error(
                     code = -31050,
                     message = Message.ORDER_NOT_FOUND
                 ),
                 id = transactionId
             )
+            val order = responseModel.body as Order
 
             if (transaction?.state == STATE_IN_PROGRESS) {
                 transaction.state = STATE_CANCELED
@@ -294,10 +304,10 @@ object PaymeService {
                     transaction.reason = reason?.toInt()
                     transaction.cancelTime = System.currentTimeMillis()
                     paymeRepository.updateTransaction(transaction)
-                    orderRepository.editPaidOrder(
-                        OrderDto(
+                    orderService.editPaidOrder(
+                        Order(
                             id = transaction.orderId,
-                            paymentTypeDto = PaymentTypeDto(isPaid = false)
+                            isPaid = true
                         )
                     )
                     return@withContext ResultResponse(

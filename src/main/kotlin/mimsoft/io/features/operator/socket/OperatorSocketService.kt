@@ -6,7 +6,7 @@ import io.ktor.websocket.*
 import mimsoft.io.courier.location.CourierSocketService
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
-import mimsoft.io.features.order.utils.OrderWrapper
+import mimsoft.io.features.order.Order
 import java.util.*
 
 object OperatorSocketService {
@@ -31,14 +31,6 @@ object OperatorSocketService {
         }
     }
 
-    suspend fun sendOrderToOperators(order: OrderWrapper) {
-        operatorConnections.forEach { operatorConnection ->
-            if (operatorConnection.session != null) {
-                operatorConnection.session?.send(Gson().toJson(order))
-            }
-        }
-    }
-
     suspend fun sendBookingToOperators(book: BookDto) {
         operatorConnections.forEach { operatorConnection ->
             if (operatorConnection.session != null) {
@@ -47,8 +39,8 @@ object OperatorSocketService {
         }
     }
 
-    suspend fun findNearCourierAndSendOrderToCourier(order: OrderWrapper, offset:Int?) {
-        val courier = CourierService.findNearCourier(order?.order?.branch?.id,0)
+    suspend fun findNearCourierAndSendOrderToCourier(order: Order, offset:Int?) {
+        val courier = CourierService.findNearCourier(order.branch?.id,0)
         if(courier!=null){
             if(CourierSocketService.courierNewOrder.isNotEmpty()){
                 val connection = CourierSocketService.courierNewOrder.find { it.staffId == courier?.staffId }

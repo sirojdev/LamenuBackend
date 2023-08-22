@@ -7,7 +7,8 @@ import mimsoft.io.features.courier.CourierDto
 import mimsoft.io.features.courier.checkout.CourierTransactionDto
 import mimsoft.io.features.courier.checkout.CourierTransactionMapper
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.TextModel
@@ -127,7 +128,7 @@ object TransactionService {
                             ),
                             balance = rs.getDouble("balance"),
                         ),
-                        order = OrderRepositoryImpl.get(id = rs.getLong("from_order_id")),
+                        order = OrderService.get(id = rs.getLong("from_order_id")).body as Order,
                         branch = BranchDto(
                             id = rs.getLong("b_id"),
                             name = TextModel(

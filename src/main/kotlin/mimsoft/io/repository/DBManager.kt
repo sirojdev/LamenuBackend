@@ -420,7 +420,6 @@ object DBManager: BaseRepository {
                             for (i in 1..result.metaData.columnCount) {
                                 map[result.metaData.getColumnName(i)] = result.getObject(i)
                             }
-                            log.info("map --> $map")
                             list.add(map)
                         }
                     }

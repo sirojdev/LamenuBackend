@@ -4,8 +4,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.OK
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.ResponseModel.Companion.OK
 
 object CourierLocationHistoryService {
     val repository: BaseRepository = DBManager

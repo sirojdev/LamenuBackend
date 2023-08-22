@@ -10,8 +10,8 @@ import mimsoft.io.features.courier.CourierDto
 import mimsoft.io.features.courier.checkout.CourierTransactionDto
 import mimsoft.io.features.courier.checkout.CourierTransactionId
 import mimsoft.io.features.courier.checkout.CourierTransactionService
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
-import mimsoft.io.features.staff.StaffPrincipal
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.principal.BasePrincipal
 import java.sql.Timestamp
@@ -26,8 +26,8 @@ fun Route.routeToCourierTransaction() {
             val courierId = pr?.staffId
             val dto = call.receive<CourierTransactionDto>()
             if (dto.branch == null) {
-                val orderDto = OrderRepositoryImpl.get(id = dto.order?.order?.id, merchantId = merchantId)
-                if (orderDto.order?.id != dto.order?.order?.id || orderDto.order?.status != OrderStatus.DELIVERED.name || orderDto.order.courier?.id != courierId) {
+                val order = OrderService.get(id = dto.order?.id).body as Order
+                if (order.id != dto.order?.id || order.status != OrderStatus.DELIVERED.name || order.courier?.id != courierId) {
                     call.respond(HttpStatusCode.MethodNotAllowed)
                 }
             }

@@ -2,11 +2,9 @@ package mimsoft.io.integrate.payme
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.order.OrderDto
 import mimsoft.io.integrate.payme.models.OrderTransaction
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import java.sql.Timestamp
 
 object PaymeRepo {
 

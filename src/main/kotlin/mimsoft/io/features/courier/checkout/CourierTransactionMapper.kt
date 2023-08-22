@@ -7,7 +7,7 @@ object CourierTransactionMapper {
              id = dto.id,
              merchantId = dto.merchantId,
              courierId = dto.courier?.id,
-             fromOrderId = dto.order?.order?.id,
+             fromOrderId = dto.order?.id,
              branchId = dto.branch?.id,
              time = dto.time,
              amount = dto.amount

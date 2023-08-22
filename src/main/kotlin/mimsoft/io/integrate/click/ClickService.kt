@@ -1,11 +1,9 @@
 package mimsoft.io.integrate.click
 
 import io.ktor.http.*
-import mimsoft.io.features.order.OrderDto
-import mimsoft.io.features.order.repository.OrderRepository
-import mimsoft.io.features.order.repository.OrderRepositoryImpl
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentService
-import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.payment_type.PaymentTypeDto.Companion.CLICK
 import mimsoft.io.integrate.click.ClickErrors.Companion.ALREADY_PAID
 import mimsoft.io.integrate.click.ClickErrors.Companion.CANCELLED
@@ -17,12 +15,11 @@ import mimsoft.io.integrate.click.ClickErrors.Companion.SUCCESS
 import mimsoft.io.integrate.click.ClickErrors.Companion.TRANSACTION_NOT_FOUND
 import mimsoft.io.integrate.click.ClickErrors.Companion.USER_NOT_FOUND
 import mimsoft.io.integrate.payme.models.CheckoutLinkModel
-import mimsoft.io.utils.plugins.GSON
 import org.apache.commons.codec.digest.DigestUtils
 
 object ClickService {
 
-    private val orderRepository: OrderRepository = OrderRepositoryImpl
+    private val orderService = OrderService
     suspend fun prepare(parameters: Parameters, merchantId: Long): Map<String, *> {
 
         if (!verifyMD5Hash(parameters, true, merchantId))
@@ -60,7 +57,7 @@ object ClickService {
 
     suspend fun complete(parameters: Parameters, merchantId: Long): Map<String, *> {
 
-        if (parameters["error"]?.toIntOrNull() == -5017){
+        if (parameters["error"]?.toIntOrNull() == -5017) {
             ClickRepo.cancelTransaction(parameters, CANCELLED)
             return mutableMapOf(
                 "error" to CANCELLED.error,
@@ -81,7 +78,8 @@ object ClickService {
         }
 
         ClickRepo.getTransaction(
-            parameters["click_trans_id]"]?.toLongOrNull()).let {
+            parameters["click_trans_id]"]?.toLongOrNull()
+        ).let {
             if (it?.get("error") != 0)
                 return mutableMapOf(
                     "error" to CANCELLED.error,
@@ -96,18 +94,19 @@ object ClickService {
             if (it != null) return it
             else {
                 ClickRepo.saveTransactionComplete(parameters)
-                    ?:return mutableMapOf(
+                    ?: return mutableMapOf(
                         "error" to TRANSACTION_NOT_FOUND.error,
                         "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
                         "merchant_trans_id" to parameters["merchant_trans_id"],
                         "merchant_confirm_id" to parameters["merchant_prepare_id"],
-                        "error_note" to TRANSACTION_NOT_FOUND.error_note)
+                        "error_note" to TRANSACTION_NOT_FOUND.error_note
+                    )
 
                 println("\nSUCCESS\n")
-                orderRepository.editPaidOrder(
-                    OrderDto(
+                orderService.editPaidOrder(
+                    Order(
                         id = parameters["merchant_trans_id"]?.toLongOrNull(),
-                        paymentTypeDto = PaymentTypeDto(isPaid = true)
+                        isPaid = true
                     )
                 )
                 return mutableMapOf(
@@ -156,11 +155,11 @@ object ClickService {
 
         val orderId = parameters["merchant_trans_id"]
         if (orderId.isNullOrBlank())
-             return mutableMapOf(
+            return mutableMapOf(
                 "error" to ERROR_IN_REQUEST.error,
                 "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
                 "merchant_trans_id" to parameters["merchant_trans_id"],
-                 "merchant_prepare_id" to parameters["merchant_prepare_id"],
+                "merchant_prepare_id" to parameters["merchant_prepare_id"],
                 "error_note" to ERROR_IN_REQUEST.error_note
             )
         else if (orderId.toLongOrNull() == null)
@@ -172,24 +171,21 @@ object ClickService {
                 "error_note" to USER_NOT_FOUND.error_note
             )
 
-        val orderWrapper = orderRepository.get(orderId.toLong(), merchantId)
-        val order = orderWrapper?.order
+        val responseModel = orderService.get(orderId.toLong())
+
+        if (!responseModel.isOk()) return mutableMapOf(
+            "error" to ORDER_NOT_FOUND.error,
+            "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
+            "merchant_trans_id" to parameters["merchant_trans_id"],
+            "merchant_prepare_id" to parameters["merchant_prepare_id"],
+            "error_note" to ORDER_NOT_FOUND.error_note
+        )
+
+        val order = responseModel.body as Order
+
         val amount = (parameters["amount"]?.parseLong() ?: 0) * 100
-        println("\nclick prepare order-->${GSON.toJson(orderWrapper?.order)}")
-        println("\nclick prepare details-->${GSON.toJson(orderWrapper?.details)}")
 
-
-        if (order == null)
-            return mutableMapOf(
-                "error" to ORDER_NOT_FOUND.error,
-                "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
-                "merchant_trans_id" to parameters["merchant_trans_id"],
-                "merchant_prepare_id" to parameters["merchant_prepare_id"],
-                "error_note" to ORDER_NOT_FOUND.error_note
-            )
-
-        if ((orderWrapper.details?.createdAt?.time
-                ?: 0L) + CLICK_EXPIRED_TIME < System.currentTimeMillis()
+        if ((order.createdAt?.time ?: 0L) + CLICK_EXPIRED_TIME < System.currentTimeMillis()
         ) return mutableMapOf(
             "error" to CANCELLED.error,
             "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
@@ -198,7 +194,7 @@ object ClickService {
             "error_note" to CANCELLED.error_note
         )
 
-        if (order.paymentTypeDto?.isPaid == true)
+        if (order.isPaid == true)
             return mutableMapOf(
                 "error" to ALREADY_PAID.error,
                 "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
@@ -207,8 +203,7 @@ object ClickService {
                 "error_note" to ALREADY_PAID.error_note
             )
 
-        if (orderWrapper.details?.totalPrice?.toLong() != amount ||
-            order.paymentTypeDto?.id != CLICK.id
+        if (order.totalPrice != amount || order.paymentType != CLICK.id
         ) return mutableMapOf(
             "error" to INCORRECT_PARAMETER_AMOUNT.error,
             "click_trans_id" to parameters["click_trans_id"]?.toLongOrNull(),
