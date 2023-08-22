@@ -79,10 +79,10 @@ fun Route.toOperatorSocket() {
                                         it.courierId == staffId && response.orderId == it.orderId
                                     }
                                     CourierOrderService.joinOrderToCourier(
-                                            courierId = dto?.courierId,
-                                    orderId = dto?.orderId,
+                                            courierId = dto.courierId,
+                                    orderId = dto.orderId,
                                     )
-                                    OrderRepositoryImpl.updateOnWave(dto?.orderId!!,true)
+//                                    OrderRepositoryImpl.updateOnWave(dto.orderId,true)
                                 }
                             } else if (response.status == "NOT_ACCEPTED") {
                                 val dto = OperatorSocketService.sendOrderList.find {

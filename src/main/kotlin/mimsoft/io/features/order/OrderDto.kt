@@ -22,7 +22,8 @@ data class OrderDto(
     val created: Timestamp? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val addressName:String?=null,
-    val deliveryAt:Timestamp?=null,
-    val deliveredAt:Timestamp?=null
+    val addressName: String? = null,
+    val deliveryAt: Timestamp? = null,
+    val deliveredAt: Timestamp? = null,
+    val merchantId: Long? = null
 )

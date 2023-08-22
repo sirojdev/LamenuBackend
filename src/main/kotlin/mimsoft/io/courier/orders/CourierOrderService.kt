@@ -18,7 +18,7 @@ import java.sql.ResultSet
 
 object CourierOrderService {
     val repository: BaseRepository = DBManager
-    suspend fun getOrdersBySomething(
+    suspend fun getOrdersByIds(
         merchantId: Long?,
         status: String?,
         courierId: Long?,
@@ -184,13 +184,13 @@ object CourierOrderService {
     }
 
     suspend fun joinOrderToCourier(courierId: Long?, orderId: Long?): OrderWrapper? {
-        val query = " update orders set courier_id = $courierId  ,status  = ? " +
+        val query = " update orders set courier_id = $courierId , on_wave  = ? " +
                 " where status = ? and id = $orderId and courier_id is null "
         val result = withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
-                    setString(1, OrderStatus.JOIN.name)
-                    setString(2, OrderStatus.ONWAVE.name)
+                    setBoolean(1,false)
+                    setString(2, OrderStatus.ACCEPTED.name)
                 }.executeUpdate()
             }
         }

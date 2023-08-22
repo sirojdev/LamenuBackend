@@ -1,26 +1,20 @@
 package mimsoft.io.features.courier
 
 import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.client.device.DeviceController
-import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.courier.info.CourierInfoDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.rsa.Generator
-import mimsoft.io.services.sms.SmsSenderService
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
 import java.util.*
+import kotlin.collections.ArrayList
 
 object CourierService {
     val repository: BaseRepository = DBManager
@@ -63,7 +57,8 @@ object CourierService {
         )
     }
 
-    suspend fun findNearCourier(branchId: Long?, offset: Int): CourierDto? {
+    suspend fun findNearCourier(branchId: Long?, offset: Int, courierIdList: ArrayList<Long?>): CourierDto? {
+        val inQuery = courierIdList.joinToString(",")
         val query = """
             SELECT
     c.staff_id c_staff_id,
@@ -75,10 +70,14 @@ object CourierService {
 FROM
     courier c
         INNER JOIN
-    courier_location_history clh ON clh.id = c.last_location_id and clh.merchant_id = c.merchant_id and clh.staff_id = c.staff_id and c.is_active = true
+    courier_location_history clh ON clh.id = c.last_location_id 
+    and clh.merchant_id = c.merchant_id 
+    and clh.staff_id = c.staff_id 
+    and c.is_active = true 
+    and c.staff_id in ($inQuery)
         INNER JOIN
     branch b ON c.merchant_id = b.merchant_id AND b.id = $branchId
-ORDER BY
+    ORDER BY
     distance
     limit 1
     offset $offset

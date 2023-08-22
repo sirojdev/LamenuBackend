@@ -12,7 +12,6 @@ import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.order.repository.OrderRepositoryImpl
 import mimsoft.io.features.order.utils.OrderWrapper
-import mimsoft.io.utils.OrderStatus
 import java.util.*
 import java.sql.Timestamp
 
@@ -54,64 +53,48 @@ object OperatorSocketService {
             }
         }
     }
-
-    //    suspend fun findNearCourierAndSendOrderToCourier(order: OrderWrapper, offset:Int?) {
-//        val courier = CourierService.findNearCourier(order?.order?.branch?.id,0)
-//        if(courier!=null){
-//            if(CourierSocketService.courierNewOrderConnection.isNotEmpty()){
-//                val connection = CourierSocketService.courierNewOrderConnection.find { it.staffId == courier?.staffId }
-//                if (connection?.session != null) {
-//                    connection.session?.send(Gson().toJson(order))
-//                    connection.
-//                } else {
-//                    findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
-//                }
-//            }
-//        }
-//    }
     suspend fun findNearCourierAndSendOrderToCourier(order: OrderWrapper, offset: Int) {
-//        val courier = CourierService.findNearCourier(order?.order?.branch?.id, 0)
-        val courier = CourierService.findNearCourier(8, offset)
-        if (courier != null) {
-            println(courier)
-            if (CourierSocketService.courierNewOrderConnection.isNotEmpty()) {
-                val connection = CourierSocketService.courierNewOrderConnection.find { it.staffId == courier.staffId }
-                if (connection?.session != null) {
-                     CoroutineScope(Dispatchers.IO).launch {
-                        connection.session!!.send(Gson().toJson(order))
-                    }
-
-                    sendOrderList.add(
-                        SenderOrdersToCourierDto(
-                            courierId = courier.staffId!!,
-                            orderId = order.order?.id!!,
-                            time = Timestamp(System.currentTimeMillis()),
-                            offset = offset
+        val courierIdList = CourierSocketService.courierIdList(order.order?.merchantId)
+        if (courierIdList.isNotEmpty()) {
+            val courier = CourierService.findNearCourier(order.order?.branch?.id, offset, courierIdList)
+            if (courier != null) {
+                println(courier)
+                if (CourierSocketService.courierNewOrderConnection.isNotEmpty()) {
+                    val connection =
+                        CourierSocketService.courierNewOrderConnection.find { it.staffId == courier.staffId }
+                    if (connection?.session != null) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            connection.session!!.send(Gson().toJson(order))
+                        }
+                        OrderRepositoryImpl.updateOnWave(orderId = order.order?.id!!, true)
+                        sendOrderList.add(
+                            SenderOrdersToCourierDto(
+                                courierId = courier.staffId!!,
+                                orderId = order.order?.id!!,
+                                time = Timestamp(System.currentTimeMillis()),
+                                offset = offset
+                            )
                         )
-                    )
-//                    OrderRepositoryImpl.updateStatus(order.order.id,OrderStatus.ONWAVE)
-                    waitAnswer(15000,order.order.id,connection.staffId,offset,order)
-//                    print("session ${connection.session}")
-//                    val sendJob = CoroutineScope(Dispatchers.IO).launch {
-//                        println("wait 15 s")
-//                    }
-//
-//                    sendJob.join() // Wait for the send job to complete
-//                    timeoutJob.cancel() // Cancel the timeout job if the send job completes before the timeout
+                        waitAnswer(40000, order.order.id, connection.staffId, offset, order)
+                    } else {
+                        findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
+                    }
                 } else {
-                    findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
+                    OrderRepositoryImpl.updateOnWave(orderId = order.order?.id!!, false)
                 }
+            } else {
+                OrderRepositoryImpl.updateOnWave(orderId = order.order?.id!!, false)
             }
         }
     }
 
-    private fun waitAnswer(i: Int, orderId: Long, staffId: Long?, offset: Int?, order: OrderWrapper) {
-        val timeoutJob = CoroutineScope(Dispatchers.Default).launch {
-            delay(60000) // 15 seconds timeout
+    private fun waitAnswer(time: Long, orderId: Long, staffId: Long?, offset: Int?, order: OrderWrapper) {
+        CoroutineScope(Dispatchers.Default).launch {
+            delay(time) // 15 seconds timeout
             val sendOrdersToCourierDto = sendOrderList.find {
                 it.orderId == orderId && it.courierId == staffId
             }
-            if(sendOrdersToCourierDto!=null){
+            if (sendOrdersToCourierDto != null) {
                 sendOrderList.removeIf {
                     it.orderId == orderId && it.courierId == staffId
                 }

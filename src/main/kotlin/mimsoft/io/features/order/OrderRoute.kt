@@ -30,9 +30,9 @@ fun Route.routeToOrder() {
             val merchantId = principal?.merchantId
             val rs = OrderRepositoryImpl.accepted(merchantId, orderId)
             val order = OrderRepositoryImpl.get(orderId,merchantId = merchantId)
-            if (rs) {
-                val offsett= 0
-                OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offsett)
+            if (rs&&order.order?.serviceType=="DELIVERY") {
+                val offSet= 0
+                OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offSet)
                 call.respond(rs)
             }else{
                 call.respond(HttpStatusCode.MethodNotAllowed)

@@ -21,7 +21,8 @@ object OrderMapper {
                 status = orderTable.status,
                 serviceType = orderTable.serviceType ?: OrderType.DELIVERY.name,
                 paymentTypeDto = PaymentTypeDto(id = orderTable.paymentType, isPaid = orderTable.isPaid),
-                branch = BranchDto(id = orderTable.branchId)
+                branch = BranchDto(id = orderTable.branchId),
+                merchantId = orderTable.merchantId
             )
         else null
     }

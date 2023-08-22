@@ -23,7 +23,7 @@ fun Route.routeToCourierOrders() {
             if(status==null){
                 call.respond(ResponseModel(body = "status required"))
             }
-            val orderList = courierOrderService.getOrdersBySomething(
+            val orderList = courierOrderService.getOrdersByIds(
                 merchantId,
                 status,
                 courierId,

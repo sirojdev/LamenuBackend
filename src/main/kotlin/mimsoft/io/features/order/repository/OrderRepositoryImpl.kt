@@ -460,7 +460,9 @@ object OrderRepositoryImpl : OrderRepository {
                         deleted = statement.getBoolean("deleted"),
                         comment = statement.getString("comment"),
                         paymentType = statement.getLong("payment_type"),
-                        isPaid = statement.getBoolean("is_paid")
+                        isPaid = statement.getBoolean("is_paid"),
+                        branchId = statement.getLong("branch_id"),
+                        merchantId = statement.getLong("merchant_id"),
                     )
                     orderPriceTable = OrderPriceTable(
                         id = statement.getLong("op_id"),
