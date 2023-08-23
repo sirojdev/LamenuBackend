@@ -20,6 +20,13 @@ fun Route.routeToClientTable(){
         call.respond(HttpStatusCode.OK, rooms)
     }
 
+    get("tablesByRoom") {
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        val branchId = call.parameters["branchId"]?.toLongOrNull()
+        val rooms = tableRepository.getRoomWithTables(merchantId,branchId)
+        call.respond(HttpStatusCode.OK, rooms)
+    }
+
     get("table") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val roomId = call.parameters["roomId"]?.toLongOrNull()

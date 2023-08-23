@@ -1,5 +1,7 @@
 package mimsoft.io.features.table
 
+import mimsoft.io.features.room.RoomDto
+
 
 interface TableRepository {
     suspend fun getAll(merchantId: Long?): List<TableTable?>
@@ -9,4 +11,5 @@ interface TableRepository {
     suspend fun update(dto: TableDto): Boolean
     suspend fun delete(id: Long?, merchantId: Long?): Boolean
     suspend fun getByQr(url: String): TableDto?
+    suspend fun getRoomWithTables(merchantId: Long?, branchId: Long?): ArrayList<RoomDto>
 }
