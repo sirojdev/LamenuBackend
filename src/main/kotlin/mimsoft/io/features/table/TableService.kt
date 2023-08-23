@@ -84,14 +84,22 @@ object TableService : TableRepository {
 
     override suspend fun getRoomWithTables(merchantId: Long?, branchId: Long?): ArrayList<RoomDto> {
         val query = """
-            SELECT
-                r.id AS room_id,
-                r.name as r_name,
-                json_agg(json_build_object('id', t.id, 'name', t.name,'qr',t.qr,'type',t.type)) AS tables
-            FROM room  r
-            left join  tables t on r.id = t.room_id
-            where t.deleted = false and r.deleted = false and t.deleted = false and r.merchant_id = $merchantId and r.branch_id =$branchId
-            group by r.name, r.id
+          SELECT
+    r.id AS room_id,
+    r.name AS r_name,
+    CASE
+    WHEN COUNT(t.id) > 0
+        THEN json_agg(json_build_object('id', t.id, 'name', t.name, 'qr', t.qr, 'type', t.type))
+    ELSE '[]'
+    END AS tables
+FROM
+    room r
+        left JOIN
+    tables t ON r.id = t.room_id and t.deleted = false
+WHERE
+    (t.deleted is null or t.deleted = false ) and r.deleted = false AND r.merchant_id = $merchantId AND r.branch_id =$branchId 
+GROUP BY
+    r.name, r.id;
         """.trimIndent()
         val rooms: ArrayList<RoomDto> = ArrayList() // Initialize the ArrayList
         withContext(Dispatchers.IO) {
