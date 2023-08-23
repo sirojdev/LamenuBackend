@@ -408,8 +408,6 @@ object DBManager : BaseRepository {
             connection().use {
                 it.prepareStatement(query).use { statement ->
                     args?.forEach { (index, value) ->
-                        log.info("index --> $index")
-                        log.info("value --> $value")
                         when (value) {
                             is Long -> statement.setLong(index, value)
                             is Int -> statement.setInt(index, value)
@@ -431,7 +429,6 @@ object DBManager : BaseRepository {
                 }
             }
         }
-        log.info("list --> $list")
         return list
     }
 
