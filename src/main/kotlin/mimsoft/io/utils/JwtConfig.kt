@@ -16,8 +16,10 @@ object JwtConfig {
     private const val secretMerchant = "LaMenuMerchant-r42gweRt"
     private const val secretUser = "LaMenuMusernt-FsdAafF"
     private const val secretStuff = "laMenu+0stuff_mYinCh"
+    private const val secretBoard = "laMenu+0board+mim"
 
     private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
+    private const val validityAccessBoard = 36_000_000 * 1000L // 10 hours
     private const val validityRefresh = 2_592_000_000 * 1000L// 1 month
     private const val validityLogin = 180_000L * 1000L // 1 month
 
@@ -30,11 +32,13 @@ object JwtConfig {
     private val algorithmDevice = Algorithm.HMAC512(secretDevice)
     private val algorithmUser = Algorithm.HMAC512(secretUser)
     private val algorithmStaff = Algorithm.HMAC512(secretStuff)
+    private val algorithmBoard = Algorithm.HMAC512(secretBoard)
 
 
     val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
     val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
     val verifierLogin: JWTVerifier = JWT.require(algorithmLogin).withIssuer(issuer).build()
+    val verifierBoard: JWTVerifier = JWT.require(algorithmBoard).withIssuer(issuer).build()
 
     val verifierDevice: JWTVerifier = JWT.require(algorithmDevice).withIssuer(issuer).build()
     val verifierMerchant: JWTVerifier = JWT.require(algorithmMerchant).withIssuer(issuer).build()
@@ -117,7 +121,8 @@ object JwtConfig {
         .withClaim("uuid", uuid)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
-    fun generateStaffToken(merchantId: Long?,staffId:Long?, uuid: String?): String = JWT.create()
+
+    fun generateStaffToken(merchantId: Long?, staffId: Long?, uuid: String?): String = JWT.create()
         .withSubject("staff")
         .withIssuer(issuer)
         .withClaim("merchantId", merchantId)
@@ -125,7 +130,8 @@ object JwtConfig {
         .withClaim("staffId", staffId)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
-    fun generateCourierToken(merchantId: Long?,staffId:Long?, uuid: String?): String = JWT.create()
+
+    fun generateCourierToken(merchantId: Long?, staffId: Long?, uuid: String?): String = JWT.create()
         .withSubject("courier")
         .withIssuer(issuer)
         .withClaim("merchantId", merchantId)
@@ -133,7 +139,8 @@ object JwtConfig {
         .withClaim("staffId", staffId)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
-    fun generateWaiterToken(merchantId: Long?,staffId:Long?, uuid: String?): String = JWT.create()
+
+    fun generateWaiterToken(merchantId: Long?, staffId: Long?, uuid: String?): String = JWT.create()
         .withSubject("waiter")
         .withIssuer(issuer)
         .withClaim("merchantId", merchantId)
@@ -158,7 +165,7 @@ object JwtConfig {
         .withExpiresAt(getExpiration(validityLogin))
         .sign(algorithmLogin)
 
-    fun generateOperatorToken(merchantId: Long?, uuid: String?,staffId:Long?): String? = JWT.create()
+    fun generateOperatorToken(merchantId: Long?, uuid: String?, staffId: Long?): String? = JWT.create()
         .withSubject("operator")
         .withIssuer(issuer)
         .withClaim("merchantId", merchantId)
@@ -168,4 +175,13 @@ object JwtConfig {
         .sign(algorithmStaff)
 
     private fun getExpiration(validate: Long) = Date(System.currentTimeMillis() + validate)
+    fun generateBoardToken(id: Long, merchantId: Long, branchId: Long): String =
+        JWT.create()
+            .withSubject("board")
+            .withIssuer(issuer)
+            .withClaim("merchantId", merchantId)
+            .withClaim("branchId", branchId)
+            .withClaim("id", id)
+            .withExpiresAt(getExpiration(validityAccessBoard))
+            .sign(algorithmBoard)
 }

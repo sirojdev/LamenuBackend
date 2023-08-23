@@ -33,9 +33,9 @@ object DBManager : BaseRepository {
 
     private fun createDataSource(): HikariDataSource {
         val config = AppConfig.config
-        val dbUrl = config?.propertyOrNull("ktor.dataSource.url")?.getString()
-        val dbPassword = config?.propertyOrNull("ktor.dataSource.password")?.getString()
-        val dbUser = config?.propertyOrNull("ktor.dataSource.username")?.getString()
+        val dbUrl = "jdbc:postgresql://lamenu.uz:5432/lamenu"
+        val dbUser = "postgres"
+        val dbPassword = "re_mim_soft"
 
 
         val dataSourceConfig = HikariConfig()

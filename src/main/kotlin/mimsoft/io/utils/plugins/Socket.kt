@@ -9,6 +9,7 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
+import mimsoft.io.board.socket.routeToBoardSocket
 import mimsoft.io.courier.location.ChatConnections
 import mimsoft.io.courier.location.CourierSocketService
 import mimsoft.io.courier.merchantChat.*
@@ -36,6 +37,7 @@ fun Application.configureSocket() {
     }
     routing {
         toOperatorSocket()
+        routeToBoardSocket()
         authenticate("staff") {
             /**
              * COURIER locationlarini jo'natib turishi uchun WebSocket
