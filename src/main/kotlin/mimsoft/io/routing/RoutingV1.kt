@@ -1,6 +1,7 @@
 package mimsoft.io.routing
 
 import io.ktor.server.routing.*
+import mimsoft.io.board.routeToBoard
 import mimsoft.io.client.user.routeToUser
 import mimsoft.io.courier.merchantChat.merchantChatRoute
 import mimsoft.io.courier.routeToCouriers
@@ -18,6 +19,7 @@ fun Route.routeToV1() {
     routeToCouriers()
     routeToMerchant()
     routeToWaiter()
+    routeToBoard()
     routeToClient()
     routeToUser()
     routeToFiles()

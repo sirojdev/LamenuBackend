@@ -8,7 +8,6 @@ import io.ktor.server.application.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
-import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.integrate.payme.models.PaymePrincipal
@@ -17,7 +16,6 @@ import mimsoft.io.utils.principal.LaPrincipal
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.Role
-import mimsoft.io.utils.principal.MerchantPrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -75,6 +73,24 @@ fun Application.configureSecurity() {
                         deviceId = deviceId,
                         phone = phone,
                         hash = hash,
+                        merchantId = merchantId
+                    )
+                } else {
+                    null
+                }
+            }
+        }
+        jwt("board") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierBoard)
+            validate { credential ->
+                val boardId = credential.payload.getClaim("id").asLong()
+                val branchId = credential.payload.getClaim("branchId").asLong()
+                val merchantId = credential.payload.getClaim("merchantId").asLong()
+                if (boardId != null && branchId != null &&  merchantId != null) {
+                    BasePrincipal(
+                        branchId = branchId,
+                        boardId = boardId,
                         merchantId = merchantId
                     )
                 } else {
@@ -183,7 +199,7 @@ fun Application.configureSecurity() {
             verifier(JwtConfig.verifierUser)
             validate { cr ->
                 val merchantId = cr.payload.getClaim("merchantId").asLong()
-                val staffId = cr.payload.getClaim("staffId").asLong()
+                val staffId = cr.payload.getClaim("courierId").asLong()
                 val uuid = cr.payload.getClaim("uuid").asString()
                 if (merchantId != null && uuid != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)

@@ -25,10 +25,6 @@ fun Application.module() = runBlocking {
     println(dbUser)
 
     AppConfig.config = environment.config
-
-
-
-
     configureSecurity()
     configureHTTP()
     configureSerialization()

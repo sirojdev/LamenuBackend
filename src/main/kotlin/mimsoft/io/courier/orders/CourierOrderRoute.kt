@@ -22,9 +22,9 @@ fun Route.routeToCourierOrders() {
                 mapOf(
                     "merchantId" to principal?.merchantId as Any,
                     "courierId" to principal.staffId,
-                    "type" to call.parameters["type"] as Any,
-                    "status" to call.parameters["status"] as Any,
-                    "search" to call.parameters["search"] as Any,
+//                    "type" to call.parameters["type"] as Any,
+                    "status" to status as Any,
+//                    "search" to call.parameters["search"] as Any,
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
                 )
