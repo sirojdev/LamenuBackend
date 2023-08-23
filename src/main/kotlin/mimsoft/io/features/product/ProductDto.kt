@@ -13,7 +13,7 @@ data class ProductDto(
     val name: TextModel? = null,
     val description: TextModel? = null,
     val image: String? = null,
-    val costPrice: Long? = null,
+    var costPrice: Long? = null,
     val active: Boolean? = null,
     val productIntegration: ProductIntegrationDto? = null,
     val category: CategoryDto? = null,

@@ -14,22 +14,24 @@ import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.math.min
 
 fun Route.routeToClientOrder() {
     val orderService = OrderService
     val log: Logger = LoggerFactory.getLogger("routeToClientOrder")
     get("orders") {
         val pr = getPrincipal()
-        val map: MutableMap<String, *>
-        val status = call.parameters["status"]
-        log.info("status {}", status)
+        val search = call.parameters["search"]
+        val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
+        val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+        log.info("search {}", search)
         val response = OrderService.getAll(
             mapOf(
                 "clientId" to pr?.userId,
                 "merchantId" to pr?.merchantId,
-                "status" to status,
-                "limit" to call.parameters["limit"]?.toLongOrNull(),
-                "offset" to call.parameters["offset"]?.toLongOrNull()
+                "search" to search,
+                "limit" to limit,
+                "offset" to offset
             )
         )
         call.respond(response.httpStatus, response.body)
@@ -43,14 +45,14 @@ fun Route.routeToClientOrder() {
     }
 
     post("order") {
-        val principal = call.principal<BasePrincipal>()
-        val appKey = call.parameters["appKey"]?.toLongOrNull()
-        val userId = principal?.userId
+        val pr = getPrincipal()
+        val userId = pr?.userId
+        val merchantId = pr?.merchantId
         val order = call.receive<Order>()
         val status = orderService.post(
             order.copy(
                 user = UserDto(id = userId),
-                merchant = MerchantDto(id = appKey)
+                merchant = MerchantDto(id = merchantId)
             )
         )
         call.respond(status.httpStatus, status.body)

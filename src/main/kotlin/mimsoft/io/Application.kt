@@ -10,7 +10,8 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 /* {
     embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
-}
+ */
+
 fun Application.module() = runBlocking {
 
 

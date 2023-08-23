@@ -184,7 +184,7 @@ object OrderUtils {
                     LEFT JOIN staff s2 ON o.courier_id = s2.id 
                 """.trimIndent()
 
-        return query+joins+conditions
+        return query + joins + conditions
     }
 
     fun searchQuery(params: Map<String, *>?): Search {
@@ -292,7 +292,7 @@ object OrderUtils {
                     )
                 """.trimIndent()
         conditions += " ORDER BY o.id DESC LIMIT ${params["limit"] as Int} OFFSET ${params["offset"] as Int} "
-        val queryParams:MutableMap<Int, String> = mutableMapOf(
+        val queryParams: MutableMap<Int, String> = mutableMapOf(
             1 to search,
             2 to search,
             3 to search,
@@ -312,7 +312,7 @@ object OrderUtils {
             17 to search,
             18 to search
         )
-        return Search(query+joins+conditions, queryParams)
+        return Search(query + joins + conditions, queryParams)
     }
 
     data class Search(
@@ -321,9 +321,9 @@ object OrderUtils {
     )
 
     fun parseGetAll(result: Map<String, *>): Order {
-        val products = result["o_products"]as? String
+        val products = result["o_products"] as? String
         log.info("products {}", products)
-        return  Order(
+        return Order(
             id = result["o_id"] as? Long?,
             serviceType = result["o_service_type"] as? String?,
             status = result["o_status"] as? String?,
@@ -367,7 +367,7 @@ object OrderUtils {
             ),
             branch = BranchDto(id = result["o_branch_id"] as? Long),
             totalPrice = result["o_total_price"] as? Long,
-            products = gsonToList(products, CartItem::class.java) ,
+            products = gsonToList(products, CartItem::class.java),
             paymentType = (result["o_payment_type"] as? Int?)?.toLong(),
             isPaid = result["o_is_paid"] as? Boolean?,
             comment = result["o_comment"] as? String?,
@@ -393,7 +393,7 @@ object OrderUtils {
                 description = result["add_desc"] as? String
             ),
             branch = BranchDto(id = result["branch_id"] as? Long),
-            products = gsonToList(result["products"]as? String, CartItem::class.java) ,
+            products = gsonToList(result["products"] as? String, CartItem::class.java),
             paymentType = (result["payment_type"] as? Int?)?.toLong(),
             isPaid = result["is_paid"] as? Boolean?,
             comment = result["comment"] as? String?,
@@ -410,8 +410,7 @@ object OrderUtils {
 
         if (order.user?.id == null) {
             return ResponseModel(body = mapOf("message" to "user id or user required"))
-        }
-        else {
+        } else {
             order.user = UserRepositoryImpl.get(order.user!!.id)
                 ?: return ResponseModel(
                     httpStatus = HttpStatusCode.BadRequest,
@@ -444,8 +443,7 @@ object OrderUtils {
                 body = mapOf("message" to "merchant is required"),
                 httpStatus = HttpStatusCode.BadRequest
             )
-        }
-        else {
+        } else {
             order.merchant = MerchantRepositoryImp.getMerchantById(order.merchant?.id)
                 ?: return ResponseModel(
                     httpStatus = HttpStatusCode.BadRequest,
@@ -457,8 +455,7 @@ object OrderUtils {
                 httpStatus = HttpStatusCode.BadRequest,
                 body = mapOf("message" to "branch is required")
             )
-        }
-        else {
+        } else {
             order.branch = BranchServiceImpl.get(order.branch?.id, order.merchant?.id)
                 ?: return ResponseModel(
                     httpStatus = HttpStatusCode.BadRequest,
@@ -488,7 +485,7 @@ object OrderUtils {
         }
     }
 
-    private suspend fun validateProduct(order: Order?, merchantId: Long?=null): ResponseModel {
+    private suspend fun validateProduct(order: Order?, merchantId: Long? = null): ResponseModel {
         val products = order?.products
 
         val orderProducts = getByCartItem(products)
@@ -522,11 +519,20 @@ object OrderUtils {
                 )
         }
 
+        products?.map { cartItem ->
+            getProducts.map {
+                val model = it as ProductDto
+                if (model.id == cartItem.product?.id) {
+                    it.costPrice = it.costPrice?.times(cartItem.count!!)
+                }
+            }
+        }
 
-        val totalProductPrice = getProducts.map { (it as ProductDto).costPrice }.sumOf { it?.toInt()?:0 }
-        val totalProductDiscount = getProducts.map { ((it as ProductDto).costPrice?.times(it.discount?:0)?.div(100))}.sumOf { it?.toInt()?:0 }
-        val totalOptionPrice = getOptions.map { (it as OptionDto).price }.sumOf { it?.toInt()?:0 }
-        val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt()?:0 }
+        val totalProductPrice = getProducts.map { (it as ProductDto).costPrice }.sumOf { it?.toInt() ?: 0 }
+        val totalProductDiscount = getProducts.map { ((it as ProductDto).costPrice?.times(it.discount ?: 0)?.div(100)) }
+            .sumOf { it?.toInt() ?: 0 }
+        val totalOptionPrice = getOptions.map { (it as OptionDto).price }.sumOf { it?.toInt() ?: 0 }
+        val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt() ?: 0 }
         val totalPrice = totalProductPrice + totalOptionPrice + totalExtraPrice
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
@@ -534,7 +540,8 @@ object OrderUtils {
         if (totalPrice.toLong() != order?.totalPrice && totalProductDiscount.toLong() != order?.totalDiscount)
             return ResponseModel(
                 body = mapOf("message" to "total price or discount not equal"),
-                httpStatus = HttpStatusCode.BadRequest)
+                httpStatus = HttpStatusCode.BadRequest
+            )
 
         return ResponseModel(body = order)
     }
@@ -546,8 +553,11 @@ object OrderUtils {
         val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
 
         val queryProducts = "select * from product where id in ($productIds) and not deleted order by id"
+        println("queryProducts -> $queryProducts")
         val queryOptions = "select * from options where id in ($optionIds) and not deleted order by product_id"
+        println("queryOptions -> $queryOptions")
         val queryExtras = "select * from extra where id in ($extraIds) and not deleted order by product_id"
+        println("queryExtras -> $queryExtras")
 
         val productsSet: MutableSet<ProductDto> = mutableSetOf()
         val optionsSet: MutableSet<OptionDto> = mutableSetOf()

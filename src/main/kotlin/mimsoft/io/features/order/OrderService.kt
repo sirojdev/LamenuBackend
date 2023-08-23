@@ -95,6 +95,7 @@ object OrderService {
             ${validOrder.collector?.id}, ${validOrder.paymentType},
             ${validOrder.productCount}, ${validOrder.totalPrice}, ${validOrder.branch?.id})
             """.trimIndent()
+        log.info("insert query {}", query)
 
         repository.insert(
             query = query,

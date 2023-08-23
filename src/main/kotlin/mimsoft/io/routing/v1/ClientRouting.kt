@@ -16,19 +16,19 @@ fun Route.routeToClient() {
     }
 
     route("client") {
-        routeToClientDevice() //+
-        routeToClientProduct() //+
-        routeToClientTable() //+
-        routeToClientBranches() //+
-        routeToClientCategory() //+
-        routeToClientStory() //+
+        routeToClientDevice()
+        routeToClientProduct()
+        routeToClientTable()
+        routeToClientBranches()
+        routeToClientCategory()
+        routeToClientStory()
         routeToClientBasket()
-        routeToCategoryByGroup() //+
-        routeToClientCart() //+
-        routeToPaymentTypes() //+
+        routeToCategoryByGroup()
+        routeToClientCart()
+        routeToPaymentTypes()
         authenticate("user") {
-            routeToClientPromo() //+
-            routeToClientProfile() //+
+            routeToClientPromo()
+            routeToClientProfile()
             routeToAddress()
             routeToClientOrder()
             routeToBook()

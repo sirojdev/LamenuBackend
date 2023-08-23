@@ -22,6 +22,8 @@ import kotlin.reflect.full.primaryConstructor
 
 object DBManager : BaseRepository {
 
+    private val log: Logger = LoggerFactory.getLogger(DBManager::class.java)
+
     var url: String? = ""
     var user: String? = ""
     var password: String? = ""
