@@ -55,7 +55,6 @@ tags:
     description: Endpoints related to Visit
 
 paths:
-
   /client/device:
     post:
       tags:
@@ -74,7 +73,7 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 uuid:
                   type: string
@@ -122,6 +121,8 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
+        "404":
+          description: "No content"
 
   /client/device/terminate/others:
     post:

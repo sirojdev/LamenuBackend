@@ -1,17 +1,15 @@
 package mimsoft.io
 
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import mimsoft.io.utils.plugins.*
 
 
-
-fun main() {
-    embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
+   /* embeddedServer(Netty, port = 9000, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
- */
+*/
 
 fun Application.module() = runBlocking {
 
