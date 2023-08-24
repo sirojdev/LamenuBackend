@@ -5,10 +5,14 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.board.socket.Action
+import mimsoft.io.board.socket.BoardOrderStatus
+import mimsoft.io.board.socket.BoardSocketService
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.operator.socket.OperatorSocketService
+import mimsoft.io.utils.OrderStatus
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
-
 
 
 fun Route.routeToOrder() {
@@ -16,6 +20,63 @@ fun Route.routeToOrder() {
     val orderService = OrderService
 
     route("orders") {
+        /**
+         * OPERATOR CHANGE ORDER STATUS PERMANENTLY
+         * */
+
+        get("status") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val pr = getPrincipal()
+            val status = call.parameters["status"]
+            if (status == null) {
+                call.respond(ResponseModel(body = "status required", httpStatus = HttpStatusCode.BadRequest))
+            }
+            val order = orderService.updateStatus(
+                orderId = orderId!!,
+                merchantId = pr?.merchantId!!,
+                status = OrderStatus.valueOf(status.toString())
+            )
+            val st = OrderStatus.valueOf(status!!)
+            if (order != null) {
+                when (st) {
+                    OrderStatus.READY -> {
+                        BoardSocketService.sendOrderToBoard(
+                            order = order,
+                            type = BoardOrderStatus.READY,
+                            action = Action.ADD
+                        )
+                    }
+
+                    OrderStatus.ONWAY -> {
+                        BoardSocketService.sendOrderToBoard(
+                            order = order,
+                            type = BoardOrderStatus.READY,
+                            action = Action.REMOVE
+                        )
+                    }
+
+                    OrderStatus.ONWAVE, OrderStatus.COOKING -> {
+                        BoardSocketService.sendOrderToBoard(
+                            order = order,
+                            type = BoardOrderStatus.IN_PROGRESS,
+                            action = Action.UPDATE
+                        )
+                    }
+
+                    OrderStatus.ACCEPTED, OrderStatus.ONWAVE, OrderStatus.COOKING -> {
+                        BoardSocketService.sendOrderToBoard(
+                            order = order,
+                            type = BoardOrderStatus.IN_PROGRESS,
+                            action = Action.ADD
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+            call.respond(order!!)
+
+        }
 
         /**
          * OPERATOR ORDER NI QABUL QILADI
@@ -28,10 +89,11 @@ fun Route.routeToOrder() {
             val rs = orderService.accepted(merchantId, orderId)
             val order = OrderService.get(orderId).body as Order
             if (rs) {
-                var offsett= 0
-                OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offsett)
+                val offSet = 0
+                OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offSet)
+                BoardSocketService.sendOrderToBoard(order, BoardOrderStatus.IN_PROGRESS, Action.ADD)
                 call.respond(rs)
-            }else{
+            } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }
         }

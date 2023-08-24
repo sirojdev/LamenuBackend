@@ -16,6 +16,8 @@ fun Route.routeToBoardOrder() {
             val pr = getPrincipal()
             val branchId = pr?.branchId
             val merchantId = pr?.merchantId
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val oneList = OrderService.getAll(
                 mapOf(
                     "merchantId" to merchantId,
@@ -26,7 +28,9 @@ fun Route.routeToBoardOrder() {
                                 OrderStatus.COOKING.name,
                                 OrderStatus.ONWAVE
                             )
-                            )
+                            ),
+                    "limit" to limit,
+                    "offset" to offset,
                 )
             )
             val twoList = OrderService.getAll(
@@ -35,11 +39,11 @@ fun Route.routeToBoardOrder() {
                     "branchId" to branchId,
                     "statuses" to (
                             listOf(
-                                OrderStatus.ACCEPTED.name,
-                                OrderStatus.COOKING.name,
-                                OrderStatus.ONWAVE
+                                OrderStatus.READY
                             )
-                            )
+                            ),
+                    "limit" to limit,
+                    "offset" to offset,
                 )
             )
 

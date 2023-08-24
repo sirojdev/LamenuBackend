@@ -321,11 +321,33 @@ object OrderService {
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val re = it.prepareStatement(query).apply {
-                    setBoolean(1,onWave)
+                    setBoolean(1, onWave)
                     this.closeOnCompletion()
                 }.executeUpdate()
                 return@withContext re == 1
             }
+        }
+    }
+
+    suspend fun updateStatus(orderId: Long, merchantId: Long, status: OrderStatus): Order? {
+        val query = "update orders  set status =?" +
+                " where id = $orderId and merchant_id = $merchantId  "
+        val order: Order?
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val re = it.prepareStatement(query).apply {
+                    setString(1, status.name)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                order = getById(orderId)
+            }
+        }
+        return order
+    }
+    suspend fun getById(id: Long?): Order? {
+        repository.selectOne(joinQuery(id)).let {
+            if (it == null) return null
+            return parseGetAll(it)
         }
     }
 

@@ -14,7 +14,7 @@ import mimsoft.io.utils.ResponseModel
 object BoardAuthService {
     val repository: BaseRepository = DBManager
     suspend fun singUp(boardAuthDto: BoardAuthDto): ResponseModel {
-        if (boardAuthDto.merchantId == null || boardAuthDto.branchId == null || boardAuthDto.username.length < 6 || boardAuthDto.password.length < 6) {
+        if (boardAuthDto.merchantId == null || boardAuthDto.branchId == null || boardAuthDto.username?.length!! < 6 || boardAuthDto.password?.length!! < 6) {
             return ResponseModel(body = "invalid username or password", HttpStatusCode.BadRequest)
         }
         val query = """
@@ -22,54 +22,83 @@ object BoardAuthService {
                       SELECT ${boardAuthDto.merchantId}, ${boardAuthDto.branchId}, ?, ?, NOW()
                       WHERE EXISTS (SELECT 1 FROM merchant WHERE id = ${boardAuthDto.merchantId} and deleted = false)
                             AND EXISTS (SELECT 1 FROM branch WHERE id = ${boardAuthDto.branchId} and deleted = false)
-                            AND NOT EXISTS(SELECT 1 $BOARD_AUTH_TABLE WHERE branch_id = ${boardAuthDto.branchId} and merchant_id = ${boardAuthDto.merchantId} and deleted = false)
+                            AND NOT EXISTS(SELECT 1 from $BOARD_AUTH_TABLE WHERE branch_id = ${boardAuthDto.branchId} and merchant_id = ${boardAuthDto.merchantId} and deleted = false)
                       ON CONFLICT DO NOTHING;
         """.trimMargin()
+        val response: ResponseModel
         withContext(Dispatchers.IO) {
             repository.connection().use {
+
                 val rs = it.prepareStatement(query).apply {
                     setString(1, boardAuthDto.username)
                     setString(2, boardAuthDto.password)
                     this.closeOnCompletion()
                 }.executeUpdate()
                 if (rs == 1) {
-                    return@withContext ResponseModel(body = "Successfully", HttpStatusCode.OK)
+                    response = ResponseModel(body = "Successfully", HttpStatusCode.OK)
                 } else {
-                    return@withContext ResponseModel(
+                    response = ResponseModel(
                         body = "Merchant or branch not found or this branch already exist",
                         HttpStatusCode.MethodNotAllowed
                     )
                 }
             }
         }
-        return ResponseModel(body = "invalid username or password", HttpStatusCode.BadRequest)
+        return response
     }
 
-    suspend fun signIn(authDto: BoardAuthDto) {
-        val query = "select * from $BOARD_AUTH_TABLE  where merchant_id = ${authDto.merchantId} and ${authDto.branchId} and password = ? and username = ?"
+
+    suspend fun signIn(authDto: BoardAuthDto): ResponseModel {
+        val query =
+            "select * from $BOARD_AUTH_TABLE  where merchant_id = ${authDto.merchantId} and branch_id = ${authDto.branchId} and password = ? and username = ?"
+        val response: ResponseModel
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
-                    setString(1,authDto.password)
-                    setString(2,authDto.username)
+                    setString(1, authDto.password)
+                    setString(2, authDto.username)
                     this.closeOnCompletion()
                 }.executeQuery()
-                if (rs.next()) {
-                    return@withContext ResponseModel(
-                        body = JwtConfig.generateBoardToken(
-                            rs.getLong("id"),
-                            authDto.merchantId,
-                            authDto.branchId
+                response = if (rs.next()) {
+                    ResponseModel(
+                        body = mapOf(
+                            "token" to JwtConfig.generateBoardToken(
+                                rs.getLong("id"),
+                                authDto.merchantId!!,
+                                authDto.branchId!!
+                            )
                         ), HttpStatusCode.OK
                     )
-                }else{
-                   return@withContext ResponseModel(
-                       body= " username or password incorrect",
-                       HttpStatusCode.BadRequest
-                   )
+                } else {
+                    ResponseModel(
+                        body = " username or password incorrect",
+                        HttpStatusCode.BadRequest
+                    )
                 }
             }
         }
+        return response
+    }
+
+    suspend fun getBoardId(branchId:Long?,merchantId:Long?): BoardAuthDto? {
+        val query =
+            "select * from $BOARD_AUTH_TABLE  where merchant_id = $merchantId and branch_id = $branchId "
+        var response: BoardAuthDto?=null
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    response = BoardAuthDto(
+                        id = rs.getLong("id"),
+                        branchId = rs.getLong("branch_id"),
+                        merchantId = rs.getLong("merchant_id"),
+                    )
+                }
+            }
+        }
+        return response
     }
 
 }

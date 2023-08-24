@@ -1,6 +1,7 @@
 package mimsoft.io.board.socket
 
 import com.google.gson.Gson
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -23,6 +24,9 @@ fun Route.routeToBoardSocket() {
                 val boardId = principal?.boardId
                 val merchantId = principal?.merchantId
                 val branchId = principal?.branchId
+                val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+                val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+
                 /**
                  * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
                  *
@@ -41,12 +45,14 @@ fun Route.routeToBoardSocket() {
                         "merchantId" to merchantId,
                         "branchId" to branchId,
                         "statuses" to (
-                            listOf(
-                                OrderStatus.ACCEPTED.name,
-                                OrderStatus.COOKING.name,
-                                OrderStatus.ONWAVE
-                            )
-                        )
+                                listOf(
+                                    OrderStatus.ACCEPTED.name,
+                                    OrderStatus.COOKING.name,
+                                    OrderStatus.ONWAVE
+                                )
+                                ),
+                        "limit" to limit,
+                        "offset" to offset
                     )
                 )
                 val twoList = OrderService.getAll(
@@ -54,12 +60,12 @@ fun Route.routeToBoardSocket() {
                         "merchantId" to merchantId,
                         "branchId" to branchId,
                         "statuses" to (
-                            listOf(
-                                OrderStatus.ACCEPTED.name,
-                                OrderStatus.COOKING.name,
-                                OrderStatus.ONWAVE
-                            )
-                        )
+                                listOf(
+                                    OrderStatus.READY.name,
+                                )
+                                ),
+                        "limit" to limit,
+                        "offset" to offset
                     )
                 )
 
@@ -71,7 +77,7 @@ fun Route.routeToBoardSocket() {
                         // Just keep the WebSocket open
                     }
                 } finally {
-                    println("Admin disconnected")
+                    println(" disconnected")
                 }
             } catch (e: Exception) {
                 println(e.localizedMessage)

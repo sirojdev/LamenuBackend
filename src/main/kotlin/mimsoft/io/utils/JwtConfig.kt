@@ -61,6 +61,20 @@ object JwtConfig {
             .withExpiresAt(getExpiration(validityRefresh))
             .sign(algorithmDevice)
     }
+    fun generateBoardDeviceToken(
+        merchantId: Long?,
+        uuid: String?,
+        branchId: Long? = 0L,
+    ): String {
+        return JWT.create()
+            .withSubject("board-device")
+            .withIssuer(issuer)
+            .withClaim("merchantId", merchantId)
+            .withClaim("uuid", uuid)
+            .withClaim("branchId", branchId)
+            .withExpiresAt(getExpiration(validityRefresh))
+            .sign(algorithmDevice)
+    }
 
     fun generateAccessToken(
         entityId: Long?,
