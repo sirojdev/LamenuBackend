@@ -67,5 +67,13 @@ ktor {
         archiveFileName.set("lamenu-dev.jar")
     }
 
+    fatJar{
+        archiveFileName.set("lamenu-beta.jar")
+    }
+
+    fatJar{
+        archiveFileName.set("lamenu-back.jar")
+    }
+
 }
 
