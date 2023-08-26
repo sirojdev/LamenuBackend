@@ -16,7 +16,7 @@ fun Route.routeToBoardOrder() {
             val pr = getPrincipal()
             val branchId = pr?.branchId
             val merchantId = pr?.merchantId
-            val oneList = OrderService.getAll(
+            val inProgress = OrderService.getAll(
                 mapOf(
                     "merchantId" to merchantId,
                     "branchId" to branchId,
@@ -29,7 +29,7 @@ fun Route.routeToBoardOrder() {
                             )
                 )
             )
-            val twoList = OrderService.getAll(
+            val ready = OrderService.getAll(
                 mapOf(
                     "merchantId" to merchantId,
                     "branchId" to branchId,
@@ -43,7 +43,7 @@ fun Route.routeToBoardOrder() {
                 )
             )
 
-            call.respond(Gson().toJson(BoardResponseModel(inProgress = oneList, ready = twoList)))
+            call.respond(Gson().toJson(BoardResponseModel(inProgress = inProgress, ready = ready)))
         }
     }
 }

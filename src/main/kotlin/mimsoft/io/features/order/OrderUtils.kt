@@ -26,8 +26,7 @@ object OrderUtils {
 
     val log: Logger = LoggerFactory.getLogger("OrderUtils")
 
-    fun query(params: Map<String, *>?): String {
-
+    fun query(params: Map<String, *>?, columnsSet: Set<String>): String {
         val query = """
             SELECT 
             o.id o_id,
@@ -56,10 +55,10 @@ object OrderUtils {
             o.branch_id o_branch_id 
         """.trimIndent()
 
-        val joins = """
-            FROM orders o
-            LEFT JOIN order_price op on o.id = op.order_id 
-        """.trimIndent()
+        val joins = if (columnsSet.contains("order_price"))
+            "FROM orders o \n" +
+                    "LEFT JOIN order_price op on o.id = op.order_id "
+        else " From orders o "
 
         var conditions = """
             WHERE o.deleted = false 
@@ -187,14 +186,14 @@ object OrderUtils {
         return query + joins + conditions
     }
 
-    fun searchQuery(params: Map<String, *>?): Search {
+    fun searchQuery(params: Map<String, *>?, columnsSet: Set<String>): Search {
+
 
         var query = """
             SELECT 
             o.id o_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
-            o.products o_products,
             o.status o_status,
             o.add_lat o_add_lat,
             o.add_long o_add_long,
@@ -214,28 +213,31 @@ object OrderUtils {
             o.is_paid o_is_paid,
             o.grade o_grade,
             o.total_price o_total_price,
-            o.branch_id o_branch_id, 
-        """.trimIndent() + "\n"
-
-        var joins = """
+            o.branch_id o_branch_id 
+        """.trimIndent() +
+                (if (columnsSet.contains("products")) ", o.products o_products\n" else "")
+        var joins = if (columnsSet.contains("order_price"))
+            """
             FROM orders o
             LEFT JOIN order_price op on o.id = op.order_id 
         """.trimIndent()
+        else "FROM orders o "
 
         var conditions = """
             WHERE o.deleted = false 
         """.trimIndent()
 
 
-        val search = "%${params?.get("search") as String}%"
-        query += """
+        query += (if (columnsSet.contains("user")) """,
                     u.id u_id,
                     u.first_name u_first_name,
                     u.last_name u_last_name,
                     u.phone u_phone,
                     u.image u_image,
                     u.birth_day u_birth_day,
-                    u.badge_id u_badge_id,
+                    u.badge_id u_badge_id """ else "") +
+                (if (columnsSet.contains("merchant"))
+                    """,
                     m.id m_id,
                     m.name_uz m_name_uz,
                     m.name_ru m_name_ru,
@@ -243,7 +245,9 @@ object OrderUtils {
                     m.phone m_phone,
                     m.logo m_logo,
                     m.is_active m_is_active,
-                    m.sub m_sub,
+                    m.sub m_sub """ else "") +
+                (if (columnsSet.contains("collector"))
+                    """,
                     s.id s_id,
                     s.first_name s_first_name,
                     s.last_name s_last_name,
@@ -252,7 +256,9 @@ object OrderUtils {
                     s.birth_day s_birth_day,
                     s.position s_position,
                     s.gender s_gender,
-                    s.comment s_comment,
+                    s.comment s_comment """ else "") +
+                (if (columnsSet.contains("courier"))
+                    """ ,
                     s2.id s2_id,
                     s2.first_name s2_first_name,
                     s2.last_name s2_last_name,
@@ -262,147 +268,150 @@ object OrderUtils {
                     s2.position s2_position,
                     s2.gender s2_gender,
                     s2.comment s2_comment 
-                """.trimIndent()
-        joins += """
-                    LEFT JOIN users u ON o.user_id = u.id
-                    LEFT JOIN merchant m ON o.merchant_id = m.id
-                    LEFT JOIN staff s ON o.collector_id = s.id
-                    LEFT JOIN staff s2 ON o.courier_id = s2.id 
-                """.trimIndent()
-        conditions += """
-                    AND (
-                        o.comment LIKE ? OR
-                        o.add_desc LIKE ? OR
-                        o.status LIKE ? OR
-                        o.products LIKE ? OR
-                        o.service_type LIKE ? OR
-                        u.first_name LIKE ? OR
-                        u.last_name LIKE ? OR
-                        u.phone LIKE ? OR
-                        m.name_uz LIKE ? OR
-                        m.name_ru LIKE ? OR
-                        m.name_eng LIKE ? OR
-                        m.phone LIKE ? OR
-                        s.first_name LIKE ? OR
-                        s.last_name LIKE ? OR
-                        s.phone LIKE ? OR
-                        s2.first_name LIKE ? OR
-                        s2.last_name LIKE ? OR
-                        s2.phone LIKE ? 
-                    )
-                """.trimIndent()
-        conditions += " ORDER BY o.id DESC LIMIT ${params["limit"] as Int} OFFSET ${params["offset"] as Int} "
+                """.trimIndent() else "")
+        joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
+                (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
+                (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
+                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
+//        conditions += """AND (
+//                        o.comment LIKE ? OR
+//                        o.add_desc LIKE ? OR
+//                        o.status LIKE ? OR
+//                        o.products LIKE ?
+//                        o.service_type LIKE ?  """ +
+//                (if(columnsSet.contains("user"))
+//                    """ OR
+//                        u.first_name LIKE ? OR
+//                        u.last_name LIKE ? OR
+//                        u.phone LIKE ?  """  else "" ) +
+//                (if(columnsSet.contains("merchant")) """
+//                        OR
+//                        m.name_uz LIKE ? OR
+//                        m.name_ru LIKE ? OR
+//                        m.name_eng LIKE ? OR
+//                        m.phone LIKE ? """  else  "" ) +
+//                (if(columnsSet.contains("collector"))
+//                    """
+//                        OR
+//                        s.first_name LIKE ? OR
+//                        s.last_name LIKE ? OR
+//                        s.phone LIKE ?  """ else  "" ) +
+//                (if(columnsSet.contains("courier")) """
+//                        OR
+//                        s2.first_name LIKE ? OR
+//                        s2.last_name LIKE ? OR
+//                        s2.phone LIKE ? """ else "").trimIndent()
+//        conditions += " ORDER BY o.id DESC LIMIT ${params["limit"] as Int} OFFSET ${params["offset"] as Int} "
         val queryParams: MutableMap<Int, String> = mutableMapOf(
-            1 to search,
-            2 to search,
-            3 to search,
-            4 to search,
-            5 to search,
-            6 to search,
-            7 to search,
-            8 to search,
-            9 to search,
-            10 to search,
-            11 to search,
-            12 to search,
-            13 to search,
-            14 to search,
-            15 to search,
-            16 to search,
-            17 to search,
-            18 to search
+//            1 to search,
+//            2 to search,
+//            3 to search,
+//            4 to search,
+//            5 to search,
+//            6 to search,
+//            7 to search,
+//            8 to search,
+//            9 to search,
+//            10 to search,
+//            11 to search,
+//            12 to search,
+//            13 to search,
+//            14 to search,
+//            15 to search,
+//            16 to search,
+//            17 to search,
+//            18 to search
         )
         return Search(query + joins + conditions, queryParams)
     }
 
     data class Search(
-        val query: String,
-        val queryParams: Map<Int, *>
+        val query: String, val queryParams: Map<Int, *>
     )
 
-    fun parseGetAll(result: Map<String, *>): Order {
-        val products = result["o_products"] as? String
-        log.info("products {}", products)
+    fun parseGetAll(result: Map<String, *>, columns: Set<String>): Order {
+        val products = result.getOrDefault("o_products", null) as? String
         return Order(
-            id = result["o_id"] as? Long?,
-            serviceType = result["o_service_type"] as? String?,
-            status = result["o_status"] as? String?,
-            user = UserDto(
-                id = result["o_user_id"] as? Long?,
-                firstName = result["u_first_name"] as? String?,
-                lastName = result["u_last_name"] as? String?,
-                phone = result["u_phone"] as? String?,
-                image = result["u_image"] as? String?,
-                birthDay = result["u_birth_day"] as? Timestamp?,
-                badge = BadgeDto(id = result["u_badge_id"] as? Long?)
-            ),
-            merchant = MerchantDto(
-                id = result["o_merchant_id"] as? Long?,
+            id = result.getOrDefault("o_id", null) as? Long?,
+            serviceType = result.getOrDefault("o_service_type", null) as? String?,
+            status = result.getOrDefault("o_status", null) as? String?,
+            user = if (columns.contains("user")) UserDto(
+                id = result.getOrDefault("o_user_id", null) as? Long?,
+                firstName = result.getOrDefault("u_first_name", null) as? String?,
+                lastName = result.getOrDefault("u_last_name", null) as? String?,
+                phone = result.getOrDefault("u_phone", null) as? String?,
+                image = result.getOrDefault("u_image", null) as? String?,
+                birthDay = result.getOrDefault("u_birth_day", null) as? Timestamp?,
+                badge = BadgeDto(id = result.getOrDefault("u_badge_id", null) as? Long?)
+            ) else UserDto(),
+            merchant = if (columns.contains("merchant")) MerchantDto(
+                id = result.getOrDefault("o_merchant_id", null) as? Long?,
                 name = TextModel(
-                    uz = result["m_name_tr"] as? String?,
-                    ru = result["m_name_en"] as? String?,
-                    eng = result["m_name_ar"] as? String?
+                    uz = result.getOrDefault("m_name_tr", null) as? String?,
+                    ru = result.getOrDefault("m_name_en", null) as? String?,
+                    eng = result.getOrDefault("m_name_ar", null) as? String?
                 ),
-                phone = result["m_phone"] as? String?,
-                sub = result["m_sub"] as? String?,
-                logo = result["m_logo"] as? String?,
-                isActive = result["m_is_active"] as? Boolean?
-            ),
-            collector = StaffDto(
-                id = result["o_collector_id"] as? Long?,
-                firstName = result["s_first_name"] as? String?,
-                lastName = result["s_last_name"] as? String?,
-                phone = result["s_phone"] as? String?,
-                image = result["s_image"] as? String?,
-                birthDay = result["s_birth_day"].toString(),
-                position = result["s_position"] as? String?,
-                gender = result["gender"] as? String?,
-                comment = result["s_comment"] as? String?
-            ),
-            courier = StaffDto(id = result["o_courier_id"] as? Long),
-            address = AddressDto(
-                latitude = result["o_add_lat"] as? Double?,
-                longitude = result["o_add_long"] as? Double?,
-                description = result["o_add_desc"] as? String
-            ),
-            branch = BranchDto(id = result["o_branch_id"] as? Long),
-            totalPrice = result["o_total_price"] as? Long,
+                phone = result.getOrDefault("m_phone", null) as? String?,
+                sub = result.getOrDefault("m_sub", null) as? String?,
+                logo = result.getOrDefault("m_logo", null) as? String?,
+                isActive = result.getOrDefault("m_is_active", null) as? Boolean?
+            ) else MerchantDto(),
+            collector = if (columns.contains("collector")) StaffDto(
+                id = result.getOrDefault("o_collector_id", null) as? Long?,
+                firstName = result.getOrDefault("s_first_name", null) as? String?,
+                lastName = result.getOrDefault("s_last_name", null) as? String?,
+                phone = result.getOrDefault("s_phone", null) as? String?,
+                image = result.getOrDefault("s_image", null) as? String?,
+                birthDay = result.getOrDefault("s_birth_day", null).toString(),
+                position = result.getOrDefault("s_position", null) as? String?,
+                gender = result.getOrDefault("gender", null) as? String?,
+                comment = result.getOrDefault("s_comment", null) as? String?
+            ) else StaffDto(),
+            courier = StaffDto(id = result.getOrDefault("o_courier_id", null) as? Long),
+            address = if (columns.contains("address"))
+                AddressDto(
+                    latitude = result.getOrDefault("o_add_lat", null) as? Double?,
+                    longitude = result.getOrDefault("o_add_long", null) as? Double?,
+                    description = result.getOrDefault("o_add_desc", null) as? String
+                ) else AddressDto(),
+            branch = BranchDto(id = result.getOrDefault("o_branch_id", null) as? Long),
+            totalPrice = result.getOrDefault("o_total_price", null) as? Long,
             products = gsonToList(products, CartItem::class.java),
-            paymentType = (result["o_payment_type"] as? Int?)?.toLong(),
-            isPaid = result["o_is_paid"] as? Boolean?,
-            comment = result["o_comment"] as? String?,
-            productCount = result["o_product_count"] as Int?,
-            createdAt = result["o_created_at"] as? Timestamp?,
-            updatedAt = result["o_updated_at"] as? Timestamp?,
-            deleted = result["o_deleted"] as? Boolean?
+            paymentType = (result.getOrDefault("o_payment_type", null) as? Int?)?.toLong(),
+            isPaid = result.getOrDefault("o_is_paid", null) as? Boolean?,
+            comment = result.getOrDefault("o_comment", null) as? String?,
+            productCount = result.getOrDefault("o_product_count", null) as Int?,
+            createdAt = result.getOrDefault("o_created_at", null) as? Timestamp?,
+            updatedAt = result.getOrDefault("o_updated_at", null) as? Timestamp?,
+            deleted = result.getOrDefault("o_deleted", null) as? Boolean?
         )
     }
 
     fun parse(result: Map<String, *>): Any {
         return Order(
-            id = result["id"] as? Long?,
-            serviceType = result["service_type"] as? String?,
-            status = result["status"] as? String?,
-            user = UserDto(id = result["user_id"] as? Long?),
-            merchant = MerchantDto(id = result["merchant_id"] as? Long?),
-            collector = StaffDto(id = result["collector_id"] as? Long?),
-            courier = StaffDto(id = result["courier_id"] as? Long),
+            id = result.getOrDefault("id", null) as? Long?,
+            serviceType = result.getOrDefault("service_type", null) as? String?,
+            status = result.getOrDefault("status", null) as? String?,
+            user = UserDto(id = result.getOrDefault("user_id", null) as? Long?),
+            merchant = MerchantDto(id = result.getOrDefault("merchant_id", null) as? Long?),
+            collector = StaffDto(id = result.getOrDefault("collector_id", null) as? Long?),
+            courier = StaffDto(id = result.getOrDefault("courier_id", null) as? Long),
             address = AddressDto(
-                latitude = result["add_lat"] as? Double?,
-                longitude = result["add_long"] as? Double?,
-                description = result["add_desc"] as? String
+                latitude = result.getOrDefault("add_lat", null) as? Double?,
+                longitude = result.getOrDefault("add_long", null) as? Double?,
+                description = result.getOrDefault("add_desc", null) as? String
             ),
-            branch = BranchDto(id = result["branch_id"] as? Long),
-            products = gsonToList(result["products"] as? String, CartItem::class.java),
-            paymentType = (result["payment_type"] as? Int?)?.toLong(),
-            isPaid = result["is_paid"] as? Boolean?,
-            comment = result["comment"] as? String?,
-            productCount = result["product_count"] as? Int?,
-            totalPrice = result["total_price"] as? Long,
-            totalDiscount = result["total_discount"] as? Long,
-            createdAt = result["created_at"] as? Timestamp?,
-            updatedAt = result["updated_at"] as? Timestamp?,
-            deleted = result["deleted"] as? Boolean?
+            branch = BranchDto(id = result.getOrDefault("branch_id", null) as? Long),
+            products = gsonToList(result.getOrDefault("products", null) as? String, CartItem::class.java),
+            paymentType = (result.getOrDefault("payment_type", null) as? Int?)?.toLong(),
+            isPaid = result.getOrDefault("is_paid", null) as? Boolean?,
+            comment = result.getOrDefault("comment", null) as? String?,
+            productCount = result.getOrDefault("product_count", null) as? Int?,
+            totalPrice = result.getOrDefault("total_price", null) as? Long,
+            totalDiscount = result.getOrDefault("total_discount", null) as? Long,
+            createdAt = result.getOrDefault("created_at", null) as? Timestamp?,
+            updatedAt = result.getOrDefault("updated_at", null) as? Timestamp?,
+            deleted = result.getOrDefault("deleted", null) as? Boolean?
         )
     }
 
@@ -411,18 +420,15 @@ object OrderUtils {
         if (order.user?.id == null) {
             return ResponseModel(body = mapOf("message" to "user id or user required"))
         } else {
-            order.user = UserRepositoryImpl.get(order.user!!.id)
-                ?: return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = mapOf("message" to "user not found")
-                )
+            order.user = UserRepositoryImpl.get(order.user!!.id) ?: return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "user not found")
+            )
             log.info("user: {}", order.user.toJson())
         }
 
         if (order.serviceType == null) {
             return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest,
-                body = mapOf("message" to "serviceType is required")
+                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "serviceType is required")
             )
         }
 
@@ -433,34 +439,27 @@ object OrderUtils {
 
         if (order.paymentType == null) {
             return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest,
-                body = mapOf("message" to "paymentType is required")
+                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "paymentType is required")
             )
         }
 
         if (order.merchant?.id == null) {
             return ResponseModel(
-                body = mapOf("message" to "merchant is required"),
-                httpStatus = HttpStatusCode.BadRequest
+                body = mapOf("message" to "merchant is required"), httpStatus = HttpStatusCode.BadRequest
             )
         } else {
-            order.merchant = MerchantRepositoryImp.getMerchantById(order.merchant?.id)
-                ?: return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = mapOf("message" to "merchant not found")
-                )
+            order.merchant = MerchantRepositoryImp.getMerchantById(order.merchant?.id) ?: return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "merchant not found")
+            )
         }
         if (order.branch?.id == null) {
             return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest,
-                body = mapOf("message" to "branch is required")
+                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "branch is required")
             )
         } else {
-            order.branch = BranchServiceImpl.get(order.branch?.id, order.merchant?.id)
-                ?: return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = mapOf("message" to "branch not found")
-                )
+            order.branch = BranchServiceImpl.get(order.branch?.id, order.merchant?.id) ?: return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "branch not found")
+            )
         }
 
         validateProduct(order).let {
@@ -473,13 +472,11 @@ object OrderUtils {
     private suspend fun validateAddress(address: AddressDto?): ResponseModel {
 
         if (address?.id == null) return ResponseModel(
-            body = mapOf("message" to "address id is required"),
-            httpStatus = HttpStatusCode.BadRequest
+            body = mapOf("message" to "address id is required"), httpStatus = HttpStatusCode.BadRequest
         )
         AddressRepositoryImpl.get(address.id).let {
             if (it == null) return ResponseModel(
-                body = mapOf("message" to "address not found"),
-                httpStatus = HttpStatusCode.BadRequest
+                body = mapOf("message" to "address not found"), httpStatus = HttpStatusCode.BadRequest
             )
             return ResponseModel(body = it)
         }
@@ -496,27 +493,24 @@ object OrderUtils {
         val getExtras = body["extras"] as Set<*>
 
         products?.map { it.product }?.toSet()?.intersect(getProducts).let { intSet ->
-            if (intSet?.isNotEmpty() == true)
-                return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = mapOf("message" to "products id = ${intSet.joinToString { (it as ProductDto).id.toString() }} not found")
-                )
+            if (intSet?.isNotEmpty() == true) return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest,
+                body = mapOf("message" to "products id = ${intSet.joinToString { (it as ProductDto).id.toString() }} not found")
+            )
         }
 
         products?.map { it.option }?.toSet()?.intersect(getOptions).let { intSet ->
-            if (intSet?.isNotEmpty() == true)
-                return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = mapOf("message" to "options id = ${intSet.joinToString { (it as OptionDto).id.toString() }} not found")
-                )
+            if (intSet?.isNotEmpty() == true) return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest,
+                body = mapOf("message" to "options id = ${intSet.joinToString { (it as OptionDto).id.toString() }} not found")
+            )
         }
 
         products?.flatMap { it.extras.orEmpty() }?.toSet()?.intersect(getExtras).let { intSet ->
-            if (intSet?.isNotEmpty() == true)
-                return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest,
-                    body = mapOf("message" to "extras id = ${intSet.joinToString { (it as ExtraDto).id.toString() }} not found")
-                )
+            if (intSet?.isNotEmpty() == true) return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest,
+                body = mapOf("message" to "extras id = ${intSet.joinToString { (it as ExtraDto).id.toString() }} not found")
+            )
         }
 
         products?.map { cartItem ->
@@ -537,11 +531,9 @@ object OrderUtils {
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
 
-        if (totalPrice.toLong() != order?.totalPrice && totalProductDiscount.toLong() != order?.totalDiscount)
-            return ResponseModel(
-                body = mapOf("message" to "total price or discount not equal"),
-                httpStatus = HttpStatusCode.BadRequest
-            )
+        if (totalPrice.toLong() != order?.totalPrice && totalProductDiscount.toLong() != order?.totalDiscount) return ResponseModel(
+            body = mapOf("message" to "total price or discount not equal"), httpStatus = HttpStatusCode.BadRequest
+        )
 
         return ResponseModel(body = order)
     }
@@ -628,9 +620,7 @@ object OrderUtils {
 
         return ResponseModel(
             body = mapOf(
-                "products" to productsSet,
-                "options" to optionsSet,
-                "extras" to extrasSet
+                "products" to productsSet, "options" to optionsSet, "extras" to extrasSet
             )
         )
     }

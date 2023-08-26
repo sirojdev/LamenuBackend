@@ -10,7 +10,6 @@ import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.utils.plugins.getPrincipal
 
 
-
 fun Route.routeToOrder() {
 
     val orderService = OrderService
@@ -28,10 +27,10 @@ fun Route.routeToOrder() {
             val rs = orderService.accepted(merchantId, orderId)
             val order = OrderService.get(orderId).body as Order
             if (rs) {
-                var offsett= 0
-                OperatorSocketService.findNearCourierAndSendOrderToCourier(order,offsett)
+                var offsett = 0
+                OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
                 call.respond(rs)
-            }else{
+            } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }
         }
@@ -39,7 +38,7 @@ fun Route.routeToOrder() {
         get("/live") {
             val principal = getPrincipal()
             val response = orderService.getAll(
-                mapOf(
+                params = mapOf(
                     "merchantId" to principal?.merchantId as Any,
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any,

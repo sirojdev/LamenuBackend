@@ -1,6 +1,7 @@
 package mimsoft.io.features.order
 
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,7 +11,6 @@ import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.joinQuery
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
-import mimsoft.io.features.order.OrderUtils.query
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.repository.BaseRepository
@@ -25,53 +25,52 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 
+suspend fun main() {
+    val orders = OrderService.getAll(null, "user", "merchant", "collector", "products")
+    println(Gson().toJson(orders))
+}
+
 object OrderService {
 
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
 
     suspend fun getAll(
-        params: Map<String, *>? = null
+        params: Map<String, *>? = null,
+        vararg columns: String
     ): ResponseModel {
+
+
+        val columnsSet = columns.toSet()
 
         val rowCount: String
         val result: List<Map<String, *>>
         val rowResult: Map<String, *>?
 
-        if (params?.containsKey("search") == true) {
-            val search = searchQuery(params)
-            result = repository.selectList(query = search.query, args = search.queryParams)
-            rowCount = search.query
-            val rowQuery = """
+        val search = searchQuery(params, columnsSet)
+        result = repository.selectList(query = search.query, args = search.queryParams)
+        rowCount = search.query
+        val rowQuery = """
             SELECT COUNT(*) 
             FROM (${rowCount.substringBefore("LIMIT")}) AS count
         """.trimIndent()
-            rowResult = repository.selectOne(query = rowQuery, args = search.queryParams)
-        } else {
-            val query = query(params)
-            result = repository.selectList(query)
-            rowCount = query
-            val rowQuery = """
-            SELECT COUNT(*) 
-            FROM (${rowCount.substringBefore("LIMIT")}) AS count
-        """.trimIndent()
-            rowResult = repository.selectOne(rowQuery)
-        }
+        rowResult = repository.selectOne(query = rowQuery, args = search.queryParams)
+
 
         log.info("result: $result")
 
         return ResponseModel(
             body = DataPage(
-                data = result.map { parseGetAll(it) },
+                data = result.map { parseGetAll(it, columnsSet) },
                 total = (rowResult?.get("count") as Long?)?.toInt()
             )
         )
     }
 
-    suspend fun get(id: Long?): ResponseModel {
+    suspend fun get(id: Long?, vararg joinColumns : String): ResponseModel {
         repository.selectOne(joinQuery(id)).let {
             if (it == null) return ResponseModel(httpStatus = ORDER_NOT_FOUND)
-            return ResponseModel(body = parseGetAll(it))
+            return ResponseModel(body = parseGetAll(it, joinColumns.toSet()))
         }
     }
 
@@ -321,7 +320,7 @@ object OrderService {
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val re = it.prepareStatement(query).apply {
-                    setBoolean(1,onWave)
+                    setBoolean(1, onWave)
                     this.closeOnCompletion()
                 }.executeUpdate()
                 return@withContext re == 1
