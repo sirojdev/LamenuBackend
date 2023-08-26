@@ -26,3 +26,12 @@ data class ChatConnections(
     var session: DefaultWebSocketSession? = null,
     var sender: Sender? = null
 )
+
+data class CourierConnection(
+    val id: Long? = null,
+    val staffId: Long? = null,
+    var merchantId: Long? = null,
+    var uuid: String? = null,
+    val connectAt: Timestamp? = null,
+    var session: DefaultWebSocketSession? = null
+)

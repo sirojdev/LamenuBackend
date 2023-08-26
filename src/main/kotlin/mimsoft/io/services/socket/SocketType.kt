@@ -1,4 +1,5 @@
 package mimsoft.io.services.socket
 
-class SocketType {
+enum class SocketType  {
+    CHAT,LOCATION,NOT_READ,ACCEPT
 }

@@ -1,4 +1,9 @@
 package mimsoft.io.services.socket
 
-class SocketData {
-}
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class SocketData(
+    val type: SocketType? = null,
+    val data: String? = null
+)

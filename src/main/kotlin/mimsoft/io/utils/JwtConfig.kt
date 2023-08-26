@@ -150,7 +150,7 @@ object JwtConfig {
         .withIssuer(issuer)
         .withClaim("merchantId", merchantId)
         .withClaim("uuid", uuid)
-        .withClaim("staffId", staffId)
+        .withClaim("courierId", staffId)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
 

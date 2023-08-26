@@ -71,7 +71,7 @@ object OrderUtils {
             }
             if (params["status"] != null) {
                 conditions += " AND o.status = '${params["status"] as? String}' "
-            } else if (params["live"] != null) {
+            } else if (params["statuses"] != null) {
                 conditions += " AND o.status IN (${(params["statuses"] as? List<*>)?.joinToString { ", " }}) "
             }
             if (params["userId"] != null) {
@@ -182,6 +182,103 @@ object OrderUtils {
                     LEFT JOIN merchant m ON o.merchant_id = m.id
                     LEFT JOIN staff s ON o.collector_id = s.id
                     LEFT JOIN staff s2 ON o.courier_id = s2.id 
+                """.trimIndent()
+
+        return query + joins + conditions
+    }
+
+    fun joinQuery2(params: Map<String, *>?): String {
+        var query = """
+            SELECT 
+            o.id o_id,
+            count(*) over()  count,
+            o.user_id o_user_id,
+            o.user_phone o_user_phone,
+            o.products o_products,
+            o.status o_status,
+            o.add_lat o_add_lat,
+            o.add_long o_add_long,
+            o.add_desc o_add_desc,
+            o.created_at o_created_at,
+            o.updated_at o_updated_at,
+            o.deleted o_deleted,
+            o.delivery_at o_delivery_at,
+            o.delivered_at o_delivered_at,
+            o.service_type o_service_type,
+            o.comment o_comment,
+            o.merchant_id o_merchant_id,
+            o.collector_id o_collector_id,
+            o.courier_id o_courier_id,
+            o.payment_type o_payment_type,
+            o.product_count o_product_count,
+            o.is_paid o_is_paid,
+            o.grade o_grade,
+            o.total_price o_total_price,
+            o.branch_id o_branch_id,
+        """.trimIndent() + "\n"
+        var joins = """
+            FROM orders o
+            LEFT JOIN order_price op on o.id = op.order_id    
+        """.trimIndent()
+        var conditions = """
+            
+                 WHERE o.deleted = false 
+        """.trimIndent()
+        params?.let {
+            if (params["type"] != null) {
+                conditions += " AND o.service_type = '${params["type"] as? String}' "
+            }
+            if (params["statuses"] != null) {
+                var str: String? = null
+                val list = (params["statuses"] as? List<*>)
+                if (list != null) {
+                    for (i in list) {
+                        str += "'" + i + "',"
+                    }
+                }
+                str = str?.removeSuffix(",")
+                str = str?.removePrefix("null")
+                conditions += " AND o.status IN ($str) "
+            }
+            if (params["userId"] != null) {
+                conditions += " AND o.user_id = ${params["userId"] as? Long} "
+            }
+            if (params["collectorId"] != null) {
+                conditions += " AND o.collector_id = ${params["collectorId"] as? Long} "
+            }
+            if (params["courierId"] != null) {
+                conditions += " AND o.courier_id = ${params["courierId"] as? Long} "
+            }
+            if (params["branchId"] != null) {
+                conditions += " AND o.branch_id = ${params["branchId"] as? Long} "
+            }
+            if (params["paymentTypeId"] != null) {
+                conditions += " AND o.payment_type = ${params["paymentType"] as? String} "
+            }
+            if (params["merchantId"] != null) {
+                conditions += " AND o.merchant_id = ${params["merchantId"] as? Long} "
+            }
+            conditions += " ORDER BY o.id DESC"
+            if (params["limit"] != null) {
+                conditions += " LIMIT ${params["limit"] as? Int} "
+            }
+            if (params["offset"] != null) {
+                conditions += " OFFSET ${params["offset"] as? Int} "
+            }
+        }
+        query += """
+                    u.id u_id,
+                    u.first_name u_first_name,
+                    u.last_name u_last_name,
+                    u.phone u_phone,
+                    u.image u_image,
+                    u.birth_day u_birth_day,
+                    u.badge_id u_badge_id
+                   
+                """.trimIndent()
+
+        joins += """
+                    LEFT JOIN users u ON o.user_id = u.id
                 """.trimIndent()
 
         return query + joins + conditions
@@ -327,6 +424,65 @@ object OrderUtils {
             id = result["o_id"] as? Long?,
             serviceType = result["o_service_type"] as? String?,
             status = result["o_status"] as? String?,
+            user = UserDto(
+                id = result["o_user_id"] as? Long?,
+                firstName = result["u_first_name"] as? String?,
+                lastName = result["u_last_name"] as? String?,
+                phone = result["u_phone"] as? String?,
+                image = result["u_image"] as? String?,
+                birthDay = result["u_birth_day"] as? Timestamp?,
+                badge = BadgeDto(id = result["u_badge_id"] as? Long?)
+            ),
+            merchant = MerchantDto(
+                id = result["o_merchant_id"] as? Long?,
+                name = TextModel(
+                    uz = result["m_name_tr"] as? String?,
+                    ru = result["m_name_en"] as? String?,
+                    eng = result["m_name_ar"] as? String?
+                ),
+                phone = result["m_phone"] as? String?,
+                sub = result["m_sub"] as? String?,
+                logo = result["m_logo"] as? String?,
+                isActive = result["m_is_active"] as? Boolean?
+            ),
+            collector = StaffDto(
+                id = result["o_collector_id"] as? Long?,
+                firstName = result["s_first_name"] as? String?,
+                lastName = result["s_last_name"] as? String?,
+                phone = result["s_phone"] as? String?,
+                image = result["s_image"] as? String?,
+                birthDay = result["s_birth_day"].toString(),
+                position = result["s_position"] as? String?,
+                gender = result["gender"] as? String?,
+                comment = result["s_comment"] as? String?
+            ),
+            courier = StaffDto(id = result["o_courier_id"] as? Long),
+            address = AddressDto(
+                latitude = result["o_add_lat"] as? Double?,
+                longitude = result["o_add_long"] as? Double?,
+                description = result["o_add_desc"] as? String
+            ),
+            branch = BranchDto(id = result["o_branch_id"] as? Long),
+            totalPrice = result["o_total_price"] as? Long,
+            products = gsonToList(products, CartItem::class.java),
+            paymentType = (result["o_payment_type"] as? Int?)?.toLong(),
+            isPaid = result["o_is_paid"] as? Boolean?,
+            comment = result["o_comment"] as? String?,
+            productCount = result["o_product_count"] as Int?,
+            createdAt = result["o_created_at"] as? Timestamp?,
+            updatedAt = result["o_updated_at"] as? Timestamp?,
+            deleted = result["o_deleted"] as? Boolean?
+        )
+    }
+
+    fun parseGetAll2(result: Map<String, *>): Order {
+        val products = result["o_products"] as? String
+        log.info("products {}", products)
+        return Order(
+            id = result["o_id"] as? Long?,
+            serviceType = result["o_service_type"] as? String?,
+            status = result["o_status"] as? String?,
+            total = result["count"] as? Long?,
             user = UserDto(
                 id = result["o_user_id"] as? Long?,
                 firstName = result["u_first_name"] as? String?,

@@ -40,7 +40,7 @@ fun Route.routeToBoardSocket() {
                 /**
                  * FIND ALL ORDER AND SEND
                  * */
-                val oneList = OrderService.getAll(
+                val oneList = OrderService.getAll2(
                     mapOf(
                         "merchantId" to merchantId,
                         "branchId" to branchId,
@@ -55,7 +55,7 @@ fun Route.routeToBoardSocket() {
                         "offset" to offset
                     )
                 )
-                val twoList = OrderService.getAll(
+                val twoList = OrderService.getAll2(
                     mapOf(
                         "merchantId" to merchantId,
                         "branchId" to branchId,
