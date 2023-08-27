@@ -33,13 +33,7 @@ fun Route.routeToCourierAuth() {
                 device.merchantId = merchantId
                 println(Gson().toJson(device))
                 if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-                    || device.uuid.isNullOrBlank() || device.merchantId == null || device.firebaseToken == null) {
-                    println(device.brand)
-                    println(device.model)
-                    println(device.build)
-                    println(device.osVersion)
-                    println(device.uuid)
-                    println(device.merchantId)
+                    || device.uuid.isNullOrBlank()) {
                     call.respond(HttpStatusCode.BadRequest, "error input")
                 } else {
                     val ip = call.request.host()

@@ -39,15 +39,11 @@ fun Route.routeToCouriersInfo() {
         call.respond(courierService.updateCourierInfo(dto.copy(id = principal?.staffId)))
     }
 
-    get("firebase") {
+    post("firebase") {
         val principal = call.principal<BasePrincipal>()
         val uuid = principal?.uuid
-        val dto = DeviceController.getWithUUid(uuid = uuid)
-        if (dto == null) {
-            call.respond(HttpStatusCode.NotFound)
-        } else {
-            call.respond(dto)
-        }
+        val firebase = call.parameters["firebase"]
+        call.respond(DeviceController.editFirebase(sessionUUID  = uuid,token =firebase ))
     }
 
     /**
