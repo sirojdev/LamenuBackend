@@ -3,81 +3,81 @@ package mimsoft.io.courier.merchantChat
 import com.google.gson.Gson
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import mimsoft.io.courier.CourierSocketService
 import mimsoft.io.courier.location.ChatConnections
 import mimsoft.io.courier.merchantChat.repository.ChatMessageRepository
+import mimsoft.io.features.operator.socket.OperatorSocketService
+import mimsoft.io.services.socket.SocketData
+import mimsoft.io.services.socket.SocketType
 import java.sql.Timestamp
 import java.util.*
 
 object ChatMessageService {
-    val chatConnections: MutableSet<ChatConnections> = Collections.synchronizedSet(LinkedHashSet())
     private val messageService = ChatMessageRepository
-    suspend fun sendMessage(
-        to: Long?,
+    suspend fun sendMessageToOperator(
         message: ChatMessageSaveDto
     ) {
-        val sender = message.sender
-        if (sender == Sender.COURIER) {
-            println("list $ChatMessageService")
-            val connectionList = chatConnections.filter { it.id == to && it.sender != message.sender }
-            println(connectionList.toString())
-            var operator = false
-            for (connection in connectionList) {
-                if (connection.session != null) {
-                    operator = true
-                    println("inside connection")
-                    connection.session?.send(message.message.toString())
-                    messageService.addMessage(message, to, true)
-                }
+        val connectionList = OperatorSocketService.operatorConnections.filter { it.merchantId == message.toId }
+        var operator = false
+        for (connection in connectionList) {
+            if (connection.session != null) {
+                operator = true
+                println("inside connection")
+                val dto = SocketData(type = SocketType.CHAT, data = Gson().toJson(message))
+                connection.session?.send(Gson().toJson(dto))
+                messageService.addMessage(message, message.toId, true)
             }
-            if (!operator) {
-                messageService.addMessage(message, to, false)
-            }
-        } else {
-            val courierConnection =
-                chatConnections.find { it.id == to && it.sender != message.sender }
+        }
+        if (!operator) {
+            messageService.addMessage(message, message.toId, false)
+        }
+
+    }
+    suspend fun sendMessageToCourier(
+        message: ChatMessageSaveDto
+    ) {
+        val courierConnection= CourierSocketService.courierConnections.find { it.staffId == message.toId && it.merchantId==message.fromId }
+
             val otherOperators =
-                chatConnections.filter { it.id == message.fromId && it.sender == message.sender && it.operatorId != message.operatorId }
+                OperatorSocketService.operatorConnections.filter { it.merchantId == message.fromId &&  it.staffId != message.operatorId }
             for (connection in otherOperators) {
                 if (connection.session != null) {
-                    connection.session?.send(message.message.toString())
+                    val dto = SocketData(type = SocketType.CHAT, data =Gson().toJson(message) )
+                    connection.session?.send(Gson().toJson(dto))
                 }
             }
             if (courierConnection?.session != null) {
-                courierConnection.session?.send(message.message.toString())
-                messageService.addMessage(message, to, true)
+                val dto = SocketData(type = SocketType.CHAT, data =Gson().toJson(message) )
+                courierConnection.session?.send(Gson().toJson(dto))
+                messageService.addMessage(message, message.toId, true)
             } else {
-                messageService.addMessage(message, to, false)
+                messageService.addMessage(message, message.toId, false)
             }
-        }
+
     }
 
-    suspend fun sendNotReadMessageInfo(
-        sender: Sender?,
-        fromId: Long?,
-        connection: ChatConnections?,
-        operatorId: Long?,
-        defaultWebSocketServerSession: DefaultWebSocketServerSession
+    suspend fun sendNotReadMessageInfoCourier(
+        staffId: Long?,
+        session: DefaultWebSocketServerSession,
     ) {
-        if (connection == null) {
-            val getter = if (sender == Sender.MERCHANT) {
-                Sender.COURIER
-            } else {
-                Sender.MERCHANT
-            }
-            val notReadMsgInfo = ChatMessageRepository.getNotReadMessagesInfo(fromId, getter)
-            if (notReadMsgInfo.isNotEmpty()) {
-                defaultWebSocketServerSession.send(Gson().toJson(notReadMsgInfo))
-                // all message status to send
-                ChatMessageRepository.readMessages(fromId, getter)
-            }
-            chatConnections += ChatConnections(
-                id = fromId,
-                sender = sender,
-                operatorId = operatorId,
-                connectAt = Timestamp(System.currentTimeMillis()),
-                session = defaultWebSocketServerSession
-            )
+        val notReadMsgInfo = ChatMessageRepository.getNotReadMessagesInfo(staffId, Sender.MERCHANT)
+        if (notReadMsgInfo.isNotEmpty()) {
+            val dto = SocketData(type = SocketType.NOT_READ, data =Gson().toJson(notReadMsgInfo))
+            session.send(Gson().toJson(dto))
         }
-
+        // all message status to send
+        ChatMessageRepository.readMessages(staffId, Sender.MERCHANT)
+    }
+    suspend fun sendNotReadMessageInfoOperator(
+        merchantId: Long?,
+        session: DefaultWebSocketServerSession,
+    ) {
+        val notReadMsgInfo = ChatMessageRepository.getNotReadMessagesInfo(merchantId, Sender.COURIER)
+        if (notReadMsgInfo.isNotEmpty()) {
+            val dto = SocketData(type = SocketType.NOT_READ, data =Gson().toJson(notReadMsgInfo) )
+            session.send(Gson().toJson(dto))
+        }
+        // all message status to send
+        ChatMessageRepository.readMessages(merchantId, Sender.COURIER)
     }
 }

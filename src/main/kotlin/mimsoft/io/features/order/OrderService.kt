@@ -9,8 +9,11 @@ import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.joinQuery
+import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
+import mimsoft.io.features.order.OrderUtils.parseGetAll2
+import mimsoft.io.features.order.OrderUtils.query
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.repository.BaseRepository
@@ -24,6 +27,7 @@ import mimsoft.io.utils.toJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
+import kotlin.collections.emptyList as emp
 
 suspend fun main() {
     val orders = OrderService.getAll(null, "user", "merchant", "collector", "products")
@@ -34,6 +38,52 @@ object OrderService {
 
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
+
+    suspend fun getAll2(
+        params: Map<String, *>? = null
+    ): ResponseModel {
+
+        val rowCount: String
+        val result: List<Map<String, *>>
+        val rowResult: Map<String, *>?
+
+//        if (params?.containsKey("search") == true) {
+        val search = searchQuery(params = params)
+        result = repository.selectList(query = search.query, args = search.queryParams)
+        rowCount = search.query
+        val rowQuery = """
+            SELECT COUNT(*) 
+            FROM (${rowCount.substringBefore("LIMIT")}) AS count
+        """.trimIndent()
+        rowResult = repository.selectOne(query = rowQuery, args = search.queryParams)
+//        } else {
+//            val query = joinQuery2(params)
+//            result = repository.selectList(query)
+//            rowCount = query
+//            val rowQuery = """
+//            SELECT COUNT(*)
+//            FROM (${rowCount.substringBefore("LIMIT")}) AS count
+//        """.trimIndent()
+//            rowResult = repository.selectOne(rowQuery)
+//        }
+
+        log.info("result: $result")
+        if (result.isNotEmpty()) {
+            val order = parseGetAll2(result[0])
+
+            return ResponseModel(
+                body = DataPage(
+                    data = result.map { parseGetAll2(it) },
+                    total = order.total?.toInt()
+                )
+            )
+        } else {
+            return ResponseModel(
+                body = "NOt found"
+            )
+        }
+
+    }
 
     suspend fun getAll(
         params: Map<String, *>? = null,
@@ -47,7 +97,7 @@ object OrderService {
         val result: List<Map<String, *>>
         val rowResult: Map<String, *>?
 
-        val search = searchQuery(params, columnsSet)
+        val search = searchQuery(params, *columns)
         result = repository.selectList(query = search.query, args = search.queryParams)
         rowCount = search.query
         val rowQuery = """
@@ -67,7 +117,7 @@ object OrderService {
         )
     }
 
-    suspend fun get(id: Long?, vararg joinColumns : String): ResponseModel {
+    suspend fun get(id: Long?, vararg joinColumns: String): ResponseModel {
         repository.selectOne(joinQuery(id)).let {
             if (it == null) return ResponseModel(httpStatus = ORDER_NOT_FOUND)
             return ResponseModel(body = parseGetAll(it, joinColumns.toSet()))
@@ -324,6 +374,29 @@ object OrderService {
                 }.executeUpdate()
                 return@withContext re == 1
             }
+        }
+    }
+
+    suspend fun updateStatus(orderId: Long, merchantId: Long, status: OrderStatus): Order? {
+        val query = "update orders  set status =?" +
+                " where id = $orderId and merchant_id = $merchantId  "
+        val order: Order?
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val re = it.prepareStatement(query).apply {
+                    setString(1, status.name)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                order = getById(orderId)
+            }
+        }
+        return order
+    }
+
+    suspend fun getById(id: Long?): Order? {
+        repository.selectOne(joinQuery(id)).let {
+            if (it == null) return null
+            return parseGetAll(it, emptySet())
         }
     }
 

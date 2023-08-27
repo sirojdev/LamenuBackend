@@ -2,6 +2,8 @@ package mimsoft.io.client.device
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.board.auth.BoardDeviceModel
+import mimsoft.io.features.favourite.merchant
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.JwtConfig
@@ -111,6 +113,66 @@ object DeviceController {
                     token = JwtConfig.generateDeviceToken(
                         uuid = device.uuid,
                         merchantId = device.merchantId
+                    )
+                )
+
+            }
+        }
+
+    }
+    suspend fun boardAuth(device: BoardDeviceModel): BoardDeviceModel {
+        val upsert = """
+                with upsert as ( update device set
+                    merchant_id = ${device.merchantId},
+                    os_version = ?,
+                    model = ?,
+                    brand = ?,
+                    build = ?,
+                    updated_at = ?,
+                    ip = ?
+                    where uuid = ?
+                    returning *)
+                insert
+                into device (merchant_id, os_version, model, brand, build,  created_at, ip, uuid,type,app_id)
+                select ${device.merchantId},
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ?,
+                       ${device.appKey}
+                where not exists(select * from upsert)""".trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
+            println("upsert -> $upsert")
+            DBManager.connection().use { connection ->
+                var x = 0
+                connection.prepareStatement(upsert).apply {
+                    this.setString(++x, device.osVersion)
+                    this.setString(++x, device.model)
+                    this.setString(++x, device.brand)
+                    this.setString(++x, device.build)
+                    this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
+                    this.setString(++x, device.ip)
+                    this.setString(++x, device.uuid)
+                    this.setString(++x, device.osVersion)
+                    this.setString(++x, device.model)
+                    this.setString(++x, device.brand)
+                    this.setString(++x, device.build)
+                    this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
+                    this.setString(++x, device.ip)
+                    this.setString(++x, device.uuid)
+                    this.setString(++x, device.deviceType?.name)
+                    this.closeOnCompletion()
+                }.execute()
+
+                return@withContext device.copy(
+                    token = JwtConfig.generateBoardDeviceToken(
+                        uuid = device.uuid,
+                        merchantId = device.merchantId,
+                        branchId = device.branchId
                     )
                 )
 

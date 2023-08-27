@@ -1,9 +1,9 @@
 package mimsoft.io.board.auth
 
 data class BoardAuthDto(
-    val merchantId: Long,
-    val branchId: Long,
-    val username: String,
-    val password: String
-) {
-}
+    val id: Long? = null,
+    val merchantId: Long?=null,
+    val branchId: Long?=null,
+    val username: String?=null,
+    val password: String?=null
+)

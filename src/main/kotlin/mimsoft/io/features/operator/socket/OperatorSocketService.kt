@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mimsoft.io.courier.location.CourierSocketService
+import mimsoft.io.courier.orders.CourierOrderService
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.order.Order
@@ -20,21 +21,25 @@ object OperatorSocketService {
     val sendOrderList: MutableSet<SenderOrdersToCourierDto> = Collections.synchronizedSet(LinkedHashSet())
 
 
-    fun findConnection(
+    fun setConnection(
         staffId: Long?,
         merchantId: Long?,
         uuid: String?,
         defaultWebSocketServerSession: DefaultWebSocketServerSession
-    ) {
+    ): OperatorConnection {
         val connection =
             operatorConnections.find { it.deviceUUid == uuid && it.staffId == staffId && it.merchantId == merchantId }
-        if (connection == null) {
-            operatorConnections += OperatorConnection(
+        return if (connection == null) {
+            val conn = OperatorConnection(
                 staffId = staffId,
                 deviceUUid = uuid,
                 merchantId = merchantId,
                 session = defaultWebSocketServerSession
             )
+            operatorConnections +=conn
+            conn
+        } else {
+            connection
         }
     }
 
@@ -46,6 +51,7 @@ object OperatorSocketService {
             }
         }
     }
+
     suspend fun findNearCourierAndSendOrderToCourier(order: Order, offset: Int) {
         val courierIdList = CourierSocketService.courierIdList(order.merchant?.id)
         if (courierIdList.isNotEmpty()) {
@@ -94,5 +100,39 @@ object OperatorSocketService {
                 findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
             }
         }
+    }
+
+    suspend fun acceptedOrder(response: AcceptedDto, staffId: Long?) {
+        val dto = sendOrderList.find {
+            it.courierId == staffId && response.orderId == it.orderId
+        }
+        if (dto != null) {
+            sendOrderList.removeIf {
+                it.courierId == staffId && response.orderId == it.orderId
+            }
+            CourierOrderService.joinOrderToCourier(
+                courierId = dto.courierId,
+                orderId = dto.orderId,
+            )
+//                                    OrderRepositoryImpl.updateOnWave(dto.orderId,true)
+        }
+    }
+
+    suspend fun notAccepted(response: AcceptedDto, staffId: Long?) {
+        val dto = sendOrderList.find {
+            it.courierId == staffId && response.orderId == it.orderId
+        }
+        if (dto != null) {
+            sendOrderList.removeIf {
+                it.courierId == staffId && response.orderId == it.orderId
+            }
+            findNearCourierAndSendOrderToCourier(
+                OrderService.get(
+                    response.orderId
+                ).body as Order,
+                dto.offset!! + 1
+            )
+        }
+
     }
 }

@@ -7,40 +7,61 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
 import mimsoft.io.courier.location.CourierSocketService
-import mimsoft.io.courier.orders.CourierOrderService
-import mimsoft.io.features.courier.CourierService
-import mimsoft.io.features.order.Order
-import mimsoft.io.features.order.OrderService
+import mimsoft.io.courier.merchantChat.ChatMessageDto
+import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
+import mimsoft.io.courier.merchantChat.ChatMessageService
+import mimsoft.io.courier.merchantChat.Sender
+import mimsoft.io.services.socket.SocketData
+import mimsoft.io.services.socket.SocketType
 
 import mimsoft.io.utils.principal.BasePrincipal
+import java.sql.Timestamp
 
 fun Route.toOperatorSocket() {
     route("operator") {
 
         authenticate("operator") {
             /**
-             * YANGI ORDER KELIB TUSHSA SHUNI OPERATORGA JONATISH UCHUN WEBSOCKET
+             *  OPERATOR UCHUN SOCKET
              * */
-            webSocket("order") {
+            webSocket("socket") {
                 try {
                     val principal = call.principal<BasePrincipal>()
                     val staffId = principal?.staffId
                     val merchantId = principal?.merchantId
                     val uuid = principal?.uuid
-                    /**
-                     * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
-                     * OPERATOR FAQAT ESHITIB TURADI
-                     * */
-                    OperatorSocketService.findConnection(staffId, merchantId, uuid, this)
+                    OperatorSocketService.setConnection(staffId, merchantId, uuid, this)
+
+                    ChatMessageService.sendNotReadMessageInfoOperator( merchantId, this)
 
                     for (frame in incoming) {
+                        val conn = OperatorSocketService.setConnection(staffId, merchantId, uuid, this)
+                        frame as? Frame.Text ?: continue
+                        val receivedText = frame.readText()
+                        val data: SocketData? = Gson().fromJson(receivedText, SocketData::class.java)
+                        if (data?.type == SocketType.CHAT) {
+                            val chatMessage: ChatMessageDto? = Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
+                            if (chatMessage != null) {
+                                if (conn.session != null) {
+                                    ChatMessageService.sendMessageToCourier(
+                                        ChatMessageSaveDto(
+                                            fromId = merchantId,
+                                            toId = chatMessage.toId,
+                                            operatorId = staffId,
+                                            sender = Sender.MERCHANT,
+                                            time = Timestamp(System.currentTimeMillis()),
+                                            message = chatMessage.message
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     }
                     try {
                         while (isActive) {
                             // Just keep the WebSocket open
                         }
                     } finally {
-                        println("Admin disconnected")
                     }
                 } catch (e: Exception) {
                     println(e.localizedMessage)
@@ -50,76 +71,6 @@ fun Route.toOperatorSocket() {
                 }
             }
         }
-        authenticate("staff") {
-            /**
-             * YANGI ORDERLARNI COURIER GA BERIB YUBORADI COURIER LISTEN AND GIVE ANSWER ACCEPTED AND NOT_ACCEPTED
-             * */
-            webSocket("courier") {
 
-                val principal = call.principal<BasePrincipal>()
-                val staffId = principal?.staffId
-                val merchantId = principal?.merchantId
-                val uuid = principal?.uuid
-                try {
-                    /**
-                     * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
-                     * OPERATOR FAQAT ESHITIB TURADI
-                     * */
-                    CourierSocketService.findCourierListenNewOrder(staffId, merchantId, uuid, this)
-
-                    for (frame in incoming) {
-                        frame as? Frame.Text ?: continue
-                        val receivedText = frame.readText()
-                        val response = Gson().fromJson(receivedText, AcceptedDto::class.java)
-                        if (response != null) {
-                            if (response.status == "ACCEPTED") {
-                                val dto = OperatorSocketService.sendOrderList.find {
-                                    it.courierId == staffId && response.orderId == it.orderId
-                                }
-                                if (dto != null) {
-                                    OperatorSocketService.sendOrderList.removeIf {
-                                        it.courierId == staffId && response.orderId == it.orderId
-                                    }
-                                    CourierOrderService.joinOrderToCourier(
-                                        courierId = dto.courierId,
-                                        orderId = dto.orderId,
-                                    )
-//                                    OrderRepositoryImpl.updateOnWave(dto.orderId,true)
-                                }
-                            } else if (response.status == "NOT_ACCEPTED") {
-                                val dto = OperatorSocketService.sendOrderList.find {
-                                    it.courierId == staffId && response.orderId == it.orderId
-                                }
-                                if (dto != null) {
-                                    OperatorSocketService.sendOrderList.removeIf {
-                                        it.courierId == staffId && response.orderId == it.orderId
-                                    }
-                                    OperatorSocketService.findNearCourierAndSendOrderToCourier(
-                                        OrderService.get(
-                                            response.orderId
-                                        ).body as Order,
-                                        dto.offset!!+1
-                                    )
-                                }
-                            }
-                        }
-
-
-                    }
-                    try {
-                        while (isActive) {
-                            // Just keep the WebSocket open
-                        }
-                    } finally {
-                    }
-                } catch (e: Exception) {
-                    println(e.localizedMessage)
-                } finally {
-                    CourierService.updateIsActive(staffId, false)
-                    close(CloseReason(CloseReason.Codes.NORMAL, "Connection closed"))
-                    CourierSocketService.locationConnection.removeIf { it.session == this  }
-                }
-            }
-        }
     }
 }

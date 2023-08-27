@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.application.*
+import mimsoft.io.board.auth.BoardDevicePrincipal
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.auth.LoginPrincipal
@@ -95,6 +96,24 @@ fun Application.configureSecurity() {
                     )
                 } else {
                     null
+                }
+            }
+        }
+        jwt("board-device") {
+            verifier(JwtConfig.verifierDevice)
+            realm = JwtConfig.issuer
+            validate {
+                with(it.payload) {
+                    val device = DeviceController.getWithUUid(uuid = getClaim("uuid").asString())
+                    if (device != null) {
+                        BoardDevicePrincipal(
+                            id = device.id,
+                            uuid = device.uuid,
+                            branchId = getClaim("branchId").asLong(),
+                            merchantId = getClaim("merchantId").asLong()
+                        )
+                    } else null
+
                 }
             }
         }

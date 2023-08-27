@@ -28,5 +28,6 @@ data class Order(
     val courier: StaffDto? = null,
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
-    val deleted: Boolean? = null
+    val deleted: Boolean? = null,
+    val total: Long? = null,
 )
