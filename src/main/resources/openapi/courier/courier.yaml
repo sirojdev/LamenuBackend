@@ -30,7 +30,7 @@ tags:
 
 paths:
 
-  /chat:
+  /chat/merchant:
     get:
       tags:
         - Chat
@@ -48,6 +48,7 @@ paths:
           description: No content
         '401':
           description: Unauthorized
+
   /chat/messages:
     get:
       tags:
@@ -71,48 +72,6 @@ paths:
                   type: array
                   items:
                     $ref: "#/components/schemas/ChatMessageSaveDto"
-        '204':
-          description: No content
-        '401':
-          description: Unauthorized
-
-  /chat/merchant:
-    get:
-      tags:
-        - Chat
-      security:
-        - bearerAuth: [ ]
-      description: courier get merchant info for chat
-      responses:
-        '200':
-          description: Successfully retrieved messages
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MerchantDto"
-        '204':
-          description: No content
-        '401':
-          description: Unauthorized
-
-  /chat/merchant/messages:
-    get:
-      tags:
-        - Chat
-      security:
-        - bearerAuth: [ ]
-      description: courier get message from merchant
-      responses:
-        '200':
-          description: Successfully retrieved messages
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ChatMessageSaveDto"
         '204':
           description: No content
         '401':
@@ -187,9 +146,6 @@ paths:
             schema:
               type: "object"
               properties:
-                merchantId:
-                  type: "integer"
-                  format: "long"
                 uuid:
                   type: string
                 brand:
@@ -198,9 +154,9 @@ paths:
                   type: string
                 model:
                   type: string
-                phone:
-                  type: string
                 osVersion:
+                  type: string
+                firebaseToken:
                   type: string
       responses:
         "200":
@@ -298,7 +254,7 @@ paths:
           description: "Unauthorized"
 
   /courier/firebase:
-    get:
+    post:
       tags:
         - Profile
       security:

@@ -15,7 +15,7 @@ import mimsoft.io.waiter.routeToWaiter
 fun Route.routeToV1() {
     routeToDevice()
     routeToAdmin()
-    merchantChatRoute()
+
     routeToCouriers()
     routeToMerchant()
     routeToWaiter()
