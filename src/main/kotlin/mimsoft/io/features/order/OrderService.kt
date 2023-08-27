@@ -76,7 +76,6 @@ object OrderService {
     }
 
     suspend fun post(order: Order): ResponseModel {
-
         val response = validate(order)
 
         if (!response.isOk()) return response

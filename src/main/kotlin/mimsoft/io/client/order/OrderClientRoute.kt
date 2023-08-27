@@ -21,7 +21,10 @@ fun Route.routeToClientOrder() {
     val log: Logger = LoggerFactory.getLogger("routeToClientOrder")
     get("orders") {
         val pr = getPrincipal()
-        val search = call.parameters["search"]
+        var search = call.parameters["search"]
+        if(search == null){
+            search = ""
+        }
         val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
         log.info("search {}", search)
