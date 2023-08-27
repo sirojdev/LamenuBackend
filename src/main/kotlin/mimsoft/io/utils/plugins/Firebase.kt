@@ -7,8 +7,6 @@ import io.ktor.server.application.*
 import java.io.FileInputStream
 
 
-
-
 fun Application.configureFirebase() {
     val serviceAccount = FileInputStream("mimcafeuz-firebase-adminsdk.json")
 
@@ -16,6 +14,14 @@ fun Application.configureFirebase() {
         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
         .build()
 
-    FirebaseApp.initializeApp(options)
+    var installed = false
+    val installedApps = FirebaseApp.getApps()
+    for (app in installedApps) {
+        if (app.name.equals(FirebaseApp.DEFAULT_APP_NAME))
+            installed = true
+    }
+
+    if (!installed)
+        FirebaseApp.initializeApp(options)
 
 }

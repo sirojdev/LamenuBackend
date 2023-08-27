@@ -86,7 +86,6 @@ object DeviceController {
                        ?
                 where not exists(select * from upsert)""".trimIndent()
         return withContext(DBManager.databaseDispatcher) {
-            println("upsert -> $upsert")
             DBManager.connection().use { connection ->
                 var x = 0
                 connection.prepareStatement(upsert).apply {
@@ -183,7 +182,6 @@ object DeviceController {
 
     suspend fun getWithUUid(uuid: String?): DeviceModel? {
         val query = "select * from device where uuid = ? order by id"
-        println(query)
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {

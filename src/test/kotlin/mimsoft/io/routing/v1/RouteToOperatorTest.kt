@@ -17,9 +17,9 @@ class RouteToOperatorTest {
 
     @Test
     fun testGetOperatorPromo() = testApplication {
-        application {
-            module()
-        }
+//        application {
+//            module()
+//        }
         client.get("v1/operator/promo") {
             headers {
                 append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
