@@ -58,22 +58,25 @@ dependencies {
 
 }
 
-ktor {
+//ktor {
 //    fatJar {
 //        archiveFileName.set("lamenu-all.jar")
 //    }
-
+//}
+//ktor{
+//    fatJar{
+//        archiveFileName.set("lamenu-back.jar")
+//    }
+//
+//}
+ktor{
     fatJar{
         archiveFileName.set("lamenu-dev.jar")
     }
-
-    fatJar{
-        archiveFileName.set("lamenu-beta.jar")
-    }
-
-    fatJar{
-        archiveFileName.set("lamenu-back.jar")
-    }
-
 }
-
+//
+//ktor{
+//    fatJar{
+//        archiveFileName.set("lamenu-beta.jar")
+//    }
+//}
