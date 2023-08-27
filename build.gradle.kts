@@ -49,34 +49,27 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("com.google.code.gson:gson:2.10.1")
 
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     //tgbot
     implementation("org.telegram:telegrambots:6.5.0")
-    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.0")
     implementation("io.ktor:ktor-network:$ktor_version")
 
 }
 
-//ktor {
-//    fatJar {
-//        archiveFileName.set("lamenu-all.jar")
-//    }
-//}
-//ktor{
+ktor{
+    fatJar {
+        archiveFileName.set("lamenu-all.jar")
+    }
 //    fatJar{
 //        archiveFileName.set("lamenu-back.jar")
 //    }
-//
-//}
-ktor {
-    fatJar{
-        archiveFileName.set("lamenu-all.jar")
-    }
-}
-//
-//ktor{
 //    fatJar{
 //        archiveFileName.set("lamenu-beta.jar")
 //    }
-//}
+//    fatJar{
+//        archiveFileName.set("lamenu-dev.jar")
+//    }
+}

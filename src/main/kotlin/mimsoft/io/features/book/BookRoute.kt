@@ -10,6 +10,7 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.book.repository.BookRepository
 import mimsoft.io.features.book.repository.BookRepositoryImpl
 import mimsoft.io.features.category.ClientCategoryDto
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import okhttp3.internal.userAgent
 
@@ -18,7 +19,7 @@ fun Route.routeToBook() {
     val bookRepository: BookRepository = BookRepositoryImpl
 
     get("books") {
-        val pr = call.principal<BasePrincipal>()
+        val pr = getPrincipal()
         val merchantId = pr?.merchantId
         val books = bookRepository.getAllClient(merchantId = merchantId, clientId = pr?.userId)
         if (books.isEmpty()) {
@@ -28,7 +29,7 @@ fun Route.routeToBook() {
     }
 
     get("book/{id}") {
-        val pr = call.principal<BasePrincipal>()
+        val pr = getPrincipal()
         val merchantId = pr?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
@@ -44,30 +45,37 @@ fun Route.routeToBook() {
     }
 
     post("book") {
-        val pr = call.principal<BasePrincipal>()
+        val pr = getPrincipal()
+        val userId = pr?.userId
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
+        println(book)
         book.status = BookStatus.NOT_ACCEPTED
-        val response = bookRepository.add(book.copy(merchantId = merchantId, client = UserDto(id=pr?.userId)))
+        val response = bookRepository.add(book.copy(merchantId = merchantId, client = UserDto(id = userId)))
         call.respond(response.httpStatus, response.body)
     }
 
-    put("book") {
+  /*  put("book") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val book = call.receive<BookDto>()
         bookRepository.update(book.copy(merchantId = merchantId, client = UserDto(id = pr?.userId)))
         call.respond(HttpStatusCode.OK)
-    }
+    }*/
 
     delete("book/{id}") {
+        val pr = getPrincipal()
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        bookRepository.delete(id)
-        call.respond(HttpStatusCode.OK)
+        val respond = bookRepository.delete(id = id, userId = pr?.userId)
+        if(respond){
+            call.respond(HttpStatusCode.OK)
+            return@delete
+        }
+        call.respond(HttpStatusCode.NoContent)
     }
 }
 

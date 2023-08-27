@@ -700,7 +700,7 @@ paths:
   /client/books:
     get:
       tags:
-        - DineIn
+        - Book
       description: "Returns a list of all books"
       security:
         - bearerAuth: [ ]
@@ -718,7 +718,7 @@ paths:
   /client/book:
     post:
       tags:
-        - DineIn
+        - Book
       description: "Adds a new booking"
       security:
         - bearerAuth: [ ]
@@ -730,7 +730,7 @@ paths:
             schema:
               type: object
               properties:
-                client:
+                branch:
                   type: object
                   properties:
                     id:
@@ -742,6 +742,13 @@ paths:
                     id:
                       type: integer
                       format: "long"
+                time:
+                  type: string
+                  format: "timestamp"
+                comment:
+                  type: string
+                visitorCount:
+                  type: integer
       responses:
         "200":
           description: "OK"
