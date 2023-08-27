@@ -16,6 +16,7 @@ import mimsoft.io.rsa.Generator
 import mimsoft.io.rsa.GeneratorModel
 import mimsoft.io.rsa.Status
 import mimsoft.io.services.sms.SmsSenderService
+import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
@@ -43,7 +44,8 @@ fun Route.routeToCouriersInfo() {
         val principal = call.principal<BasePrincipal>()
         val uuid = principal?.uuid
         val firebase = call.parameters["firebase"]
-        call.respond(DeviceController.editFirebase(sessionUUID  = uuid,token =firebase ))
+        val session = SessionRepository.get(principal?.uuid)
+        call.respond(DeviceController.editFirebaseWithDeivceId(deviceId  = session?.deviceId,token =firebase ))
     }
 
     /**

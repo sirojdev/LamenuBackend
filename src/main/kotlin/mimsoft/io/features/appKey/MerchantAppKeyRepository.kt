@@ -2,9 +2,6 @@ package mimsoft.io.features.appKey
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.address.AddressType
-import mimsoft.io.features.address.repository.AddressRepositoryImpl
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 
@@ -49,9 +46,9 @@ object MerchantAppKeyRepository {
         return list
     }
 
-    suspend fun getById( id: Long?): MerchantAppKeyDto? {
+    suspend fun getByAppId(id: Long?): MerchantAppKeyDto? {
         val query =
-            "select * from $MERCHANT_APP_KEY_TABLE where deleted = false and id = $id"
+            "select * from $MERCHANT_APP_KEY_TABLE where deleted = false and app_id = $id"
         var dto: MerchantAppKeyDto? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -72,9 +69,9 @@ object MerchantAppKeyRepository {
         return dto
     }
 
-    suspend fun delete(id: Long?): Boolean {
+    suspend fun deleteByAppId(id: Long?): Boolean {
         val query =
-            "delete from $MERCHANT_APP_KEY_TABLE where deleted = false  and id = $id"
+            "delete from $MERCHANT_APP_KEY_TABLE where deleted = false  and app_id = $id"
         var result: Boolean = false
         withContext(Dispatchers.IO) {
             repository.connection().use {

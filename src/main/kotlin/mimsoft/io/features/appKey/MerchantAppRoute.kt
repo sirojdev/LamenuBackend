@@ -24,12 +24,12 @@ fun Route.routeToMerchantApp() {
         get("/{id}"){
             val pr = getPrincipal()
             val id = call.parameters["id"]?.toLongOrNull()
-           call.respond( MerchantAppKeyRepository.getById(id)?:HttpStatusCode.NotFound)
+           call.respond( MerchantAppKeyRepository.getByAppId(id)?:HttpStatusCode.NotFound)
         }
         delete("/{id}"){
             val pr = getPrincipal()
             val id = call.parameters["id"]?.toLongOrNull()
-            call.respond(MerchantAppKeyRepository.delete(id))
+            call.respond(MerchantAppKeyRepository.deleteByAppId(id))
         }
     }
 

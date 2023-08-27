@@ -70,11 +70,12 @@ object DeviceController {
                     build = ?,
                     fb_token = ?,
                     updated_at = ?,
-                    ip = ?
+                    ip = ?, 
+                    app_id = ${device.appKey}
                     where uuid = ?
                     returning *)
                 insert
-                into device (merchant_id, os_version, model, brand, build, fb_token, created_at, ip, uuid)
+                into device (merchant_id, os_version, model, brand, build, fb_token, created_at, ip, uuid,app_id,type)
                 select ${device.merchantId},
                        ?,
                        ?,
@@ -83,6 +84,8 @@ object DeviceController {
                        ?,
                        ?,
                        ?,
+                       ?,
+                       ${device.appKey},
                        ?
                 where not exists(select * from upsert)""".trimIndent()
         return withContext(DBManager.databaseDispatcher) {
@@ -106,6 +109,7 @@ object DeviceController {
                     this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     this.setString(++x, device.ip)
                     this.setString(++x, device.uuid)
+                    this.setString(++x,device.deviceType?.name.toString())
                     this.closeOnCompletion()
                 }.execute()
 
@@ -267,6 +271,25 @@ object DeviceController {
         }
         return true
     }
+    suspend fun editFirebaseWithDeivceId(deviceId: Long?, token: String?): Boolean {
+        val query = "update device\n" +
+                "    set fb_token = ?,\n" +
+                "    updated_at = ? \n" +
+                "where id in (\n" +
+                "    select device_id from session where device_id = $deviceId \n and not is_expired " +
+                "    ) "
+        withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                it.prepareStatement(query).apply {
+                    this.setString(1, token)
+                    this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
+        }
+        return true
+    }
+
 
     suspend fun get(phone: String?): List<DeviceModel> {
         val query = "select * from device where phone = ? order by id"
