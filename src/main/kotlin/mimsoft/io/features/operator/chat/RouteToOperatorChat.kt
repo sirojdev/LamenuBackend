@@ -10,11 +10,11 @@ import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToOperatorChat(){
     route("chat"){
-        authenticate("/couriers") {
+        authenticate("courier") {
             get("") {
                 val principal = call.principal<BasePrincipal>()
                 val merchantId = principal?.merchantId
-                val userList = ChatMessageRepository.getAllCourierChat(merchantId);
+                val userList = ChatMessageRepository.getAllCourierChat(merchantId)
                 if (userList.isEmpty()){
                     call.respond(HttpStatusCode.NoContent)
                 }
