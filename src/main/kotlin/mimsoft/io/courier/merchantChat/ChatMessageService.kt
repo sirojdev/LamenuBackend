@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import mimsoft.io.courier.CourierSocketService
-import mimsoft.io.courier.location.ChatConnections
 import mimsoft.io.courier.merchantChat.repository.ChatMessageRepository
 import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.services.socket.SocketData

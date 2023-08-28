@@ -11,6 +11,7 @@ import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.notification.routeToNotification
 
 import mimsoft.io.features.operator.OperatorService
+import mimsoft.io.features.operator.chat.routeToOperatorChat
 import mimsoft.io.features.order.routeToOrder
 
 
@@ -69,7 +70,7 @@ fun Route.routeToOperator() {
             routeToPromo()
             routeToUserUser()
             routeToNotification()
-
+            routeToOperatorChat()
             routeToOrder()
             routeToCourier()
             routeToCollector()

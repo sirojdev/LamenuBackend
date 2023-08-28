@@ -1,15 +1,9 @@
 package mimsoft.io.routing.v1
 
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.reflect.TypeToken
-import io.ktor.client.call.*
-import mimsoft.io.module
-
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import mimsoft.io.features.promo.PromoDto
+import mimsoft.io.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

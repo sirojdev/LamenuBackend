@@ -1,14 +1,12 @@
 package mimsoft.io.board.socket
 
 import com.google.gson.Gson
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
 import mimsoft.io.courier.location.CourierSocketService
-import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.principal.BasePrincipal
@@ -31,7 +29,7 @@ fun Route.routeToBoardSocket() {
                  * AGAR CONNECTION BOLMASA YANGI CONNECTION QO'SHADI
                  *
                  * */
-                BoardSocketService.findBoardConnection(
+                BoardSocketService.setBoardConnection(
                     boardId = boardId,
                     merchantId = merchantId,
                     branchId = branchId,
