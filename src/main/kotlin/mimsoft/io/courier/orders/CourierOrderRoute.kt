@@ -29,14 +29,15 @@ fun Route.routeToCourierOrders() {
                     ),
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
-                )
+                ),
+                "user","branch","payment_type"
             )
 
             call.respond(orderList.httpStatus, orderList.body)
         }
         get("open") {
             val principal = call.principal<BasePrincipal>()
-            val orderList = OrderService.getAll2(
+            val orderList = OrderService.   getAll2(
                 mapOf(
                     "merchantId" to principal?.merchantId as Any,
                     "type" to "DELIVERY",
@@ -46,7 +47,8 @@ fun Route.routeToCourierOrders() {
                     "onWave" to false,
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
-                )
+                ),
+                "user","branch","payment_type"
             )
 
             call.respond(orderList.httpStatus, orderList.body)

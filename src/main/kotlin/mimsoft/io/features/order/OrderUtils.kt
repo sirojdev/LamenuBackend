@@ -14,6 +14,7 @@ import mimsoft.io.features.extra.ExtraDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.features.option.OptionDto
+import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.DBManager
@@ -421,7 +422,7 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
-    fun getQuery(params: Map<String, *>?, vararg columns: String): Search {
+    fun getQuery(params: Map<String, *>?, vararg columns: String,orderId:Long?): Search {
         val columnsSet = columns.toSet()
         var query = """
             SELECT 
@@ -461,6 +462,10 @@ object OrderUtils {
         var conditions = """
             WHERE o.deleted = false 
         """.trimIndent()
+
+        if(orderId!=null){
+            conditions+=" and o.id = $orderId"
+        }
         val queryParams: MutableMap<Int, Any> = mutableMapOf(
         )
         var index = 0;
@@ -542,6 +547,17 @@ object OrderUtils {
                     s.position s_position,
                     s.gender s_gender,
                     s.comment s_comment """ else "") +
+                (if (columnsSet.contains("branch"))
+                    """,
+                    b.id b_id,
+                    b.name_uz b_name_uz,
+                    b.name_ru b_name_ru,
+                    b.name_eng b_name_eng  """ else "") +
+                (if (columnsSet.contains("payment_type"))
+                    """,
+                    pt.id pt_id,
+                    pt.icon pt_icon,
+                    pt.name pt_name """ else "") +
                 (if (columnsSet.contains("courier"))
                     """ ,
                     s2.id s2_id,
@@ -557,7 +573,9 @@ object OrderUtils {
         joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
                 (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
-                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
+                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")+
+                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "")+
+                (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type pt  ON o.payment_type = pt.id \n" else "")
         println(query + joins + conditions)
         return Search(query + joins + conditions, queryParams)
     }
@@ -670,10 +688,15 @@ object OrderUtils {
                 longitude = result["o_add_long"] as? Double?,
                 description = result["o_add_desc"] as? String
             ),
-            branch = BranchDto(id = result["o_branch_id"] as? Long),
+            branch = BranchDto(id = result["o_branch_id"] as? Long, name =TextModel(
+                uz = result["b_name_uz"] as String?,
+                ru = result["b_name_ru"] as String?,
+                eng = result["b_name_eng"] as String?
+            ) ),
             totalPrice = result["o_total_price"] as? Long,
             products = gsonToList(products, CartItem::class.java),
             paymentType = (result["o_payment_type"] as? Int?)?.toLong(),
+            payment = PaymentTypeDto(id = result["pt_id"] as? Long,name = result["pt_name"] as? String,icon = result["pt_icon"] as? String),
             isPaid = result["o_is_paid"] as? Boolean?,
             comment = result["o_comment"] as? String?,
             productCount = result["o_product_count"] as Int?,

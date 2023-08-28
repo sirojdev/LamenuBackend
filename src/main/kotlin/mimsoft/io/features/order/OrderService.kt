@@ -41,17 +41,18 @@ object OrderService {
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
 
     suspend fun getAll2(
-        params: Map<String, *>? = null
+        params: Map<String, *>? = null,
+        vararg columns: String,
     ): ResponseModel {
         val result: List<Map<String, *>>
-        val search = getQuery(params = params)
+        val search = getQuery(params = params,*columns, orderId = null)
         result = repository.selectList(query = search.query, args = search.queryParams)
         log.info("result: $result")
         if (result.isNotEmpty()) {
             val order = parseGetAll2(result[0])
             return ResponseModel(
                 body = DataPage(
-                    data = result.map { parseGetAll2(it) },
+                    data = result.map { parseGetAll2(it)},
                     total = order.total?.toInt()
                 )
             )        } else {
@@ -370,10 +371,15 @@ object OrderService {
         return order
     }
 
-    suspend fun getById(id: Long?): Order? {
-        repository.selectOne(joinQuery(id)).let {
-            if (it == null) return null
-            return parseGetAll(it, emptySet())
+    suspend fun getById(id: Long?,vararg columns:String): Order? {
+        val result: List<Map<String, *>>
+        val search = getQuery(params = null,*columns, orderId = id)
+        result = repository.selectList(query = search.query, args = search.queryParams)
+        log.info("result: $result")
+        return if (result.isNotEmpty()) {
+            parseGetAll2(result[0])
+        }else{
+            null
         }
     }
 
