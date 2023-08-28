@@ -10,7 +10,6 @@ import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToOperatorChat(){
     route("chat"){
-        authenticate("courier") {
             get("") {
                 val principal = call.principal<BasePrincipal>()
                 val merchantId = principal?.merchantId
@@ -32,6 +31,5 @@ fun Route.routeToOperatorChat(){
                 }
                 call.respond(HttpStatusCode.OK,messageList)
             }
-        }
     }
 }
