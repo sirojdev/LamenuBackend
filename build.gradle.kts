@@ -4,7 +4,7 @@ val logback_version: String by project
 val exposed_version: String by project
 val postgres_version: String by project
 val swagger_version: String by project
-
+val junit_version: String by project
 plugins {
     kotlin("jvm") version "1.8.21"
     kotlin("plugin.noarg") version "1.6.10"
@@ -12,16 +12,20 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.21"
 }
 
+
 group = "mimsoft.io"
 version = "0.0.1"
 application {
     mainClass.set("mimsoft.io.ApplicationKt")
 
+
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+
 }
 
 repositories {
+
     mavenCentral()
 }
 
@@ -57,6 +61,11 @@ dependencies {
     implementation("org.telegram:telegrambots:6.5.0")
     implementation("io.ktor:ktor-network:$ktor_version")
 
+
+    testImplementation("io.ktor:ktor-server-tests:${ktor_version}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junit_version}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
+
 }
 
 ktor{
@@ -66,6 +75,15 @@ ktor{
 //    fatJar{
 //        archiveFileName.set("lamenu-back.jar")
 //    }
+//
+//}
+ktor {
+    fatJar {
+        archiveFileName.set("lamenu-all.jar")
+    }
+}
+//
+//ktor{
 //    fatJar{
 //        archiveFileName.set("lamenu-beta.jar")
 //    }

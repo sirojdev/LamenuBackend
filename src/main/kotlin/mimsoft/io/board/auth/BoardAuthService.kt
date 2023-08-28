@@ -80,10 +80,10 @@ object BoardAuthService {
         return response
     }
 
-    suspend fun getBoardId(branchId:Long?,merchantId:Long?): BoardAuthDto? {
+    suspend fun getBoardId(branchId: Long?, merchantId: Long?): BoardAuthDto? {
         val query =
             "select * from $BOARD_AUTH_TABLE  where merchant_id = $merchantId and branch_id = $branchId "
-        var response: BoardAuthDto?=null
+        var response: BoardAuthDto? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
