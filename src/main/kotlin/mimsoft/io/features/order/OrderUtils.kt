@@ -397,7 +397,7 @@ object OrderUtils {
 //                        s2.first_name LIKE ? OR
 //                        s2.last_name LIKE ? OR
 //                        s2.phone LIKE ? """ else "").trimIndent()
-//        conditions += " ORDER BY o.id DESC LIMIT ${params["limit"] as Int} OFFSET ${params["offset"] as Int} "
+        conditions += " ORDER BY o.id DESC LIMIT ${params?.get("limit") as Int} OFFSET ${params["offset"] as Int} "
         val queryParams: MutableMap<Int, String> = mutableMapOf(
 //            1 to search,
 //            2 to search,
