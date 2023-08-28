@@ -1,7 +1,6 @@
-package mimsoft.io.client.order
+package mimsoft.io.routing.v1.client
 
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,9 +8,7 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
-import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
-import mimsoft.io.utils.principal.BasePrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.math.min
@@ -65,6 +62,5 @@ fun Route.routeToClientOrder() {
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
         call.respond(status.httpStatus, status.body)
-
     }
 }

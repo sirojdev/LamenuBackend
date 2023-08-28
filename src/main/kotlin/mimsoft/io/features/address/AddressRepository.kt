@@ -1,4 +1,4 @@
-package mimsoft.io.features.address.repository
+package mimsoft.io.features.address
 
 import mimsoft.io.features.address.AddressDto
 

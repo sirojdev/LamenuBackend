@@ -8,15 +8,14 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import io.ktor.server.testing.*
-import kotlinx.coroutines.runBlocking
 import mimsoft.io.client.device.DeviceModel
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 class AuthRouteKtTest {
 
 
-    @org.junit.jupiter.api.Test
-    suspend fun routeToClientAuth() = testApplication {
+    @Test
+    fun routeToClientAuth() = testApplication {
         val device = DeviceModel(
             uuid = "testuuuid",
             brand = "test"
@@ -39,7 +38,6 @@ class AuthRouteKtTest {
             )
         }
         println(result.body<Any>())
-
     }
 
 }

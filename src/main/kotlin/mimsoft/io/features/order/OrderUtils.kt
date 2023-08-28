@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.address.repository.AddressRepositoryImpl
+import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.badge.BadgeDto
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.branch.repository.BranchServiceImpl
