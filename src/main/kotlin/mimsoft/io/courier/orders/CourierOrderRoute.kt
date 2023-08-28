@@ -5,6 +5,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.OrderService
+import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
@@ -18,13 +19,31 @@ fun Route.routeToCourierOrders() {
             if (status == null) {
                 call.respond(ResponseModel(body = "status required"))
             }
-            val orderList = OrderService.getAll(
+            val orderList = OrderService.getAll2(
                 mapOf(
                     "merchantId" to principal?.merchantId as Any,
                     "courierId" to principal.staffId,
-//                    "type" to call.parameters["type"] as Any,
-                    "status" to status as Any,
-//                    "search" to call.parameters["search"] as Any,
+                    "type" to "DELIVERY",
+                    "statuses" to listOf(
+                        status.toString()
+                    ),
+                    "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
+                    "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
+                )
+            )
+
+            call.respond(orderList.httpStatus, orderList.body)
+        }
+        get("open") {
+            val principal = call.principal<BasePrincipal>()
+            val orderList = OrderService.getAll2(
+                mapOf(
+                    "merchantId" to principal?.merchantId as Any,
+                    "type" to "DELIVERY",
+                    "statuses" to listOf(
+                        OrderStatus.ACCEPTED.name
+                    ),
+                    "onWave" to false,
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
                 )
@@ -46,31 +65,24 @@ fun Route.routeToCourierOrders() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            val result = courierOrderService.toOnWay(
+            call.respond( courierOrderService.toOnWay(
                 courierId = courierId,
                 orderId = orderId,
-            )
-
-            call.respond(result.httpStatus, result.body)
-
+            ))
         }
         get("delivered") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            val result = courierOrderService.toDelivered(
+            call.respond(courierOrderService.toDelivered(
                 courierId = courierId,
                 orderId = orderId,
-            )
-
-            call.respond(result.httpStatus, result.body)
-
+            ))
         }
         get("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             val order = OrderService.get(id)
             call.respond(order.httpStatus, order.body)
         }
-
     }
 }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
+import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
@@ -42,44 +43,20 @@ object OrderService {
     suspend fun getAll2(
         params: Map<String, *>? = null
     ): ResponseModel {
-
-        val rowCount: String
         val result: List<Map<String, *>>
-        val rowResult: Map<String, *>?
-
-//        if (params?.containsKey("search") == true) {
-        val search = searchQuery(params = params)
+        val search = getQuery(params = params)
         result = repository.selectList(query = search.query, args = search.queryParams)
-        rowCount = search.query
-        val rowQuery = """
-            SELECT COUNT(*) 
-            FROM (${rowCount.substringBefore("LIMIT")}) AS count
-        """.trimIndent()
-        rowResult = repository.selectOne(query = rowQuery, args = search.queryParams)
-//        } else {
-//            val query = joinQuery2(params)
-//            result = repository.selectList(query)
-//            rowCount = query
-//            val rowQuery = """
-//            SELECT COUNT(*)
-//            FROM (${rowCount.substringBefore("LIMIT")}) AS count
-//        """.trimIndent()
-//            rowResult = repository.selectOne(rowQuery)
-//        }
-
         log.info("result: $result")
         if (result.isNotEmpty()) {
             val order = parseGetAll2(result[0])
-
             return ResponseModel(
                 body = DataPage(
                     data = result.map { parseGetAll2(it) },
                     total = order.total?.toInt()
                 )
-            )
-        } else {
+            )        } else {
             return ResponseModel(
-                body = "NOt found"
+                body = "Not found"
             )
         }
 

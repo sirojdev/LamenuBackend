@@ -421,6 +421,147 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
+    fun getQuery(params: Map<String, *>?, vararg columns: String): Search {
+        val columnsSet = columns.toSet()
+        var query = """
+            SELECT 
+            count(*) over() count,
+            o.id o_id,
+            o.user_id o_user_id,
+            o.user_phone o_user_phone,
+            o.status o_status,
+            o.add_lat o_add_lat,
+            o.add_long o_add_long,
+            o.add_desc o_add_desc,
+            o.created_at o_created_at,
+            o.updated_at o_updated_at,
+            o.deleted o_deleted,
+            o.delivery_at o_delivery_at,
+            o.delivered_at o_delivered_at,
+            o.service_type o_service_type,
+            o.comment o_comment,
+            o.merchant_id o_merchant_id,
+            o.collector_id o_collector_id,
+            o.courier_id o_courier_id,
+            o.payment_type o_payment_type,
+            o.product_count o_product_count,
+            o.is_paid o_is_paid,
+            o.grade o_grade,
+            o.total_price o_total_price,
+            o.branch_id o_branch_id 
+        """.trimIndent() +
+                (if (columnsSet.contains("products")) ", o.products o_products\n" else "")
+        var joins = if (columnsSet.contains("order_price"))
+            """
+            FROM orders o
+            LEFT JOIN order_price op on o.id = op.order_id 
+        """.trimIndent()
+        else "FROM orders o "
+
+        var conditions = """
+            WHERE o.deleted = false 
+        """.trimIndent()
+        val queryParams: MutableMap<Int, Any> = mutableMapOf(
+        )
+        var index = 0;
+        params?.let {
+            if (params["type"] != null) {
+                conditions += " AND o.service_type = ? "
+                params["type"]?.let { it1 -> queryParams.put(++index, it1) }
+            }
+            if (params["statuses"] != null) {
+                var str: String = ""
+                val list = (params["statuses"] as? List<*>)
+                if (list != null) {
+                    for (i in list) {
+                        str += "?,"
+                        i?.let { it1 -> queryParams.put(++index, it1) }
+                    }
+                }
+                str = str.removeSuffix(",")
+                conditions += " AND o.status IN ($str) "
+            }
+            if (params["userId"] != null) {
+                conditions += " AND o.user_id = ${params["userId"] as? Long} "
+            }
+            if (params["collectorId"] != null) {
+                conditions += " AND o.collector_id = ${params["collectorId"] as? Long} "
+            }
+            if (params["courierId"] != null) {
+                conditions += " AND o.courier_id = ${params["courierId"] as? Long} "
+            }
+            if (params["branchId"] != null) {
+                conditions += " AND o.branch_id = ${params["branchId"] as? Long} "
+            }
+            if (params["paymentTypeId"] != null) {
+                conditions += " AND o.payment_type = ${params["paymentType"] as? String} "
+            }
+            if (params["merchantId"] != null) {
+                conditions += " AND o.merchant_id = ${params["merchantId"] as? Long} "
+            }
+            if (params["onWave"] != null) {
+                conditions += " AND o.on_wave = ?  "
+                params["onWave"]?.let { it1 -> queryParams.put(++index, it1) }
+            }
+            conditions += " ORDER BY o.id DESC"
+            if (params["limit"] != null) {
+                conditions += " LIMIT ${params["limit"] as? Int} "
+            }
+            if (params["offset"] != null) {
+                conditions += " OFFSET ${params["offset"] as? Int} "
+            }
+
+        }
+
+        query += (if (columnsSet.contains("user")) """,
+                    u.id u_id,
+                    u.first_name u_first_name,
+                    u.last_name u_last_name,
+                    u.phone u_phone,
+                    u.image u_image,
+                    u.birth_day u_birth_day,
+                    u.badge_id u_badge_id """ else "") +
+                (if (columnsSet.contains("merchant"))
+                    """,
+                    m.id m_id,
+                    m.name_uz m_name_uz,
+                    m.name_ru m_name_ru,
+                    m.name_eng m_name_eng,
+                    m.phone m_phone,
+                    m.logo m_logo,
+                    m.is_active m_is_active,
+                    m.sub m_sub """ else "") +
+                (if (columnsSet.contains("collector"))
+                    """,
+                    s.id s_id,
+                    s.first_name s_first_name,
+                    s.last_name s_last_name,
+                    s.phone s_phone,
+                    s.image s_image,
+                    s.birth_day s_birth_day,
+                    s.position s_position,
+                    s.gender s_gender,
+                    s.comment s_comment """ else "") +
+                (if (columnsSet.contains("courier"))
+                    """ ,
+                    s2.id s2_id,
+                    s2.first_name s2_first_name,
+                    s2.last_name s2_last_name,
+                    s2.phone s2_phone,
+                    s2.image s2_image,
+                    s2.birth_day s2_birth_day,
+                    s2.position s2_position,
+                    s2.gender s2_gender,
+                    s2.comment s2_comment 
+                """.trimIndent() else "")
+        joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
+                (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
+                (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
+                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
+        println(query + joins + conditions)
+        return Search(query + joins + conditions, queryParams)
+    }
+
     data class Search(
         val query: String, val queryParams: Map<Int, *>
     )
