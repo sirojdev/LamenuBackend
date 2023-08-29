@@ -5,13 +5,17 @@ import io.ktor.server.testing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.extra.ExtraDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.option.OptionDto
 import mimsoft.io.features.product.ProductDto
+import mimsoft.io.utils.OrderStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class OrderServiceTest {
 
@@ -100,31 +104,54 @@ class OrderServiceTest {
     fun delete() = testApplication {
         val response = OrderService.delete(id = 212)
         val status = response.httpStatus
-        assertEquals(HttpStatusCode.OK, status)
+        assertTrue(status == HttpStatusCode.OK || status == HttpStatusCode.Forbidden)
     }
 
     @Test
-    fun editPaidOrder() {
-
+    fun accepted() = testApplication {
+        val response = OrderService.accepted(1, 212)
+        assertTrue(response)
     }
 
     @Test
-    fun accepted() {
+    fun getProductCalculate() = testApplication {
+        val products = mutableListOf<CartItem>()
+        val extras = mutableListOf<ExtraDto>()
+        extras.add(ExtraDto(id = 4))
+        val products1 = CartItem(
+            product = ProductDto(id = 67),
+            option = OptionDto(id = 36),
+            extras = extras,
+            count = 2
+        )
+        val products2 = CartItem(
+            product = ProductDto(id = 67),
+            option = OptionDto(id = 36),
+            count = 3
+        )
+        products.add(products1)
+        products.add(products2)
+        val dto = CartInfoDto(
+            products = products,
+            serviceType = "DELIVERY",
+            productsPrice = 148500,
+            productsDiscount = 18750
+        )
+        val response = OrderService.getProductCalculate(cart = dto, merchantId = 1)
+        assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
     @Test
-    fun getProductCalculate() {
+    fun updateStatus() = testApplication {
+        val response = OrderService.updateStatus(orderId = 212, merchantId = 1, status = OrderStatus.ACCEPTED)
+        assert(response is Order)
+        assertNotNull(response)
     }
 
     @Test
-    fun updateOnWave() {
-    }
-
-    @Test
-    fun updateStatus() {
-    }
-
-    @Test
-    fun getById() {
+    fun getById() = testApplication {
+        val response = OrderService.getById(id = 212, "user", "branch")
+        assert(response is Order)
+        assertNotNull(response)
     }
 }

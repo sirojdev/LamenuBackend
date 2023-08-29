@@ -45,29 +45,28 @@ object OrderService {
         vararg columns: String,
     ): ResponseModel {
         val result: List<Map<String, *>>
-        val search = getQuery(params = params,*columns, orderId = null)
+        val search = getQuery(params = params, *columns, orderId = null)
         result = repository.selectList(query = search.query, args = search.queryParams)
         log.info("result: $result")
         if (result.isNotEmpty()) {
             val order = parseGetAll2(result[0])
             return ResponseModel(
                 body = DataPage(
-                    data = result.map { parseGetAll2(it)},
+                    data = result.map { parseGetAll2(it) },
                     total = order.total?.toInt()
                 )
-            )        } else {
+            )
+        } else {
             return ResponseModel(
                 body = "Not found"
             )
         }
-
     }
 
     suspend fun getAll(
         params: Map<String, *>? = null,
         vararg columns: String
     ): ResponseModel {
-
 
         val columnsSet = columns.toSet()
 
@@ -361,7 +360,7 @@ object OrderService {
         val order: Order?
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val re = it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     setString(1, status.name)
                     this.closeOnCompletion()
                 }.executeUpdate()
@@ -371,19 +370,17 @@ object OrderService {
         return order
     }
 
-    suspend fun getById(id: Long?,vararg columns:String): Order? {
+    suspend fun getById(id: Long?, vararg columns: String): Order? {
         val result: List<Map<String, *>>
-        val search = getQuery(params = null,*columns, orderId = id)
+        val search = getQuery(params = null, *columns, orderId = id)
         result = repository.selectList(query = search.query, args = search.queryParams)
         log.info("result: $result")
         return if (result.isNotEmpty()) {
             parseGetAll2(result[0])
-        }else{
+        } else {
             null
         }
     }
-
-
 }
 
 

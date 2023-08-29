@@ -1,17 +1,17 @@
 package mimsoft.io.features.visit
 
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.features.order.Order
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
+import mimsoft.io.features.visit.enums.CheckStatus
 import java.sql.Timestamp
 
 data class VisitDto(
     val id: Long? = null,
     val merchantId: Long? = null,
     val user: UserDto? = null,
-    val orders: List<Order>? = null,
+    val orders: List<CartVisitDto>? = null,
     val waiter: StaffDto? = null,
     val table: TableDto? = null,
     val time: Timestamp? = null,
