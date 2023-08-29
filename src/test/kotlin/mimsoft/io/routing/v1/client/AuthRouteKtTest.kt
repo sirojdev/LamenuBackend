@@ -8,9 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import io.ktor.server.testing.*
-import kotlinx.coroutines.runBlocking
 import mimsoft.io.client.device.DeviceModel
-import org.junit.jupiter.api.Test
 
 class AuthRouteKtTest {
 
