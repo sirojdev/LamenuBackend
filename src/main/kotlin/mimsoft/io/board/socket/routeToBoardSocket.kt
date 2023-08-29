@@ -80,7 +80,7 @@ fun Route.routeToBoardSocket() {
                 println(e.localizedMessage)
             } finally {
                 close(CloseReason(CloseReason.Codes.NORMAL, "Connection closed"))
-                CourierSocketService.locationConnection.removeIf { it.session == this }
+                BoardSocketService.boardConnections.removeIf { it.session == this }
             }
         }
     }

@@ -13,6 +13,7 @@ data class StaffDto(
     val comment: String? = null,
     var birthDay: String? = null,
     val password: String? = null,
+    val newPassword: String? = null,
     val position: String? = null,
     val merchantId: Long? = null,
     val lastName: String? = null,

@@ -74,7 +74,7 @@ object OperatorSocketService {
                                 offset = offset
                             )
                         )
-                        waitAnswer(40000, order.id, connection.staffId, offset, order)
+                        waitAnswer(150000, order.id, connection.staffId, offset, order)
                     } else {
                         findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
                     }
