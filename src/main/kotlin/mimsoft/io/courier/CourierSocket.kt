@@ -1,7 +1,6 @@
 package mimsoft.io.courier
 
 import com.google.gson.Gson
-import io.ktor.network.sockets.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -11,6 +10,7 @@ import mimsoft.io.courier.merchantChat.ChatMessageDto
 import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
 import mimsoft.io.courier.merchantChat.ChatMessageService
 import mimsoft.io.courier.merchantChat.Sender
+import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
 import mimsoft.io.features.operator.socket.AcceptedDto
@@ -24,11 +24,13 @@ fun Route.toCourierSocket() {
     route("courier") {
         authenticate("courier") {
             webSocket("socket") {
-                try {
+
                     val principal = call.principal<BasePrincipal>()
                     val staffId = principal?.staffId
                     val merchantId = principal?.merchantId
                     val uuid = principal?.uuid
+                    try {
+                    CourierService.updateIsActive(staffId,true)
                     CourierSocketService.setConnection(
                         CourierConnection(
                             staffId = staffId,
@@ -103,6 +105,7 @@ fun Route.toCourierSocket() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
+                    CourierService.updateIsActive(staffId,true)
                     CourierSocketService.courierConnections.removeIf { it.session == this }
                     close(CloseReason(CloseReason.Codes.NORMAL, ""))
                 }

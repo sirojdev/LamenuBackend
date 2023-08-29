@@ -121,8 +121,11 @@ FROM
              gender = COALESCE(?,s.gender)  
              where s.id = ${dto.id} and s.deleted = false
         """.trimIndent()
-        val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
-        dto.birthDay=Timestamp(inputFormat.parse(dto.birthDay).time).toString()
+        if(dto.birthDay!=null){
+            val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
+            dto.birthDay=Timestamp(inputFormat.parse(dto.birthDay).time).toString()
+        }
+
         var rs: Int? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {

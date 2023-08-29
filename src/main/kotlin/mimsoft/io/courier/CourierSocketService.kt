@@ -34,5 +34,17 @@ object CourierSocketService {
         }
     }
 
+    fun courierIdList(
+        merchantId: Long?
+    ): ArrayList<Long?> {
+        val list = ArrayList<Long?>()
+        courierConnections.forEach{
+            if (it.merchantId==merchantId){
+                list.add(it.staffId)
+            }
+        }
+        return list
+    }
+
 
 }

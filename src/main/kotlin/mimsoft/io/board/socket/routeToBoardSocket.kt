@@ -6,7 +6,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
-import mimsoft.io.courier.location.CourierSocketService
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.principal.BasePrincipal
