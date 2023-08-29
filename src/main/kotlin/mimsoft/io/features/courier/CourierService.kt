@@ -13,6 +13,7 @@ import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -120,6 +121,8 @@ FROM
              gender = COALESCE(?,s.gender)  
              where s.id = ${dto.id} and s.deleted = false
         """.trimIndent()
+        val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
+        dto.birthDay=Timestamp(inputFormat.parse(dto.birthDay).time).toString()
         var rs: Int? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
