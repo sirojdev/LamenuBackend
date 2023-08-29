@@ -30,16 +30,16 @@ tags:
 
 paths:
 
-  /chat/merchant:
+  /courier/chat/merchant:
     get:
       tags:
         - Chat
       security:
         - bearerAuth: [ ]
-      description: Get all courier that merchant send message
+      description: Get merchant info for courier
       responses:
         '200':
-          description: Successfully retrieved chat messages
+          description: Successfully retrieved info merchant
           content:
             application/json:
               schema:
@@ -49,20 +49,13 @@ paths:
         '401':
           description: Unauthorized
 
-  /chat/messages:
+  /courier/chat/messages:
     get:
       tags:
         - Chat
       security:
         - bearerAuth: [ ]
       description: Get messages from courier
-      parameters:
-        - name: "courierId"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "long"
       responses:
         '200':
             description: Successfully retrieved messages
@@ -78,7 +71,7 @@ paths:
           description: Unauthorized
 
   /courier/transaction:
-    get:
+    post:
       tags:
         - Transactions
       security:
@@ -90,14 +83,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CourierTransactionDto"
+              $ref: "#/components/schemas/CourierTransactionRequest"
       responses:
         "200":
           description: "OK"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CourierInfoDto"
+                $ref: "#/components/schemas/CourierTransactionRequest"
         "404":
           description: "Not found"
         "401":
@@ -155,8 +148,6 @@ paths:
                 model:
                   type: string
                 osVersion:
-                  type: string
-                firebaseToken:
                   type: string
       responses:
         "200":
@@ -297,7 +288,7 @@ paths:
         "204":
           description: "No content"
 
-  /courier/orders/join:
+  /courier/order/join:
     post:
       security:
         - bearerAuth: [ ]
@@ -317,11 +308,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OrderWrapper"
+                $ref: "#/components/schemas/DataPage"
         "405":
           description: "Method not allowed"
 
-  /courier/orders/onway:
+  /courier/order/onway:
     get:
       security:
         - bearerAuth: [ ]
@@ -341,11 +332,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OrderWrapper"
+                $ref: "#/components/schemas/DataPage"
         "405":
           description: "Method not allowed"
 
-  /courier/orders/delivered:
+  /courier/order/delivered:
     get:
       security:
         - bearerAuth: [ ]
@@ -365,11 +356,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OrderWrapper"
+                $ref: "#/components/schemas/DataPage"
         "405":
           description: "Method not allowed"
 
-  /courier/orders/{id}:
+  /courier/order/{id}:
     get:
       security:
         - bearerAuth: [ ]
@@ -389,7 +380,49 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OrderWrapper"
+                $ref: "#/components/schemas/DataPage"
+        "405":
+          description: "Method not allowed"
+        "404":
+          description: "Not Found"
+
+  /upload/image:
+    post:
+      tags:
+        - Profile
+      description: upload image
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /courier/order/open:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Order courier's
+      description: get open orders(operator tomonidan tastiqlangan lekin hali hech qaysi courier oziga join qilmagan orderlar)
+      parameters:
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataPage"
         "405":
           description: "Method not allowed"
         "404":
@@ -529,28 +562,12 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/OrderDto"
+            $ref: "#/components/schemas/Order"
         total:
           type: integer
           format: "long"
 
-    OrderWrapper:
-      type: "object"
-      properties:
-        details:
-          $ref: "#/components/schemas/Details"
-        order:
-          $ref: "#/components/schemas/OrderDto"
-        address:
-          $ref: "#/components/schemas/AddressDto"
-        products:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/CartItem"
-        user:
-          $ref: "#/components/schemas/UserDto"
-        price:
-          $ref: "#/components/schemas/OrderPriceDto"
+
 
     Details:
       type: object
@@ -681,43 +698,71 @@ components:
         count:
           type: integer
           format: "long"
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
 
-    OrderDto:
+
+    Order:
         type: "object"
         properties:
           id:
             type: "integer"
             format: "long"
+          serviceType:
+            type: string
+          status:
+            type: string
+          user:
+            $ref: "#/components/schemas/UserDto"
+          collector:
+            $ref: "#/components/schemas/StaffDto"
+          merchant:
+            $ref: "#/components/schemas/MerchantDto"
           branch:
             $ref: "#/components/schemas/BranchDto"
+          products:
+            type: array
+            items:
+              $ref: "#/components/schemas/CartItem"
+          paymentType:
+            type: integer
+            format: "long"
+          payment:
+            $ref: "#/components/schemas/Payment"
+          isPaid:
+            type: boolean
+          comment:
+            type: string
+          totalDiscount:
+            type: integer
+            format: "long"
+          address:
+            $ref: "#/components/schemas/AddressDto"
+          courier:
+            $ref: "#/components/schemas/StaffDto"
           productCount:
             type: "integer"
           totalPrice:
             type: "integer"
             format: "double"
-          created:
+          createdAt:
             type: "string"
             format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
-          latitude:
-            type: "integer"
-            format: "double"
-          longitude:
-            type: "integer"
-            format: "double"
-          addressName:
-            type: "string"
-          deliveryAt:
+          updatedAt:
             type: "string"
             format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
-          deliveredAt:
-            type: "string"
-            format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
-        default:
-          id: 0
-          productCount: 0
-          totalPrice: 0.0
-          latitude: 0.0
-          longitude: 0.0
+          deleted:
+            type: boolean
+          total:
+            type: integer
+            format: "long"
 
     ChatMessageSaveDto:
       type: object
@@ -780,7 +825,21 @@ components:
         branch:
           $ref: "#/components/schemas/BranchDto"
         order:
-          $ref: "#/components/schemas/OrderWrapper"
+          $ref: "#/components/schemas/Order"
+        amount:
+          type: "integer"
+          format: "double"
+
+    CourierTransactionRequest:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        branch:
+          $ref: "#/components/schemas/BranchDto"
+        order:
+          $ref: "#/components/schemas/Order"
         amount:
           type: "integer"
           format: "double"

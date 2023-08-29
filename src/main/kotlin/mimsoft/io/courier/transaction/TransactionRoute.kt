@@ -20,14 +20,14 @@ fun Route.routeToCourierTransaction() {
     val transactionService = TransactionService
     val courierTransactionService = CourierTransactionService
     route("transaction") {
-        get {
+        post {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val courierId = pr?.staffId
             val dto = call.receive<CourierTransactionDto>()
             if (dto.branch == null) {
-                val order = OrderService.get(id = dto.order?.id).body as Order
-                if (order.id != dto.order?.id || order.status != OrderStatus.DELIVERED.name || order.courier?.id != courierId) {
+                val order = OrderService.get(id = dto.order?.id).body as? Order
+                if (order==null||order?.id != dto.order?.id || order?.status != OrderStatus.DELIVERED.name || order.courier?.id != courierId) {
                     call.respond(HttpStatusCode.MethodNotAllowed)
                 }
             }
@@ -40,7 +40,7 @@ fun Route.routeToCourierTransaction() {
                         time = Timestamp(System.currentTimeMillis())
                     )
                 )
-            call.respond(CourierTransactionId(result))
+            call.respond(dto.copy(id=result))
         }
 
         get("all") {

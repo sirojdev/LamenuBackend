@@ -7,8 +7,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
-import mimsoft.io.features.address.repository.AddressRepository
-import mimsoft.io.features.address.repository.AddressRepositoryImpl
+import mimsoft.io.features.address.AddressRepository
+import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.branch.BranchId
 import mimsoft.io.utils.principal.BasePrincipal
 

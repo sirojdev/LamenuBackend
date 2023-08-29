@@ -1,7 +1,6 @@
 package mimsoft.io.client.device
 
 import io.ktor.server.testing.*
-import org.junit.jupiter.api.Assertions.*
 import kotlin.test.Test
 
 class DeviceControllerTest {

@@ -20,7 +20,7 @@ object CourierOrderService {
         val result = withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
-                    setBoolean(1,false)
+                    setBoolean(1, false)
                     setString(2, OrderStatus.ACCEPTED.name)
                 }.executeUpdate()
             }
@@ -54,15 +54,17 @@ object CourierOrderService {
     suspend fun getOrderToCourier(courierId: Long?, orderId: Long?): ResponseModel {
         val query = " update orders set courier_id = $courierId  " +
                 " where status = ? and id = $orderId and courier_id is null "
-        withContext(Dispatchers.IO) {
+        val result = withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
                     setString(1, OrderStatus.ACCEPTED.name)
                 }.executeUpdate()
             }
         }
-
-        return ResponseModel()
+        if (result == 1) {
+            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
+        }
+        return ResponseModel(httpStatus = HttpStatusCode.MethodNotAllowed)
     }
 
     suspend fun toOnWay(courierId: Long?, orderId: Long?): ResponseModel {
@@ -77,7 +79,7 @@ object CourierOrderService {
             }
         }
         if (result == 1) {
-            return OrderService.get(orderId)
+            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
         }
         return ResponseModel(httpStatus = HttpStatusCode.MethodNotAllowed)
     }
@@ -94,7 +96,7 @@ object CourierOrderService {
             }
         }
         if (result == 1) {
-            return OrderService.get(orderId)
+            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
         }
         return ResponseModel(httpStatus = HttpStatusCode.MethodNotAllowed)
     }

@@ -2,7 +2,7 @@ package mimsoft.io.routing.v1
 
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
-import mimsoft.io.client.order.routeToClientOrder
+import mimsoft.io.routing.v1.client.routeToClientOrder
 import mimsoft.io.features.address.routeToAddress
 import mimsoft.io.features.book.routeToBook
 import mimsoft.io.features.client_promo.routeToClientPromo

@@ -1,4 +1,4 @@
-package mimsoft.io.features.address.repository
+package mimsoft.io.features.address
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
