@@ -2,17 +2,16 @@ package mimsoft.io.features.visit
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.BasePrincipal
+import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToVisits() {
     val visitService = VisitService
     route("visit") {
         get {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val visits = visitService.getAll(merchantId = merchantId)
             if (visits.isEmpty()) {
@@ -22,7 +21,7 @@ fun Route.routeToVisits() {
         }
 
         post {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val visit = call.receive<VisitDto>()
             val id = visitService.add(visit.copy(merchantId = merchantId))
@@ -34,7 +33,7 @@ fun Route.routeToVisits() {
         }
 
         get("/{id}") {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -50,7 +49,7 @@ fun Route.routeToVisits() {
         }
 
         put {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val visit = call.receive<VisitDto>()
             val response = visitService.update(visit.copy(merchantId = merchantId))
@@ -58,7 +57,7 @@ fun Route.routeToVisits() {
         }
 
         delete("{id}"){
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if(id==null){
@@ -70,7 +69,3 @@ fun Route.routeToVisits() {
         }
     }
 }
-
-data class VisitId(
-    val id: Long? = null
-)
