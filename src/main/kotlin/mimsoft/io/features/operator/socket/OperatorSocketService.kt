@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import mimsoft.io.courier.location.CourierSocketService
+import mimsoft.io.courier.CourierSocketService
 import mimsoft.io.courier.orders.CourierOrderService
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
@@ -58,9 +58,9 @@ object OperatorSocketService {
             val courier = CourierService.findNearCourier(order.branch?.id, offset, courierIdList)
             if (courier != null) {
                 println(courier)
-                if (CourierSocketService.courierNewOrderConnection.isNotEmpty()) {
+                if (CourierSocketService.courierConnections.isNotEmpty()) {
                     val connection =
-                        CourierSocketService.courierNewOrderConnection.find { it.staffId == courier.staffId }
+                        CourierSocketService.courierConnections.find { it.staffId == courier.staffId }
                     if (connection?.session != null) {
                         CoroutineScope(Dispatchers.IO).launch {
                             connection.session!!.send(Gson().toJson(order))
@@ -74,7 +74,7 @@ object OperatorSocketService {
                                 offset = offset
                             )
                         )
-                        waitAnswer(40000, order.id, connection.staffId, offset, order)
+                        waitAnswer(150000, order.id, connection.staffId, offset, order)
                     } else {
                         findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
                     }

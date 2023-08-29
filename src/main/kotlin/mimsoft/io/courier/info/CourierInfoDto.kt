@@ -1,8 +1,8 @@
 package mimsoft.io.courier.info
 
+import kotlinx.serialization.Serializable
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import java.sql.Timestamp
-
 data class CourierInfoDto(
     val id: Long? = null,
     val firstName: String? = null,

@@ -13,6 +13,7 @@ import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -96,7 +97,7 @@ FROM
 
     }
 
-    suspend fun updateIsActive(staffId: Long?, isActive: Boolean){
+    suspend fun updateIsActive(staffId: Long?, isActive: Boolean) {
         val query = """ update $COURIER_TABLE_NAME set is_active = ? where staff_id = $staffId""".trimIndent()
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -109,28 +110,43 @@ FROM
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
     suspend fun updateCourierInfo(dto: StaffDto): Any {
-        val query = """
+        var query = """
              update $STAFF_TABLE_NAME  s
-             set  password = COALESCE(?,s.password) ,
+             set
              first_name = COALESCE(?,s.first_name),
              last_name = COALESCE(?,s.last_name),
              birth_day = COALESCE(?,s.birth_day),
              image = COALESCE(?,s.image),
              comment = COALESCE(?,s.comment),
-             gender = COALESCE(?,s.gender)  
-             where s.id = ${dto.id} and s.deleted = false
-        """.trimIndent()
+             gender = COALESCE(?,s.gender)  """
+
+        if (dto.newPassword != null) {
+            query += " ,password = COALESCE(?,s.password) "
+        }
+        query += "   where s.id = ${dto.id} and s.deleted = false "
+
+        if (dto.newPassword != null) {
+            query += " and password = ? "
+        }
+        if(dto.birthDay!=null){
+            val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
+            dto.birthDay=Timestamp(inputFormat.parse(dto.birthDay).time).toString()
+        }
+
         var rs: Int? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 rs = it.prepareStatement(query).apply {
-                    setString(1, dto.password)
-                    setString(2, dto.firstName)
-                    setString(3, dto.lastName)
-                    setTimestamp(4, dto.birthDay?.let { Timestamp.valueOf(it) })
-                    setString(5, dto.image)
-                    setString(6, dto.comment)
-                    setString(7, dto.gender)
+                    setString(1, dto.firstName)
+                    setString(2, dto.lastName)
+                    setTimestamp(3, dto.birthDay?.let { Timestamp.valueOf(it) })
+                    setString(4, dto.image)
+                    setString(5, dto.comment)
+                    setString(6, dto.gender)
+                    if(dto.newPassword!=null){
+                        setString(7, dto.newPassword)
+                        setString(8, dto.password)
+                    }
                     this.closeOnCompletion()
                 }.executeUpdate()
             }
@@ -138,7 +154,7 @@ FROM
         if (rs == 1) {
             return ResponseModel(body = "Successfully", HttpStatusCode.OK)
         } else {
-            return ResponseModel(body = "Courier not found ", HttpStatusCode.NotFound)
+            return ResponseModel(body = "Courier not found or password incorrect", HttpStatusCode.NotFound)
         }
     }
 

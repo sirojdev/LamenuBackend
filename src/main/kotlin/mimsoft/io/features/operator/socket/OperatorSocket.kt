@@ -6,7 +6,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
-import mimsoft.io.courier.location.CourierSocketService
+import mimsoft.io.courier.CourierSocketService
 import mimsoft.io.courier.merchantChat.ChatMessageDto
 import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
 import mimsoft.io.courier.merchantChat.ChatMessageService
@@ -67,7 +67,7 @@ fun Route.toOperatorSocket() {
                     println(e.localizedMessage)
                 } finally {
                     close(CloseReason(CloseReason.Codes.NORMAL, "Connection closed"))
-                    CourierSocketService.locationConnection.removeIf { it.session == this }
+                    OperatorSocketService.operatorConnections.removeIf { it.session == this }
                 }
             }
         }

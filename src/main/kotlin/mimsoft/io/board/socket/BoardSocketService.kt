@@ -8,7 +8,7 @@ import mimsoft.io.features.order.Order
 import java.util.*
 
 object BoardSocketService {
-    private val boardConnections: MutableSet<BoardConnection> = Collections.synchronizedSet(LinkedHashSet())
+     val boardConnections: MutableSet<BoardConnection> = Collections.synchronizedSet(LinkedHashSet())
     fun setBoardConnection(
         boardId: Long?,
         branchId: Long?,
