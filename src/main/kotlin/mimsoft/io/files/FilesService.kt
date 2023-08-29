@@ -44,7 +44,6 @@ object FilesService {
 
     fun deleteFile(url: String): Boolean {
         val fd = File("$PATH/$url")
-
         if (fd.exists()) {
             fd.delete()
         }

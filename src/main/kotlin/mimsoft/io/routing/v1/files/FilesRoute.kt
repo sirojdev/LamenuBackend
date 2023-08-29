@@ -16,6 +16,17 @@ fun Route.routeToFiles() {
             if (result.isNotEmpty()) call.respond(HttpStatusCode.OK, result)
             else call.respond(HttpStatusCode.Gone)
         }
+
+    }
+    route("delete"){
+        delete ("image") {
+            val url = call.parameters["image"] as String
+            val result = FilesService.deleteFile(
+                url
+            )
+            if (result) call.respond(HttpStatusCode.OK, result)
+            else call.respond(HttpStatusCode.Gone)
+        }
     }
 }
 
