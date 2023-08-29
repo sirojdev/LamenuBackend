@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Assertions.*
 class DeviceRouteKtTest {
 
     @Test
-    suspend fun routeToDevice() {
+    fun routeToDevice() {
 
 
     }

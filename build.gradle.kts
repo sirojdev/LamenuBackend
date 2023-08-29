@@ -57,6 +57,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+//    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.10")
+
+
     //tgbot
     implementation("org.telegram:telegrambots:6.5.0")
     implementation("io.ktor:ktor-network:$ktor_version")
@@ -68,10 +71,10 @@ dependencies {
 
 }
 
-ktor{
-    fatJar {
-        archiveFileName.set("lamenu-all.jar")
-    }
+//ktor{
+//    fatJar {
+//        archiveFileName.set("lamenu-all.jar")
+//    }
 //    fatJar{
 //        archiveFileName.set("lamenu-back.jar")
 //    }
@@ -90,4 +93,4 @@ ktor {
 //    fatJar{
 //        archiveFileName.set("lamenu-dev.jar")
 //    }
-}
+//}
