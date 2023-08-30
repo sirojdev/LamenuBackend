@@ -199,6 +199,7 @@ paths:
         "204":
           description: "No Content"
 
+
   /client/auth/sign-up:
     post:
       tags:
@@ -233,6 +234,7 @@ paths:
                   $ref: "#/components/schemas/DeviceModel"
         "204":
           description: "No Content"
+
 
   /client/profile:
     get:
