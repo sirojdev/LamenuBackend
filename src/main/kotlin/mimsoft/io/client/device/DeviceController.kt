@@ -3,7 +3,6 @@ package mimsoft.io.client.device
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.board.auth.BoardDeviceModel
-import mimsoft.io.features.favourite.merchant
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.JwtConfig

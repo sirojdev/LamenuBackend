@@ -109,4 +109,8 @@ object WaiterService {
         }
 
     }
+
+    suspend fun verifyOrder(){
+
+    }
 }

@@ -68,5 +68,4 @@ class AddressRepositoryImplTest {
         val response = AddressRepositoryImpl.delete(clientId = 1, merchantId = 1, id = 28)
         assert(response)
     }
-
 }

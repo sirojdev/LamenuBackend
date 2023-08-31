@@ -103,6 +103,7 @@ FROM
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     setBoolean(1, isActive)
+                    this.closeOnCompletion()
                 }.executeUpdate()
             }
         }

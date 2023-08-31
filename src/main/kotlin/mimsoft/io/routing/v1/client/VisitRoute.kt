@@ -12,31 +12,24 @@ import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToClientVisit() {
 
-        post("visit") {
-            val pr = getPrincipal()
-            val userId = pr?.userId
-            val merchantId = pr?.merchantId
-            val visit = call.receive<VisitDto>()
-            val response = VisitService.add(visit.copy(user = UserDto(id = userId), merchantId = merchantId))
-            if (response == null) {
-                call.respond(HttpStatusCode.Conflict)
-                return@post
-            } else
-                call.respond(HttpStatusCode.OK, VisitId(response))
-        }
-
-        get("visits") {
-            val pr = getPrincipal()
-            val merchantId = pr?.merchantId
-            val userId = pr?.userId
-            val visits = VisitService.getAll(merchantId = merchantId, userId = userId)
-            if (visits.isEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            } else call.respond(visits)
-        }
+    post("visit") {
+        val pr = getPrincipal()
+        val userId = pr?.userId
+        val visitId = call.parameters["visitId"]?.toLongOrNull()
+        val merchantId = pr?.merchantId
+        val visit = call.receive<VisitDto>()
+        val response = VisitService.add(visit.copy(id = visitId, user = UserDto(id = userId), merchantId = merchantId))
+        call.respond(response)
     }
 
-data class VisitId(
-    val id: Long? = null
-)
+    get("visits") {
+        val pr = getPrincipal()
+        val merchantId = pr?.merchantId
+        val userId = pr?.userId
+        val visits = VisitService.getAll(merchantId = merchantId, userId = userId)
+        if (visits.isEmpty()) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        } else call.respond(visits)
+    }
+}
