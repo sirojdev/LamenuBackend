@@ -26,6 +26,7 @@ fun Route.routeToClient() {
         routeToCategoryByGroup()
         routeToClientCart()
         routeToPaymentTypes()
+        routeToClientNews()
         authenticate("user") {
             routeToClientPromo()
             routeToClientProfile()

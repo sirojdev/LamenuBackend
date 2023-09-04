@@ -1,8 +1,7 @@
-package mimsoft.io.routing.v1.admin
+package mimsoft.io.routing.v1.sys_admin
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -10,7 +9,6 @@ import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.merchant.MerchantMapper
 import mimsoft.io.features.merchant.repository.MerchantInterface
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.merchantRoute() {
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
