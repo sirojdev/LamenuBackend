@@ -36,7 +36,7 @@ object JwtConfig {
 
 
     val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
-    val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
+        val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
     val verifierLogin: JWTVerifier = JWT.require(algorithmLogin).withIssuer(issuer).build()
     val verifierBoard: JWTVerifier = JWT.require(algorithmBoard).withIssuer(issuer).build()
 

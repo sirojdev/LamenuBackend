@@ -4,6 +4,8 @@ import io.ktor.server.testing.*
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressType
 import mimsoft.io.features.address.Details
+import org.junit.After
+import org.junit.AfterClass
 import kotlin.test.Test
 
 class AddressRepositoryImplTest {
@@ -56,6 +58,7 @@ class AddressRepositoryImplTest {
         val id = AddressRepositoryImpl.add(addressDto = dto)
         assert(id is Number)
     }
+
 
     @Test
     fun update() = testApplication {

@@ -1,7 +1,7 @@
 package mimsoft.io.client.device
 
+import kotlinx.serialization.Serializable
 import java.sql.Timestamp
-
 
 data class DeviceModel(
     val id: Long? = null,

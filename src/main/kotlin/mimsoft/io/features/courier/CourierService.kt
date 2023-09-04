@@ -9,6 +9,7 @@ import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
@@ -156,6 +157,7 @@ FROM
         } else {
             return ResponseModel(body = "Courier not found or password incorrect", HttpStatusCode.NotFound)
         }
+
     }
 
     suspend fun update(dto: CourierDto): Boolean =
@@ -164,6 +166,7 @@ FROM
             dataObject = mapper.toTable(dto),
             tableName = COURIER_TABLE_NAME
         )
+
 
     suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
