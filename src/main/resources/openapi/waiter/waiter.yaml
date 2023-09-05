@@ -41,7 +41,7 @@ paths:
             schema:
               type: "object"
               properties:
-                merchantId:
+                appKey:
                   type: "integer"
                   format: "long"
                 uuid:
@@ -56,6 +56,7 @@ paths:
                   type: string
                 osVersion:
                   type: string
+
       responses:
         "200":
           description: "OK"
