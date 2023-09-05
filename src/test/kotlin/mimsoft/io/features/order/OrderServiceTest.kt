@@ -142,6 +142,34 @@ class OrderServiceTest {
     }
 
     @Test
+    fun getProductCalculate2() = testApplication {
+        val products = mutableListOf<CartItem>()
+        val extras = mutableListOf<ExtraDto>()
+        extras.add(ExtraDto(id = 4))
+        val products1 = CartItem(
+            product = ProductDto(id = 67),
+            option = OptionDto(id = 36),
+            extras = extras,
+            count = 2
+        )
+        val products2 = CartItem(
+            product = ProductDto(id = 67),
+            option = OptionDto(id = 36),
+            count = 3
+        )
+        products.add(products1)
+        products.add(products2)
+        val dto = CartInfoDto(
+            products = products,
+            serviceType = "DELIVERY"
+        )
+        val response = OrderService.getProductCalculate2(cart = dto)
+        assertNotNull(response)
+        println(response)
+    }
+
+
+    @Test
     fun updateStatus() = testApplication {
         val response = OrderService.updateStatus(orderId = 212, merchantId = 1, status = OrderStatus.ACCEPTED)
         assert(response is Order)

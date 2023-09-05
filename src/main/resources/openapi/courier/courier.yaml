@@ -415,7 +415,6 @@ paths:
       tags:
         - Order courier's
       description: get open orders(operator tomonidan tastiqlangan lekin hali hech qaysi courier oziga join qilmagan orderlar)
-      parameters:
       responses:
         "200":
           description: "OK"

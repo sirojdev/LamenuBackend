@@ -17,6 +17,7 @@ object JwtConfig {
     private const val secretUser = "LaMenuMusernt-FsdAafF"
     private const val secretStuff = "laMenu+0stuff_mYinCh"
     private const val secretBoard = "laMenu+0board+mim"
+    private const val secretAdmin = "lamenu_Admn-007farabiY"
 
     private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
     private const val validityAccessBoard = 36_000_000 * 1000L // 10 hours
@@ -33,6 +34,7 @@ object JwtConfig {
     private val algorithmUser = Algorithm.HMAC512(secretUser)
     private val algorithmStaff = Algorithm.HMAC512(secretStuff)
     private val algorithmBoard = Algorithm.HMAC512(secretBoard)
+    private val algorithmAdmin = Algorithm.HMAC512(secretAdmin)
 
 
     val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
@@ -44,6 +46,7 @@ object JwtConfig {
     val verifierMerchant: JWTVerifier = JWT.require(algorithmMerchant).withIssuer(issuer).build()
     val verifierUser: JWTVerifier = JWT.require(algorithmUser).withIssuer(issuer).build()
     val verifierStaff: JWTVerifier = JWT.require(algorithmStaff).withIssuer(issuer).build()
+    val verifierAdmin: JWTVerifier = JWT.require(algorithmAdmin).withIssuer(issuer).build()
 
     fun generateDeviceToken(
         merchantId: Long?,
@@ -171,6 +174,14 @@ object JwtConfig {
         .withClaim("uuid", uuid)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmStaff)
+
+    fun generateAdminToken(phone: String, uuid: String?): String = JWT.create()
+        .withSubject("admin")
+        .withIssuer(issuer)
+        .withClaim("phone", phone)
+        .withClaim("uuid", uuid)
+        .withExpiresAt(getExpiration(validityLogin))
+        .sign(algorithmAdmin)
 
     fun generateModifyToken(sessionUuid: String?): String? = JWT.create()
         .withSubject("modify")

@@ -18,8 +18,7 @@ object CartService {
                 }
             }
         }
-
-        return OrderService.getProductCalculate(cart = dto, merchantId = merchantId)
+        return OrderService.getProductCalculate(cart = dto, productsCart = dto.products, merchantId = merchantId)
     }
 
 

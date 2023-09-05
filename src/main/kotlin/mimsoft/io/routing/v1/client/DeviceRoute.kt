@@ -11,7 +11,6 @@ import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.user.UserPrincipal
 import mimsoft.io.session.SessionRepository
-import kotlin.concurrent.fixedRateTimer
 
 fun Route.routeToClientDevice() {
     route("device") {

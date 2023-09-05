@@ -2,28 +2,26 @@ package mimsoft.io.features.news
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.news.repository.NewsRepository
 import mimsoft.io.features.news.repository.NewsRepositoryImpl
-import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
+import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToNews() {
     val news: NewsRepository = NewsRepositoryImpl
     route("news") {
         post {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val dto = call.receive<NewsDto>()
             val response = news.add(dto.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK, CategoryGroupId(response))
+            call.respond(HttpStatusCode.OK, NewsId(response))
         }
 
         put {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val dto = call.receive<NewsDto>()
             val response = news.update(dto.copy(merchantId = merchantId))
@@ -31,7 +29,7 @@ fun Route.routeToNews() {
         }
 
         get("{id}") {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -47,14 +45,16 @@ fun Route.routeToNews() {
         }
 
         get {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 15
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val merchantId = pr?.merchantId
-            val response = news.getAll(merchantId = merchantId)
+            val response = news.getAll(merchantId = merchantId, limit = limit, offset = offset)
             call.respond(response)
         }
 
         delete("{id}") {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
@@ -67,5 +67,5 @@ fun Route.routeToNews() {
     }
 }
 
-data class CategoryGroupId(val id: Long? = null)
+data class NewsId(val id: Long? = null)
 
