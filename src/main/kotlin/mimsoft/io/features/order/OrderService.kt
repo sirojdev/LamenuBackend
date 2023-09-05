@@ -307,7 +307,6 @@ object OrderService {
 
                 productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong() ?: 0L)
                 log.info("productPrice: {}", productPrice)
-
             }
 
             totalProductPrice = totalProductPrice.plus((productPrice ?: 0L).times(cartItem.count!!))
@@ -338,6 +337,98 @@ object OrderService {
             )
         }
         return ResponseModel(body = "{}")
+    }
+
+
+
+    suspend fun getProductCalculate2(
+        cart: CartInfoDto? = null,
+        productsCart: List<CartItem>? = null
+    ): OrderPriceModel {
+
+        val products = productsCart ?: cart?.products
+        var totalPriceWithDiscount = 0L
+        var totalProductPrice = 0L
+        var totalDiscount = 0L
+
+        products?.forEach { cartItem ->
+
+            log.info("cartItem: {}", GSON.toJson(cartItem))
+
+            val optionCondition = if(cartItem.option?.id != null){
+                "and o.id = ${cartItem.option.id}"
+            }else ""
+
+            val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
+                "and e.id in (${cartItem.extras.joinToString { it.id.toString() }})"
+            } else ""
+
+            var productDiscount: Long? = 0L
+            var productPrice: Long? = 0L
+
+            var query = """
+                select
+                p.id p_id,
+                e.id e_id,
+                o.id o_id,
+                o.price o_price,
+                e.price e_price,
+                p.cost_price p_price,
+                p.discount p_discount
+                from product p
+                left join extra e on p.id = e.product_id 
+                left join options o on p.id = o.product_id
+                where (not p.deleted or not e.deleted or not o.deleted)
+                and p.id = ${cartItem.product?.id}
+                $optionCondition
+                $extraCondition
+            """.trimIndent()
+
+            query += (" order by p_id, o_id, e_id")
+
+            repository.selectList(query = query).let { rs ->
+                val result = mutableMapOf(
+                    "p_id" to rs[0]["p_id"],
+                    "p_price" to rs[0]["p_price"],
+                    "o_id" to rs[0]["o_id"],
+                    "o_price" to rs[0]["o_price"],
+                    "p_discount" to rs[0]["p_discount"],
+                    "e" to arrayListOf<Map<String, *>>()
+                )
+
+
+                result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
+                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as? Long)?.toInt() ?: 0 }
+                log.info("result: {}", result)
+
+                productPrice = productPrice?.plus((result["p_price"] as? Long) ?: 0L)
+                log.info("productPrice: {}", productPrice)
+
+                productDiscount = (productPrice?.times((result["p_discount"] as? Long) ?: 0L)?.div(100))
+                log.info("productDiscount: {}", productDiscount)
+
+
+                productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
+                log.info("productPrice: {}", productPrice)
+
+                productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong() ?: 0L)
+                log.info("productPrice: {}", productPrice)
+
+            }
+
+            totalProductPrice = totalProductPrice.plus((productPrice ?: 0L).times(cartItem.count!!))
+            totalDiscount = totalDiscount.plus((productDiscount ?: 0L).times(cartItem.count!!))
+            log.info("totalPrice: {}", totalProductPrice)
+            log.info("totalDiscount: {}", totalDiscount)
+        }
+
+        totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
+
+        return OrderPriceModel(
+                totalPrice = totalProductPrice,
+                totalDiscount = totalDiscount,
+                totalPriceWithDiscount = totalPriceWithDiscount
+        )
     }
 
     suspend fun updateOnWave(orderId: Long, onWave: Boolean) {

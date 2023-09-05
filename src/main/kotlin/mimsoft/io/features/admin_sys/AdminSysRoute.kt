@@ -10,7 +10,7 @@ import io.ktor.server.routing.*
 fun Route.adminSysRoute () {
     post("auth"){
         val dto = call.receive<AdminSys>()
-        val response = AdminSysService.get(dto = dto)
+        val response = AdminSysService.auth(dto = dto)
         if(response.httpStatus != HttpStatusCode.OK){
             call.respond(response.httpStatus)
             return@post

@@ -801,7 +801,7 @@ object OrderUtils {
         }
     }
 
-    private suspend fun validateProduct(order: Order?, merchantId: Long? = null): ResponseModel {
+    private suspend fun validateProduct(order: Order?): ResponseModel {
         val products = order?.products
 
         val orderProducts = getByCartItem(products)
@@ -849,6 +849,7 @@ object OrderUtils {
         val totalPrice = totalProductPrice + totalOptionPrice + totalExtraPrice
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
+        log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionPrice, totalExtraPrice)
 
         if (totalPrice.toLong() != order?.totalPrice && totalProductDiscount.toLong() != order?.totalDiscount) return ResponseModel(
             body = mapOf("message" to "total price or discount not equal"), httpStatus = HttpStatusCode.BadRequest
@@ -899,44 +900,47 @@ object OrderUtils {
                         )
                     )
                 }
-                val optionRs = connection.prepareStatement(queryOptions).executeQuery()
-                while (optionRs.next()) {
-                    optionsSet.add(
-                        OptionDto(
-                            id = optionRs.getLong("id"),
-                            merchantId = optionRs.getLong("merchant_id"),
-                            parentId = optionRs.getLong("parent_id"),
-                            productId = optionRs.getLong("product_id"),
-                            name = TextModel(
-                                uz = optionRs.getString("name_uz"),
-                                ru = optionRs.getString("name_ru"),
-                                eng = optionRs.getString("name_eng")
-                            ),
-                            image = optionRs.getString("image"),
-                            price = optionRs.getLong("price")
+                if(!optionIds.isNullOrEmpty()){
+                    val optionRs = connection.prepareStatement(queryOptions).executeQuery()
+                    while (optionRs.next()) {
+                        optionsSet.add(
+                            OptionDto(
+                                id = optionRs.getLong("id"),
+                                merchantId = optionRs.getLong("merchant_id"),
+                                parentId = optionRs.getLong("parent_id"),
+                                productId = optionRs.getLong("product_id"),
+                                name = TextModel(
+                                    uz = optionRs.getString("name_uz"),
+                                    ru = optionRs.getString("name_ru"),
+                                    eng = optionRs.getString("name_eng")
+                                ),
+                                image = optionRs.getString("image"),
+                                price = optionRs.getLong("price")
+                            )
                         )
-                    )
+                    }
                 }
-                val extraRs = connection.prepareStatement(queryExtras).executeQuery()
-                while (extraRs.next()) {
-                    extrasSet.add(
-                        ExtraDto(
-                            id = extraRs.getLong("id"),
-                            image = extraRs.getString("image"),
-                            price = extraRs.getLong("price"),
-                            merchantId = extraRs.getLong("merchant_id"),
-                            name = TextModel(
-                                uz = extraRs.getString("name_uz"),
-                                ru = extraRs.getString("name_ru"),
-                                eng = extraRs.getString("name_eng")
-                            ),
-                            productId = extraRs.getLong("product_id")
+                if(!extraIds.isNullOrEmpty()){
+                    val extraRs = connection.prepareStatement(queryExtras).executeQuery()
+                    while (extraRs.next()) {
+                        extrasSet.add(
+                            ExtraDto(
+                                id = extraRs.getLong("id"),
+                                image = extraRs.getString("image"),
+                                price = extraRs.getLong("price"),
+                                merchantId = extraRs.getLong("merchant_id"),
+                                name = TextModel(
+                                    uz = extraRs.getString("name_uz"),
+                                    ru = extraRs.getString("name_ru"),
+                                    eng = extraRs.getString("name_eng")
+                                ),
+                                productId = extraRs.getLong("product_id")
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
-
         return ResponseModel(
             body = mapOf(
                 "products" to productsSet, "options" to optionsSet, "extras" to extrasSet

@@ -33,7 +33,7 @@ object AdminSysService {
         }
     }
 
-    suspend fun get(dto: AdminSys): ResponseModel {
+    suspend fun auth(dto: AdminSys): ResponseModel {
         val check = check(dto = dto)
         if (check != null) {
             val token = JwtConfig.generateAdminToken(phone = check.phone!!, uuid = check.uuid)

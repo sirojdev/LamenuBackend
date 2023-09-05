@@ -19,7 +19,7 @@ fun Route.routeToClientOrder() {
     get("orders") {
         val pr = getPrincipal()
         var search = call.parameters["search"]
-        if(search == null){
+        if (search == null) {
             search = ""
         }
         val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
