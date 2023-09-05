@@ -632,7 +632,7 @@ object OrderUtils {
             branch = BranchDto(id = result.getOrDefault("o_branch_id", null) as? Long),
             totalPrice = result.getOrDefault("o_total_price", null) as? Long,
             products = gsonToList(products, CartItem::class.java),
-            paymentType = (result.getOrDefault("o_payment_type", null) as? Int?)?.toLong(),
+            paymentMethod = PaymentTypeDto(id = (result.getOrDefault("o_payment_type", null) as? Int?)?.toLong()),
             isPaid = result.getOrDefault("o_is_paid", null) as? Boolean?,
             comment = result.getOrDefault("o_comment", null) as? String?,
             productCount = result.getOrDefault("o_product_count", null) as Int?,
@@ -695,8 +695,7 @@ object OrderUtils {
             ) ),
             totalPrice = result["o_total_price"] as? Long,
             products = gsonToList(products, CartItem::class.java),
-            paymentType = (result["o_payment_type"] as? Int?)?.toLong(),
-            payment = PaymentTypeDto(id = result["pt_id"] as? Long,name = result["pt_name"] as? String,icon = result["pt_icon"] as? String),
+            paymentMethod = PaymentTypeDto(id = result["pt_id"] as? Long,name = result["pt_name"] as? String,icon = result["pt_icon"] as? String),
             isPaid = result["o_is_paid"] as? Boolean?,
             comment = result["o_comment"] as? String?,
             productCount = result["o_product_count"] as Int?,
@@ -722,7 +721,7 @@ object OrderUtils {
             ),
             branch = BranchDto(id = result.getOrDefault("branch_id", null) as? Long),
             products = gsonToList(result.getOrDefault("products", null) as? String, CartItem::class.java),
-            paymentType = (result.getOrDefault("payment_type", null) as? Int?)?.toLong(),
+            paymentMethod = PaymentTypeDto(id = (result.getOrDefault("payment_type", null) as? Int?)?.toLong()),
             isPaid = result.getOrDefault("is_paid", null) as? Boolean?,
             comment = result.getOrDefault("comment", null) as? String?,
             productCount = result.getOrDefault("product_count", null) as? Int?,
@@ -756,7 +755,7 @@ object OrderUtils {
             order.address = it.body as? AddressDto
         }
 
-        if (order.paymentType == null) {
+        if (order.paymentMethod?.id == null) {
             return ResponseModel(
                 httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "paymentType is required")
             )

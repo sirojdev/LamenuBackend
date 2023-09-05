@@ -117,7 +117,7 @@ object OrderService {
             values (${validOrder.user?.id}, ${validOrder.user?.phone}, ?, ?, 
             ${validOrder.address?.latitude}, ${validOrder.address?.longitude},
             ?, ?, ?, ?, ${validOrder.merchant?.id}, ${validOrder.courier?.id}, 
-            ${validOrder.collector?.id}, ${validOrder.paymentType},
+            ${validOrder.collector?.id}, ${validOrder.paymentMethod?.id},
             ${validOrder.productCount}, ${validOrder.totalPrice}, ${validOrder.branch?.id})
             """.trimIndent()
         log.info("insert query {}", query)

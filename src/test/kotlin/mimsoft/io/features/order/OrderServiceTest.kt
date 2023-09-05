@@ -10,6 +10,7 @@ import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.extra.ExtraDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.option.OptionDto
+import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.utils.OrderStatus
 import kotlin.test.Test
@@ -81,7 +82,7 @@ class OrderServiceTest {
             user = UserDto(
                 id = 21
             ),
-            paymentType = 1,
+            paymentMethod = PaymentTypeDto(id = 1),
             branch = BranchDto(
                 id = 30
             ),
