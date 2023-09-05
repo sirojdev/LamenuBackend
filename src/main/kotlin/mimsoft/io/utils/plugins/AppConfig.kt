@@ -10,6 +10,4 @@ object AppConfig {
                 field = value
             }
         }
-
-
 }

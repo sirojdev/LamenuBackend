@@ -37,7 +37,7 @@ fun Route.routeToCourierOrders() {
         }
         get("open") {
             val principal = call.principal<BasePrincipal>()
-            val orderList = OrderService.   getAll2(
+            val orderList = OrderService.getAll2(
                 mapOf(
                     "merchantId" to principal?.merchantId as Any,
                     "type" to "DELIVERY",
