@@ -41,7 +41,7 @@ class AddressRepositoryImplTest {
     }
 
     @Test
-    fun add() = testApplication{
+    fun add() = testApplication {
         val dto = AddressDto(
             type = AddressType.APARTMENT,
             name = "Name",
@@ -71,5 +71,4 @@ class AddressRepositoryImplTest {
         val response = AddressRepositoryImpl.delete(clientId = 1, merchantId = 1, id = 28)
         assert(response)
     }
-
 }

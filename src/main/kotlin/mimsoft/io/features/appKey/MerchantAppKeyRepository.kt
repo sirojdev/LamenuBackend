@@ -22,7 +22,7 @@ object MerchantAppKeyRepository {
     }
 
     suspend fun getAll(merchantId: Long?): ArrayList<MerchantAppKeyDto> {
-        var query = "select * from $MERCHANT_APP_KEY_TABLE where deleted = false "
+        var query = "select * from $MERCHANT_APP_KEY_TABLE where deleted = false"
         if (merchantId != null) {
             query+=" and merchant_id = $merchantId"
         }
@@ -71,7 +71,7 @@ object MerchantAppKeyRepository {
 
     suspend fun deleteByAppId(id: Long?): Boolean {
         val query =
-            "delete from $MERCHANT_APP_KEY_TABLE where deleted = false  and app_id = $id"
+            "update $MERCHANT_APP_KEY_TABLE set deleted = true where deleted = false  and app_id = $id"
         var result: Boolean = false
         withContext(Dispatchers.IO) {
             repository.connection().use {

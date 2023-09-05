@@ -1,4 +1,4 @@
-package mimsoft.io.features.operator;
+package mimsoft.io.features.operator
 
 import mimsoft.io.module
 
