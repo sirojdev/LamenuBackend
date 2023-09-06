@@ -223,7 +223,7 @@ object OrderService {
 
 
             val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
-                "and e.id in (${cartItem.extras.joinToString { it.id.toString() }})"
+                "and e.id in (${cartItem.extras!!.joinToString { it.id.toString() }})"
             } else ""
 
             var productDiscount: Long? = 0L
@@ -356,11 +356,11 @@ object OrderService {
             log.info("cartItem: {}", GSON.toJson(cartItem))
 
             val optionCondition = if(cartItem.option?.id != null){
-                "and o.id = ${cartItem.option.id}"
+                "and o.id = ${cartItem.option!!.id}"
             }else ""
 
             val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
-                "and e.id in (${cartItem.extras.joinToString { it.id.toString() }})"
+                "and e.id in (${cartItem.extras!!.joinToString { it.id.toString() }})"
             } else ""
 
             var productDiscount: Long? = 0L

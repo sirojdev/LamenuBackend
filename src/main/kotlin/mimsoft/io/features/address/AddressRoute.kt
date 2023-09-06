@@ -23,7 +23,6 @@ fun Route.routeToAddress() {
                 return@get
             } else call.respond(addresses)
         }
-
         get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {

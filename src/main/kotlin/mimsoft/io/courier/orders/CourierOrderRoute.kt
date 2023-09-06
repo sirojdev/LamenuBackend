@@ -30,7 +30,7 @@ fun Route.routeToCourierOrders() {
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
                 ),
-                "user","branch","payment_type"
+                "user","branch","payment_type","products"
             )
 
             call.respond(orderList.httpStatus, orderList.body)
@@ -48,7 +48,7 @@ fun Route.routeToCourierOrders() {
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
                 ),
-                "user","branch","payment_type"
+                "user","branch","payment_type","products"
             )
 
             call.respond(orderList.httpStatus, orderList.body)
