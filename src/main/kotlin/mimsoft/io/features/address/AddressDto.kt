@@ -9,5 +9,6 @@ data class AddressDto(
     val latitude: Double? = null,
     val longitude: Double? = null,
     val clientId: Long? = null,
-    val merchantId: Long? = null
+    val merchantId: Long? = null,
+    val distance:Double?=null
 )

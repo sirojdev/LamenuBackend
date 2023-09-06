@@ -338,7 +338,6 @@ object DBManager : BaseRepository {
 
     override suspend fun deleteData(tableName: String, where: String, whereValue: Any?): Boolean {
         val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
-
         return withContext(Dispatchers.IO) {
             connection().use { connection ->
                 val statement = connection.prepareStatement(delete)

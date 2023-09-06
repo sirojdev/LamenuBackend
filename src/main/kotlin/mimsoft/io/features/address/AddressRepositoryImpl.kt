@@ -2,9 +2,10 @@ package mimsoft.io.features.address
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.address.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import java.sql.CallableStatement
+import java.sql.Types
 
 object AddressRepositoryImpl : AddressRepository {
     private val repository: BaseRepository = DBManager
@@ -18,6 +19,7 @@ object AddressRepositoryImpl : AddressRepository {
         )?.data
         return data?.map { mapper.toAddressDto(it) } ?: emptyList()
     }
+
     override suspend fun get(id: Long?): AddressDto? {
         val query =
             "select * from $ADDRESS_TABLE_NAME " +
@@ -29,7 +31,7 @@ object AddressRepositoryImpl : AddressRepository {
                     this.closeOnCompletion()
                 }.executeQuery()
                 if (rs.next()) {
-                    dto=  AddressDto(
+                    dto = AddressDto(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
                         type = AddressType.valueOf(rs.getString("type")),
@@ -48,18 +50,21 @@ object AddressRepositoryImpl : AddressRepository {
 //        )
 //        return mapper.toAddressDto(data.firstOrNull() as AddressTable?)
     }
+
     override suspend fun add(addressDto: AddressDto?): Long? =
         repository.postData(
             dataClass = AddressTable::class,
             dataObject = mapper.toAddressTable(addressDto),
             tableName = ADDRESS_TABLE_NAME
         )
+
     override suspend fun update(addressDto: AddressDto?): Boolean =
         repository.updateData(
             dataClass = AddressTable::class,
             dataObject = mapper.toAddressTable(addressDto),
             tableName = ADDRESS_TABLE_NAME
         )
+
     override suspend fun delete(clientId: Long?, merchantId: Long?, id: Long?): Boolean {
         val query = "update $ADDRESS_TABLE_NAME " +
                 "set deleted = true where " +
