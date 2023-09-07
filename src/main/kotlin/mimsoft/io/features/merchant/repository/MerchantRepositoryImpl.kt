@@ -81,7 +81,7 @@ object MerchantRepositoryImp : MerchantInterface {
                             sub = rs.getString("sub"),
                             phone = rs.getString("phone"),
                             password = rs.getString("password"),
-                            logo = rs.getString("logo"),
+                            logo = rs.getString("logo")
                         )
                     )
                 } else return@withContext null

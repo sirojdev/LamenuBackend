@@ -16,7 +16,8 @@ object BranchMapper {
                 longitude = branchDto.longitude,
                 latitude = branchDto.latitude,
                 address = branchDto.address,
-                merchantId = branchDto.merchantId
+                merchantId = branchDto.merchantId,
+                joinPosterId = branchDto.joinPosterId,
             )
         }
     }
@@ -35,7 +36,8 @@ object BranchMapper {
             longitude = branchTable.longitude,
             latitude = branchTable.latitude,
             address = branchTable.address,
-            merchantId = branchTable.merchantId
+            merchantId = branchTable.merchantId,
+            joinPosterId = branchTable.joinPosterId,
         )
     }
 }

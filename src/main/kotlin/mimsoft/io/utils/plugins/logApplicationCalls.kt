@@ -29,7 +29,7 @@ fun Route.logApplicationCalls() {
             responseStatus = context.response.status()?.value
             responseHeaders = context.response.headers.allValues().toString()
             responseTime = System.currentTimeMillis() - startTime
-        }catch (e: Exception){
+        } catch (e: Exception){
             responseStatus = 500
             responseHeaders = e.message
             responseTime = System.currentTimeMillis() - startTime

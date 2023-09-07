@@ -17,6 +17,7 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.query
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
+import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -138,6 +139,7 @@ object OrderService {
                     httpStatus = HttpStatusCode.BadRequest,
                     body = mapOf("message" to "something went wrong")
                 )
+            JoinPosterService.sendOrder(validOrder)
             return ResponseModel(body = parse(it))
         }
     }
