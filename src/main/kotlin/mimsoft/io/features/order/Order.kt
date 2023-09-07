@@ -12,6 +12,7 @@ import java.sql.Timestamp
 
 data class Order(
     val id: Long? = null,
+    val posterId: Long? = null,
     val serviceType: String? = null,
     val status: String? = null,
     var user: UserDto? = null,
@@ -31,4 +32,9 @@ data class Order(
     val updatedAt: Timestamp? = null,
     val deleted: Boolean? = null,
     val total: Long? = null,
-)
+) {
+    companion object {
+        const val DELIVERY = "DELIVERY"
+        const val PICKUP = "PICKUP"
+    }
+}

@@ -31,6 +31,7 @@ object OrderUtils {
         val query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.products o_products,
@@ -109,6 +110,7 @@ object OrderUtils {
         var query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.products o_products,
@@ -289,6 +291,7 @@ object OrderUtils {
         var query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.status o_status,
@@ -428,6 +431,7 @@ object OrderUtils {
             SELECT 
             count(*) over() count,
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.status o_status,
@@ -588,6 +592,7 @@ object OrderUtils {
         val products = result.getOrDefault("o_products", null) as? String
         return Order(
             id = result.getOrDefault("o_id", null) as? Long?,
+            posterId = result.getOrDefault("o_post_id", null) as? Long?,
             serviceType = result.getOrDefault("o_service_type", null) as? String?,
             status = result.getOrDefault("o_status", null) as? String?,
             user = if (columns.contains("user")) UserDto(
@@ -647,6 +652,7 @@ object OrderUtils {
         log.info("products {}", products)
         return Order(
             id = result["o_id"] as? Long?,
+            posterId = result["o_post_id"] as? Long?,
             serviceType = result["o_service_type"] as? String?,
             status = result["o_status"] as? String?,
             total = result["count"] as? Long?,
@@ -708,6 +714,7 @@ object OrderUtils {
     fun parse(result: Map<String, *>): Any {
         return Order(
             id = result.getOrDefault("id", null) as? Long?,
+            posterId = result.getOrDefault("post_id", null) as? Long?,
             serviceType = result.getOrDefault("service_type", null) as? String?,
             status = result.getOrDefault("status", null) as? String?,
             user = UserDto(id = result.getOrDefault("user_id", null) as? Long?),
@@ -854,6 +861,8 @@ object OrderUtils {
             body = mapOf("message" to "total price or discount not equal"), httpStatus = HttpStatusCode.BadRequest
         )
 
+        order.products?.map { cart-> cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto? }
+
         return ResponseModel(body = order)
     }
 
@@ -895,7 +904,8 @@ object OrderUtils {
                             image = productRs.getString("image"),
                             costPrice = productRs.getLong("cost_price"),
                             active = productRs.getBoolean("active"),
-                            discount = productRs.getLong("discount")
+                            discount = productRs.getLong("discount"),
+                            joinPosterId = productRs.getLong("join_poster_id")
                         )
                     )
                 }

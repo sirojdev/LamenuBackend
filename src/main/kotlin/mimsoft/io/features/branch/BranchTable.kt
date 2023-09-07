@@ -14,8 +14,9 @@ data class BranchTable(
     val latitude: Double? = null,
     val address: String? = null,
     val merchantId: Long? = null,
+    val joinPosterId: Long? = null,
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
-    val created: Timestamp? = null,
+    val created: Timestamp? = null
 )
 

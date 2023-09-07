@@ -24,5 +24,6 @@ data class ProductDto(
     val discount: Long? = null,
     var options: List<OptionDto>? = null,
     var extras: List<ExtraDto>? = null,
-    val labels: List<LabelDto>? = null
+    val labels: List<LabelDto>? = null,
+    val joinPosterId: Long? = null,
 )
