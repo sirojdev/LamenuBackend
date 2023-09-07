@@ -9,5 +9,6 @@ data class MerchantBookResponseDto(
     val table: TableDto? = null,
     val time: Timestamp? = null,
     val phone: String? = null,
-    val comment: String? = null
+    val comment: String? = null,
+    val status: String? = null
 )

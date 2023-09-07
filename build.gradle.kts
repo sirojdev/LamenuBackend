@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation("com.google.firebase:firebase-admin:9.2.0")
     implementation("org.slf4j:slf4j-log4j12:2.0.5")
-    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.4")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktor_version")
@@ -41,9 +41,9 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-websockets:$ktor_version")
-    implementation("io.ktor:ktor-client-core-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-core-jvm:2.3.4")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-cio-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.4")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
@@ -53,7 +53,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.3")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.4")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
@@ -62,12 +62,12 @@ dependencies {
 
     //tgbot
     implementation("org.telegram:telegrambots:6.5.0")
-    implementation("io.ktor:ktor-network-jvm:2.3.3")
+    implementation("io.ktor:ktor-network-jvm:2.3.4")
 
 
-    testImplementation("io.ktor:ktor-server-tests-jvm:2.3.3")
+    testImplementation("io.ktor:ktor-server-tests-jvm:2.3.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junit_version}")
-    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.0")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
 
 }
