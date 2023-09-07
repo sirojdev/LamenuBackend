@@ -18,6 +18,7 @@ object JwtConfig {
     private const val secretStuff = "laMenu+0stuff_mYinCh"
     private const val secretBoard = "laMenu+0board+mim"
     private const val secretAdmin = "lamenu_Admn-007farabiY"
+    private const val secretManager = "maNager_5642+rN-pingU"
 
     private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
     private const val validityAccessBoard = 36_000_000 * 1000L // 10 hours
@@ -35,10 +36,11 @@ object JwtConfig {
     private val algorithmStaff = Algorithm.HMAC512(secretStuff)
     private val algorithmBoard = Algorithm.HMAC512(secretBoard)
     private val algorithmAdmin = Algorithm.HMAC512(secretAdmin)
+    private val algorithmManager = Algorithm.HMAC512(secretManager)
 
 
     val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
-        val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
+    val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
     val verifierLogin: JWTVerifier = JWT.require(algorithmLogin).withIssuer(issuer).build()
     val verifierBoard: JWTVerifier = JWT.require(algorithmBoard).withIssuer(issuer).build()
 
@@ -47,6 +49,7 @@ object JwtConfig {
     val verifierUser: JWTVerifier = JWT.require(algorithmUser).withIssuer(issuer).build()
     val verifierStaff: JWTVerifier = JWT.require(algorithmStaff).withIssuer(issuer).build()
     val verifierAdmin: JWTVerifier = JWT.require(algorithmAdmin).withIssuer(issuer).build()
+    val verifierManager: JWTVerifier = JWT.require(algorithmManager).withIssuer(issuer).build()
 
     fun generateDeviceToken(
         merchantId: Long?,
@@ -64,6 +67,7 @@ object JwtConfig {
             .withExpiresAt(getExpiration(validityRefresh))
             .sign(algorithmDevice)
     }
+
     fun generateBoardDeviceToken(
         merchantId: Long?,
         uuid: String?,
@@ -182,6 +186,16 @@ object JwtConfig {
         .withClaim("uuid", uuid)
         .withExpiresAt(getExpiration(validityLogin))
         .sign(algorithmAdmin)
+
+
+    fun generateManagerToken(phone: String, uuid: String?, id: Long?): String = JWT.create()
+        .withSubject("manager")
+        .withIssuer(issuer)
+        .withClaim("phone", phone)
+        .withClaim("uuid", uuid)
+        .withClaim("id", id)
+        .withExpiresAt(getExpiration(validityLogin))
+        .sign(algorithmManager)
 
     fun generateModifyToken(sessionUuid: String?): String? = JWT.create()
         .withSubject("modify")

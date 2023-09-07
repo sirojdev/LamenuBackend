@@ -343,35 +343,43 @@ object BookRepositoryImpl : BookRepository {
     }
 
     override suspend fun getMerchantBook(id: Long?, merchantId: Long?): MerchantBookResponseDto? {
-        val query = "select book.*,  " +
-                "t.name t_name, " +
-                "t.room_id t_room_id, " +
-                "t.qr t_qr, " +
-                "t.branch_id t_branch_id " +
-                "from book " +
-                "left join tables t on book.table_id = t.id " +
-                "where book.id = $id and book.id = $merchantId and book.deleted = false"
+        val query = """
+            select 
+            b.id,
+            b.time,
+            b.comment,
+            b.status,
+            b.visitor_count,
+            t.name,
+            t.room_id,
+            t.qr,
+            t.branch_id
+            from book b
+                     left join tables t on b.table_id = t.id
+            where b.id = $id
+              and b.merchant_id = $merchantId
+              and b .deleted = false 
+        """.trimIndent()
 
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     return@withContext MerchantBookResponseDto(
+                        id = rs.getLong("id"),
                         table = TableDto(
-                            qr = rs.getString("t_qr"),
-                            name = rs.getString("t_name"),
-                            room = RoomDto(id = rs.getLong("t_room_id")),
-                            branch = BranchDto(rs.getLong("t_branch_id"))
+                            qr = rs.getString("qr"),
+                            name = rs.getString("name"),
+                            room = RoomDto(id = rs.getLong("room_id")),
+                            branch = BranchDto(rs.getLong("branch_id"))
                         ),
-                        phone = rs.getString("phone"),
                         time = rs.getTimestamp("time"),
-                        comment = rs.getString("comment")
+                        comment = rs.getString("comment"),
+                        status = rs.getString("status"),
                     )
                 } else return@withContext null
             }
         }
-
-
     }
 
     override suspend fun addMerchantBook(bookDto: BookDto?): Long? =

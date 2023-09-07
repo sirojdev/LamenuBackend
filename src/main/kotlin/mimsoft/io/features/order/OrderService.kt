@@ -1,20 +1,16 @@
 package mimsoft.io.features.order
 
-
 import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
-import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
-import mimsoft.io.features.order.OrderUtils.query
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.repository.BaseRepository
@@ -28,7 +24,6 @@ import mimsoft.io.utils.toJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
-import kotlin.collections.emptyList as emp
 
 suspend fun main() {
     val orders = OrderService.getAll(null, "user", "merchant", "collector", "products")
@@ -194,12 +189,12 @@ object OrderService {
     }
 
     suspend fun getProductCalculate(
-        cart: CartInfoDto? = null,
+        dto: Order? = null,
         merchantId: Long? = null,
         productsCart: List<CartItem>? = null
     ): ResponseModel {
 
-        val products = productsCart ?: cart?.products
+        val products = productsCart ?: dto?.products
         var totalPriceWithDiscount = 0L
         var totalProductPrice = 0L
         var totalDiscount = 0L
@@ -303,7 +298,7 @@ object OrderService {
 
 
                 productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
-                log.info("productPrice: {}", productPrice)
+                log.info("productPrice with option: {}", productPrice)
 
                 productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong() ?: 0L)
                 log.info("productPrice: {}", productPrice)
@@ -311,38 +306,37 @@ object OrderService {
 
             totalProductPrice = totalProductPrice.plus((productPrice ?: 0L).times(cartItem.count!!))
             totalDiscount = totalDiscount.plus((productDiscount ?: 0L).times(cartItem.count!!))
-            log.info("totalPrice: {}", totalProductPrice)
+            log.info("totalProductPrice: {}", totalProductPrice)
             log.info("totalDiscount: {}", totalDiscount)
         }
 
         totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
 
-        if (productsCart != null) return ResponseModel(
+
+        if ((dto?.productPrice != totalProductPrice) || (dto.productDiscount != totalDiscount)) {
+            return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest,
+                body = mapOf(
+                    "totalProductPrice" to totalProductPrice,
+                    "totalProductDiscount" to totalDiscount,
+                    "totalPriceWithDiscount" to totalPriceWithDiscount,
+                    "message" to "Product price or product discount not equal"
+                )
+            )
+        } else if (productsCart != null) return ResponseModel(
             body = mapOf(
                 "totalPrice" to totalProductPrice,
                 "totalDiscount" to totalDiscount,
                 "totalPriceWithDiscount" to totalPriceWithDiscount
             )
         )
-
-        if (cart?.productsPrice != totalProductPrice || cart.productsDiscount != totalDiscount) {
-            return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest,
-                body = mapOf(
-                    "totalPrice" to totalProductPrice,
-                    "totalDiscount" to totalDiscount,
-                    "totalPriceWithDiscount" to totalPriceWithDiscount,
-                    "message" to "Product price or product discount not equal"
-                )
-            )
-        }
+        log.info("totalPrice: {}", totalProductPrice)
         return ResponseModel(body = "{}")
     }
 
 
-
     suspend fun getProductCalculate2(
-        cart: CartInfoDto? = null,
+        cart: Order? = null,
         productsCart: List<CartItem>? = null
     ): OrderPriceModel {
 
@@ -355,9 +349,9 @@ object OrderService {
 
             log.info("cartItem: {}", GSON.toJson(cartItem))
 
-            val optionCondition = if(cartItem.option?.id != null){
+            val optionCondition = if (cartItem.option?.id != null) {
                 "and o.id = ${cartItem.option.id}"
-            }else ""
+            } else ""
 
             val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
                 "and e.id in (${cartItem.extras.joinToString { it.id.toString() }})"
@@ -425,9 +419,9 @@ object OrderService {
         totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
 
         return OrderPriceModel(
-                totalPrice = totalProductPrice,
-                totalDiscount = totalDiscount,
-                totalPriceWithDiscount = totalPriceWithDiscount
+            totalPrice = totalProductPrice,
+            totalDiscount = totalDiscount,
+            totalPriceWithDiscount = totalPriceWithDiscount
         )
     }
 

@@ -1,16 +1,17 @@
 package mimsoft.io.features.cart
 
 
+import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.stoplist.StopListService
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
 
 object CartService {
-    suspend fun check(dto: CartInfoDto, merchantId: Long?): ResponseModel {
+    suspend fun check(dto: Order, merchantId: Long?): ResponseModel {
         val prodCheck = StopListService.getAll(merchantId = merchantId)
         for (stopListDto in prodCheck) {
-            dto.products.forEach {
+            dto.products?.forEach {
                 if (stopListDto.id == it.product?.id) {
                     if (stopListDto.count!! < it.count!!) {
                         it.count = stopListDto.count.toInt()
@@ -18,7 +19,7 @@ object CartService {
                 }
             }
         }
-        return OrderService.getProductCalculate(cart = dto, productsCart = dto.products, merchantId = merchantId)
+        return OrderService.getProductCalculate(dto = dto, productsCart = dto.products, merchantId = merchantId)
     }
 
 
