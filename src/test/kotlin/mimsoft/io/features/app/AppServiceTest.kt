@@ -22,7 +22,7 @@ class AppServiceTest {
     }
 
     @Test
-    fun add() = testApplication {// TODO: KAMCHILIK BOR
+    fun add() = testApplication {
         val appDto = AppDto(
             id = 1,
             merchantId = 8,
