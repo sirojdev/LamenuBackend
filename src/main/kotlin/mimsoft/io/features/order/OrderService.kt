@@ -129,13 +129,16 @@ object OrderService {
                 6 to validOrder.comment
             )
         ).let {
+
             if (it == null)
                 return ResponseModel(
                     httpStatus = HttpStatusCode.BadRequest,
                     body = mapOf("message" to "something went wrong")
                 )
-            JoinPosterService.sendOrder(validOrder)
-            return ResponseModel(body = parse(it))
+
+            JoinPosterService.sendOrder(validOrder).let {poster->
+                return if (!poster.isOk()) poster else ResponseModel(body = parse(it))
+            }
         }
     }
 
