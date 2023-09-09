@@ -15,7 +15,7 @@ fun Route.routeToFirebase() {
     post("/firebase/send") {
         val receive: NotificationDto = call.receive()
         log.info("FirebaseRoute: $receive")
-        FirebaseService.sendOne(receive)
+        FirebaseService.sendNotification(receive)
         call.respond(HttpStatusCode.OK)
     }
 }

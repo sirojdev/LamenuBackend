@@ -597,7 +597,7 @@ object OrderUtils {
             posterId = result.getOrDefault("o_post_id", null) as? Long?,
             serviceType = result.getOrDefault("o_service_type", null) as? String?,
             status = result.getOrDefault("o_status", null) as? String?,
-            user = if (columns.contains("user")) UserDto(
+            user = UserDto( //if (columns.contains("user"))
                 id = result.getOrDefault("o_user_id", null) as? Long?,
                 firstName = result.getOrDefault("u_first_name", null) as? String?,
                 lastName = result.getOrDefault("u_last_name", null) as? String?,
@@ -605,7 +605,7 @@ object OrderUtils {
                 image = result.getOrDefault("u_image", null) as? String?,
                 birthDay = result.getOrDefault("u_birth_day", null) as? Timestamp?,
                 badge = BadgeDto(id = result.getOrDefault("u_badge_id", null) as? Long?)
-            ) else UserDto(),
+            ), // else UserDto(),
             merchant = if (columns.contains("merchant")) MerchantDto(
                 id = result.getOrDefault("o_merchant_id", null) as? Long?,
                 name = TextModel(
@@ -649,7 +649,7 @@ object OrderUtils {
         )
     }
 
-  suspend  fun parseGetAll2(result: Map<String, *>): Order {
+    suspend fun parseGetAll2(result: Map<String, *>): Order {
         val products = result["o_products"] as? String
         log.info("products {}", products)
         return Order(
@@ -755,14 +755,14 @@ object OrderUtils {
 
     suspend fun validate(order: Order): ResponseModel {
 
-        if (order.user?.id == null) {
+        /*if (order.user?.id == null) {
             return ResponseModel(body = mapOf("message" to "user id or user required"))
         } else {
             order.user = UserRepositoryImpl.get(order.user!!.id) ?: return ResponseModel(
                 httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "user not found")
             )
             log.info("user: {}", order.user.toJson())
-        }
+        }*/
 
         if (order.serviceType == null) {
             return ResponseModel(
@@ -800,11 +800,15 @@ object OrderUtils {
             )
         }
 
+        /*OrderService.getProductCalculate(dto = order).let {
+            if (!it.isOk()) return it
+            return ResponseModel(body = order.copy(status = OrderStatus.OPEN.name))
+        }*/
+
         validateProduct(order).let {
             if (!it.isOk()) return it
             return ResponseModel(body = order.copy(status = OrderStatus.OPEN.name))
         }
-
     }
 
     private suspend fun validateAddress(address: AddressDto?): ResponseModel {
@@ -820,7 +824,7 @@ object OrderUtils {
         }
     }
 
-    private suspend fun validateProduct(order: Order?): ResponseModel {
+    suspend fun validateProduct(order: Order?): ResponseModel {
         val products = order?.products
 
         val orderProducts = getByCartItem(products)
@@ -880,22 +884,29 @@ object OrderUtils {
                     (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
         }
 
+        val totalExtraPrice = getExtras.sumOf {
+            ((it as ExtraDto).price ?: 0) *
+                    (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
+        }
 
-        val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt() ?: 0 }
+
+//        val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt() ?: 0 }
         val totalPrice = totalProductPrice + totalOptionsPrice + totalExtraPrice
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
         log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionsPrice, totalExtraPrice)
 
-        println(totalPrice)
-        println(order?.totalPrice)
-        println(order?.totalDiscount)
-        println(totalProductDiscount)
+        println("totalPrice: $totalPrice")
+        println("order?.totalPrice: ${order?.totalPrice}")
+        println("order?.totalDiscount: ${order?.totalDiscount}")
+        println("totalProductDiscount: $totalProductDiscount")
         if (totalPrice != order?.productPrice || totalProductDiscount.toLong() != order.productDiscount) return ResponseModel(
             body = mapOf("message" to "total price or discount not equal"), httpStatus = HttpStatusCode.BadRequest
         )
 
-        order.products?.map { cart-> cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto? }
+        order.products?.map { cart ->
+            cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto?
+        }
 
         return ResponseModel(body = order)
     }
@@ -1086,7 +1097,7 @@ object OrderUtils {
             }
         }
 
-        return products ;
+        return products;
     }
 
     private fun getExtras(extrasSet: MutableMap<Long, ExtraDto>, product: CartItem) {

@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderRateModel
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.plugins.getPrincipal
 import org.slf4j.Logger
@@ -62,5 +63,13 @@ fun Route.routeToClientOrder() {
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
         call.respond(status.httpStatus, status.body)
+    }
+
+    put ("order/rate") {
+        val pr = getPrincipal()
+        val userId = pr?.userId
+        val rate = call.receive<OrderRateModel>()
+        val response = orderService.orderRate(rate = rate.copy(userId = userId))
+        call.respond(response)
     }
 }

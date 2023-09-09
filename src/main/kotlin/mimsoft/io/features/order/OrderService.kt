@@ -8,6 +8,7 @@ import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
+import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
@@ -222,11 +223,13 @@ object OrderService {
             val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
                 "and e.id in (${cartItem.extras!!.joinToString { it.id.toString() }})"
             } else ""
+            log.info("extraCondition: {}", extraCondition)
 
             var productDiscount: Long? = 0L
             var productPrice: Long? = 0L
 
             val sortedSetCartItem = cartItem.extras?.sortedWith(compareBy { it1 -> it1.id })?.map { setOf(it) }
+            log.info("extraCheck: {}", cartItem.extras)
 
             var query = """
                 select
@@ -239,18 +242,17 @@ object OrderService {
                 p.discount p_discount
                 from product p
                 left join extra e on p.id = e.product_id 
-                left join options o on p.id = o.product_id
+                left join options o on p.id = o.product_id 
                 where (not p.deleted or not e.deleted or not o.deleted)
                 and p.id = ${cartItem.product?.id}
                 $optionCondition
                 $extraCondition
             """.trimIndent()
 
-
-
             query += (" order by p_id, o_id, e_id")
 
             repository.selectList(query = query).let { rs ->
+
 
                 if (rs.isEmpty()) {
                     OptionRepositoryImpl.get(cartItem.option?.id, merchantId).let {
@@ -352,7 +354,7 @@ object OrderService {
             log.info("cartItem: {}", GSON.toJson(cartItem))
 
             val optionCondition = if (cartItem.option?.id != null) {
-                "and o.id = ${cartItem.option.id}"
+                "and o.id = ${cartItem.option!!.id}"
             } else ""
 
             val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
@@ -468,8 +470,19 @@ object OrderService {
             null
         }
     }
+
+    suspend fun orderRate(rate: OrderRateModel): ResponseModel {
+        val query = "UPDATE orders SET grade = ${rate.grade}, feedback = ? WHERE id = ${rate.orderId} and user_id = ${rate.userId}"
+        log.info("rate query: {}", query)
+        var response = 0
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                response = it.prepareStatement(query).apply {
+                    this.setString(1, rate.feedback)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+            ResponseModel(body = response)
+        }
+    }
 }
-
-
-
-

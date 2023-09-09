@@ -3,13 +3,14 @@ package mimsoft.io.features.cart
 
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
+import mimsoft.io.features.order.OrderUtils
 import mimsoft.io.features.stoplist.StopListService
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
 
 object CartService {
-    suspend fun check(dto: Order, merchantId: Long?): ResponseModel {
-        val prodCheck = StopListService.getAll(merchantId = merchantId)
+    suspend fun check(dto: Order): ResponseModel {
+        val prodCheck = StopListService.getAll(merchantId = dto.merchant?.id)
         for (stopListDto in prodCheck) {
             dto.products?.forEach {
                 if (stopListDto.id == it.product?.id) {
@@ -19,7 +20,7 @@ object CartService {
                 }
             }
         }
-        return OrderService.getProductCalculate(dto = dto, productsCart = dto.products, merchantId = merchantId)
+        return OrderUtils.validate(order = dto)
     }
 
 

@@ -5,6 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.cart.CartService
+import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
 
 fun Route.routeToClientCart(){
@@ -12,7 +13,7 @@ fun Route.routeToClientCart(){
     post("cart") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val dto = call.receive<Order>()
-        val response = cartService.check(dto = dto, merchantId = merchantId)
+        val response = cartService.check(dto = dto.copy(merchant = MerchantDto(id = merchantId)))
         call.respond(response.httpStatus, response.body)
     }
 }

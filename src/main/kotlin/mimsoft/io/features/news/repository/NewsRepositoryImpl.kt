@@ -1,7 +1,6 @@
 package mimsoft.io.features.news.repository
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.news.NewsDto
 import mimsoft.io.features.news.NewsMapper
@@ -20,7 +19,9 @@ object NewsRepositoryImpl : NewsRepository {
             tableName = "news"
         )
         val users = UserRepositoryImpl.getAll(merchantId = dto?.merchantId)
-        FirebaseService.sendAll(users = users.data, data = dto)
+        GlobalScope.launch {
+            FirebaseService.sendNewsAllClient(users = users.data, data = dto)
+        }
         return response
     }
 

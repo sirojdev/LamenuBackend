@@ -11,6 +11,7 @@ import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.option.OptionDto
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
+import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.utils.OrderStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -67,7 +68,7 @@ class OrderServiceTest {
         products.add(
             CartItem(
                 product = ProductDto(
-                    id = 1
+                    id = 63
                 ),
                 count = 4,
                 option = OptionDto(
@@ -89,16 +90,121 @@ class OrderServiceTest {
                 id = 1
             ),
             products = products,
-            totalPrice = 24000,
-            totalDiscount = 4000,
+            productPrice = 77000,
+            productDiscount = 3600,
             merchant = MerchantDto(
                 id = 1
             )
         )
-        val result = OrderService.post(order = order)
+        val result = OrderUtils.validateProduct(order = order)
         val result1 = result.httpStatus
+        assert(result.body is Order)
         assertEquals(HttpStatusCode.OK, result1)
     }
+
+
+    @Test
+    fun post2() = testApplication {
+        val products = mutableListOf<CartItem>()
+        val extras = mutableListOf<ExtraDto>()
+        extras.add(
+            ExtraDto(
+                id = 14 // 3000
+            )
+        )
+        extras.add(
+            ExtraDto(
+                id = 8 //2000
+            )
+        )
+        products.add(
+            CartItem(
+                product = ProductDto(
+                    id = 63 //18000 900
+                ),
+                count = 4, //3600
+                option = OptionDto(
+                    id = 3 // 3000
+                ),
+                extras = extras
+            )
+        )
+        val order = Order(
+            serviceType = "DELIVERY",
+            user = UserDto(
+                id = 21
+            ),
+            paymentMethod = PaymentTypeDto(id = 1),
+            branch = BranchDto(
+                id = 30
+            ),
+            address = AddressDto(
+                id = 1
+            ),
+            products = products,
+            productPrice = 77000,
+            productDiscount = 3600,
+            merchant = MerchantDto(
+                id = 1
+            )
+        )
+        val result = OrderUtils.validateProduct(order = order)
+        val result1 = result.httpStatus
+        assert(result.body is Order)
+        assertEquals(HttpStatusCode.OK, result1)
+    }
+
+    @Test
+    fun post3() = testApplication {
+        val products = mutableListOf<CartItem>()
+        val extras = mutableListOf<ExtraDto>()
+        extras.add(
+            ExtraDto(
+                id = 14 // 3000
+            )
+        )
+        extras.add(
+            ExtraDto(
+                id = 8 //2000
+            )
+        )
+        products.add(
+            CartItem(
+                product = ProductDto(
+                    id = 63 //18000 900
+                ),
+                count = 4, //3600
+                option = OptionDto(
+                    id = 3 // 3000
+                ),
+                extras = extras
+            )
+        )
+        val order = Order(
+            serviceType = "DELIVERY",
+            user = UserDto(
+                id = 21
+            ),
+            paymentMethod = PaymentTypeDto(id = 1),
+            branch = BranchDto(
+                id = 30
+            ),
+            address = AddressDto(
+                id = 1
+            ),
+            products = products,
+            productPrice = 77000,
+            productDiscount = 3600,
+            merchant = MerchantDto(
+                id = 1
+            )
+        )
+        val result = OrderUtils.validateProduct(order = order)
+        val result1 = result.httpStatus
+        assert(result.body is Order)
+        assertEquals(HttpStatusCode.OK, result1)
+    }
+
 
     @Test
     fun delete() = testApplication {
@@ -117,28 +223,51 @@ class OrderServiceTest {
     fun getProductCalculate() = testApplication {
         val products = mutableListOf<CartItem>()
         val extras = mutableListOf<ExtraDto>()
-        extras.add(ExtraDto(id = 4))
-        val products1 = CartItem(
-            product = ProductDto(id = 67),
-            option = OptionDto(id = 36),
-            extras = extras,
-            count = 2
+        /*extras.add(
+            ExtraDto(
+                id = 14 // 3000
+            )
         )
-        val products2 = CartItem(
-            product = ProductDto(id = 67),
-            option = OptionDto(id = 36),
-            count = 3
+        extras.add(
+            ExtraDto(
+                id = 8 //2000
+            )
+        )*/
+        products.add(
+            CartItem(
+                product = ProductDto(
+                    id = 63 //18000 900
+                ),
+                count = 4, //3600
+                option = OptionDto(
+                    id = 3 // 3000
+                ),
+                extras = extras
+            )
         )
-        products.add(products1)
-        products.add(products2)
-        val dto = Order(
-            products = products,
+        val order = Order(
             serviceType = "DELIVERY",
-            totalPrice = 148500,
-            totalDiscount = 18750
+            user = UserDto(
+                id = 21
+            ),
+            paymentMethod = PaymentTypeDto(id = 1),
+            branch = BranchDto(
+                id = 30
+            ),
+            address = AddressDto(
+                id = 1
+            ),
+            products = products,
+            productPrice = 84000,
+            productDiscount = 3600,
+            merchant = MerchantDto(
+                id = 1
+            )
         )
-        val response = OrderService.getProductCalculate(dto = dto, merchantId = 1)
-        assertEquals(HttpStatusCode.OK, response.httpStatus)
+        val result = OrderUtils.validateProduct(order = order)
+        val result1 = result.httpStatus
+        assert(result.body is Order)
+        assertEquals(HttpStatusCode.OK, result1)
     }
 
     @Test
