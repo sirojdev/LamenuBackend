@@ -1,6 +1,7 @@
 package mimsoft.io.features.order
 
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
@@ -648,7 +649,7 @@ object OrderUtils {
         )
     }
 
-    fun parseGetAll2(result: Map<String, *>): Order {
+  suspend  fun parseGetAll2(result: Map<String, *>): Order {
         val products = result["o_products"] as? String
         log.info("products {}", products)
         return Order(
@@ -716,6 +717,11 @@ object OrderUtils {
             updatedAt = result["o_updated_at"] as? Timestamp?,
             deleted = result["o_deleted"] as? Boolean?
         )
+    }
+
+    private suspend fun getProducts(products: String?): List<CartItem?>? {
+        val products = gsonToList(products, CartItem::class.java)
+        return getByCartItem2(products)
     }
 
     fun parse(result: Map<String, *>): Any {
@@ -984,4 +990,120 @@ object OrderUtils {
             )
         )
     }
+
+    private suspend fun getByCartItem2(products: List<CartItem?>?, merchantId: Long? = null): List<CartItem?>? {
+
+        val productIds = products?.mapNotNull { it?.product?.id }?.joinToString()
+        val optionIds = products?.mapNotNull { it?.option?.id }?.joinToString()
+        val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
+
+        val queryProducts = "select * from product where id in ($productIds) and not deleted order by id"
+        println("queryProducts -> $queryProducts")
+        val queryOptions = "select * from options where id in ($optionIds) and not deleted order by product_id"
+        println("queryOptions -> $queryOptions")
+        val queryExtras = "select * from extra where id in ($extraIds) and not deleted order by product_id"
+        println("queryExtras -> $queryExtras")
+
+        val productsSet: MutableMap<Long, ProductDto> = mutableMapOf()
+        val optionsSet: MutableMap<Long, OptionDto> = mutableMapOf()
+        val extrasSet: MutableMap<Long, ExtraDto> = mutableMapOf()
+
+        withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use { connection ->
+                val productRs = connection.prepareStatement(queryProducts).executeQuery()
+                while (productRs.next()) {
+                    productsSet.put(
+                        productRs.getLong("id"),
+                        ProductDto(
+                            id = productRs.getLong("id"),
+                            merchantId = productRs.getLong("merchant_id"),
+                            name = TextModel(
+                                uz = productRs.getString("name_uz"),
+                                ru = productRs.getString("name_ru"),
+                                eng = productRs.getString("name_eng")
+                            ),
+                            description = TextModel(
+                                uz = productRs.getString("description_uz"),
+                                ru = productRs.getString("description_ru"),
+                                eng = productRs.getString("description_eng")
+                            ),
+                            image = productRs.getString("image"),
+                            costPrice = productRs.getLong("cost_price"),
+                            active = productRs.getBoolean("active"),
+                            discount = productRs.getLong("discount")
+                        )
+                    )
+                }
+                if (!optionIds.isNullOrEmpty()) {
+                    val optionRs = connection.prepareStatement(queryOptions).executeQuery()
+                    while (optionRs.next()) {
+                        optionsSet.put(
+                            optionRs.getLong("id"),
+                            OptionDto(
+                                id = optionRs.getLong("id"),
+                                merchantId = optionRs.getLong("merchant_id"),
+                                parentId = optionRs.getLong("parent_id"),
+                                productId = optionRs.getLong("product_id"),
+                                name = TextModel(
+                                    uz = optionRs.getString("name_uz"),
+                                    ru = optionRs.getString("name_ru"),
+                                    eng = optionRs.getString("name_eng")
+                                ),
+                                image = optionRs.getString("image"),
+                                price = optionRs.getLong("price")
+                            )
+                        )
+                    }
+                }
+                if (!extraIds.isNullOrEmpty()) {
+                    val extraRs = connection.prepareStatement(queryExtras).executeQuery()
+                    while (extraRs.next()) {
+                        extrasSet.put(
+                            extraRs.getLong("id"),
+                            ExtraDto(
+                                id = extraRs.getLong("id"),
+                                image = extraRs.getString("image"),
+                                price = extraRs.getLong("price"),
+                                merchantId = extraRs.getLong("merchant_id"),
+                                name = TextModel(
+                                    uz = extraRs.getString("name_uz"),
+                                    ru = extraRs.getString("name_ru"),
+                                    eng = extraRs.getString("name_eng")
+                                ),
+                                productId = extraRs.getLong("product_id")
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        if (products != null) {
+            for (product in products) {
+                product?.product = productsSet[product?.product?.id]
+                product?.option = optionsSet[product?.option?.id]
+                getExtras(extrasSet, product!!)
+            }
+        }
+
+        return products ;
+    }
+
+    private fun getExtras(extrasSet: MutableMap<Long, ExtraDto>, product: CartItem) {
+        val extras = product.extras // Make a local copy of product.extras
+
+        if (extras != null) {
+            val list = arrayListOf<ExtraDto>()
+            for (x in 0 until extras.size) {
+                val extraId = extras[x].id
+                val extraDto = extrasSet[extraId]
+                if (extraDto != null) {
+                    list.add(extraDto)
+                }
+            }
+            product.extras = list
+        }
+    }
+
+
 }

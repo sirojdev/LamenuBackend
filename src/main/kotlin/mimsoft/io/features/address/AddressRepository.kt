@@ -1,7 +1,5 @@
 package mimsoft.io.features.address
 
-import mimsoft.io.features.address.AddressDto
-
 interface AddressRepository {
     suspend fun getAll(clientId: Long?): List<AddressDto?>
     suspend fun get(id: Long?): AddressDto?
