@@ -248,7 +248,7 @@ object DBManager : BaseRepository {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
             dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
-        val columns = filteredProperties.joinToString(", ") { camelToSnakeCase(it.name) }
+        val columns = filteredProperties.joinToString(" ,") { camelToSnakeCase(it.name) }
         val placeholders = filteredProperties.joinToString(", ") { "?" }
         val insert = "INSERT INTO $tName ($columns) VALUES ($placeholders)"
         println("\nPOST DATA-->$insert")
@@ -261,7 +261,7 @@ object DBManager : BaseRepository {
                     val propertyName = property.name
                     val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
                     val value = propertyInstance?.call(dataObject)
-//
+
                     when (property.returnType.toString()) {
 
                         "java.sql.Timestamp?" -> {

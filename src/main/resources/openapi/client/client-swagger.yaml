@@ -535,7 +535,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CartInfoDto"
+              $ref: "#/components/schemas/OrderDto"
       responses:
         "200":
           description: "OK"
@@ -544,7 +544,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CartInfoDto"
+                  $ref: "#/components/schemas/OrderDto"
 
         "204":
           description: "No Content"
@@ -2038,30 +2038,6 @@ components:
           format: int32  # You might need to adjust the format based on your HttpStatusCode representation
       required:
         - body
-
-    CartInfoDto:
-      type: "object"
-      properties:
-        products:
-          type: array
-          items:
-            $ref: "#/components/schemas/CartItem"
-        address:
-          $ref: "#/components/schemas/AddressDto"
-        productCount:
-          type: integer
-        productsPrice:
-          type: "integer"
-          format: "long"
-        productsDiscount:
-          type: "integer"
-          format: "long"
-        totalPrice:
-          type: "integer"
-          format: "long"
-        totalDiscount:
-          type: "integer"
-          format: "long"
 
     PromoDto:
       type: "object"

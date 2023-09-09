@@ -1,5 +1,6 @@
 package mimsoft.io.features.order
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
@@ -31,6 +32,7 @@ object OrderUtils {
         val query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.products o_products,
@@ -109,6 +111,7 @@ object OrderUtils {
         var query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.products o_products,
@@ -289,6 +292,7 @@ object OrderUtils {
         var query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.status o_status,
@@ -422,12 +426,13 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
-    fun getQuery(params: Map<String, *>?, vararg columns: String,orderId:Long?): Search {
+    fun getQuery(params: Map<String, *>?, vararg columns: String, orderId: Long?): Search {
         val columnsSet = columns.toSet()
         var query = """
             SELECT 
             count(*) over() count,
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.status o_status,
@@ -463,8 +468,8 @@ object OrderUtils {
             WHERE o.deleted = false 
         """.trimIndent()
 
-        if(orderId!=null){
-            conditions+=" and o.id = $orderId"
+        if (orderId != null) {
+            conditions += " and o.id = $orderId"
         }
         val queryParams: MutableMap<Int, Any> = mutableMapOf(
         )
@@ -573,8 +578,8 @@ object OrderUtils {
         joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
                 (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
-                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")+
-                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "")+
+                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "") +
+                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "") +
                 (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type pt  ON o.payment_type = pt.id \n" else "")
         println(query + joins + conditions)
         return Search(query + joins + conditions, queryParams)
@@ -588,6 +593,7 @@ object OrderUtils {
         val products = result.getOrDefault("o_products", null) as? String
         return Order(
             id = result.getOrDefault("o_id", null) as? Long?,
+            posterId = result.getOrDefault("o_post_id", null) as? Long?,
             serviceType = result.getOrDefault("o_service_type", null) as? String?,
             status = result.getOrDefault("o_status", null) as? String?,
             user = if (columns.contains("user")) UserDto(
@@ -647,6 +653,7 @@ object OrderUtils {
         log.info("products {}", products)
         return Order(
             id = result["o_id"] as? Long?,
+            posterId = result["o_post_id"] as? Long?,
             serviceType = result["o_service_type"] as? String?,
             status = result["o_status"] as? String?,
             total = result["count"] as? Long?,
@@ -688,14 +695,20 @@ object OrderUtils {
                 longitude = result["o_add_long"] as? Double?,
                 description = result["o_add_desc"] as? String
             ),
-            branch = BranchDto(id = result["o_branch_id"] as? Long, name =TextModel(
-                uz = result["b_name_uz"] as String?,
-                ru = result["b_name_ru"] as String?,
-                eng = result["b_name_eng"] as String?
-            ) ),
+            branch = BranchDto(
+                id = result["o_branch_id"] as? Long, name = TextModel(
+                    uz = result["b_name_uz"] as String?,
+                    ru = result["b_name_ru"] as String?,
+                    eng = result["b_name_eng"] as String?
+                )
+            ),
             totalPrice = result["o_total_price"] as? Long,
             products = gsonToList(products, CartItem::class.java),
-            paymentMethod = PaymentTypeDto(id = result["pt_id"] as? Long,name = result["pt_name"] as? String,icon = result["pt_icon"] as? String),
+            paymentMethod = PaymentTypeDto(
+                id = result["pt_id"] as? Long,
+                name = result["pt_name"] as? String,
+                icon = result["pt_icon"] as? String
+            ),
             isPaid = result["o_is_paid"] as? Boolean?,
             comment = result["o_comment"] as? String?,
             productCount = result["o_product_count"] as Int?,
@@ -708,6 +721,7 @@ object OrderUtils {
     fun parse(result: Map<String, *>): Any {
         return Order(
             id = result.getOrDefault("id", null) as? Long?,
+            posterId = result.getOrDefault("post_id", null) as? Long?,
             serviceType = result.getOrDefault("service_type", null) as? String?,
             status = result.getOrDefault("status", null) as? String?,
             user = UserDto(id = result.getOrDefault("user_id", null) as? Long?),
@@ -831,6 +845,12 @@ object OrderUtils {
             )
         }
 
+        val productCountMap: Map<Long?, Int?>? = products?.associateBy(
+            { (it.product?.id) ?: 0L }, { ((it.count) ?: 0) }
+        )
+        println("Product count map")
+        println(Gson().toJson(productCountMap))
+
         products?.map { cartItem ->
             getProducts.map {
                 val model = it as ProductDto
@@ -839,20 +859,37 @@ object OrderUtils {
                 }
             }
         }
+        println("get products")
+        println(Gson().toJson(getProducts))
 
+        println("get options")
+
+        println(Gson().toJson(getOptions))
         val totalProductPrice = getProducts.map { (it as ProductDto).costPrice }.sumOf { it?.toInt() ?: 0 }
         val totalProductDiscount = getProducts.map { ((it as ProductDto).costPrice?.times(it.discount ?: 0)?.div(100)) }
             .sumOf { it?.toInt() ?: 0 }
-        val totalOptionPrice = getOptions.map { (it as OptionDto).price }.sumOf { it?.toInt() ?: 0 }
+
+        val totalOptionsPrice = getOptions.sumOf {
+            ((it as OptionDto).price ?: 0) *
+                    (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
+        }
+
+
         val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt() ?: 0 }
-        val totalPrice = totalProductPrice + totalOptionPrice + totalExtraPrice
+        val totalPrice = totalProductPrice + totalOptionsPrice + totalExtraPrice
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
-        log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionPrice, totalExtraPrice)
+        log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionsPrice, totalExtraPrice)
 
-        if (totalPrice.toLong() != order?.totalPrice && totalProductDiscount.toLong() != order?.totalDiscount) return ResponseModel(
+        println(totalPrice)
+        println(order?.totalPrice)
+        println(order?.totalDiscount)
+        println(totalProductDiscount)
+        if (totalPrice != order?.productPrice || totalProductDiscount.toLong() != order.productDiscount) return ResponseModel(
             body = mapOf("message" to "total price or discount not equal"), httpStatus = HttpStatusCode.BadRequest
         )
+
+        order.products?.map { cart-> cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto? }
 
         return ResponseModel(body = order)
     }
@@ -895,11 +932,12 @@ object OrderUtils {
                             image = productRs.getString("image"),
                             costPrice = productRs.getLong("cost_price"),
                             active = productRs.getBoolean("active"),
-                            discount = productRs.getLong("discount")
+                            discount = productRs.getLong("discount"),
+                            joinPosterId = productRs.getLong("join_poster_id")
                         )
                     )
                 }
-                if(!optionIds.isNullOrEmpty()){
+                if (!optionIds.isNullOrEmpty()) {
                     val optionRs = connection.prepareStatement(queryOptions).executeQuery()
                     while (optionRs.next()) {
                         optionsSet.add(
@@ -919,7 +957,7 @@ object OrderUtils {
                         )
                     }
                 }
-                if(!extraIds.isNullOrEmpty()){
+                if (!extraIds.isNullOrEmpty()) {
                     val extraRs = connection.prepareStatement(queryExtras).executeQuery()
                     while (extraRs.next()) {
                         extrasSet.add(

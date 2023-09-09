@@ -11,9 +11,9 @@ data class PaymentTypeDto(
     val title: TextModel? = null
 ){
     companion object{
-        val PAYME = PaymentTypeDto(1, "Payme", "payme", true)
+        val PAYME = PaymentTypeDto(3, "Payme", "payme", true)
         val CLICK = PaymentTypeDto(2, "Click", "click")
-        val CASH = PaymentTypeDto(3, "Naqd", "cash")
+        val CASH = PaymentTypeDto(1, "Naqd", "cash")
         val PAYNET = PaymentTypeDto(4, "Paynet", "paynet")
         val UZUM = PaymentTypeDto(5, "Uzum", "uzum")
         val TERMAINAL = PaymentTypeDto(6, "Terminal", "terminal")
