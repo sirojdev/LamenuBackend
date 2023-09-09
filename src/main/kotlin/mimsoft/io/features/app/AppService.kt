@@ -52,7 +52,7 @@ object AppService {
                 body = (repository.postData(
                     dataClass = AppTable::class,
                     dataObject = mapper.toAppTable(appDto),
-                    tableName = APP_TABLE_NAME
+                    tableName = "client_app"
                 ) != null),
                 ResponseModel.OK
             )

@@ -36,7 +36,7 @@ fun Route.routeToBadge() {
         val merchantId = pr?.merchantId
         val badge = call.receive<BadgeDto>()
         val id = badgeService.add(badge.copy(merchantId = merchantId))
-        call.respond(id?: HttpStatusCode.InternalServerError)
+        call.respond(id)
     }
 
     put("badge") {

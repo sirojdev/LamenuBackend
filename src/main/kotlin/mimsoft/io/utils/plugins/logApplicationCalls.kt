@@ -17,14 +17,23 @@ fun Route.logApplicationCalls() {
         val requestHeaders = context.request.headers.toMap().toString()
         val requestParameters = context.parameters.entries().toString()
 
+        var responseStatus: Int?
+        var responseHeaders: String?
+        var responseTime: Long?
+
 
         // следите за ответом следующим образом
-        proceed() // обязательно идите дальше
+        try {
+            proceed() // обязательно идите дальше
 
-        val responseStatus = context.response.status()?.value
-        val responseHeaders = context.response.headers.allValues().toString()
-        val responseTime = System.currentTimeMillis() - startTime
-
+            responseStatus = context.response.status()?.value
+            responseHeaders = context.response.headers.allValues().toString()
+            responseTime = System.currentTimeMillis() - startTime
+        } catch (e: Exception){
+            responseStatus = 500
+            responseHeaders = e.message
+            responseTime = System.currentTimeMillis() - startTime
+        }
 
         DBManager.insert(
             "INSERT INTO log_request (request_method, request_url, request_headers, request_params, response_status, response_headers, response_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
