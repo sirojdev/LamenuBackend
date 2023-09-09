@@ -10,7 +10,7 @@ import mimsoft.io.features.merchant.MerchantMapper
 import mimsoft.io.features.merchant.repository.MerchantInterface
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 
-fun Route.merchantRoute() {
+fun Route.routeToAdminMerchant() {
     val merchantRepository: MerchantInterface = MerchantRepositoryImp
 
     route("merchant") {
@@ -29,7 +29,7 @@ fun Route.merchantRoute() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val restaurant = merchantRepository.get(id = id)
+            val restaurant = merchantRepository.get(id)
             if (restaurant != null) {
                 call.respond(HttpStatusCode.OK, restaurant)
             } else {

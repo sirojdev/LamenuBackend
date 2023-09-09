@@ -5,7 +5,6 @@ import io.ktor.server.testing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.branch.BranchDto
-import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.extra.ExtraDto
 import mimsoft.io.features.merchant.MerchantDto
@@ -132,13 +131,13 @@ class OrderServiceTest {
         )
         products.add(products1)
         products.add(products2)
-        val dto = CartInfoDto(
+        val dto = Order(
             products = products,
             serviceType = "DELIVERY",
-            productsPrice = 148500,
-            productsDiscount = 18750
+            totalPrice = 148500,
+            totalDiscount = 18750
         )
-        val response = OrderService.getProductCalculate(cart = dto, merchantId = 1)
+        val response = OrderService.getProductCalculate(dto = dto, merchantId = 1)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -160,7 +159,7 @@ class OrderServiceTest {
         )
         products.add(products1)
         products.add(products2)
-        val dto = CartInfoDto(
+        val dto = Order(
             products = products,
             serviceType = "DELIVERY"
         )

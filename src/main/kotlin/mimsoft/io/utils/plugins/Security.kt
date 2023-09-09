@@ -208,6 +208,23 @@ fun Application.configureSecurity() {
             }
         }
 
+        jwt("manager") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierManager)
+            validate { cr ->
+                val phone = cr.payload.getClaim("phone").asString()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                val id = cr.payload.getClaim("id").asLong()
+                if (phone != null && uuid != null) {
+                    BasePrincipal(
+                        phone = phone,
+                        uuid = uuid,
+                        id = id
+                    )
+                } else null
+            }
+        }
+
         jwt("staff") {
             realm = JwtConfig.issuer
             verifier(JwtConfig.verifierStaff)
