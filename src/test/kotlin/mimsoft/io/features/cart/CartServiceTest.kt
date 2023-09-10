@@ -1,6 +1,7 @@
 package mimsoft.io.features.cart
 
 
+import io.ktor.http.*
 import io.ktor.server.testing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.branch.BranchDto
@@ -63,7 +64,6 @@ class CartServiceTest {// TODO: kamchilik bor...
             total = null
         )
         val response = cartService.check(orderDto, merchantId)
-        println(response)
 
     }
 
