@@ -5,6 +5,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
+import mimsoft.io.features.jowi.JowiService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
@@ -118,7 +119,7 @@ object OrderService {
             ${validOrder.productCount}, ${validOrder.totalPrice}, ${validOrder.branch?.id})
             """.trimIndent()
         log.info("insert query {}", query)
-
+        var responseModel = ResponseModel()
         repository.insert(
             query = query,
             mapOf(
@@ -137,10 +138,23 @@ object OrderService {
                     body = mapOf("message" to "something went wrong")
                 )
 
-            JoinPosterService.sendOrder(validOrder).let {poster->
-                return if (!poster.isOk()) poster else ResponseModel(body = parse(it))
+            JoinPosterService.sendOrder(validOrder).let { poster ->
+                responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
             }
+            val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
+            fullOrder?.let { it1 ->
+                JowiService.createOrder(
+                    it1.copy(
+                        totalPrice = order.totalPrice,
+                        totalDiscount = order.totalDiscount,
+                        productPrice = order.productPrice,
+                        productDiscount = order.totalDiscount
+                    )
+                )
+            };
+            return responseModel
         }
+
     }
 
     suspend fun delete(id: Long?): ResponseModel {
@@ -475,7 +489,8 @@ object OrderService {
     }
 
     suspend fun orderRate(rate: OrderRateModel): ResponseModel {
-        val query = "UPDATE orders SET grade = ${rate.grade}, feedback = ? WHERE id = ${rate.orderId} and user_id = ${rate.userId}"
+        val query =
+            "UPDATE orders SET grade = ${rate.grade}, feedback = ? WHERE id = ${rate.orderId} and user_id = ${rate.userId}"
         log.info("rate query: {}", query)
         var response = 0
         return withContext(DBManager.databaseDispatcher) {

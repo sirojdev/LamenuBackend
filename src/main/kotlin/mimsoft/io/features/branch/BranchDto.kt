@@ -14,5 +14,6 @@ data class BranchDto(
     val latitude: Double? = null,
     val address: String? = null,
     val distance: Double? = null,
-    val joinPosterId: Long? = null
+    val joinPosterId: Long? = null,
+    val jowiPosterId: String? = null
 )
