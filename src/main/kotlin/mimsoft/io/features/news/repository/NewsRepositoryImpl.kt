@@ -27,7 +27,6 @@ object NewsRepositoryImpl : NewsRepository {
         return response
     }
 
-
     override suspend fun update(dto: NewsDto?): Boolean {
         return DBManager.updateData(NewsTable::class, mapper.toTable(dto), "news")
     }
