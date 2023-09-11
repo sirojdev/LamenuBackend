@@ -16,6 +16,7 @@ data class VisitDto(
     val table: TableDto? = null,
     val time: Timestamp? = null,
     val status: CheckStatus? = null,
+    val isActive:Boolean? = null,
     val payment: PaymentTypeDto? = null,
     val price: Double? = null,
     val clientCount: Int? = null

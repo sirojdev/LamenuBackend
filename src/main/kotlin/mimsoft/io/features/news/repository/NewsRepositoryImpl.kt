@@ -8,6 +8,7 @@ import mimsoft.io.features.news.NewsTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.services.firebase.FirebaseService
+import mimsoft.io.utils.toJson
 
 object NewsRepositoryImpl : NewsRepository {
     val repository: BaseRepository = DBManager
@@ -19,8 +20,9 @@ object NewsRepositoryImpl : NewsRepository {
             tableName = "news"
         )
         val users = UserRepositoryImpl.getAll(merchantId = dto?.merchantId)
+        println("users $users")
         GlobalScope.launch {
-            FirebaseService.sendNewsAllClient(users = users.data, data = dto)
+            FirebaseService.sendNewsAllClient(users = users, data = dto)
         }
         return response
     }

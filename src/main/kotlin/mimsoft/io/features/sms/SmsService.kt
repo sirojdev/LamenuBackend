@@ -6,6 +6,7 @@ import mimsoft.io.features.message.MessageDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
+import okhttp3.internal.notify
 import java.sql.Timestamp
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -123,5 +124,81 @@ object SmsService {
 
     suspend fun deleteByMessageId(messageId: Long): Boolean {
         return repository.deleteData(SMS_TABLE, where = "message_id", whereValue = messageId)
+    }
+
+
+
+    suspend fun checkSmsTime(phone: String): Int {
+        val query = "UPDATE sms_check\n" +
+                "SET time = NOW()\n" +
+                "WHERE phone_number = ? and EXTRACT(EPOCH FROM NOW() - time) >= 30"
+        return withContext(DBManager.databaseDispatcher) {
+            mimsoft.io.features.favourite.repository.connection().use {
+                it.prepareStatement(query).apply {
+                    this.setString(1, phone)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+    }
+
+    suspend fun getPhoneCheckSmsTime(phone: String): String? {
+        val query = "INSERT INTO sms_check (phone_number, time)\n" +
+                "VALUES (?, NOW())\n" +
+                "ON CONFLICT (phone_number) DO NOTHING\n" +
+                "RETURNING *"
+        return withContext(DBManager.databaseDispatcher) {
+            mimsoft.io.features.favourite.repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, phone)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    return@withContext rs.getString("phone")
+                } else return@withContext null
+            }
+        }
+    }
+
+
+    suspend fun checkSmsTime2(phone: String): String? {
+        val query = """
+            with check_sent as (select *,
+                                       'already_sent' as status
+                                from sms_check
+                                where phone_number = ?
+                                  and EXTRACT(EPOCH FROM NOW() - time) <= 30),
+                 update_phone
+                     as (update sms_check set time = now() where not exists(select * from check_sent) and phone_number = ?
+                     returning * , 'update_time' as status),
+
+                 insert_new as (insert into sms_check (phone_number, time) select ?, now()
+                                                                           where not exists(select *
+                                                                                            from sms_check
+                                                                                            where phone_number = ?)
+                     returning *, 'insert_new' as status)
+            select *
+            from check_sent
+            union all
+            select *
+            from update_phone
+            union all
+            select *
+            from insert_new
+        """.trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
+            mimsoft.io.features.favourite.repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, phone)
+                    this.setString(2, phone)
+                    this.setString(3, phone)
+                    this.setString(4, phone)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if(rs.next()){
+                    return@withContext rs.getString("status")
+                }else return@withContext null
+            }
+        }
     }
 }

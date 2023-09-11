@@ -1,15 +1,11 @@
 package mimsoft.io.features.notification.repository
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.notification.NOTIFICATION_TABLE_NAME
 import mimsoft.io.features.notification.NotificationDto
 import mimsoft.io.features.notification.NotificationMapper
 import mimsoft.io.features.notification.NotificationTable
-import mimsoft.io.features.visit.VISIT_TABLE_NAME
-import mimsoft.io.features.visit.VisitDto
-import mimsoft.io.features.visit.VisitService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage

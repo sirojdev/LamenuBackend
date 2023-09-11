@@ -348,6 +348,24 @@ object OrderUtils {
                     m.logo m_logo,
                     m.is_active m_is_active,
                     m.sub m_sub """ else "") +
+                (if (columnsSet.contains("payment_type"))
+                    """, 
+                    p.id p_id,
+                    p.name p_name,
+                    p.icon p_icon,
+                    p.title_uz p_title_uz,
+                    p.title_ru p_title_ru,
+                    p.title_eng p_title_eng """ else "") +
+                (if (columnsSet.contains("branch"))
+                    """,
+                    b.id b_id,
+                    b.name_uz b_name_uz,
+                    b.name_ru b_name_ru,
+                    b.name_eng b_name_eng,
+                    b.longitude b_longitude,
+                    b.latitude b_latitude,
+                    b.open b_open,
+                    b.close b_close """ else "") +
                 (if (columnsSet.contains("collector"))
                     """,
                     s.id s_id,
@@ -373,6 +391,8 @@ object OrderUtils {
                 """.trimIndent() else "")
         joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
                 (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
+                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "") +
+                (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type p ON o.payment_type = p.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
                 (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
 //        conditions += """AND (
@@ -649,7 +669,7 @@ object OrderUtils {
         )
     }
 
-    suspend fun parseGetAll2(result: Map<String, *>): Order {
+    fun parseGetAll2(result: Map<String, *>): Order {
         val products = result["o_products"] as? String
         log.info("products {}", products)
         return Order(
@@ -1115,6 +1135,4 @@ object OrderUtils {
             product.extras = list
         }
     }
-
-
 }

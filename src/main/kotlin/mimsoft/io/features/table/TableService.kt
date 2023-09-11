@@ -148,17 +148,21 @@ GROUP BY
                 latitude,
                 address,
                 open,
-                close
+                close,
+                () as me
             from tables t
             left join branch b on t.branch_id = b.id
             left join room r on t.room_id = r.id
-            where t.qr = '$url'
+            where t.qr = ?
                 and not t.deleted
                 and not b.deleted
         """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply {
+                    this.setString(1, url)
+                    this.closeOnCompletion()
+                }.executeQuery()
                 if (rs.next()) {
                     return@withContext TableDto(
                         id = rs.getLong("t_id"),

@@ -26,14 +26,15 @@ fun Route.routeToClientOrder() {
         val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
         log.info("search {}", search)
-        val response = OrderService.getAll(
-            mapOf(
+        val response = OrderService.getAll2(
+            params = mapOf(
                 "clientId" to pr?.userId,
                 "merchantId" to pr?.merchantId,
                 "search" to search,
                 "limit" to limit,
                 "offset" to offset
-            )
+            ),
+            "user","merchant", "branch", "order_price", "products", "collector", "courier", "payment_type"
         )
         call.respond(response.httpStatus, response.body)
         return@get

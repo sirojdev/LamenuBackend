@@ -52,11 +52,20 @@ object FirebaseService {
 
     suspend fun sendNewsAllClient(users: List<UserDto?>?, data: NewsDto?) {
         if (users != null) {
+            val users = users.filter { it?.phone.isNullOrEmpty() }
+            val userList = users.map { UserRepositoryImpl.get(it?.id) }
+            println("UserList: $userList")
+            val devices = userList.map { DeviceController.get(phone = it?.phone) }
+            println("Devices: $devices")
+            val tokens = devices.map { it.firstOrNull()?.firebaseToken }
+            println("Tokens: $tokens")
             users.forEach { userDto ->
                 val user = UserRepositoryImpl.get(userDto?.id, data?.merchantId)
                 log.info("user: $user")
                 val devices = DeviceController.get(user?.phone)
                 log.info("devices: $devices")
+                val tokens = devices.map { it.firebaseToken }
+                log.info("tokens: $tokens")
 
                 val message = MulticastMessage.builder()
                     .putData("title", "${data?.title}")

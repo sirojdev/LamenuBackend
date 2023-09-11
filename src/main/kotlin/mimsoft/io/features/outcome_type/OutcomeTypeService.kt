@@ -1,6 +1,5 @@
 package mimsoft.io.features.outcome_type
 
-import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
@@ -75,8 +74,7 @@ object OutcomeTypeService {
         val checkMerchant = outcomeTypeDto.merchantId?.let { getOneByMerchantId(it) }
         return if (checkMerchant != null)
             ResponseModel(
-                body = update(outcomeTypeDto = outcomeTypeDto),
-                httpStatus = ResponseModel.OK
+                body = update(outcomeTypeDto = outcomeTypeDto)
             )
         else {
             ResponseModel(
@@ -88,7 +86,6 @@ object OutcomeTypeService {
                 ResponseModel.OK
             )
         }
-
     }
 
     fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
@@ -96,27 +93,26 @@ object OutcomeTypeService {
                 "name = ? , " +
                 "updated = ? \n" +
                 "where merchant_id = ${outcomeTypeDto?.merchantId} and id = ${outcomeTypeDto?.id} and not deleted "
+
         repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
+            return it.prepareStatement(query).apply {
                 this.setString(1, outcomeTypeDto?.name)
                 this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
             }.execute()
         }
-        return true
     }
 
     fun delete(merchantId: Long?, id: Long?): Boolean {
         val query = "update $OUTCOME_TYPE_TABLE set deleted = true where merchant_id = $merchantId and id = $id"
-        repository.connection().use { val rs = it.prepareStatement(query).execute() }
-        return true
+        repository.connection().use { return it.prepareStatement(query).execute() }
     }
 
     suspend fun getById(id: Long?): OutcomeTypeDto? {
         val query = "select * from $OUTCOME_TYPE_TABLE where id = $id and deleted = false"
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply { this.closeOnCompletion() }.executeQuery()
                 if (rs.next()) {
                     return@withContext mapper.toOutcomeTypeDto(
                         OutcomeTypeTable(

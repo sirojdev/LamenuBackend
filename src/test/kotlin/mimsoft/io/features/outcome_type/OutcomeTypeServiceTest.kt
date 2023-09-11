@@ -2,7 +2,9 @@ package mimsoft.io.features.outcome_type
 
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import java.net.http.HttpRequest
+import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.utils.toJson
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -49,5 +51,12 @@ class OutcomeTypeServiceTest {
         val merchantId: Long = 7
         val response = outcomeTypeObject.delete(merchantId, id)
         assertTrue(response)
+    }
+
+    @Test
+     fun getUser() = testApplication {
+        val response = UserRepositoryImpl.getAll(merchantId = 1, limit = 10, offset = 1)
+        println(response.toJson())
+
     }
 }
