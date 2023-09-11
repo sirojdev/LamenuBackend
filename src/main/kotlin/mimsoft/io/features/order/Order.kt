@@ -22,8 +22,8 @@ data class Order(
     val paymentMethod: PaymentTypeDto? = null,
     val isPaid: Boolean? = null,
     val comment: String? = null,
-    val productCount: Int? = null,
-    val totalPrice: Long? = null,
+    var productCount: Int? = null,
+    var totalPrice: Long? = null,
     val totalDiscount: Long? = null,
     val productPrice: Long? = null,
     val productDiscount: Long? = null,
@@ -33,6 +33,7 @@ data class Order(
     val updatedAt: Timestamp? = null,
     val deleted: Boolean? = null,
     val total: Long? = null,
+    var checkoutLink: String? = null
 ) {
     companion object {
         const val DELIVERY = "DELIVERY"

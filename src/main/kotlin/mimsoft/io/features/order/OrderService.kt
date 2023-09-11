@@ -15,7 +15,9 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
+import mimsoft.io.features.payment.PAYME
 import mimsoft.io.integrate.join_poster.JoinPosterService
+import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -44,6 +46,7 @@ object OrderService {
     ): ResponseModel {
         val result: List<Map<String, *>>
         val search = getQuery(params = params, *columns, orderId = null)
+        log.info("query: ${search.query}")
         result = repository.selectList(query = search.query, args = search.queryParams)
         log.info("result: $result")
         if (result.isNotEmpty()) {
@@ -119,7 +122,7 @@ object OrderService {
             ${validOrder.productCount}, ${validOrder.totalPrice}, ${validOrder.branch?.id})
             """.trimIndent()
         log.info("insert query {}", query)
-        var responseModel = ResponseModel()
+        var responseModel: ResponseModel
         repository.insert(
             query = query,
             mapOf(
@@ -151,7 +154,18 @@ object OrderService {
                         productDiscount = order.totalDiscount
                     )
                 )
-            };
+            }
+            val orderId = it.get("id") as Long
+            val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
+            val checkoutLink =
+                if (order.paymentMethod?.id == PAYME && totalPrice != null) {
+                    PaymeService.getCheckout(
+                        orderId = orderId,
+                        amount = totalPrice,
+                        merchantId = validOrder.merchant?.id
+                    ).link
+                } else ""
+            (responseModel.body as Order).checkoutLink = checkoutLink
             return responseModel
         }
 

@@ -19,16 +19,13 @@ fun Route.routeToClientOrder() {
     val log: Logger = LoggerFactory.getLogger("routeToClientOrder")
     get("orders") {
         val pr = getPrincipal()
-        var search = call.parameters["search"]
-        if (search == null) {
-            search = ""
-        }
+        val search = call.parameters["search"]
         val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
         log.info("search {}", search)
         val response = OrderService.getAll2(
             params = mapOf(
-                "clientId" to pr?.userId,
+                "userId" to pr?.userId,
                 "merchantId" to pr?.merchantId,
                 "search" to search,
                 "limit" to limit,
