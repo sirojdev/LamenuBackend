@@ -1,11 +1,9 @@
 package mimsoft.io.features.order
 
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.badge.BadgeDto
@@ -578,7 +576,8 @@ object OrderUtils {
                     b.id b_id,
                     b.name_uz b_name_uz,
                     b.name_ru b_name_ru,
-                    b.name_eng b_name_eng  """ else "") +
+                    b.name_eng b_name_eng , 
+                    b.jowi_id b_jowi_id """ else "") +
                 (if (columnsSet.contains("payment_type"))
                     """,
                     pt.id pt_id,
@@ -717,14 +716,16 @@ object OrderUtils {
                 description = result["o_add_desc"] as? String
             ),
             branch = BranchDto(
-                id = result["o_branch_id"] as? Long, name = TextModel(
+                id = result["o_branch_id"] as? Long,
+                name = TextModel(
                     uz = result["b_name_uz"] as String?,
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
-                )
+                ),
+                jowiPosterId = result["b_jowi_id"] as String?
             ),
             totalPrice = result["o_total_price"] as? Long,
-            products = gsonToList(products, CartItem::class.java),
+            products =  getProducts(products) as List<CartItem>?,
             paymentMethod = PaymentTypeDto(
                 id = result["pt_id"] as? Long,
                 name = result["pt_name"] as? String,
@@ -766,6 +767,8 @@ object OrderUtils {
             comment = result.getOrDefault("comment", null) as? String?,
             productCount = result.getOrDefault("product_count", null) as? Int?,
             totalPrice = result.getOrDefault("total_price", null) as? Long,
+            productPrice = result.getOrDefault("total_price", null) as? Long,
+            productDiscount = result.getOrDefault("total_price", null) as? Long,
             totalDiscount = result.getOrDefault("total_discount", null) as? Long,
             createdAt = result.getOrDefault("created_at", null) as? Timestamp?,
             updatedAt = result.getOrDefault("updated_at", null) as? Timestamp?,
@@ -1081,7 +1084,8 @@ object OrderUtils {
                                     eng = optionRs.getString("name_eng")
                                 ),
                                 image = optionRs.getString("image"),
-                                price = optionRs.getLong("price")
+                                price = optionRs.getLong("price"),
+                                jowiId = optionRs.getString("jowi_id")
                             )
                         )
                     }
@@ -1101,7 +1105,8 @@ object OrderUtils {
                                     ru = extraRs.getString("name_ru"),
                                     eng = extraRs.getString("name_eng")
                                 ),
-                                productId = extraRs.getLong("product_id")
+                                productId = extraRs.getLong("product_id"),
+                                jowiId = extraRs.getString("jowi_id")
                             )
                         )
                     }
