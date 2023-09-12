@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderRateModel
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.plugins.getPrincipal
 import org.slf4j.Logger
@@ -18,21 +19,19 @@ fun Route.routeToClientOrder() {
     val log: Logger = LoggerFactory.getLogger("routeToClientOrder")
     get("orders") {
         val pr = getPrincipal()
-        var search = call.parameters["search"]
-        if(search == null){
-            search = ""
-        }
+        val search = call.parameters["search"]
         val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
         log.info("search {}", search)
-        val response = OrderService.getAll(
-            mapOf(
-                "clientId" to pr?.userId,
+        val response = OrderService.getAll2(
+            params = mapOf(
+                "userId" to pr?.userId,
                 "merchantId" to pr?.merchantId,
                 "search" to search,
                 "limit" to limit,
                 "offset" to offset
-            )
+            ),
+            "user","merchant", "branch", "order_price", "products", "collector", "courier", "payment_type"
         )
         call.respond(response.httpStatus, response.body)
         return@get
@@ -62,5 +61,13 @@ fun Route.routeToClientOrder() {
         val id = call.parameters["id"]?.toLongOrNull()
         val status = orderService.delete(id)
         call.respond(status.httpStatus, status.body)
+    }
+
+    put ("order/rate") {
+        val pr = getPrincipal()
+        val userId = pr?.userId
+        val rate = call.receive<OrderRateModel>()
+        val response = orderService.orderRate(rate = rate.copy(userId = userId))
+        call.respond(response)
     }
 }

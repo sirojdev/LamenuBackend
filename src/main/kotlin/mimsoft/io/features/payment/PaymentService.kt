@@ -10,6 +10,13 @@ import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
 import java.sql.Timestamp
 
+const val PAYME = 3L
+const val PAYNET = 5L
+const val CLICK = 2L
+const val CASH = 1L
+const val UZUM = 7L
+const val TERMINAL = 6L
+
 object PaymentService {
     val repository: BaseRepository = DBManager
     val merchant = MerchantRepositoryImp

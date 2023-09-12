@@ -1,22 +1,31 @@
 package mimsoft.io.features.news.repository
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.news.NewsDto
 import mimsoft.io.features.news.NewsMapper
 import mimsoft.io.features.news.NewsTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.services.firebase.FirebaseService
+import mimsoft.io.utils.toJson
 
 object NewsRepositoryImpl : NewsRepository {
     val repository: BaseRepository = DBManager
     val mapper = NewsMapper
-    override suspend fun add(dto: NewsDto?): Long? =
-        DBManager.postData(
+    override suspend fun add(dto: NewsDto?): Long? {
+        val response = DBManager.postData(
             dataClass = NewsTable::class,
             dataObject = mapper.toTable(dto),
             tableName = "news"
         )
+        val users = UserRepositoryImpl.getAll(merchantId = dto?.merchantId)
+        println("users $users")
+        GlobalScope.launch {
+            FirebaseService.sendNewsAllClient(users = users, data = dto)
+        }
+        return response
+    }
 
     override suspend fun update(dto: NewsDto?): Boolean {
         return DBManager.updateData(NewsTable::class, mapper.toTable(dto), "news")
@@ -24,12 +33,12 @@ object NewsRepositoryImpl : NewsRepository {
 
     override suspend fun getById(id: Long, merchantId: Long?): NewsDto? {
         val where: Any
-        if(merchantId != null){
+        if (merchantId != null) {
             where = mapOf(
                 "merchant_id" to merchantId as Any,
                 "id" to id as Any
             )
-        }else
+        } else
             where = mapOf(
                 "id" to id as Any
             )
@@ -43,7 +52,7 @@ object NewsRepositoryImpl : NewsRepository {
         return mapper.toDto(data)
     }
 
-    override suspend fun getAll(merchantId: Long?): List<NewsDto?> {
+    override suspend fun getAll(merchantId: Long?, limit: Int, offset: Int): List<NewsDto?> {
         println(merchantId)
         val data = repository.getPageData(
             dataClass = NewsTable::class,

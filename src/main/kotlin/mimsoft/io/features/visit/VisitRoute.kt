@@ -25,11 +25,10 @@ fun Route.routeToVisits() {
             val merchantId = pr?.merchantId
             val visit = call.receive<VisitDto>()
             val id = visitService.add(visit.copy(merchantId = merchantId))
-            if(id == null){
+            if (id == null) {
                 call.respond(HttpStatusCode.Conflict)
                 return@post
-            }
-            else call.respond(id)
+            } else call.respond(id)
         }
 
         get("/{id}") {
@@ -41,7 +40,7 @@ fun Route.routeToVisits() {
                 return@get
             }
             val visit = visitService.get(id = id, merchantId = merchantId)
-            if(visit==null){
+            if (visit == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }
@@ -56,11 +55,11 @@ fun Route.routeToVisits() {
             call.respond(HttpStatusCode.OK, response)
         }
 
-        delete("{id}"){
+        delete("{id}") {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
-            if(id==null){
+            if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }

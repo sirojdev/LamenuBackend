@@ -22,9 +22,7 @@ object UserRepositoryImpl : UserRepository {
 
     val repository: BaseRepository = DBManager
     val mapper = UserMapper
-    override suspend fun getAll(merchantId: Long?, limit: Long?, offset: Long?): DataPage<UserDto> {
-        val defaultLimit = 10
-        val defaultOffset = 0
+    override suspend fun getAll(merchantId: Long?, limit: Long?, offset: Long?): List<UserDto> {
         var totalCount = 0
         val tName = USER_TABLE_NAME
         val query = StringBuilder()
@@ -44,9 +42,8 @@ object UserRepositoryImpl : UserRepository {
         """)
         if(limit != null) query.append(" limit $limit")
         if(offset != null) query.append(" offset $offset")
-        else query.append(" limit $defaultLimit offset $defaultOffset")
         val list = mutableListOf<UserDto>()
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query.toString()).executeQuery()
                 while (rs.next()) {
@@ -73,7 +70,7 @@ object UserRepositoryImpl : UserRepository {
                 }
                 totalCount = tName.let { DBManager.getDataCount(it)!! }
             }
-            return@withContext DataPage(list, totalCount)
+            return@withContext list
         }
     }
 

@@ -1,4 +1,4 @@
-package mimsoft.io.courier;
+package mimsoft.io.courier
 
 import mimsoft.io.module
 
@@ -14,6 +14,7 @@ class CourierInfoRouteKtTest {
 //        application {
 //            module()
 //        }
-        assertEquals(true, 1==1)
+        assertEquals(true, 1==
+                1)
     }
 }

@@ -203,6 +203,7 @@ paths:
         "204":
           description: "No Content"
 
+
   /client/auth/sign-up:
     post:
       tags:
@@ -237,6 +238,7 @@ paths:
                   $ref: "#/components/schemas/DeviceModel"
         "204":
           description: "No Content"
+
 
   /client/profile:
     get:
@@ -517,41 +519,41 @@ paths:
         "400":
           description: "Bad Request"
 
-#  /client/cart:
-#    get:
-#      tags:
-#        - Cart
-#      description: "post cart"
-#      security:
-#        - bearerAuth: [ ]
-#      parameters:
-#        - name: "appKey"
-#          in: "query"
-#          required: true
-#          schema:
-#            type: "integer"
-#            format: "int64"
-#      requestBody:
-#        description: "A JSON object receive cart info dto"
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/CartInfoDto"
-#      responses:
-#        "200":
-#          description: "OK"
-#          content:
-#            application/json:
-#              schema:
-#                type: array
-#                items:
-#                  $ref: "#/components/schemas/CartInfoDto"
-#
-#        "204":
-#          description: "No Content"
-#        "400":
-#          description: "Bad Request"
+  /client/cart:
+    get:
+      tags:
+        - Cart
+      description: "post cart"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        description: "A JSON object receive cart info dto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
 
   /client/tables:
     get:
@@ -2244,30 +2246,6 @@ components:
           format: int32  # You might need to adjust the format based on your HttpStatusCode representation
       required:
         - body
-
-#    CartInfoDto:
-#      type: "object"
-#      properties:
-#        products:
-#          type: array
-#          items:
-#            $ref: "#/components/schemas/CartItem"
-#        address:
-#          $ref: "#/components/schemas/AddressDto"
-#        productCount:
-#          type: integer
-#        productsPrice:
-#          type: "integer"
-#          format: "long"
-#        productsDiscount:
-#          type: "integer"
-#          format: "long"
-#        totalPrice:
-#          type: "integer"
-#          format: "long"
-#        totalDiscount:
-#          type: "integer"
-#          format: "long"
 
     PromoDto:
       type: "object"

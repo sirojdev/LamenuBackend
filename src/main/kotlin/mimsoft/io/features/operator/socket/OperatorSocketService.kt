@@ -13,6 +13,8 @@ import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
+import mimsoft.io.services.socket.SocketData
+import mimsoft.io.services.socket.SocketType
 import java.util.*
 import java.sql.Timestamp
 
@@ -47,7 +49,8 @@ object OperatorSocketService {
     suspend fun sendBookingToOperators(book: BookDto) {
         operatorConnections.forEach { operatorConnection ->
             if (operatorConnection.session != null) {
-                operatorConnection.session?.send(Gson().toJson(book))
+                val socketData = SocketData(type = SocketType.BOOK, data = Gson().toJson(book))
+                operatorConnection.session?.send(Gson().toJson(socketData))
             }
         }
     }
@@ -63,7 +66,8 @@ object OperatorSocketService {
                         CourierSocketService.courierConnections.find { it.staffId == courier.staffId }
                     if (connection?.session != null) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            connection.session!!.send(Gson().toJson(order))
+                            val socketDto = SocketData(data = Gson().toJson(order), type = SocketType.ORDER)
+                            connection.session!!.send(Gson().toJson(socketDto))
                         }
                         OrderService.updateOnWave(orderId = order.id!!, true)
                         sendOrderList.add(

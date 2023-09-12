@@ -11,6 +11,7 @@ import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.features.sms.SmsService
 import mimsoft.io.rsa.Generator
 import mimsoft.io.rsa.GeneratorModel
 import mimsoft.io.rsa.Status
@@ -32,29 +33,41 @@ fun Route.routeToSMS() {
             return@post
         }
         val phone = deviceReceive.phone
-        val gn = Generator.generate(true)
-        SmsSenderService.send(merchantId = pr?.merchantId, phone, "code ${gn.code}")
-        DeviceController.updateCode(
-            DeviceModel(
-                id = pr?.id,
-                action = "verify",
-                merchantId = merchantId,
-                code = gn.code.toString(),
-                phone = phone
-            )
-        )
-
-        call.respond(
-            DeviceModel(
-                id = pr?.id,
-                token = JwtConfig.generateDeviceToken(
+        val result = SmsService.checkSmsTime2(phone = phone)
+        if (result == null || result.equals("already_sent")) {
+            call.respond(HttpStatusCode.TooManyRequests)
+            return@post
+        } else {
+            val gn = Generator.generate(true)
+            SmsSenderService.send(merchantId = pr?.merchantId, phone, "code ${gn.code}")
+            DeviceController.updateCode(
+                DeviceModel(
+                    id = pr?.id,
+                    action = "verify",
                     merchantId = merchantId,
-                    uuid = pr?.uuid,
-                    hash = gn.hash,
+                    code = gn.code.toString(),
                     phone = phone
                 )
             )
-        )
+
+            call.respond(
+                DeviceModel(
+                    id = pr?.id,
+                    token = JwtConfig.generateDeviceToken(
+                        merchantId = merchantId,
+                        uuid = pr?.uuid,
+                        hash = gn.hash,
+                        phone = phone
+                    )
+                )
+            )
+        }
+//        val a = SmsService.getPhoneCheckSmsTime(phone = phone)
+//        result = SmsService.checkSmsTime(phone = phone)
+//        if (a != null)
+//            result = 1
+//        if (result == 1) {
+
     }
 
     post("verify") {

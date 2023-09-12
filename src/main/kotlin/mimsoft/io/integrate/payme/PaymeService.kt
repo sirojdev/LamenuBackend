@@ -45,7 +45,7 @@ object PaymeService {
             val order = responseModel.body as Order
             val price = order.totalPrice as Double?
 
-            if (order.isPaid == true || order.paymentType != PAYME.id) {
+            if (order.isPaid == true || order.paymentMethod?.id != PAYME.id) {
                 return@withContext ErrorResult(
                     error = Error(
                         code = -31050,

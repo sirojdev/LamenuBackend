@@ -41,7 +41,7 @@ paths:
             schema:
               type: "object"
               properties:
-                merchantId:
+                appKey:
                   type: "integer"
                   format: "long"
                 uuid:
@@ -56,6 +56,9 @@ paths:
                   type: string
                 osVersion:
                   type: string
+                firebaseToken:
+                  type: string
+
       responses:
         "200":
           description: "OK"
@@ -116,12 +119,18 @@ paths:
         "401":
           description: "Unauthorized"
   /waiter/firebase:
-    get:
+    post:
       tags:
         - Profile
       security:
         - bearerAuth: [ ]
       description: "Get profile device model"
+      parameters:
+        - name: "firebaseToken"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
       responses:
         "200":
           description: "OK"

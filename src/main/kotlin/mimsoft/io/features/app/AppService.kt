@@ -22,7 +22,7 @@ object AppService {
     val mapper = AppMapper
 
     suspend fun get(merchantId: Long?): AppDto? {
-        val query = "select * from $APP_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+        val query = "select * from client_app where merchant_id = $merchantId and deleted = false"
         return withContext(Dispatchers.IO){
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -52,7 +52,7 @@ object AppService {
                 body = (repository.postData(
                     dataClass = AppTable::class,
                     dataObject = mapper.toAppTable(appDto),
-                    tableName = APP_TABLE_NAME
+                    tableName = "client_app"
                 ) != null),
                 ResponseModel.OK
             )
@@ -60,7 +60,7 @@ object AppService {
     }
 
     suspend fun update(appDto: AppDto?): Boolean {
-        val query = "update $APP_TABLE_NAME set " +
+        val query = "update client_app set " +
                 "google_token = ?," +
                 "apple_token = ?, " +
                 "telegram_bot_token = ?, " +

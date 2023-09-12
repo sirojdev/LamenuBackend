@@ -7,8 +7,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserPrincipal
-import mimsoft.io.features.address.AddressRepository
-import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.branch.BranchId
 import mimsoft.io.utils.principal.BasePrincipal
 
@@ -25,7 +23,6 @@ fun Route.routeToAddress() {
                 return@get
             } else call.respond(addresses)
         }
-
         get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {

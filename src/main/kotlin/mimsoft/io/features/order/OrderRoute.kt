@@ -10,6 +10,7 @@ import mimsoft.io.board.socket.BoardOrderStatus
 import mimsoft.io.board.socket.BoardSocketService
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.operator.socket.OperatorSocketService
+import mimsoft.io.services.firebase.FirebaseService
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
@@ -89,6 +90,7 @@ fun Route.routeToOrder() {
             val rs = orderService.accepted(merchantId, orderId)
             val order = OrderService.get(orderId).body as Order
             if (rs) {
+                FirebaseService.sendNotificationOrderToClient(order)
                 var offsett = 0
                 OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
                 val offSet = 0

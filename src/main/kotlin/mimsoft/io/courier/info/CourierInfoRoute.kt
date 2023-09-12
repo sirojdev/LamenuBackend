@@ -42,7 +42,6 @@ fun Route.routeToCouriersInfo() {
 
     post("firebase") {
         val principal = call.principal<BasePrincipal>()
-        val uuid = principal?.uuid
         val firebase = call.parameters["firebase"]
         val session = SessionRepository.get(principal?.uuid)
         call.respond(DeviceController.editFirebaseWithDeivceId(deviceId  = session?.deviceId,token =firebase ))

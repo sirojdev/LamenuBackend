@@ -10,6 +10,8 @@ import io.ktor.server.routing.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.device.DevicePrincipal
+import mimsoft.io.client.device.DeviceType
+import mimsoft.io.features.appKey.MerchantAppKeyRepository
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
@@ -17,6 +19,7 @@ import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.WaiterService
 import java.util.*
 
@@ -27,21 +30,16 @@ fun Route.routeToWaiterAuth() {
         route("device") {
             post {
                 val device: DeviceModel = call.receive()
-                val merchantId = call.parameters["appKey"]?.toLongOrNull()
-                device.merchantId = merchantId
-                println(Gson().toJson(device))
+                val appKey = call.parameters["appKey"]?.toLongOrNull()
+
                 if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-                    || device.uuid.isNullOrBlank() || device.merchantId == null || device.firebaseToken == null) {
-                    println(device.brand)
-                    println(device.model)
-                    println(device.build)
-                    println(device.osVersion)
-                    println(device.uuid)
-                    println(device.merchantId)
+                    || device.uuid.isNullOrBlank()
+                ) {
                     call.respond(HttpStatusCode.BadRequest, "error input")
                 } else {
                     val ip = call.request.host()
-                    val result = DeviceController.auth(device.copy(ip = ip))
+                    val appDto = MerchantAppKeyRepository.getByAppId(appKey)
+                    val result = DeviceController.auth(device.copy(ip = ip, merchantId = appDto?.merchantId, appKey = appKey, deviceType = DeviceType.WAITER))
                     call.respond(result)
                 }
             }
@@ -81,6 +79,14 @@ fun Route.routeToWaiterAuth() {
                 }
             }
 
+        }
+
+        authenticate("waiter") {
+            post("logout") {
+                val merchant = call.principal<BasePrincipal>()
+                WaiterService.logout(merchant?.uuid)
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 

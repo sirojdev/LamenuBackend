@@ -1,12 +1,11 @@
 package mimsoft.io.features.order
 
-
 import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.cart.CartInfoDto
 import mimsoft.io.features.cart.CartItem
+import mimsoft.io.features.jowi.JowiService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
@@ -14,9 +13,11 @@ import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
-import mimsoft.io.features.order.OrderUtils.query
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
+import mimsoft.io.features.payment.PAYME
+import mimsoft.io.integrate.join_poster.JoinPosterService
+import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -28,7 +29,6 @@ import mimsoft.io.utils.toJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
-import kotlin.collections.emptyList as emp
 
 suspend fun main() {
     val orders = OrderService.getAll(null, "user", "merchant", "collector", "products")
@@ -46,6 +46,7 @@ object OrderService {
     ): ResponseModel {
         val result: List<Map<String, *>>
         val search = getQuery(params = params, *columns, orderId = null)
+        log.info("query: ${search.query}")
         result = repository.selectList(query = search.query, args = search.queryParams)
         log.info("result: $result")
         if (result.isNotEmpty()) {
@@ -117,11 +118,11 @@ object OrderService {
             values (${validOrder.user?.id}, ${validOrder.user?.phone}, ?, ?, 
             ${validOrder.address?.latitude}, ${validOrder.address?.longitude},
             ?, ?, ?, ?, ${validOrder.merchant?.id}, ${validOrder.courier?.id}, 
-            ${validOrder.collector?.id}, ${validOrder.paymentType},
+            ${validOrder.collector?.id}, ${validOrder.paymentMethod?.id},
             ${validOrder.productCount}, ${validOrder.totalPrice}, ${validOrder.branch?.id})
             """.trimIndent()
         log.info("insert query {}", query)
-
+        var responseModel: ResponseModel
         repository.insert(
             query = query,
             mapOf(
@@ -133,13 +134,41 @@ object OrderService {
                 6 to validOrder.comment
             )
         ).let {
+
             if (it == null)
                 return ResponseModel(
                     httpStatus = HttpStatusCode.BadRequest,
                     body = mapOf("message" to "something went wrong")
                 )
-            return ResponseModel(body = parse(it))
+
+            JoinPosterService.sendOrder(validOrder).let { poster ->
+                responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
+            }
+            val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
+            fullOrder?.let { it1 ->
+                JowiService.createOrder(
+                    it1.copy(
+                        totalPrice = order.totalPrice,
+                        totalDiscount = order.totalDiscount,
+                        productPrice = order.productPrice,
+                        productDiscount = order.totalDiscount
+                    )
+                )
+            }
+            val orderId = it.get("id") as Long
+            val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
+            val checkoutLink =
+                if (order.paymentMethod?.id == PAYME && totalPrice != null) {
+                    PaymeService.getCheckout(
+                        orderId = orderId,
+                        amount = totalPrice,
+                        merchantId = validOrder.merchant?.id
+                    ).link
+                } else ""
+            (responseModel.body as Order).checkoutLink = checkoutLink
+            return responseModel
         }
+
     }
 
     suspend fun delete(id: Long?): ResponseModel {
@@ -194,12 +223,12 @@ object OrderService {
     }
 
     suspend fun getProductCalculate(
-        cart: CartInfoDto? = null,
+        dto: Order? = null,
         merchantId: Long? = null,
         productsCart: List<CartItem>? = null
     ): ResponseModel {
 
-        val products = productsCart ?: cart?.products
+        val products = productsCart ?: dto?.products
         var totalPriceWithDiscount = 0L
         var totalProductPrice = 0L
         var totalDiscount = 0L
@@ -223,13 +252,15 @@ object OrderService {
 
 
             val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
-                "and e.id in (${cartItem.extras.joinToString { it.id.toString() }})"
+                "and e.id in (${cartItem.extras!!.joinToString { it.id.toString() }})"
             } else ""
+            log.info("extraCondition: {}", extraCondition)
 
             var productDiscount: Long? = 0L
             var productPrice: Long? = 0L
 
             val sortedSetCartItem = cartItem.extras?.sortedWith(compareBy { it1 -> it1.id })?.map { setOf(it) }
+            log.info("extraCheck: {}", cartItem.extras)
 
             var query = """
                 select
@@ -242,18 +273,17 @@ object OrderService {
                 p.discount p_discount
                 from product p
                 left join extra e on p.id = e.product_id 
-                left join options o on p.id = o.product_id
+                left join options o on p.id = o.product_id 
                 where (not p.deleted or not e.deleted or not o.deleted)
                 and p.id = ${cartItem.product?.id}
                 $optionCondition
                 $extraCondition
             """.trimIndent()
 
-
-
             query += (" order by p_id, o_id, e_id")
 
             repository.selectList(query = query).let { rs ->
+
 
                 if (rs.isEmpty()) {
                     OptionRepositoryImpl.get(cartItem.option?.id, merchantId).let {
@@ -303,6 +333,111 @@ object OrderService {
 
 
                 productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
+                log.info("productPrice with option: {}", productPrice)
+
+                productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong() ?: 0L)
+                log.info("productPrice: {}", productPrice)
+            }
+
+            totalProductPrice = totalProductPrice.plus((productPrice ?: 0L).times(cartItem.count!!))
+            totalDiscount = totalDiscount.plus((productDiscount ?: 0L).times(cartItem.count!!))
+            log.info("totalProductPrice: {}", totalProductPrice)
+            log.info("totalDiscount: {}", totalDiscount)
+        }
+
+        totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
+
+
+        if ((dto?.productPrice != totalProductPrice) || (dto.productDiscount != totalDiscount)) {
+            return ResponseModel(
+                httpStatus = HttpStatusCode.BadRequest,
+                body = mapOf(
+                    "totalProductPrice" to totalProductPrice,
+                    "totalProductDiscount" to totalDiscount,
+                    "totalPriceWithDiscount" to totalPriceWithDiscount,
+                    "message" to "Product price or product discount not equal"
+                )
+            )
+        } else if (productsCart != null) return ResponseModel(
+            body = mapOf(
+                "totalPrice" to totalProductPrice,
+                "totalDiscount" to totalDiscount,
+                "totalPriceWithDiscount" to totalPriceWithDiscount
+            )
+        )
+        log.info("totalPrice: {}", totalProductPrice)
+        return ResponseModel(body = "{}")
+    }
+
+
+    suspend fun getProductCalculate2(
+        cart: Order? = null,
+        productsCart: List<CartItem>? = null
+    ): OrderPriceModel {
+
+        val products = productsCart ?: cart?.products
+        var totalPriceWithDiscount = 0L
+        var totalProductPrice = 0L
+        var totalDiscount = 0L
+
+        products?.forEach { cartItem ->
+
+            log.info("cartItem: {}", GSON.toJson(cartItem))
+
+            val optionCondition = if (cartItem.option?.id != null) {
+                "and o.id = ${cartItem.option!!.id}"
+            } else ""
+
+            val extraCondition = if (!cartItem.extras.isNullOrEmpty()) {
+                "and e.id in (${cartItem.extras!!.joinToString { it.id.toString() }})"
+            } else ""
+
+            var productDiscount: Long? = 0L
+            var productPrice: Long? = 0L
+
+            var query = """
+                select
+                p.id p_id,
+                e.id e_id,
+                o.id o_id,
+                o.price o_price,
+                e.price e_price,
+                p.cost_price p_price,
+                p.discount p_discount
+                from product p
+                left join extra e on p.id = e.product_id 
+                left join options o on p.id = o.product_id
+                where (not p.deleted or not e.deleted or not o.deleted)
+                and p.id = ${cartItem.product?.id}
+                $optionCondition
+                $extraCondition
+            """.trimIndent()
+
+            query += (" order by p_id, o_id, e_id")
+
+            repository.selectList(query = query).let { rs ->
+                val result = mutableMapOf(
+                    "p_id" to rs[0]["p_id"],
+                    "p_price" to rs[0]["p_price"],
+                    "o_id" to rs[0]["o_id"],
+                    "o_price" to rs[0]["o_price"],
+                    "p_discount" to rs[0]["p_discount"],
+                    "e" to arrayListOf<Map<String, *>>()
+                )
+
+
+                result["e"] = rs.map { mapOf("e_id" to it["e_id"], "e_price" to it["e_price"]) }
+                result["e_total_price"] = rs.map { it["e_price"] }.sumOf { (it as? Long)?.toInt() ?: 0 }
+                log.info("result: {}", result)
+
+                productPrice = productPrice?.plus((result["p_price"] as? Long) ?: 0L)
+                log.info("productPrice: {}", productPrice)
+
+                productDiscount = (productPrice?.times((result["p_discount"] as? Long) ?: 0L)?.div(100))
+                log.info("productDiscount: {}", productDiscount)
+
+
+                productPrice = productPrice?.plus((rs[0]["o_price"] as? Long) ?: 0L)
                 log.info("productPrice: {}", productPrice)
 
                 productPrice = productPrice?.plus((result["e_total_price"] as? Int)?.toLong() ?: 0L)
@@ -318,26 +453,11 @@ object OrderService {
 
         totalPriceWithDiscount = totalProductPrice.minus(totalDiscount)
 
-        if (productsCart != null) return ResponseModel(
-            body = mapOf(
-                "totalPrice" to totalProductPrice,
-                "totalDiscount" to totalDiscount,
-                "totalPriceWithDiscount" to totalPriceWithDiscount
-            )
+        return OrderPriceModel(
+            totalPrice = totalProductPrice,
+            totalDiscount = totalDiscount,
+            totalPriceWithDiscount = totalPriceWithDiscount
         )
-
-        if (cart?.productsPrice != totalProductPrice || cart.productsDiscount != totalDiscount) {
-            return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest,
-                body = mapOf(
-                    "totalPrice" to totalProductPrice,
-                    "totalDiscount" to totalDiscount,
-                    "totalPriceWithDiscount" to totalPriceWithDiscount,
-                    "message" to "Product price or product discount not equal"
-                )
-            )
-        }
-        return ResponseModel(body = "{}")
     }
 
     suspend fun updateOnWave(orderId: Long, onWave: Boolean) {
@@ -381,8 +501,20 @@ object OrderService {
             null
         }
     }
+
+    suspend fun orderRate(rate: OrderRateModel): ResponseModel {
+        val query =
+            "UPDATE orders SET grade = ${rate.grade}, feedback = ? WHERE id = ${rate.orderId} and user_id = ${rate.userId}"
+        log.info("rate query: {}", query)
+        var response = 0
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                response = it.prepareStatement(query).apply {
+                    this.setString(1, rate.feedback)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+            ResponseModel(body = response)
+        }
+    }
 }
-
-
-
-

@@ -1,6 +1,5 @@
 package mimsoft.io.features.outcome
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.features.outcome_type.OutcomeTypeService
@@ -67,7 +66,7 @@ object OutcomeService {
                 "staff_id = ${staff?.id} , " +
                 "outcome_type_id = ${outcomeType?.id} , " +
                 "updated = ? \n" +
-                "where merchant_id = ${outcomeDto?.merchantId} and not deleted "
+                "where id = ${outcomeDto?.id} and merchant_id = ${outcomeDto?.merchantId} and not deleted "
         repository.connection().use {
            it.prepareStatement(query).apply {
                 this.setString(1, outcomeDto?.name)

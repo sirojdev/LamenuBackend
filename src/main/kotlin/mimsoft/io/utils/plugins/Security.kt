@@ -88,7 +88,7 @@ fun Application.configureSecurity() {
                 val boardId = credential.payload.getClaim("id").asLong()
                 val branchId = credential.payload.getClaim("branchId").asLong()
                 val merchantId = credential.payload.getClaim("merchantId").asLong()
-                if (boardId != null && branchId != null &&  merchantId != null) {
+                if (boardId != null && branchId != null && merchantId != null) {
                     BasePrincipal(
                         branchId = branchId,
                         boardId = boardId,
@@ -192,9 +192,42 @@ fun Application.configureSecurity() {
             }
         }
 
+        jwt("admin") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierAdmin)
+            validate { cr ->
+                val phone = cr.payload.getClaim("phone").asString()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                if (phone != null && uuid != null) {
+                    BasePrincipal(
+                        phone = phone,
+                        uuid = uuid
+                    )
+                } else null
+
+            }
+        }
+
+        jwt("manager") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierManager)
+            validate { cr ->
+                val phone = cr.payload.getClaim("phone").asString()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                val id = cr.payload.getClaim("id").asLong()
+                if (phone != null && uuid != null) {
+                    BasePrincipal(
+                        phone = phone,
+                        uuid = uuid,
+                        id = id
+                    )
+                } else null
+            }
+        }
+
         jwt("staff") {
             realm = JwtConfig.issuer
-            verifier(JwtConfig.verifierUser)
+            verifier(JwtConfig.verifierStaff)
             validate { cr ->
                 val merchantId = cr.payload.getClaim("merchantId").asLong()
                 val staffId = cr.payload.getClaim("staffId").asLong()

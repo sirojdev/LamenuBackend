@@ -107,7 +107,7 @@ object DeviceController {
                     this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
                     this.setString(++x, device.ip)
                     this.setString(++x, device.uuid)
-                    this.setString(++x,device.deviceType?.name.toString())
+                    this.setString(++x, device.deviceType?.name.toString())
                     this.closeOnCompletion()
                 }.execute()
 
@@ -117,11 +117,10 @@ object DeviceController {
                         merchantId = device.merchantId
                     )
                 )
-
             }
         }
-
     }
+
     suspend fun boardAuth(device: BoardDeviceModel): BoardDeviceModel {
         val upsert = """
                 with upsert as ( update device set
@@ -135,7 +134,7 @@ object DeviceController {
                     where uuid = ?
                     returning *)
                 insert
-                into device (merchant_id, os_version, model, brand, build,  created_at, ip, uuid,type,app_id)
+                into device (merchant_id, os_version, model, brand, build, created_at, ip, uuid, type, app_id)
                 select ${device.merchantId},
                        ?,
                        ?,
@@ -180,7 +179,6 @@ object DeviceController {
 
             }
         }
-
     }
 
     suspend fun getWithUUid(uuid: String?): DeviceModel? {
@@ -193,7 +191,7 @@ object DeviceController {
                 }.executeQuery()
 
                 if (rs.next()) {
-                 return@withContext   DeviceModel(
+                    return@withContext DeviceModel(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
                         action = rs.getString("action"),
@@ -268,6 +266,7 @@ object DeviceController {
         }
         return true
     }
+
     suspend fun editFirebaseWithDeivceId(deviceId: Long?, token: String?): Boolean {
         val query = "update device\n" +
                 "    set fb_token = ?,\n" +

@@ -248,7 +248,7 @@ object DBManager : BaseRepository {
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
             dataClass.memberProperties.filter { it.name != "deleted" && it.name != "updated" && it.name != "id" }
-        val columns = filteredProperties.joinToString(", ") { camelToSnakeCase(it.name) }
+        val columns = filteredProperties.joinToString(" ,") { camelToSnakeCase(it.name) }
         val placeholders = filteredProperties.joinToString(", ") { "?" }
         val insert = "INSERT INTO $tName ($columns) VALUES ($placeholders)"
         println("\nPOST DATA-->$insert")
@@ -261,7 +261,7 @@ object DBManager : BaseRepository {
                     val propertyName = property.name
                     val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
                     val value = propertyInstance?.call(dataObject)
-//
+
                     when (property.returnType.toString()) {
 
                         "java.sql.Timestamp?" -> {
@@ -338,7 +338,6 @@ object DBManager : BaseRepository {
 
     override suspend fun deleteData(tableName: String, where: String, whereValue: Any?): Boolean {
         val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
-
         return withContext(Dispatchers.IO) {
             connection().use { connection ->
                 val statement = connection.prepareStatement(delete)

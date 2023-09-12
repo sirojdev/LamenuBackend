@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.appKey.MerchantAppKeyRepository
 import mimsoft.io.features.branch.repository.BranchService
 import mimsoft.io.features.branch.repository.BranchServiceImpl
 
@@ -28,9 +29,9 @@ fun Route.routeToClientBranches() {
         val branchName = call.parameters["branch-name"]
         if (branchName != null && merchantId != null) {
             val branch = branchService.getByName(branchName, merchantId)
-            if(branch!=null){
+            if (branch != null) {
                 call.respond(branch)
-            }else{
+            } else {
                 call.respond(HttpStatusCode.NoContent)
             }
         }
@@ -46,18 +47,21 @@ fun Route.routeToClientBranches() {
         call.respond(branch)
     }
     get("branch/nearest") {
-        val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        val appKey = call.parameters["appKey"]?.toLongOrNull()
+        val merchantId = MerchantAppKeyRepository.getByAppId(appKey)?.merchantId
         val latitude = call.parameters["lat"]?.toDoubleOrNull()
         val longitude = call.parameters["long"]?.toDoubleOrNull()
-        if (latitude == null || longitude == null||merchantId==null) {
+        if (latitude == null || longitude == null || merchantId == null) {
             call.respond(HttpStatusCode.BadRequest)
+        }else{
+            val branchDto = branchService.nearestBranch(latitude, longitude, merchantId)
+            if (branchDto == null) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.OK, branchDto)
+            }
         }
-        val branchDto = branchService.nearestBranch(latitude, longitude,merchantId)
-        if (branchDto == null) {
-            call.respond(HttpStatusCode.NoContent)
-        } else {
-            call.respond(HttpStatusCode.OK, branchDto)
-        }
+
     }
 
 }

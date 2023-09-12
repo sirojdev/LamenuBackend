@@ -24,12 +24,14 @@ fun Route.toCourierSocket() {
     route("courier") {
         authenticate("courier") {
             webSocket("socket") {
-                val principal = call.principal<BasePrincipal>()
-                val staffId = principal?.staffId
-                val merchantId = principal?.merchantId
-                val uuid = principal?.uuid
-                try {
-                    CourierService.updateIsActive(staffId, true)
+
+                    val principal = call.principal<BasePrincipal>()
+                    val staffId = principal?.staffId
+                    val merchantId = principal?.merchantId
+                    val uuid = principal?.uuid
+                    try {
+                        println(principal?.staffId)
+                    CourierService.updateIsActive(staffId,true)
                     CourierSocketService.setConnection(
                         CourierConnection(
                             staffId = staffId,

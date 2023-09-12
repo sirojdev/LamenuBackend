@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 fun <T> gsonToList(json: String?, clazz: Class<T>): List<T> {
     val gson = Gson()
     val type = TypeToken.getParameterized(List::class.java, clazz).type
-    return gson.fromJson(json, type) ?: emptyList()
+        return gson.fromJson(json, type) ?: emptyList()
 }
 
 fun Any?.toJson(): String? = Gson().toJson(this)

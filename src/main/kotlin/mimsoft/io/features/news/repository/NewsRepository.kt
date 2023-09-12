@@ -6,6 +6,6 @@ interface NewsRepository {
     suspend fun add(dto: NewsDto?): Long?
     suspend fun update(dto: NewsDto?): Boolean
     suspend fun getById(id: Long, merchantId: Long?): NewsDto?
-    suspend fun getAll(merchantId: Long?): List<NewsDto?>
+    suspend fun getAll(merchantId: Long?, limit: Int, offset: Int): List<NewsDto?>
     suspend fun delete(id: Long, merchantId: Long?): Boolean
 }

@@ -1,9 +1,9 @@
 package mimsoft.io.features.order
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.badge.BadgeDto
@@ -31,6 +31,7 @@ object OrderUtils {
         val query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.products o_products,
@@ -109,6 +110,7 @@ object OrderUtils {
         var query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.products o_products,
@@ -289,6 +291,7 @@ object OrderUtils {
         var query = """
             SELECT 
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.status o_status,
@@ -324,6 +327,9 @@ object OrderUtils {
             WHERE o.deleted = false 
         """.trimIndent()
 
+        if(columnsSet.contains("search")){
+
+        }
 
         query += (if (columnsSet.contains("user")) """,
                     u.id u_id,
@@ -343,6 +349,24 @@ object OrderUtils {
                     m.logo m_logo,
                     m.is_active m_is_active,
                     m.sub m_sub """ else "") +
+                (if (columnsSet.contains("payment_type"))
+                    """, 
+                    p.id p_id,
+                    p.name p_name,
+                    p.icon p_icon,
+                    p.title_uz p_title_uz,
+                    p.title_ru p_title_ru,
+                    p.title_eng p_title_eng """ else "") +
+                (if (columnsSet.contains("branch"))
+                    """,
+                    b.id b_id,
+                    b.name_uz b_name_uz,
+                    b.name_ru b_name_ru,
+                    b.name_eng b_name_eng,
+                    b.longitude b_longitude,
+                    b.latitude b_latitude,
+                    b.open b_open,
+                    b.close b_close """ else "") +
                 (if (columnsSet.contains("collector"))
                     """,
                     s.id s_id,
@@ -368,8 +392,13 @@ object OrderUtils {
                 """.trimIndent() else "")
         joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
                 (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
+                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "") +
+                (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type p ON o.payment_type = p.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
                 (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
+
+
+
 //        conditions += """AND (
 //                        o.comment LIKE ? OR
 //                        o.add_desc LIKE ? OR
@@ -422,12 +451,13 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
-    fun getQuery(params: Map<String, *>?, vararg columns: String,orderId:Long?): Search {
+    fun getQuery(params: Map<String, *>?, vararg columns: String, orderId: Long?): Search {
         val columnsSet = columns.toSet()
         var query = """
             SELECT 
             count(*) over() count,
             o.id o_id,
+            o.post_id o_post_id,
             o.user_id o_user_id,
             o.user_phone o_user_phone,
             o.status o_status,
@@ -463,8 +493,8 @@ object OrderUtils {
             WHERE o.deleted = false 
         """.trimIndent()
 
-        if(orderId!=null){
-            conditions+=" and o.id = $orderId"
+        if (orderId != null) {
+            conditions += " and o.id = $orderId"
         }
         val queryParams: MutableMap<Int, Any> = mutableMapOf(
         )
@@ -508,6 +538,12 @@ object OrderUtils {
                 conditions += " AND o.on_wave = ?  "
                 params["onWave"]?.let { it1 -> queryParams.put(++index, it1) }
             }
+
+            if(params["search"] != null){
+                val status = params["search"]
+                conditions += " AND o.status = '$status'"
+            }
+
             conditions += " ORDER BY o.id DESC"
             if (params["limit"] != null) {
                 conditions += " LIMIT ${params["limit"] as? Int} "
@@ -552,11 +588,15 @@ object OrderUtils {
                     b.id b_id,
                     b.name_uz b_name_uz,
                     b.name_ru b_name_ru,
-                    b.name_eng b_name_eng  """ else "") +
+                    b.name_eng b_name_eng , 
+                    b.jowi_id b_jowi_id """ else "") +
                 (if (columnsSet.contains("payment_type"))
                     """,
                     pt.id pt_id,
                     pt.icon pt_icon,
+                    pt.title_uz pt_title_uz,
+                    pt.title_ru pt_title_ru,
+                    pt.title_eng pt_title_eng,
                     pt.name pt_name """ else "") +
                 (if (columnsSet.contains("courier"))
                     """ ,
@@ -573,8 +613,8 @@ object OrderUtils {
         joins += (if (columnsSet.contains("user")) "LEFT JOIN users u ON o.user_id = u.id \n" else "") +
                 (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
-                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")+
-                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "")+
+                (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "") +
+                (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "") +
                 (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type pt  ON o.payment_type = pt.id \n" else "")
         println(query + joins + conditions)
         return Search(query + joins + conditions, queryParams)
@@ -588,9 +628,10 @@ object OrderUtils {
         val products = result.getOrDefault("o_products", null) as? String
         return Order(
             id = result.getOrDefault("o_id", null) as? Long?,
+            posterId = result.getOrDefault("o_post_id", null) as? Long?,
             serviceType = result.getOrDefault("o_service_type", null) as? String?,
             status = result.getOrDefault("o_status", null) as? String?,
-            user = if (columns.contains("user")) UserDto(
+            user = UserDto( //if (columns.contains("user"))
                 id = result.getOrDefault("o_user_id", null) as? Long?,
                 firstName = result.getOrDefault("u_first_name", null) as? String?,
                 lastName = result.getOrDefault("u_last_name", null) as? String?,
@@ -598,7 +639,7 @@ object OrderUtils {
                 image = result.getOrDefault("u_image", null) as? String?,
                 birthDay = result.getOrDefault("u_birth_day", null) as? Timestamp?,
                 badge = BadgeDto(id = result.getOrDefault("u_badge_id", null) as? Long?)
-            ) else UserDto(),
+            ), // else UserDto(),
             merchant = if (columns.contains("merchant")) MerchantDto(
                 id = result.getOrDefault("o_merchant_id", null) as? Long?,
                 name = TextModel(
@@ -632,7 +673,7 @@ object OrderUtils {
             branch = BranchDto(id = result.getOrDefault("o_branch_id", null) as? Long),
             totalPrice = result.getOrDefault("o_total_price", null) as? Long,
             products = gsonToList(products, CartItem::class.java),
-            paymentType = (result.getOrDefault("o_payment_type", null) as? Int?)?.toLong(),
+            paymentMethod = PaymentTypeDto(id = (result.getOrDefault("o_payment_type", null) as? Int?)?.toLong()),
             isPaid = result.getOrDefault("o_is_paid", null) as? Boolean?,
             comment = result.getOrDefault("o_comment", null) as? String?,
             productCount = result.getOrDefault("o_product_count", null) as Int?,
@@ -642,11 +683,12 @@ object OrderUtils {
         )
     }
 
-    fun parseGetAll2(result: Map<String, *>): Order {
+    suspend fun parseGetAll2(result: Map<String, *>): Order {
         val products = result["o_products"] as? String
         log.info("products {}", products)
         return Order(
             id = result["o_id"] as? Long?,
+            posterId = result["o_post_id"] as? Long?,
             serviceType = result["o_service_type"] as? String?,
             status = result["o_status"] as? String?,
             total = result["count"] as? Long?,
@@ -688,15 +730,27 @@ object OrderUtils {
                 longitude = result["o_add_long"] as? Double?,
                 description = result["o_add_desc"] as? String
             ),
-            branch = BranchDto(id = result["o_branch_id"] as? Long, name =TextModel(
-                uz = result["b_name_uz"] as String?,
-                ru = result["b_name_ru"] as String?,
-                eng = result["b_name_eng"] as String?
-            ) ),
+            branch = BranchDto(
+                id = result["o_branch_id"] as? Long,
+                name = TextModel(
+                    uz = result["b_name_uz"] as String?,
+                    ru = result["b_name_ru"] as String?,
+                    eng = result["b_name_eng"] as String?
+                ),
+                jowiPosterId = result["b_jowi_id"] as String?
+            ),
             totalPrice = result["o_total_price"] as? Long,
-            products = gsonToList(products, CartItem::class.java),
-            paymentType = (result["o_payment_type"] as? Int?)?.toLong(),
-            payment = PaymentTypeDto(id = result["pt_id"] as? Long,name = result["pt_name"] as? String,icon = result["pt_icon"] as? String),
+            products = getProducts(products) as List<CartItem>?,
+            paymentMethod = PaymentTypeDto(
+                id = result["pt_id"] as? Long,
+                title = TextModel(
+                    uz = result["pt_title_uz"] as? String,
+                    ru = result["pt_title_ru"] as? String,
+                    eng = result["pt_title_eng"] as? String
+                ),
+                name = result["pt_name"] as? String,
+                icon = result["pt_icon"] as? String
+            ),
             isPaid = result["o_is_paid"] as? Boolean?,
             comment = result["o_comment"] as? String?,
             productCount = result["o_product_count"] as Int?,
@@ -706,9 +760,15 @@ object OrderUtils {
         )
     }
 
+    private suspend fun getProducts(products: String?): List<CartItem?>? {
+        val products = gsonToList(products, CartItem::class.java)
+        return getByCartItem2(products)
+    }
+
     fun parse(result: Map<String, *>): Any {
         return Order(
             id = result.getOrDefault("id", null) as? Long?,
+            posterId = result.getOrDefault("post_id", null) as? Long?,
             serviceType = result.getOrDefault("service_type", null) as? String?,
             status = result.getOrDefault("status", null) as? String?,
             user = UserDto(id = result.getOrDefault("user_id", null) as? Long?),
@@ -722,11 +782,13 @@ object OrderUtils {
             ),
             branch = BranchDto(id = result.getOrDefault("branch_id", null) as? Long),
             products = gsonToList(result.getOrDefault("products", null) as? String, CartItem::class.java),
-            paymentType = (result.getOrDefault("payment_type", null) as? Int?)?.toLong(),
+            paymentMethod = PaymentTypeDto(id = (result.getOrDefault("payment_type", null) as? Int?)?.toLong()),
             isPaid = result.getOrDefault("is_paid", null) as? Boolean?,
             comment = result.getOrDefault("comment", null) as? String?,
             productCount = result.getOrDefault("product_count", null) as? Int?,
             totalPrice = result.getOrDefault("total_price", null) as? Long,
+            productPrice = result.getOrDefault("total_price", null) as? Long,
+            productDiscount = result.getOrDefault("total_price", null) as? Long,
             totalDiscount = result.getOrDefault("total_discount", null) as? Long,
             createdAt = result.getOrDefault("created_at", null) as? Timestamp?,
             updatedAt = result.getOrDefault("updated_at", null) as? Timestamp?,
@@ -736,14 +798,14 @@ object OrderUtils {
 
     suspend fun validate(order: Order): ResponseModel {
 
-        if (order.user?.id == null) {
+        /*if (order.user?.id == null) {
             return ResponseModel(body = mapOf("message" to "user id or user required"))
         } else {
             order.user = UserRepositoryImpl.get(order.user!!.id) ?: return ResponseModel(
                 httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "user not found")
             )
             log.info("user: {}", order.user.toJson())
-        }
+        }*/
 
         if (order.serviceType == null) {
             return ResponseModel(
@@ -756,7 +818,7 @@ object OrderUtils {
             order.address = it.body as? AddressDto
         }
 
-        if (order.paymentType == null) {
+        if (order.paymentMethod?.id == null) {
             return ResponseModel(
                 httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "paymentType is required")
             )
@@ -781,11 +843,15 @@ object OrderUtils {
             )
         }
 
+        /*OrderService.getProductCalculate(dto = order).let {
+            if (!it.isOk()) return it
+            return ResponseModel(body = order.copy(status = OrderStatus.OPEN.name))
+        }*/
+
         validateProduct(order).let {
             if (!it.isOk()) return it
             return ResponseModel(body = order.copy(status = OrderStatus.OPEN.name))
         }
-
     }
 
     private suspend fun validateAddress(address: AddressDto?): ResponseModel {
@@ -801,7 +867,7 @@ object OrderUtils {
         }
     }
 
-    private suspend fun validateProduct(order: Order?, merchantId: Long? = null): ResponseModel {
+    suspend fun validateProduct(order: Order?): ResponseModel {
         val products = order?.products
 
         val orderProducts = getByCartItem(products)
@@ -832,6 +898,12 @@ object OrderUtils {
             )
         }
 
+        val productCountMap: Map<Long?, Int?>? = products?.associateBy(
+            { (it.product?.id) ?: 0L }, { ((it.count) ?: 0) }
+        )
+        println("Product count map")
+        println(Gson().toJson(productCountMap))
+
         products?.map { cartItem ->
             getProducts.map {
                 val model = it as ProductDto
@@ -840,19 +912,49 @@ object OrderUtils {
                 }
             }
         }
+        println("get products")
+        println(Gson().toJson(getProducts))
 
+        println("get options")
+
+        println(Gson().toJson(getOptions))
         val totalProductPrice = getProducts.map { (it as ProductDto).costPrice }.sumOf { it?.toInt() ?: 0 }
         val totalProductDiscount = getProducts.map { ((it as ProductDto).costPrice?.times(it.discount ?: 0)?.div(100)) }
             .sumOf { it?.toInt() ?: 0 }
-        val totalOptionPrice = getOptions.map { (it as OptionDto).price }.sumOf { it?.toInt() ?: 0 }
-        val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt() ?: 0 }
-        val totalPrice = totalProductPrice + totalOptionPrice + totalExtraPrice
+
+        val totalOptionsPrice = getOptions.sumOf {
+            ((it as OptionDto).price ?: 0) *
+                    (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
+        }
+
+        val totalExtraPrice = getExtras.sumOf {
+            ((it as ExtraDto).price ?: 0) *
+                    (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
+        }
+
+
+        val totalPrice = totalProductPrice + totalOptionsPrice + totalExtraPrice
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
+        log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionsPrice, totalExtraPrice)
 
-        if (totalPrice.toLong() != order?.totalPrice && totalProductDiscount.toLong() != order?.totalDiscount) return ResponseModel(
+        println("totalPrice: $totalPrice")
+        println("order?.totalPrice: ${order?.totalPrice}")
+        println("order?.totalDiscount: ${order?.totalDiscount}")
+        println("totalProductDiscount: $totalProductDiscount")
+        if (totalPrice != order?.productPrice || totalProductDiscount.toLong() != order.productDiscount) return ResponseModel(
             body = mapOf("message" to "total price or discount not equal"), httpStatus = HttpStatusCode.BadRequest
         )
+
+        order.products?.map { cart ->
+            cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto?
+        }
+        var productCount = 0
+        order.products?.map {
+            productCount += it.count ?: 0
+        }
+        order.productCount = productCount
+        order.totalPrice = totalPrice - totalProductDiscount
 
         return ResponseModel(body = order)
     }
@@ -895,52 +997,172 @@ object OrderUtils {
                             image = productRs.getString("image"),
                             costPrice = productRs.getLong("cost_price"),
                             active = productRs.getBoolean("active"),
-                            discount = productRs.getLong("discount")
+                            discount = productRs.getLong("discount"),
+                            joinPosterId = productRs.getLong("join_poster_id")
                         )
                     )
                 }
-                val optionRs = connection.prepareStatement(queryOptions).executeQuery()
-                while (optionRs.next()) {
-                    optionsSet.add(
-                        OptionDto(
-                            id = optionRs.getLong("id"),
-                            merchantId = optionRs.getLong("merchant_id"),
-                            parentId = optionRs.getLong("parent_id"),
-                            productId = optionRs.getLong("product_id"),
-                            name = TextModel(
-                                uz = optionRs.getString("name_uz"),
-                                ru = optionRs.getString("name_ru"),
-                                eng = optionRs.getString("name_eng")
-                            ),
-                            image = optionRs.getString("image"),
-                            price = optionRs.getLong("price")
+                if (!optionIds.isNullOrEmpty()) {
+                    val optionRs = connection.prepareStatement(queryOptions).executeQuery()
+                    while (optionRs.next()) {
+                        optionsSet.add(
+                            OptionDto(
+                                id = optionRs.getLong("id"),
+                                merchantId = optionRs.getLong("merchant_id"),
+                                parentId = optionRs.getLong("parent_id"),
+                                productId = optionRs.getLong("product_id"),
+                                name = TextModel(
+                                    uz = optionRs.getString("name_uz"),
+                                    ru = optionRs.getString("name_ru"),
+                                    eng = optionRs.getString("name_eng")
+                                ),
+                                image = optionRs.getString("image"),
+                                price = optionRs.getLong("price")
+                            )
                         )
-                    )
+                    }
                 }
-                val extraRs = connection.prepareStatement(queryExtras).executeQuery()
-                while (extraRs.next()) {
-                    extrasSet.add(
-                        ExtraDto(
-                            id = extraRs.getLong("id"),
-                            image = extraRs.getString("image"),
-                            price = extraRs.getLong("price"),
-                            merchantId = extraRs.getLong("merchant_id"),
-                            name = TextModel(
-                                uz = extraRs.getString("name_uz"),
-                                ru = extraRs.getString("name_ru"),
-                                eng = extraRs.getString("name_eng")
-                            ),
-                            productId = extraRs.getLong("product_id")
+                if (!extraIds.isNullOrEmpty()) {
+                    val extraRs = connection.prepareStatement(queryExtras).executeQuery()
+                    while (extraRs.next()) {
+                        extrasSet.add(
+                            ExtraDto(
+                                id = extraRs.getLong("id"),
+                                image = extraRs.getString("image"),
+                                price = extraRs.getLong("price"),
+                                merchantId = extraRs.getLong("merchant_id"),
+                                name = TextModel(
+                                    uz = extraRs.getString("name_uz"),
+                                    ru = extraRs.getString("name_ru"),
+                                    eng = extraRs.getString("name_eng")
+                                ),
+                                productId = extraRs.getLong("product_id")
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
-
         return ResponseModel(
             body = mapOf(
                 "products" to productsSet, "options" to optionsSet, "extras" to extrasSet
             )
         )
+    }
+
+    private suspend fun getByCartItem2(products: List<CartItem?>?, merchantId: Long? = null): List<CartItem?>? {
+
+        val productIds = products?.mapNotNull { it?.product?.id }?.joinToString()
+        val optionIds = products?.mapNotNull { it?.option?.id }?.joinToString()
+        val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
+
+        val queryProducts = "select * from product where id in ($productIds) and not deleted order by id"
+        println("queryProducts -> $queryProducts")
+        val queryOptions = "select * from options where id in ($optionIds) and not deleted order by product_id"
+        println("queryOptions -> $queryOptions")
+        val queryExtras = "select * from extra where id in ($extraIds) and not deleted order by product_id"
+        println("queryExtras -> $queryExtras")
+
+        val productsSet: MutableMap<Long, ProductDto> = mutableMapOf()
+        val optionsSet: MutableMap<Long, OptionDto> = mutableMapOf()
+        val extrasSet: MutableMap<Long, ExtraDto> = mutableMapOf()
+
+        withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use { connection ->
+                val productRs = connection.prepareStatement(queryProducts).executeQuery()
+                while (productRs.next()) {
+                    productsSet.put(
+                        productRs.getLong("id"),
+                        ProductDto(
+                            id = productRs.getLong("id"),
+                            merchantId = productRs.getLong("merchant_id"),
+                            name = TextModel(
+                                uz = productRs.getString("name_uz"),
+                                ru = productRs.getString("name_ru"),
+                                eng = productRs.getString("name_eng")
+                            ),
+                            description = TextModel(
+                                uz = productRs.getString("description_uz"),
+                                ru = productRs.getString("description_ru"),
+                                eng = productRs.getString("description_eng")
+                            ),
+                            image = productRs.getString("image"),
+                            costPrice = productRs.getLong("cost_price"),
+                            active = productRs.getBoolean("active"),
+                            discount = productRs.getLong("discount")
+                        )
+                    )
+                }
+                if (!optionIds.isNullOrEmpty()) {
+                    val optionRs = connection.prepareStatement(queryOptions).executeQuery()
+                    while (optionRs.next()) {
+                        optionsSet.put(
+                            optionRs.getLong("id"),
+                            OptionDto(
+                                id = optionRs.getLong("id"),
+                                merchantId = optionRs.getLong("merchant_id"),
+                                parentId = optionRs.getLong("parent_id"),
+                                productId = optionRs.getLong("product_id"),
+                                name = TextModel(
+                                    uz = optionRs.getString("name_uz"),
+                                    ru = optionRs.getString("name_ru"),
+                                    eng = optionRs.getString("name_eng")
+                                ),
+                                image = optionRs.getString("image"),
+                                price = optionRs.getLong("price"),
+                                jowiId = optionRs.getString("jowi_id")
+                            )
+                        )
+                    }
+                }
+                if (!extraIds.isNullOrEmpty()) {
+                    val extraRs = connection.prepareStatement(queryExtras).executeQuery()
+                    while (extraRs.next()) {
+                        extrasSet.put(
+                            extraRs.getLong("id"),
+                            ExtraDto(
+                                id = extraRs.getLong("id"),
+                                image = extraRs.getString("image"),
+                                price = extraRs.getLong("price"),
+                                merchantId = extraRs.getLong("merchant_id"),
+                                name = TextModel(
+                                    uz = extraRs.getString("name_uz"),
+                                    ru = extraRs.getString("name_ru"),
+                                    eng = extraRs.getString("name_eng")
+                                ),
+                                productId = extraRs.getLong("product_id"),
+                                jowiId = extraRs.getString("jowi_id")
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        if (products != null) {
+            for (product in products) {
+                product?.product = productsSet[product?.product?.id]
+                product?.option = optionsSet[product?.option?.id]
+                getExtras(extrasSet, product!!)
+            }
+        }
+
+        return products;
+    }
+
+    private fun getExtras(extrasSet: MutableMap<Long, ExtraDto>, product: CartItem) {
+        val extras = product.extras // Make a local copy of product.extras
+
+        if (extras != null) {
+            val list = arrayListOf<ExtraDto>()
+            for (x in 0 until extras.size) {
+                val extraId = extras[x].id
+                val extraDto = extrasSet[extraId]
+                if (extraDto != null) {
+                    list.add(extraDto)
+                }
+            }
+            product.extras = list
+        }
     }
 }
