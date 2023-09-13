@@ -20,6 +20,8 @@ servers:
 
 
 tags:
+  - name: Order2
+    description: Endpoints related to order2
 
   - name: Device
     description: Endpoints related to device
@@ -33,8 +35,10 @@ tags:
   - name: Favourite
     description: Endpoints related to favourite
 
-  - name: Order
-    description: Endpoints related to order
+#  - name: Order
+#    description: Endpoints related to order
+
+
 
   - name: Table
     description: Endpoints related to table
@@ -831,61 +835,62 @@ paths:
         "400":
           description: "Bad Request"
 
-  /client/orders:
-    get:
-      tags:
-        - Order
-      description: "Returns a list of all orders"
-      security:
-        - bearerAuth: [ ]
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/OrderDto"
-        "204":
-          description: "No Content"
-  /client/order:
-    post:
-      tags:
-        - Order
-      description: "Adds a new ordering"
-      security:
-        - bearerAuth: [ ]
-      requestBody:
-        description: "A JSON object containing ordering's information"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OrderDto"
-      responses:
-        "200":
-          description: "OK"
+#  /client/orders:
+#    get:
+#      tags:
+#        - Order
+#      description: "Returns a list of all orders"
+#      security:
+#        - bearerAuth: [ ]
+#      responses:
+#        "200":
+#          description: "OK"
+#          content:
+#            application/json:
+#              schema:
+#                type: "array"
+#                items:
+#                  $ref: "#/components/schemas/OrderDto"
+#        "204":
+#          description: "No Content"
 
-  /client/order/{id}:
-    delete:
-      tags:
-        - Order
-      description: "Deletes a ordering by its id"
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-        "400":
-          description: "Bad Request"
+#  /client/order:
+#    post:
+#      tags:
+#        - Order
+#      description: "Adds a new ordering"
+#      security:
+#        - bearerAuth: [ ]
+#      requestBody:
+#        description: "A JSON object containing ordering's information"
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: "#/components/schemas/OrderDto"
+#      responses:
+#        "200":
+#          description: "OK"
+
+#  /client/order/{id}:
+#    delete:
+#      tags:
+#        - Order
+#      description: "Deletes a ordering by its id"
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - name: "id"
+#          in: "path"
+#          required: true
+#          schema:
+#            type: "integer"
+#            format: "int64"
+#      responses:
+#        "200":
+#          description: "OK"
+#        "400":
+#          description: "Bad Request"
   /client/orders/{id}:
     get:
       tags:
@@ -1011,54 +1016,54 @@ paths:
         "400":
           description: "Bad Request"
 
-  /client/checkout:
-    post:
-      tags:
-        - Order
-      description: "Returns a checkout"
-      security:
-        - bearerAuth: [ ]
-      requestBody:
-        description: "A JSON object calculate checkout order"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CheckoutRequestDto"
-      responses:
-        "200":
-          description: "OK"
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
+#  /client/checkout:
+#    post:
+#      tags:
+#        - Order
+#      description: "Returns a checkout"
+#      security:
+#        - bearerAuth: [ ]
+#      requestBody:
+#        description: "A JSON object calculate checkout order"
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: "#/components/schemas/CheckoutRequestDto"
+#      responses:
+#        "200":
+#          description: "OK"
+#        "204":
+#          description: "No Content"
+#        "400":
+#          description: "Bad Request"
 
-  /client/order/history/get:
-    get:
-      tags:
-        - Order
-      description: "A Json object gives information about client order history"
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: "filter"
-          in: "query"
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/OrderWrapper"
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
+#  /client/order/history/get:
+#    get:
+#      tags:
+#        - Order
+#      description: "A Json object gives information about client order history"
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - name: "filter"
+#          in: "query"
+#          required: true
+#          schema:
+#            type: string
+#      responses:
+#        "200":
+#          description: "OK"
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  $ref: "#/components/schemas/OrderWrapper"
+#        "204":
+#          description: "No Content"
+#        "400":
+#          description: "Bad Request"
 
   /client/news:
     get:
@@ -1157,32 +1162,32 @@ paths:
           description: "No Content"
         "400":
           description: "Bad Request"
-  /client/order/info/{id}:
-    get:
-      tags:
-        - Order
-      description: "A Json object gives information about client order history info"
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-
-                $ref: "#/components/schemas/OrderWrapper"
-        "204":
-          description: "No Content"
-        "400":
-          description: "Bad Request"
+#  /client/order/info/{id}:
+#    get:
+#      tags:
+#        - Order
+#      description: "A Json object gives information about client order history info"
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - name: "id"
+#          in: "path"
+#          required: true
+#          schema:
+#            type: "integer"
+#            format: "int64"
+#      responses:
+#        "200":
+#          description: "OK"
+#          content:
+#            application/json:
+#              schema:
+#
+#                $ref: "#/components/schemas/OrderWrapper"
+#        "204":
+#          description: "No Content"
+#        "400":
+#          description: "Bad Request"
 
   /client/stories:
     get:
@@ -1422,6 +1427,210 @@ paths:
         "400":
           description: "Bad Request"
 
+
+
+
+
+
+
+
+
+  /client/cart:
+    post:
+      tags:
+        - Order
+      description: "post cart"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        description: "A JSON object receive cart info dto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartInfoDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CartInfoDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+
+  /client/orders:
+    get:
+      tags:
+        - Order2
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "search"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - name: "limit"
+          in: "query"
+          required: false
+          schema:
+            type: integer
+        - name: "offset"
+          in: "query"
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        204:
+          description: "No Content"
+
+
+  /client/order/{id}:
+    get:
+      tags:
+        - Order2
+      description: "Returns a book by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+    delete:
+      tags:
+        - Order2
+      description: "Deletes a ordering by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /client/order:
+    post:
+      tags:
+        - Order
+      description: "Adds a new ordering"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing orders information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                order:
+                  items:
+                    $ref: "#/components/schemas/OrderDto"
+                address:
+                  items:
+                    $ref: "#/components/schemas/AddressDto"
+                products:
+                  items:
+                    $ref: "#/components/schemas/CartItem"
+                user:
+                  items:
+                    $ref: "#/components/schemas/UserDto"
+                serviceType:
+                  type: "string"
+                paymentType:
+                  type: "integer"
+                  format: "long"
+                branch:
+                  items:
+                    $ref: "#/components/schemas/BranchDto"
+                totalPrice:
+                  type: "number"
+                  format: "double"
+                totalDiscount:
+                  items:
+                    type: "number"
+                    format: "double"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+
+  /client/order/info/{id}:
+    get:
+      tags:
+        - Order2
+      description: "A Json object gives information about client order history info"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
 #//==================================================================================================SCHEMAS===========
 components:
   schemas:
@@ -1445,7 +1654,6 @@ components:
         clientId:
           type: integer
           format: "long"
-
 
     NotificationDto:
       type: "object"
@@ -1527,11 +1735,11 @@ components:
           type: integer
           format: "long"
 
-    CheckoutRequestDto:
-      type: "object"
-      properties:
-        order:
-          $ref: "#/components/schemas/OrderWrapper"
+#    CheckoutRequestDto:
+#      type: "object"
+#      properties:
+#        order:
+#          $ref: "#/components/schemas/OrderWrapper"
 
     StaffDto:
       type: object
@@ -1779,23 +1987,23 @@ components:
           type: integer
           format: "long"
 
-    OrderWrapper:
-      type: "object"
-      properties:
-        details:
-          $ref: "#/components/schemas/Details"
-        order:
-          $ref: "#/components/schemas/OrderDto"
-        address:
-          $ref: "#/components/schemas/AddressDto"
-        products:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/CartItem"
-        user:
-          $ref: "#/components/schemas/UserDto"
-        price:
-          $ref: "#/components/schemas/OrderPriceDto"
+#    OrderWrapper:
+#      type: "object"
+#      properties:
+#        details:
+#          $ref: "#/components/schemas/Details"
+#        order:
+#          $ref: "#/components/schemas/OrderDto"
+#        address:
+#          $ref: "#/components/schemas/AddressDto"
+#        products:
+#          type: "array"
+#          items:
+#            $ref: "#/components/schemas/CartItem"
+#        user:
+#          $ref: "#/components/schemas/UserDto"
+#        price:
+#          $ref: "#/components/schemas/OrderPriceDto"
 
 
     OrderPriceDto:
@@ -1841,25 +2049,25 @@ components:
           type: integer
           format: "long"
 
-    OrderDto:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "long"
-        userId:
-          type: "integer"
-          format: "long"
-        type:
-          type: string
-        status:
-          type: "string"
-        courier:
-          $ref: "#/components/schemas/UserDto"
-        totalPrice:
-          type: "number"
-          format: "double"
 
+#    OrderDto:
+#      type: "object"
+#      properties:
+#        id:
+#          type: "integer"
+#          format: "long"
+#        userId:
+#          type: "integer"
+#          format: "long"
+#        type:
+#          type: string
+#        status:
+#          type: "string"
+#        courier:
+#          $ref: "#/components/schemas/UserDto"
+#        totalPrice:
+#          type: "number"
+#          format: "double"
 
     OrderType:
       type: "object"
@@ -2087,7 +2295,7 @@ components:
         orders:
           type: array
           items:
-            $ref: "#/components/schemas/OrderWrapper"
+            $ref: "#/components/schemas/CartVisitDto"
         waiter:
           $ref: "#/components/schemas/StaffDto"
         table:
@@ -2123,7 +2331,76 @@ components:
           type: "integer"
           format: "long"
 
+    CartVisitDto:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        count:
+          type: integer
+        isVerified:
+          type: boolean
+        status:
+          type: string
 
+
+    MerchantDto:
+      type: object
+
+    CartInfoDto:
+      type: "object"
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        serviceType:
+          type: "string"
+        productsPrice:
+          type: "integer"
+          format: "long"
+        productsDiscount:
+          type: "integer"
+          format: "long"
+
+    OrderDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        status:
+          type: "string"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        collector:
+          $ref: "#/components/schemas/StaffDto"
+        merchant:
+          $ref: "#/components/schemas/MerchantDto"
+        branch:
+          $ref: "#/components/schemas/BranchDto"
+        products:
+          $ref: "#/components/schemas/CartItem"
+        paymentType:
+          type: "integer"
+          format: "long"
+        isPaid:
+          type: "boolean"
+        comment:
+          type: "string"
+        productCount:
+          type: "integer"
+          format: "int64"
+        totalPrice:
+          type: "number"
+          format: "double"
+        totalDiscount:
+          type: "number"
+          format: "double"
+        address:
+          $ref: "#/components/schemas/AddressDto"
+        courier:
+          $ref: "#/components/schemas/StaffDto"
 
 
 

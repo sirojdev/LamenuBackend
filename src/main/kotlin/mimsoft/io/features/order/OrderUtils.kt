@@ -326,6 +326,9 @@ object OrderUtils {
             WHERE o.deleted = false 
         """.trimIndent()
 
+        if(columnsSet.contains("search")){
+
+        }
 
         query += (if (columnsSet.contains("user")) """,
                     u.id u_id,
@@ -392,6 +395,9 @@ object OrderUtils {
                 (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type p ON o.payment_type = p.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
                 (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
+
+
+
 //        conditions += """AND (
 //                        o.comment LIKE ? OR
 //                        o.add_desc LIKE ? OR
@@ -531,6 +537,12 @@ object OrderUtils {
                 conditions += " AND o.on_wave = ?  "
                 params["onWave"]?.let { it1 -> queryParams.put(++index, it1) }
             }
+
+            if(params["search"] != null){
+                val status = params["search"]
+                conditions += " AND o.status = '$status'"
+            }
+
             conditions += " ORDER BY o.id DESC"
             if (params["limit"] != null) {
                 conditions += " LIMIT ${params["limit"] as? Int} "
@@ -581,6 +593,9 @@ object OrderUtils {
                     """,
                     pt.id pt_id,
                     pt.icon pt_icon,
+                    pt.title_uz pt_title_uz,
+                    pt.title_ru pt_title_ru,
+                    pt.title_eng pt_title_eng,
                     pt.name pt_name """ else "") +
                 (if (columnsSet.contains("courier"))
                     """ ,
@@ -727,6 +742,11 @@ object OrderUtils {
             products = getProducts(products) as List<CartItem>?,
             paymentMethod = PaymentTypeDto(
                 id = result["pt_id"] as? Long,
+                title = TextModel(
+                    uz = result["pt_title_uz"] as? String,
+                    ru = result["pt_title_ru"] as? String,
+                    eng = result["pt_title_eng"] as? String
+                ),
                 name = result["pt_name"] as? String,
                 icon = result["pt_icon"] as? String
             ),
@@ -912,7 +932,6 @@ object OrderUtils {
         }
 
 
-//        val totalExtraPrice = getExtras.map { (it as ExtraDto).price }.sumOf { it?.toInt() ?: 0 }
         val totalPrice = totalProductPrice + totalOptionsPrice + totalExtraPrice
 
         log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
@@ -929,6 +948,12 @@ object OrderUtils {
         order.products?.map { cart ->
             cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto?
         }
+        var productCount = 0
+        order.products?.map {
+            productCount += it.count ?: 0
+        }
+        order.productCount = productCount
+        order.totalPrice = totalPrice - totalProductDiscount
 
         return ResponseModel(body = order)
     }
