@@ -21,20 +21,8 @@ fun Route.routeToClientVisit() {
             call.respond(HttpStatusCode.Conflict)
             return@post
         } else
-            call.respond(HttpStatusCode.OK, VisitId(response))
+            call.respond(HttpStatusCode.OK, (response))
     }
-
-    get("visits") {
-        val pr = getPrincipal()
-        val merchantId = pr?.merchantId
-        val userId = pr?.userId
-        val visits = VisitService.getAll(merchantId = merchantId, userId = userId)
-        if (visits.isEmpty()) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        } else call.respond(visits)
-    }
-}
 
     get("visits") {
         val pr = getPrincipal()

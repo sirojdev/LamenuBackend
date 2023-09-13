@@ -736,7 +736,7 @@ object OrderUtils {
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
                 ),
-                jowiPosterId = result["b_jowi_id"] as String?
+                jowiId = result["b_jowi_id"] as String?
             ),
             totalPrice = result["o_total_price"] as? Long,
             products = getProducts(products) as List<CartItem>?,

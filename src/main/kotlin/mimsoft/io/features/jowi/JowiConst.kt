@@ -1,12 +1,14 @@
 package mimsoft.io.features.jowi
 
+import mimsoft.io.features.jowi.JowiConst.API_KEY
+import mimsoft.io.features.jowi.JowiConst.API_SECRET
 import java.security.MessageDigest
 
 object JowiConst {
 
-    val API_KEY = "JNRijPDgK3KU0tCybkAJbSi46lQt-IpVe-vOL6Yy"
+    val API_KEY = "RRuGCQ64X-8urEOR6Feg0hK2xLRoOdLuCWxPzLrj"
     val API_SECRET = "EQ-ZzKG2VwtefVcNxKpfrfT9qJ66ImmNWLv16rMMCKaH7tDFxfSCnw"
-    val sig = "ec7642ecf6930b9876d07796d7cc7381cb82ffedb1b8f7d93ee97a7ce988fcc0"
+    val sig = "831390fe33a7f02"
 }
 fun sha256(apiKey: String,apiSecret:String): String {
     val messageDigest = MessageDigest.getInstance("SHA-256")
@@ -19,5 +21,5 @@ fun sha256(apiKey: String,apiSecret:String): String {
         }
         hexString.append(hex)
     }
-    return hexString.toString()
+    return hexString.toString().substring(0,10)+hexString.toString().substring(hexString.length-5)
 }

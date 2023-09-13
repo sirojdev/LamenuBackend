@@ -8,9 +8,9 @@ object JowiMapper {
         val createdOrder = CreateJowiOrder();
         createdOrder.api_key = JowiConst.API_KEY
         createdOrder.sig = JowiConst.sig
-        createdOrder.restaurant_id = order.branch?.jowiPosterId
+        createdOrder.restaurant_id = order.branch?.jowiId
         createdOrder.order = JowiOrder(
-            restaurant_id = order.branch?.jowiPosterId,
+            restaurant_id = order.branch?.jowiId,
             address = order.address?.description,
             phone = order.user?.phone,
             contact = order.user?.firstName,
