@@ -78,7 +78,6 @@ fun Route.routeToOrder() {
             call.respond(order!!)
 
         }
-
         /**
          * OPERATOR ORDER NI QABUL QILADI
          * */

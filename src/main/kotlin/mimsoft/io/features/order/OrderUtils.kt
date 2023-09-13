@@ -22,7 +22,6 @@ import mimsoft.io.utils.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
-
 object OrderUtils {
 
     val log: Logger = LoggerFactory.getLogger("OrderUtils")
@@ -668,7 +667,7 @@ object OrderUtils {
         )
     }
 
-    fun parseGetAll2(result: Map<String, *>): Order {
+    suspend fun parseGetAll2(result: Map<String, *>): Order {
         val products = result["o_products"] as? String
         log.info("products {}", products)
         return Order(
@@ -725,7 +724,7 @@ object OrderUtils {
                 jowiPosterId = result["b_jowi_id"] as String?
             ),
             totalPrice = result["o_total_price"] as? Long,
-            products =  getProducts(products) as List<CartItem>?,
+            products = getProducts(products) as List<CartItem>?,
             paymentMethod = PaymentTypeDto(
                 id = result["pt_id"] as? Long,
                 name = result["pt_name"] as? String,

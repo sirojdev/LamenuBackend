@@ -16,7 +16,6 @@ fun Route.routeToV1() {
     routeToDevice()
     routeToSysAdmin()
     routeToSysManager()
-
     routeToCouriers()
     routeToMerchant()
     routeToWaiter()
