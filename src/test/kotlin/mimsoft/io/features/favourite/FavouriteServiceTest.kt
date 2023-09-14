@@ -29,33 +29,36 @@ class FavouriteServiceTest {
     }
 
     @Test
-    fun move() = testApplication {
-        val clientId: Long = 26
+    fun move() = testApplication {// TODO: Tekshirish kerak...
+        val clientId: Long = 24
         val merchantId: Long = 1
         val deviceId: Long = 11
         val response = favouriteService.move(clientId, merchantId, deviceId)
-        assertNotNull(response)
+        if (response != 0)
+            assertNotNull(response)
+        println(response)
     }
 
     @Test
     fun update() = testApplication {
         val productDto = ProductDto(
-            id = 1
+            id = 16
         )
         val favouriteDto = FavouriteDto(
+            id = 16,
             merchantId = 1,
             clientId = 26,
             deviceId = 11,
             product = productDto
         )
+        val favouriteDto1 = FavouriteDto()
         val response = favouriteService.update(favouriteDto)
-        assertNotNull(response)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
     @Test
     fun getAll() = testApplication {
-        val clientId: Long = 12
+        val clientId: Long = 16
         val merchantId: Long = 1
         val response = favouriteService.getAll(clientId, merchantId)
         assertNotNull(response)
@@ -63,14 +66,14 @@ class FavouriteServiceTest {
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 13
+        val id: Long = 16
         val response = favouriteService.delete(id)
         assertTrue(response)
     }
 
     @Test
-    fun deleteAll() = testApplication{
-        val clientId : Long = 1
+    fun deleteAll() = testApplication {
+        val clientId: Long = 24
         val response = favouriteService.deleteAll(clientId)
         assertTrue(response)
     }

@@ -90,19 +90,21 @@ object RoomService : RoomRepository {
               and r.deleted = false
             order by created
         """.trimIndent()
-        return withContext(DBManager.databaseDispatcher){
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val list = mutableListOf<RoomTableDto>()
                 val rs = it.prepareStatement(query).executeQuery()
-                while (rs.next()){
+                while (rs.next()) {
                     val tables = rs.getString("tables")
-                    val typeToken = object: TypeToken<List<TableDto>>(){}.type
+                    val typeToken = object : TypeToken<List<TableDto>>() {}.type
                     val tableList = Gson().fromJson<List<TableDto>>(tables, typeToken)
-                    list.add(RoomTableDto(
-                        id = rs.getLong("id"),
-                        name = rs.getString("name"),
-                        tables = tableList
-                    ))
+                    list.add(
+                        RoomTableDto(
+                            id = rs.getLong("id"),
+                            name = rs.getString("name"),
+                            tables = tableList
+                        )
+                    )
                 }
                 return@withContext list
             }

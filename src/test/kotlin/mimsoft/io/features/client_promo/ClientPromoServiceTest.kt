@@ -52,7 +52,7 @@ class ClientPromoServiceTest {
 
     @Test
     fun check() = testApplication {// TODO: tekshirish kerak
-        val promoName = "Name"
+        val promoName = "kjbekjbw"
         val response = clientPromoService.check(promoName)
         assertNotNull(response)
     }
