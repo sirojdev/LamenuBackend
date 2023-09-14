@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi
+package mimsoft.io.integrate.jowi
 
 import io.ktor.client.*
 import io.ktor.client.call.*

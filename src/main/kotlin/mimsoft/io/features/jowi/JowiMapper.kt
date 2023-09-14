@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi
+package mimsoft.io.integrate.jowi
 
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.Order
