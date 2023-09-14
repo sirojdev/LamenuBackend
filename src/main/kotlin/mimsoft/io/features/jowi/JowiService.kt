@@ -15,6 +15,7 @@ import mimsoft.io.features.jowi.dto.*
 import mimsoft.io.features.staff.StaffService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.sql.ResultSet
 
 object JowiService {
 
@@ -45,22 +46,75 @@ object JowiService {
         println("res ${response.body<String>()}")
     }
 
-    suspend fun getRestaurant(branchId: Long?): JowiRestaurantsResponse {
+    suspend fun getRestaurant(): ArrayList<JowiRestaurant> {
         val response =
             client.get("https://api.jowi.club/v3/restaurants?api_key=${JowiConst.API_KEY}&&sig=${JowiConst.sig}") {
                 contentType(ContentType.Application.Json)
             }
-
-//        val type = TypeToken.getParameterized(List::class.java, JowiRestaurant::class.java).type
         val result = Gson().fromJson(response.body<String>(), JowiRestaurantsResponse::class.java)
-        saveToJowiTable(result.restaurants, branchId)
-        return result
+        saveToJowiTable(result.restaurants)
+        return filter(result)
     }
 
-    private suspend fun saveToJowiTable(restaurants: List<JowiRestaurant>?, branchId: Long?) {
+    private suspend fun filter(result: JowiRestaurantsResponse?): ArrayList<JowiRestaurant> {
+        val newRestaurant = ArrayList<JowiRestaurant>()
+        val list = getRestaurantFromDB()
+        if (result != null && !result.restaurants.isNullOrEmpty()) {
+            for (x in result.restaurants) {
+                if (!isExist(x, list)) {
+                    newRestaurant.add(x)
+                }
+            }
+        }
+        return newRestaurant
+    }
+
+    private fun isExist(restaurant: JowiRestaurant, list: ArrayList<JowiRestaurant>): Boolean {
+        for (res in list) {
+            if (res.id == restaurant.id && res.branchId != 0L) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private suspend fun getRestaurantFromDB(): ArrayList<JowiRestaurant> {
+        val query = """select * from $JOWI_RESTAURANT
+        """.trimIndent()
+        var list = ArrayList<JowiRestaurant>()
+        withContext(Dispatchers.IO) {
+            StaffService.repository.connection().use {
+                var rs = it.prepareStatement(query).apply {
+
+                }.executeQuery()
+                while (rs.next()) {
+                    list.add(getOne(rs))
+                }
+            }
+        }
+        return list
+
+    }
+
+    private fun getOne(rs: ResultSet): JowiRestaurant {
+        return JowiRestaurant(
+            id = rs.getString("jowi_id"),
+            title = rs.getString("title"),
+            timezone = rs.getString("timezone"),
+            description = rs.getString("description"),
+            type = rs.getString("type"),
+            longitude = rs.getString("longitude"),
+            latitude = rs.getString("latitude"),
+            address = rs.getString("address"),
+            merchantId = rs.getLong("merchant_id"),
+            branchId = rs.getLong("branch_id"),
+        )
+    }
+
+    private suspend fun saveToJowiTable(restaurants: List<JowiRestaurant>?) {
         val query = """
-            INSERT INTO $JOWI_RESTAURANT (branch_id,jowi_id,title,timezone,description,type,work_time,phone,longitude,latitude,address)
-            SELECT ?,?,?,?,?,?,?,?,?,?,?
+            INSERT INTO $JOWI_RESTAURANT (jowi_id,title,timezone,description,type,work_time,phone,longitude,latitude,address)
+            SELECT ?,?,?,?,?,?,?,?,?,?
             WHERE NOT EXISTS (
                     SELECT 1
                     FROM jowi_restaurant
@@ -74,18 +128,17 @@ object JowiService {
                     val st = it.prepareStatement(query)
                     for (res in restaurants) {
                         st.apply {
-                            setLong(1, branchId!!)
-                            setString(2, res.id)
-                            setString(3, res.title)
-                            setString(4, res.timezone)
-                            setString(5, res.description)
-                            setString(6, res.type)
-                            setString(7, res.workTime)
-                            setString(8, res.phone)
-                            setString(9, res.longitude)
-                            setString(10, res.latitude)
-                            setString(11, res.address)
-                            setString(12, res.id)
+                            setString(1, res.id)
+                            setString(2, res.title)
+                            setString(3, res.timezone)
+                            setString(4, res.description)
+                            setString(5, res.type)
+                            setString(6, res.workTime)
+                            setString(7, res.phone)
+                            setString(8, res.longitude)
+                            setString(9, res.latitude)
+                            setString(10, res.address)
+                            setString(11, res.id)
                         }.addBatch()
                     }
                     st.executeBatch()
@@ -95,8 +148,46 @@ object JowiService {
 
     }
 
-    fun joinRestaurant(branchId: String?, restaurantId: String?) {
-        val query = "insert into "
+    suspend fun joinRestaurant(branchId: Long, restaurantId: String, merchantId: Long): Boolean {
+        val query =
+            "update  $JOWI_RESTAURANT set branch_id = $branchId  , merchant_id = $merchantId where jowi_id = ?"
+        var rs = false
+        withContext(Dispatchers.IO) {
+            StaffService.repository.connection().use {
+                val st = it.prepareStatement(query).apply {
+                    setString(1, restaurantId)
+                }.executeUpdate()
+                rs = st == 1
+            }
+        }
+        return rs
+    }
+
+    suspend fun getCourseById(id: String): Courses? {
+        val query =
+            "select * from $JOWI_PRODUCTS where jowi_id = ? "
+        var rs: Courses? = null
+        withContext(Dispatchers.IO) {
+            StaffService.repository.connection().use {
+                val st = it.prepareStatement(query).apply {
+                    setString(1, id)
+                }.executeQuery()
+                if (st.next()) {
+                    rs = getOneCourse(st)
+                }
+            }
+        }
+        return rs
+    }
+
+    private fun getOneCourse(st: ResultSet): Courses {
+        return Courses(
+            id = st.getString("jowi_id"),
+            price = st.getDouble("price"),
+            priceForOnlineOrder = st.getDouble("price_for_online_order"),
+            onlineOrder = st.getBoolean("online_order")
+        )
+
     }
 
     suspend fun getProducts(restaurantId: String?): JowiCoursesResponse? {
@@ -105,7 +196,7 @@ object JowiService {
                 contentType(ContentType.Application.Json)
             }
         val result = Gson().fromJson(response.body<String>(), JowiCoursesResponse::class.java)
-        saveToJowiProductTable(result.courses)
+//        saveToJowiProductTable(result.courses)   // keyinchalik optimallashtiriladi
         return result
     }
 

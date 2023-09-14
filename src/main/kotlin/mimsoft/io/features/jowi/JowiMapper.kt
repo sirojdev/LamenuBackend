@@ -4,7 +4,7 @@ import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.Order
 
 object JowiMapper {
-    fun toJowiDto(order: Order): CreateJowiOrder {
+   suspend fun toJowiDto(order: Order): CreateJowiOrder {
         val createdOrder = CreateJowiOrder();
         createdOrder.api_key = JowiConst.API_KEY
         createdOrder.sig = JowiConst.sig
@@ -20,7 +20,7 @@ object JowiMapper {
             } else {
                 1
             },
-            amount_order = 999*3,
+            amount_order = getAmount(order)?.toLong(),
             payment_method = if (order.paymentMethod?.id?.toInt() == 0) {
                 0
             } else {
@@ -40,24 +40,55 @@ object JowiMapper {
 
     }
 
+    private suspend fun getAmount(order: Order): Double? {
+        var amount = 0.0
+        for (p in order.products!!) {
+            amount += if (p.option != null) {
+                p.option!!.jowiId?.let { JowiService.getCourseById(it)?.priceForOnlineOrder }!!
+            } else {
+                p.product!!.jowiId?.let { JowiService.getCourseById(it)?.priceForOnlineOrder }!!
+            }
+        }
+        return amount
+    }
+
     private fun getCourses(products: List<CartItem>?): List<Course>? {
         val courses = ArrayList<Course>()
+//        if (products != null) {
+//            for (p in products) {
+//                if (p.extras != null) {
+//                    for (extra in p.extras!!) {
+//                        courses.add(
+//                            Course(
+//                                course_id = extra?.jowiId,
+//                                count = p.count,
+//                            )
+//                        )
+//                    }
+//                }
+//                if(p.option!=null){
+//                    courses.add(
+//                        Course(
+//                            course_id = p.option?.jowiId,
+//                            count = p.count,
+//                        )
+//                    )
+//                }
+//            }
+//        }
         if (products != null) {
             for (p in products) {
-                if (p.extras != null) {
-                    for (extra in p.extras!!) {
-                        courses.add(
-                            Course(
-                                course_id = extra?.jowiId,
-                                count = p.count,
-                            )
-                        )
-                    }
-                }
-                if(p.option!=null){
+                if (p.option == null) {
                     courses.add(
                         Course(
-                            course_id = p.option?.jowiId,
+                            course_id = p.product?.jowiId,
+                            count = p.count,
+                        )
+                    )
+                } else {
+                    courses.add(
+                        Course(
+                            course_id = p.option!!.jowiId,
                             count = p.count,
                         )
                     )

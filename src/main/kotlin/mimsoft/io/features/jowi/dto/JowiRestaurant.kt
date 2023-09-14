@@ -21,6 +21,8 @@ data class JowiRestaurant(
     val phone: String? = null,
     val longitude: String? = null,
     val latitude: String? = null,
-    val address: String? = null
+    val address: String? = null,
+    val merchantId:Long?=null,
+    val branchId:Long?=null
 )
 

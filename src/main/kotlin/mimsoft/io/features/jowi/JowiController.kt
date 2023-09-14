@@ -15,18 +15,22 @@ fun Route.routeToJowi() {
         /**
          * bitta developer boladi va bu developerdagi barcha restaurantlarni olib kelib beradi va client ozini restaurantini tanlab oladi
          * har safar restaurantlar olib kelinadi va branchga boglanadi
-         *
-         *  * */
+         *         *  * */
         get("restaurant") {
-            val branchId = call.parameters["branchId"]?.toLongOrNull()
-            if(branchId==null){
-                call.respond(HttpStatusCode.BadRequest)
-            }
-            val restaurants = JowiService.getRestaurant(branchId)
+            val restaurants = JowiService.getRestaurant()
             call.respond(restaurants)
         }
 
-
+        get("join") {
+            val branchId = call.parameters["branchId"]?.toLongOrNull()
+            val merchantId = call.parameters["merchantId"]?.toLongOrNull()
+            val restaurantId = call.parameters["restaurantId"]
+            if (branchId == null || merchantId == null || restaurantId == null) {
+                call.respond(HttpStatusCode.BadRequest)
+            } else {
+                call.respond(JowiService.joinRestaurant(branchId, restaurantId, merchantId))
+            }
+        }
         /**
          * shu restaurantni mahsulotlarini olib keladi
          * id ni product table ga qoshadi qolgan malumotlari jowi_productsga qoshiladi
