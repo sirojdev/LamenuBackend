@@ -1,4 +1,4 @@
-package mimsoft.io.features.poster
+package mimsoft.io.features.pos.poster
 
 import java.sql.Timestamp
 const val POSTER_TABLE = "poster"

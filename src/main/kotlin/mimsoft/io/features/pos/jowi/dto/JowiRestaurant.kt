@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi.dto
+package mimsoft.io.features.pos.jowi.dto
 
 import com.google.gson.annotations.SerializedName
 

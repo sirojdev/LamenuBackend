@@ -1,4 +1,4 @@
-package mimsoft.io.features.poster
+package mimsoft.io.features.pos.poster
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -44,7 +44,7 @@ object PosterService {
             ResponseModel(
                 body = (repository.postData(
                     dataClass = PosterTable::class,
-                    dataObject = mapper.toPosterTable(posterDto),
+                    dataObject = PosterMapper.toPosterTable(posterDto),
                     tableName = POSTER_TABLE
                 ) != null),
                 ResponseModel.OK

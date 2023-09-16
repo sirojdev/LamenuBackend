@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi
+package mimsoft.io.features.pos.jowi
 
 import com.google.gson.Gson
 import io.ktor.client.*
@@ -12,6 +12,7 @@ import io.ktor.serialization.gson.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.jowi.dto.*
+import mimsoft.io.features.pos.jowi.dto.*
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.repository.DBManager

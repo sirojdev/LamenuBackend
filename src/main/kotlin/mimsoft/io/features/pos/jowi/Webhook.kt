@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi
+package mimsoft.io.features.pos.jowi
 
 data class Webhook(
     val status: Int? = null,

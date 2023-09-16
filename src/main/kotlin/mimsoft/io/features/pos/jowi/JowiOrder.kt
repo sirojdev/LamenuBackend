@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi
+package mimsoft.io.features.pos.jowi
 
 
 
@@ -6,7 +6,7 @@ data class CreateJowiOrder(
     var api_key:String?=null,
     var sig:String?=null,
     var restaurant_id: String?=null,
-    var order:JowiOrder?=null
+    var order: JowiOrder?=null
 ){
 
 }

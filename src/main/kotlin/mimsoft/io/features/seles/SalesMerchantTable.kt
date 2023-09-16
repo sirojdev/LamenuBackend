@@ -16,5 +16,6 @@ data class SalesMerchantTable(
     val deleted: Boolean? = null,
     val created: Timestamp? = null,
     var updated: Timestamp? = null,
-    var isActive: Boolean? = null
+    var isActive: Boolean? = null,
+    val post: String?= null
 )

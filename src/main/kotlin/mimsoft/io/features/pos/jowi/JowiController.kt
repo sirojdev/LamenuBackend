@@ -1,4 +1,4 @@
-package mimsoft.io.features.jowi
+package mimsoft.io.features.pos.jowi
 
 import io.ktor.http.*
 import io.ktor.server.application.*

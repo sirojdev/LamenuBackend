@@ -1,4 +1,4 @@
-package mimsoft.io.features.poster
+package mimsoft.io.features.pos.poster
 
 import io.ktor.http.*
 import io.ktor.server.application.*

@@ -1,7 +1,7 @@
-package mimsoft.io.features.jowi.dto
+package mimsoft.io.features.pos.jowi.dto
 
 import com.google.gson.annotations.SerializedName
-import mimsoft.io.features.jowi.Course
+import mimsoft.io.features.pos.jowi.Course
 
 const val JOWI_PRODUCTS = "jowi_products"
 
