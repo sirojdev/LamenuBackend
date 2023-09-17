@@ -22,6 +22,7 @@ import mimsoft.io.utils.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
+
 object OrderUtils {
 
     val log: Logger = LoggerFactory.getLogger("OrderUtils")
@@ -326,7 +327,7 @@ object OrderUtils {
             WHERE o.deleted = false 
         """.trimIndent()
 
-        if(columnsSet.contains("search")){
+        if (columnsSet.contains("search")) {
 
         }
 
@@ -395,7 +396,6 @@ object OrderUtils {
                 (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type p ON o.payment_type = p.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
                 (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
-
 
 
 //        conditions += """AND (
@@ -538,7 +538,7 @@ object OrderUtils {
                 params["onWave"]?.let { it1 -> queryParams.put(++index, it1) }
             }
 
-            if(params["search"] != null){
+            if (params["search"] != null) {
                 val status = params["search"]
                 conditions += " AND o.status = '$status'"
             }
@@ -755,7 +755,8 @@ object OrderUtils {
             productCount = result["o_product_count"] as Int?,
             createdAt = result["o_created_at"] as? Timestamp?,
             updatedAt = result["o_updated_at"] as? Timestamp?,
-            deleted = result["o_deleted"] as? Boolean?
+            deleted = result["o_deleted"] as? Boolean?,
+            deliveredAt = result["o_delivered_at"] as? Timestamp?,
         )
     }
 
