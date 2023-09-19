@@ -10,18 +10,21 @@ import mimsoft.io.integrate.click.ClickLogModel.Companion.COMPLETE_IN
 import mimsoft.io.integrate.click.ClickLogModel.Companion.COMPLETE_OUT
 import mimsoft.io.integrate.click.ClickLogModel.Companion.PREPARE_IN
 import mimsoft.io.integrate.click.ClickLogModel.Companion.PREPARE_OUT
+import mimsoft.io.utils.toJson
 
 const val CLICK_EXPIRED_TIME = 45 * 60 * 1000L
 
 fun Route.routeToClick() {
 
     post("payment/click/prepare/{merchantId}") {
+        println("INSIDE POST PREPARE")
         val merchantId = call.parameters["merchantId"]?.toLong()
         if (merchantId == null) {
             call.respondText("merchantId is null")
             return@post
         }
         val parameters = call.receiveParameters()
+        println("PARAMETRES ${parameters.toJson()}")
         val response = ClickService.prepare(parameters, merchantId)
         coroutineScope {
             launch {
@@ -29,6 +32,7 @@ fun Route.routeToClick() {
                 ClickRepo.clickLog(PREPARE_OUT, response)
             }
         }
+        println(" finish $response")
         call.respond(response)
     }
 
@@ -40,6 +44,7 @@ fun Route.routeToClick() {
         }
         val parameters = call.receiveParameters()
         println(parameters)
+        println(parameters["click_trans_id"])
         val response = ClickService.complete(parameters, merchantId)
         coroutineScope {
             launch {
@@ -47,6 +52,7 @@ fun Route.routeToClick() {
                 ClickRepo.clickLog(COMPLETE_OUT, response)
             }
         }
+        println("response complete $response")
         call.respond(response)
     }
 
