@@ -1,0 +1,223 @@
+openapi: 3.0.3
+info:
+  title: Staff profile
+  description: There are all the endpoints for staff profile
+  version: 1.0.0
+servers:
+  - url: 'http://0.0.0.0:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+
+paths:
+  /staffs:
+    get:
+      tags:
+        - Staff
+      description: "Returns a list of all staffs"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/StaffDto'
+        "204":
+          description: "No content"
+  /staff:
+    post:
+      tags:
+        - Staff
+      description: "Creates a new staff"
+      requestBody:
+        description: "A JSON object containing staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Staff
+      description: "Updates an existing staff"
+      requestBody:
+        description: "A JSON object containing updated staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /staff/{id}:
+    get:
+      tags:
+        - Staff
+      description: "Returns a staff by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffDto"
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad request"
+    delete:
+      tags:
+        - Staff
+      description: "Deletes a staff by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad request"
+
+  /onlinePbx/callsHistory:
+    get:
+      tags:
+        - Staff
+      description: "Deletes a staff by its ID"
+      parameters:
+        - name: "startStampFrom"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "yyyy-MM-dd"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/CallHistoryDto'
+        "400":
+          description: "Bad request"
+
+
+
+
+components:
+  schemas:
+    StaffDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        username:
+          type: "string"
+        password:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        image:
+          type: "string"
+        position:
+          $ref: "#/components/schemas/PositionDto"
+
+    PositionDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleDto"
+
+    RoleDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        staffId:
+          type: "integer"
+          format: "long"
+        menu:
+          type: boolean
+        delivery:
+          type: boolean
+
+    CallHistoryDto:
+      type: array
+      items:
+        $ref: "#/components/schemas/CallModel"
+
+
+    CallModel:
+      type: object
+      properties:
+        accountcode:
+          type: "string"
+        caller_id_name:
+          type: "string"
+        caller_id_number:
+          type: "string"
+        destination_number:
+          type: "string"
+        direction:
+          type: "string"
+        end_stamp:
+          type: "integer"
+          format: "long"
+        from_host:
+          type: "string"
+        gateway:
+          type: "string"
+        hangup_cause:
+            type: "string"
+        quality_score:
+          type: "integer"
+          format: "long"
+        start_stamp:
+            type: "integer"
+            format: "long"
+        to_host:
+            type: "string"
+        user_talk_time:
+            type: "integer"
+            format: "long"
+        uuid:
+            type: "string"
+        outgoingCall:
+            type: "boolean"

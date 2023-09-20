@@ -1,0 +1,217 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://0.0.0.0:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+
+paths:
+  /login:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get login token and sending verification code to phone"
+      requestBody:
+        description: "This object must contain only deviceUuid:unique and phone"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+  /verify:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get access and refresh tokens 
+      if this user exist else token for registration"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "This object must contain only verification code"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+  /reg:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get access and refresh tokens after registration"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing user information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/LoginResponse'
+
+  /users:
+    get:
+      tags:
+        - Users
+      description: "Returns a list of all users"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/UserDto'
+        "204":
+          description: "No content"
+  /user:
+    post:
+      tags:
+        - Users
+      description: "Creates a new user"
+      requestBody:
+        description: "A JSON object containing user information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Users
+      description: "Updates an existing user"
+      requestBody:
+        description: "A JSON object containing updated user information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+      responses:
+        "200":
+          description: "OK"
+  /user/{id}:
+    get:
+      tags:
+        - Users
+      description: "Returns a user by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad request"
+    delete:
+      tags:
+        - Users
+      description: "Deletes a user by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad request"
+
+components:
+  schemas:
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: integer
+          format: "long"
+        phone:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+
+    LoginRequest:
+      type: "object"
+      properties:
+        deviceUuid:
+          type: "string"
+        phone:
+          type: "string"
+        code:
+          type: "integer"
+          format: "long"
+    LoginResponse:
+      type: "object"
+      properties:
+        loginToken:
+          type: "string"
+        accessToken:
+          type: "string"
+        refreshToken:
+          type: "string"
+        regToken:
+          type: "string"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

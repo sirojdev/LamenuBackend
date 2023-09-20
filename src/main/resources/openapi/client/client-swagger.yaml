@@ -1,0 +1,2140 @@
+openapi: "3.0.3"
+info:
+  title: "Lamenu documentation Client"
+  description: "Lamenu documentation Clint allows to you view the schema of Client Lamenu project"
+  version: "1.0.0"
+servers:
+  - url: 'http://127.0.0.1:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+  - url: 'https:// api-beta.lamenu.uz/v1/'
+    description: "Beta  server"
+  - url: 'https://api-dev.lamenu.uz/v1/'
+    description: "Developer server"
+  - url: 'https://api-back.lamenu.uz/v1/'
+    description: "Backend server"
+
+
+
+tags:
+
+  - name: Device
+    description: Endpoints related to device
+
+  - name: Auth
+    description: Endpoints related to client authentication
+
+  - name: Profile
+    description: Endpoints related to profile
+
+  - name: Favourite
+    description: Endpoints related to favourite
+
+  - name: Order
+    description: Endpoints related to order
+
+  - name: Table
+    description: Endpoints related to table
+
+  - name: Address
+    description: Endpoints related to address
+
+  - name: Cart
+    description: Endpoints related to Cart
+
+  - name: Payment
+    description: Endpoints related to Payment
+
+  - name: Promo
+    description: Endpoints related to Promo
+
+  - name: Visit
+    description: Endpoints related to Visit
+
+paths:
+  /client/device:
+    post:
+      tags:
+        - Device
+      description: "Get device token"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: integer
+            format: "int64"
+      requestBody:
+        description: "A JSON object receive device token"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                brand:
+                  type: string
+                build:
+                  type: string
+                model:
+                  type: string
+                phone:
+                  type: string
+                osVersion:
+                  type: string
+                firebaseToken:
+                  type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+  /client/device/terminate:
+    post:
+      tags:
+        - Device
+      description: "Terminate device by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+        "404":
+          description: "No content"
+
+  /client/device/terminate/others:
+    post:
+      tags:
+        - Device
+      description: "Terminate other devices"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/auth/send-sms:
+    post:
+      tags:
+        - Auth
+      description: "Auth client sms"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive client's phone"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: "string"
+                hash:
+                  type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+  /client/auth/verify:
+    post:
+      tags:
+        - Auth
+      description: "Auth client verify"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive sms code"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+
+  /client/auth/sign-up:
+    post:
+      tags:
+        - Auth
+      description: "Auth client sign up"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive with sign up"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: "string"
+                lastName:
+                  type: "string"
+                image:
+                  type: "string"
+                birthDay:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+
+
+  /client/profile:
+    get:
+      tags:
+        - Profile
+      description: "Returns profile by its ID"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    put:
+      tags:
+        - Profile
+      description: "Update client profile"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated profile's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                image:
+                  type: string
+                birthDay:
+                  type: string
+                  format: "dd.MM.yyyy HH:mm:ss:SSS"
+                badge:
+                  $ref: "#/components/schemas/BadgeDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /client/profile/logout:
+    post:
+      tags:
+        - Profile
+      description: "Profile logout"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/profile/delete:
+    post:
+      tags:
+        - Profile
+      description: "Profile delete"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/profile/firebase:
+    put:
+      tags:
+        - Profile
+      description: "Update client profile firebase"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated profile's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                firebaseToken:
+                  type: string
+      responses:
+        "200":
+          description: "OK"
+
+
+  /client/visit:
+    post:
+      tags:
+        - Visit
+      description: "post visitDto  "
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: " receive visitDto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitId"
+        "400":
+          description: "Bad Request"
+    get:
+      tags:
+        - Visit
+      description: "get all visit dto "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitDto"
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+  /client/client/promo:
+
+    post:
+      tags:
+        - Promo
+      description: "post promoDto  "
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: " receive PromoDto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromoDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PromoDto"
+
+        "406":
+          description: "Not Acceptable"
+        "400":
+          description: "Bad Request"
+
+    delete:
+      tags:
+        - Promo
+      description: "delete promo "
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+
+  /client/client/promo/all:
+    get:
+      tags:
+        - Promo
+      description: "get all client promo dto "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClientPromoDto"
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+
+
+  /client/client/promos:
+    get:
+      tags:
+        - Promo
+      description: "get all  promo dto "
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PromoDto"
+
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad Request"
+
+  /client/payment/type:
+    get:
+      tags:
+        - Payment
+      description: "get payment type "
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/cart:
+    get:
+      tags:
+        - Cart
+      description: "post cart"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        description: "A JSON object receive cart info dto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/tables:
+    get:
+      tags:
+        - Table
+      description: "get all table client's"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClientTableDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/table:
+    get:
+      tags:
+        - Table
+      description: "get  table client's"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "roomId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "qr"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableDto"
+
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/favourite:
+    post:
+      tags:
+        - Favourite
+      description: "Adds a new favourite"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing favourite's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FavouriteDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Favourite
+      description: "Update a favourite's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated favourite's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FavouriteDto"
+      responses:
+        "200":
+          description: "OK"
+    get:
+      tags:
+        - Favourite
+      description: "Returns a list of all favourites"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/FavouriteDto"
+        "204":
+          description: "No Content"
+    delete:
+      tags:
+        - Favourite
+      description: "Deletes a favourite by its id"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+  /client/favourite/{id}:
+    delete:
+      tags:
+        - Favourite
+      description: "Deletes a favourite by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /client/books:
+    get:
+      tags:
+        - Book
+      description: "Returns a list of all books"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+  /client/book:
+    post:
+      tags:
+        - Book
+      description: "Adds a new booking"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branch:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: "long"
+                table:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: "long"
+                time:
+                  type: string
+                  format: "timestamp"
+                comment:
+                  type: string
+                visitorCount:
+                  type: integer
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - DineIn
+      description: "Update a booking's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: "long"
+                client:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: "long"
+                table:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: "long"
+      responses:
+        "200":
+          description: "OK"
+
+  /client/book/{id}:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a book by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - DineIn
+      description: "Deletes a booking by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /client/orders:
+    get:
+      tags:
+        - Order
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+  /client/order:
+    post:
+      tags:
+        - Order
+      description: "Adds a new ordering"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing ordering's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /client/order/{id}:
+    delete:
+      tags:
+        - Order
+      description: "Deletes a ordering by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+  /client/orders/{id}:
+    get:
+      tags:
+        - Order
+      description: "Returns a book by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/address:
+    get:
+      tags:
+        - Address
+      description: "Returns a list of client addresses"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/AddressDto"
+        "204":
+          description: "No Content"
+
+    post:
+      tags:
+        - Address
+      description: "Add a address's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing add address's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressDto"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad request"
+
+    put:
+      tags:
+        - Address
+      description: "Update a address's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated address's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressDto"
+      responses:
+        "200":
+          description: "OK"
+
+  /client/address/{id}:
+    get:
+      tags:
+        - Address
+      description: "Returns an address by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Address
+      description: "Deletes an address by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /client/checkout:
+    post:
+      tags:
+        - Order
+      description: "Returns a checkout"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object calculate checkout order"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequestDto"
+      responses:
+        "200":
+          description: "OK"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/order/history/get:
+    get:
+      tags:
+        - Order
+      description: "A Json object gives information about client order history"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "filter"
+          in: "query"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderWrapper"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/news:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of news"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/notification:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of product list"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotificationDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/categoryByGroup:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of product list"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/categoryByGroup/{id}:
+    get:
+      tags:
+        - Get
+      description: "A Json object returns list of product list"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  /client/order/info/{id}:
+    get:
+      tags:
+        - Order
+      description: "A Json object gives information about client order history info"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+
+                $ref: "#/components/schemas/OrderWrapper"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/stories:
+    get:
+      tags:
+        - Story
+      description: "A Json object gives information of stories"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/story/info:
+    get:
+      tags:
+        - Story
+      description: "A Json object gives information of story info"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoryInfoDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/branch:
+    get:
+      tags:
+        - Branch
+      description: "A Json object gives information about branch by its id"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BranchDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/branches:
+    get:
+      tags:
+        - Branch
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BranchDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/products:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "category"
+          in: "query"
+          required: true
+          schema:
+            type: string
+        - name: "lang"
+          in: "query"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/product/info:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: integer
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/product:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of branches"
+      parameters:
+        - name: "id"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "product"
+          in: "query"
+          required: true
+          schema:
+            type: string
+        - name: "lang"
+          in: "query"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+  /client/categories:
+    get:
+      tags:
+        - Product
+      description: "A Json object gives list of categories"
+      parameters:
+        - name: "appKey"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+
+#//==================================================================================================SCHEMAS===========
+components:
+  schemas:
+    NewsDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        body:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: string
+        type:
+          type: integer
+        clientId:
+          type: integer
+          format: "long"
+
+
+    NotificationDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        body:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: string
+
+    BranchDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        longitude:
+          type: "number"
+        latitude:
+          type: "number"
+        open:
+          type: "string"
+        close:
+          type: "string"
+        address:
+          type: "string"
+
+    StoryDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          $ref: "#/components/schemas/TextModel"
+        priority:
+          type: integer
+        stories:
+          $ref: "#/components/schemas/StoryInfoDto"
+
+    StoryInfoDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        image:
+          $ref: "#/components/schemas/TextModel"
+        priority:
+          type: integer
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDto"
+        buttonBgColor:
+          type: string
+        buttonTextColor:
+          type: string
+        buttonText:
+          $ref: "#/components/schemas/TextModel"
+        storyId:
+          type: integer
+          format: "long"
+
+    CheckoutRequestDto:
+      type: "object"
+      properties:
+        order:
+          $ref: "#/components/schemas/OrderWrapper"
+
+    StaffDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        username:
+          type: "string"
+        password:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        image:
+          type: "string"
+        position:
+          $ref: "#/components/schemas/PositionDto"
+
+    PositionDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleDto"
+
+    RoleDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        staffId:
+          type: "integer"
+          format: "long"
+        menu:
+          type: boolean
+        delivery:
+          type: boolean
+
+    MenuDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        badge:
+          $ref: '#/components/schemas/BadgeDto'
+        phone:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+        token:
+          type: "string"
+
+    BadgeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: '#/components/schemas/TextModel'
+        textColor:
+          type: "string"
+        bgColor:
+          type: string
+        icon:
+          type: string
+
+    TextModel:
+      type: "object"
+      properties:
+        uz:
+          type: "string"
+        ru:
+          type: "string"
+        eng:
+          type: "string"
+
+    DeviceModel:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        uuid:
+          type: "string"
+        osVersion:
+          type: "string"
+        model:
+          type: "string"
+        brand:
+          type: "string"
+        build:
+          type: "string"
+        firebaseToken:
+          type: "string"
+        ip:
+          type: "string"
+        token:
+          type: "string"
+        blockedUntil:
+          type: "string"
+          format: "date-time"
+        code:
+          type: "string"
+        action:
+          type: "string"
+        expAction:
+          type: "boolean"
+        phone:
+          type: "string"
+
+    BookDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        tableId:
+          type: "integer"
+          format: "long"
+        time:
+          type: string
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        comment:
+          type: string
+
+    FavouriteDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        deviceId:
+          type: "integer"
+          format: "long"
+        product:
+          $ref: '#/components/schemas/ProductDto'
+
+    ProductDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: '#/components/schemas/TextModel'
+        description:
+          $ref: '#/components/schemas/TextModel'
+        image:
+          type: string
+        costPrice:
+          type: "integer"
+          format: "long"
+        active:
+          type: boolean
+        categoryId:
+          type: "integer"
+          format: "long"
+        category:
+          $ref: '#/components/schemas/CategoryDto'
+        timeCookingMin:
+          type: "integer"
+          format: "long"
+        timeCookingMax:
+          type: "integer"
+          format: "long"
+        deliveryEnabled:
+          type: boolean
+        count:
+          type: "integer"
+          format: "long"
+
+    Details:
+      type: object
+      properties:
+        createdAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        updatedAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveredAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveryAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        totalPrice:
+          type: "number"
+          format: "double"
+        totalDiscount:
+          type: "number"
+          format: "double"
+        comment:
+          type: "string"
+        collectorId:
+          type: integer
+          format: "long"
+        courierId:
+          type: integer
+          format: "long"
+
+    OrderWrapper:
+      type: "object"
+      properties:
+        details:
+          $ref: "#/components/schemas/Details"
+        order:
+          $ref: "#/components/schemas/OrderDto"
+        address:
+          $ref: "#/components/schemas/AddressDto"
+        products:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CartItem"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        price:
+          $ref: "#/components/schemas/OrderPriceDto"
+
+
+    OrderPriceDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        orderId:
+          type: integer
+          format: "long"
+        deliveryPrice:
+          type: integer
+          format: "long"
+        deliveryDiscount:
+          type: integer
+          format: "long"
+        deliveryPromo:
+          type: integer
+          format: "long"
+        productPrice:
+          type: integer
+          format: "long"
+        productDiscount:
+          type: integer
+          format: "long"
+        productPromo:
+          type: integer
+          format: "long"
+        totalPrice:
+          type: integer
+          format: "long"
+        totalDiscount:
+          type: integer
+          format: "long"
+
+    CartItem:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        count:
+          type: integer
+          format: "long"
+
+    OrderDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        userId:
+          type: "integer"
+          format: "long"
+        type:
+          type: string
+        status:
+          type: "string"
+        courier:
+          $ref: "#/components/schemas/UserDto"
+        totalPrice:
+          type: "number"
+          format: "double"
+
+
+    OrderType:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+
+    AddressDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        type:
+          type: "string"
+        status:
+          type: "string"
+        details:
+          $ref: "#/components/schemas/AddressDetails"
+        description:
+          type: "string"
+        latitude:
+          type: "integer"
+          format: "double"
+        longitude:
+          type: "integer"
+          format: "double"
+
+    AddressType:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+
+    AddressDetails:
+      type: "object"
+      properties:
+        building:
+          type: "string"
+        entrance:
+          type: "string"
+        code:
+          type: "string"
+        floor:
+          type: integer
+        comment:
+          type: "string"
+
+    CategoryDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        merchantId:
+          type: "integer"
+          format: "long"
+        bgColor:
+          type: "string"
+        textColor:
+          type: "string"
+
+    CategoryGroupDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        merchantId:
+          type: integer
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        bgColor:
+          type: string
+        textColor:
+          type: string
+        categories:
+          $ref: "#/components/schemas/CategoryDto"
+
+    ClientTableDto:
+      type: object
+      properties:
+        roomList:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoomDto"
+        tableList:
+          type: array
+          items:
+            $ref: "#/components/schemas/TableDto"
+    PaymentDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        paymeMerchantId:
+          type: "integer"
+          format: "long"
+        paymeSecret:
+          type: "string"
+        apelsinMerchantId:
+          type: "integer"
+          format: "long"
+        apelsinMerchantToken:
+          type: "string"
+        clickServiceId:
+          type: "integer"
+          format: "long"
+        clickKey:
+          type: "string"
+
+    RoomDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        name:
+          type: string
+        branchId:
+          type: integer
+          format: "long"
+        merchantId:
+          type: integer
+          format: "long"
+
+    TableDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        qr:
+          type: string
+        name:
+          type: string
+        room:
+          $ref: "#/components/schemas/RoomDto"
+        branch:
+          $ref: "#/components/schemas/BranchDto"
+        merchantId:
+          type: integer
+          format: "long"
+
+    DataPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDto"
+          format: "long"
+        total:
+          type: integer
+          format: "long"
+
+    ResponseModel:
+      type: object
+      properties:
+        body:
+          type: object  # This allows any type for the body
+        httpStatus:
+          type: integer  # Assuming HttpStatusCode is represented as an integer
+          format: int32  # You might need to adjust the format based on your HttpStatusCode representation
+      required:
+        - body
+
+    PromoDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        amount:
+          type: "integer"
+          format: "long"
+        name:
+          type: string
+        discountType:
+          type: string
+        deliveryDiscount:
+          type: "integer"
+          format: "double"
+        productDiscount:
+          type: "integer"
+          format: "double"
+        isPublic:
+          type: "boolean"
+        minAmount:
+          type: "integer"
+          format: "double"
+        startDate:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        endDate:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+
+    VisitDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderWrapper"
+        waiter:
+          $ref: "#/components/schemas/StaffDto"
+        table:
+          $ref: "#/components/schemas/TableDto"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        status:
+          type: string
+        payment:
+          $ref: "#/components/schemas/PaymentDto"
+        price:
+          type: integer
+          format: "double"
+        clientCount:
+          type: integer
+
+    ClientPromoDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        client:
+          $ref: "#/components/schemas/UserDto"
+        promo:
+          $ref: "#/components/schemas/PromoDto"
+
+    VisitId:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+
+
+
+
+
+
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

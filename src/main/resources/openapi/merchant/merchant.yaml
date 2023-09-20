@@ -1,0 +1,3235 @@
+openapi: "3.0.3"
+info:
+  title: "Lamenu documentation Merchant"
+  description: "Lamenu documentation Merchant allows to you view the schema of Merchant Lamenu project"
+  version: "1.0.0"
+servers:
+  - url: 'http://127.0.0.1:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+
+
+tags:
+  - name: Auth
+    description: Login endpoints
+
+  - name: DineIn
+    description: DineIn endpoints
+
+  - name: TakeOut
+    description: TakeOut endpoints
+
+  - name: Settings/Integrations
+    description: Endpoints related to category
+
+  - name: Settings/Menus
+    description: Endpoints related to menus
+
+  - name: Settings/DineIn
+    description: Endpoints related to dine in
+
+  - name: Branches
+    description: Endpoints related to branch
+
+  - name: OutcomeType
+    description: Endpoints related to outcome type
+
+  - name: Staff
+    description: Endpoints related to staff
+
+paths:
+  /merchant/auth:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get auth token"
+      requestBody:
+        description: "A JSON object containing staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                phone:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: '#/components/schemas/MerchantDto'
+
+  /staff/auth:
+    post:
+      tags:
+        - Auth
+      description: "Via this endpoint you can get auth token"
+      requestBody:
+        description: "A JSON object containing staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../merchant/staff.yaml#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                items:
+                  $ref: "../user.yaml#/components/schemas/LoginResponse"
+
+
+  /merchant/settings/staff:
+    get:
+      tags:
+        - Staff
+      description: "Returns a list of all staff"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/StaffDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Staff
+      description: "Adds a new staff"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated outcome staff information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Staff
+      description: "Adds a new staff"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated staff's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/staff/{id}:
+    get:
+      tags:
+        - Staff
+      description: "Returns a staff by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Staff
+      description: "Deletes a staff by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/books:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a list of all books"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+  /merchant/book:
+    post:
+      tags:
+        - DineIn
+      description: "Adds a new booking"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - DineIn
+      description: "Update a booking's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated booking's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/book/{id}:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a book by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - DineIn
+      description: "Deletes a booking by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/category/group:
+    get:
+      tags:
+        - Category
+      description: "Returns a list of category-group"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Category
+      description: "Adds a new Category Group"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing category group's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryGroupDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Category
+      description: "Update a category group's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated category group's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryGroupDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/category/group/{id}:
+    get:
+      tags:
+        - Category
+      description: "Returns a category group by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryGroupDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Category
+      description: "Deletes a category group by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/visits:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a list of all visits"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/VisitDto"
+        "204":
+          description: "No Content"
+  /merchant/visit:
+    post:
+      tags:
+        - DineIn
+      description: "Adds a new visit"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing visit's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - DineIn
+      description: "Update a visit's information"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated visit's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/visit/{id}:
+    get:
+      tags:
+        - DineIn
+      description: "Returns a visit by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - DineIn
+      description: "Deletes a visit by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/outcome_types:
+    get:
+      tags:
+        - OutcomeType
+      description: "Returns a list of all outcomr types"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OutcomeTypeDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/outcome_type:
+    post:
+      tags:
+        - OutcomeType
+      description: "Adds a new outcome"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated outcome type's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeTypeDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - OutcomeType
+      description: "Adds a new outcome type"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated outcome type's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeTypeDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/outcome_type/{id}:
+    get:
+      tags:
+        - OutcomeType
+      description: "Returns a outcome type by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutcomeTypeDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - OutcomeType
+      description: "Deletes a outcome type by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/rooms:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a list of all rooms"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RoomDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/room:
+    post:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new room"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated room's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new room"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated room's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/room/{id}:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a room by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/DineIn
+      description: "Deletes a room by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/tables:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a list of all tables"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TableDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/table:
+    post:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new table"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated table's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/DineIn
+      description: "Adds a new table"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated table's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/table/{id}:
+    get:
+      tags:
+        - Settings/DineIn
+      description: "Returns a table by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/DineIn
+      description: "Deletes a table by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/extras:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a list of all extras"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ExtraDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/extra:
+    post:
+      tags:
+        - Settings/Menus
+      description: "Adds a new extra"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated extra information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtraDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/Menus
+      description: "Adds a new extra"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated extra information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtraDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/extra/{id}:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a extra by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtraDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Menus
+      description: "Deletes a extra by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/branches:
+    get:
+      tags:
+        - Branches
+      description: "Returns a list of all branches"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BranchDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/branch:
+    post:
+      tags:
+        - Branches
+      description: "Adds a new branch"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated branch information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Branches
+      description: "Updates an existing branch"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated branch information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/branch/{id}:
+    get:
+      tags:
+        - Branches
+      description: "Returns a branch by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BranchDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Branches
+      description: "Deletes a branch by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/categories:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a list of all categories"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/category:
+    post:
+      tags:
+        - Settings/Menus
+      description: "Adds a new category"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated category information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/Menus
+      description: "Adds a new category"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated category information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/category/{id}:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a category by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Menus
+      description: "Deletes a category by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/labels:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a list of all lables"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/LabelDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/label:
+    post:
+      tags:
+        - Settings/Menus
+      description: "Adds a new lable"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated lable information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabelDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/Menus
+      description: "Adds a new lable"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated lable information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabelDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/label/{id}:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a lable by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabelDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Menus
+      description: "Deletes a lable by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/products:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a list of all products"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ProductDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/product:
+    post:
+      tags:
+        - Settings/Menus
+      description: "Adds a new product"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInfoDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/Menus
+      description: "Adds a new product"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInfoDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/product/{id}:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a product by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Menus
+      description: "Deletes a product by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/option:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a list of all option"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OptionDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Settings/Menus
+      description: "Adds a new option"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated option information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptionDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Settings/Menus
+      description: "Adds a new option"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated option information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptionDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/option/{id}:
+    get:
+      tags:
+        - Settings/Menus
+      description: "Returns a option by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OptionDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Menus
+      description: "Deletes a option by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+
+  #  /merchant/settings/posters:
+  #    get:
+  #      tags:
+  #        - Posters
+  #      description: "Returns a list of all posters"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/PosterDto"
+  #        "204":
+  #          description: "No Content"
+  /merchant/settings/poster:
+    post:
+      tags:
+        - Settings/Integrations
+      description: "Adds a new poster"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated poster information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PosterDto"
+      responses:
+        "200":
+          description: "OK"
+  #    put:
+  #      tags:
+  #        - Posters
+  #      description: "Adds a new poster"
+  #      requestBody:
+  #        description: "A JSON object containing updated poster information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/PosterDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  /merchant/settings/poster/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a poster by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PosterDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Posters
+  #      description: "Deletes a product by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
+
+  #  /merchant/settings/apps:
+  #    get:
+  #      tags:
+  #        - Apps
+  #      description: "Returns a list of all apps"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/AppDto"
+  #        "204":
+  #          description: "No Content"
+  /merchant/settings/app:
+    post:
+      tags:
+        - Settings/Integrations
+      description: "Adds a new app"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated app information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppDto"
+      responses:
+        "200":
+          description: "OK"
+  #    put:
+  #      tags:
+  #        - Apps
+  #      description: "Adds a new app"
+  #      requestBody:
+  #        description: "A JSON object containing updated app information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/AppDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  /merchant/settings/app/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a app by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Apps
+  #      description: "Deletes app by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
+
+  #  /merchant/settings/payments:
+  #    get:
+  #      tags:
+  #        - Payments
+  #      description: "Returns a list of all payments"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/PaymentDto"
+  #        "204":
+  #          description: "No Content"
+  /merchant/settings/payment:
+    post:
+      tags:
+        - Settings/Integrations
+      description: "Adds a new payment"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated payment information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentDto"
+      responses:
+        "200":
+          description: "OK"
+  #    put:
+  #      tags:
+  #        - Payments
+  #      description: "Adds a new payment"
+  #      requestBody:
+  #        description: "A JSON object containing updated payment information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/PaymentDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  /merchant/settings/payment/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a payment by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Settings/Integrations
+  #      description: "Deletes payment by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
+
+  #  /merchant/settings/sms-gateways:
+  #    get:
+  #      tags:
+  #        - Sms Gateways
+  #      description: "Returns a list of all sms-gateways"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/SmsGatewayDto"
+  #        "204":
+  #          description: "No Content"
+  /merchant/settings/sms-getway:
+    post:
+      tags:
+        - Settings/Integrations
+      description: "Adds a new sms"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated sms information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SmsGatewayDto"
+      responses:
+        "200":
+          description: "OK"
+  #    put:
+  #      tags:
+  #        - Sms Gateways
+  #      description: "Adds a new sms"
+  #      requestBody:
+  #        description: "A JSON object containing updated sms information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/SmsGatewayDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  /merchant/settings/sms-getway/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a sms by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SmsGatewayDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Sms Gateways
+  #      description: "Deletes sms by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
+
+  #  /merchant/settings/telephonies:
+  #    get:
+  #      tags:
+  #        - Telephony
+  #      description: "Returns a list of all telephonies"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/TelephonyDto"
+  #        "204":
+  #          description: "No Content"
+  /merchant/settings/telephony:
+    post:
+      tags:
+        - Settings/Integrations
+      description: "Adds a new telephony"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated telephony information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TelephonyDto"
+      responses:
+        "200":
+          description: "OK"
+  #    put:
+  #      tags:
+  #        - Telephony
+  #      description: "Adds a new telephony"
+  #      requestBody:
+  #        description: "A JSON object containing updated telephony information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/TelephonyDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  /merchant/settings/telephony/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a telephony by its ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TelephonyDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Telephony
+  #      description: "Deletes telephony by its ID"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
+
+
+  #  /merchant/settings/deliveries:
+  #    get:
+  #      tags:
+  #        - Delivery
+  #      description: "Returns a list of all deliveries"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: "array"
+  #                items:
+  #                  $ref: "#/components/schemas/DeliveryDto"
+  #        "204":
+  #          description: "No Content"
+  /merchant/settings/delivery:
+    post:
+      tags:
+        - Settings/Integrations
+      description: "Adds a new delivery"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated delivery information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliveryDto"
+      responses:
+        "200":
+          description: "OK"
+  #    put:
+  #      tags:
+  #        - Delivery
+  #      description: "Adds a new delivery"
+  #      requestBody:
+  #        description: "A JSON object containing updated delivery information"
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: "#/components/schemas/DeliveryDto"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  /merchant/settings/delivery/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a delivery by merchant ID"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeliveryDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #    delete:
+  #      tags:
+  #        - Settings
+  #      description: "Deletes delivery by merchant Id"
+  #      parameters:
+  #        - name: "id"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "int64"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #        "400":
+  #          description: "Bad Request"
+
+
+  /merchant/settings/badges:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a list of all badges"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BadgeDto"
+        "204":
+          description: "No Content"
+  /merchant/settings/badge:
+    post:
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BadgeDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+      tags:
+        - Settings/Integrations
+
+    put:
+      tags:
+        - Settings/Integrations
+      description: "Update badge"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated badge's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/badge/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a badge by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadgeDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Integrations
+      description: "Deletes badge by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+  /merchant/settings/cashback:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a list of all cashback"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CashbackDto"
+        "204":
+          description: "No Content"
+    post:
+      tags:
+        - Settings/Integrations
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashbackDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+    put:
+      tags:
+        - Settings/Integrations
+      description: "Update cashback"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated cashback's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CashbackDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/cashback/{id}:
+    get:
+      tags:
+        - Settings/Integrations
+      description: "Returns a cashback by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CashbackDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Settings/Integrations
+      description: "Deletes cashback by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+  /merchant/settings/orders:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+    put:
+      tags:
+        - TakeOut
+      description: "Update order"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object containing updated order's information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/settings/orders/{id}:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a order by id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - TakeOut
+      description: "Deletes order by its id"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+  /merchant/settings/orders/create:
+    post:
+      tags:
+        - TakeOut
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderWrapper'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+  /merchant/settings/orders/all:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a list of all orders"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+  /merchant/settings/orders/history:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a list of all orders history"
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDto"
+
+  /merchant/settings/orders/live/{type}:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a order by type"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "type"
+          in: "path"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  /merchant/orders:
+    get:
+      tags:
+        - TakeOut
+      description: "Returns a order by collectorId"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "collectorId"
+          in: "path"
+          description: "Filter orders by collectorId."
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+  #  /merchant/orders:
+  #    get:
+  #      tags:
+  #        - TakeOut
+  #      description: "Returns a order by courierId"
+  #      security:
+  #        - bearerAuth: [ ]
+  #      parameters:
+  #        - name: "courierId"
+  #          in: "path"
+  #          required: true
+  #          schema:
+  #            type: "integer"
+  #            format: "long"
+  #      responses:
+  #        "200":
+  #          description: "OK"
+  #          content:
+  #            application/json:
+  #              schema:
+  #                $ref: "#/components/schemas/OrderDto"
+  #        "204":
+  #          description: "No Content"
+  #        "400":
+  #          description: "Bad Request"
+
+
+
+
+  #//==================================================================================================CRM
+  /merchant/crm/smss:
+    get:
+      summary: Get all SMS messages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmsDto'
+        '204':
+          description: No content
+      tags:
+        - CRM
+
+  /merchant/crm/sms:
+    post:
+      summary: Create a new SMS message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+
+  /merchant/crm/sms/{id}:
+    get:
+      summary: Get a single SMS message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the SMS message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsDto'
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+    delete:
+      summary: Delete a single SMS message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the SMS message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+
+  /merchant/crm/messages:
+    get:
+      summary: Get all messages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageDto'
+        '204':
+          description: No content
+      tags:
+        - CRM
+
+  /merchant/crm/message:
+    post:
+      summary: Create a new message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+  /merchant/crm//message/{id}:
+    get:
+      summary: Get a single message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDto'
+        '204':
+          description: No content
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+    delete:
+      summary: Delete a single message by ID
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the message
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+      tags:
+        - CRM
+
+
+
+  #//==================================================================================================FINANCE
+  /merchant/finance/outcomes:
+    get:
+      tags:
+        - Finance/Outcomes
+      description: "Returns a list of all Outcomes"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OutcomeDto"
+        "204":
+          description: "No Content"
+  /merchant/finance/outcome:
+    post:
+      tags:
+        - Finance/Outcomes
+      description: "Adds a new outcome"
+      requestBody:
+        description: "A JSON object containing updated outcome information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Finance/Outcomes
+      description: "Update the outcomes"
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutcomeDto"
+      responses:
+        "200":
+          description: "OK"
+  /merchant/finance/outcome/{id}:
+    get:
+      tags:
+        - Finance/Outcomes
+      description: "Returns a outcome by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutcomeDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Finance/Outcomes
+      description: "Deletes a outcome by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+#//==================================================================================================SCHEMAS
+components:
+  schemas:
+
+    CategoryGroupDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        merchantId:
+          type: integer
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        bgColor:
+          type: string
+        textColor:
+          type: string
+
+    BadgeDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        textColor:
+          type: string
+        bgColor:
+          type: string
+        icon:
+          type: string
+
+    SmsDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        messageId:
+          type: "integer"
+          format: "long"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        status:
+          type: "string"
+
+    MessageDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        content:
+          type: "string"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        smss:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SmsDto"
+
+    OrderDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        userId:
+          type: "integer"
+          format: "long"
+        status:
+          type: "string"
+        courier:
+          $ref: "#/components/schemas/StaffDto"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        collector:
+          $ref: "#/components/schemas/StaffDto"
+        paymentTypeDto:
+          $ref: "#/components/schemas/PaymentDto"
+        grade:
+          type: integer
+          format: "double"
+        productCount:
+          type: integer
+
+    OrderWrapper:
+      type: "object"
+      properties:
+        details:
+          $ref: "#/components/schemas/OrderDetails"
+        order:
+          $ref: "#/components/schemas/OrderDto"
+        address:
+          $ref: "#/components/schemas/AddressDto"
+        products:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CartItem"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        price:
+          $ref: "#/components/schemas/OrderPriceDto"
+        logs:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderLog"
+
+    OrderDetails:
+      type: object
+      properties:
+        createdAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        updatedAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveredAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        deliveryAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        totalPrice:
+          type: "number"
+          format: "double"
+        totalDiscount:
+          type: "number"
+          format: "double"
+        comment:
+          type: "string"
+        courierId:
+          type: "integer"
+          format: "long"
+        collectorId:
+          type: "integer"
+          format: "long"
+
+    AddressDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        type:
+          $ref: "#/components/schemas/AddressType"
+        status:
+          type: "string"
+        details:
+          $ref: "#/components/schemas/AddressDetails"
+        description:
+          type: "string"
+        latitude:
+          type: "integer"
+          format: "double"
+        longitude:
+          type: "integer"
+          format: "double"
+
+    AddressType:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+
+    AddressDetails:
+      type: "object"
+      properties:
+        building:
+          type: "string"
+        entrance:
+          type: "string"
+        code:
+          type: "string"
+        floor:
+          type: integer
+        comment:
+          type: "string"
+
+    CartItem:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        count:
+          type: integer
+
+    OrderPriceDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        deliveryPrice:
+          type: "integer"
+          format: "long"
+        deliveryDiscount:
+          type: "integer"
+          format: "long"
+        deliveryPromo:
+          type: "integer"
+          format: "long"
+        productPrice:
+          type: "integer"
+          format: "long"
+        productDiscount:
+          type: "integer"
+          format: "long"
+        productPromo:
+          type: "integer"
+          format: "long"
+        totalPrice:
+          type: "integer"
+          format: "long"
+        totalDiscount:
+          type: "integer"
+          format: "long"
+
+    OrderLog:
+      properties:
+        id:
+          type: integer
+          format: "long"
+        orderId:
+          type: integer
+          format: "long"
+        title:
+          $ref: "#/components/schemas/TextModel"
+        body:
+          $ref: "#/components/schemas/TextModel"
+        createdAt:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+
+
+
+
+    OrderType:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+    PaymentTypeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        icon:
+          type: "string"
+
+    ExtraDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        price:
+          type: "integer"
+          format: "double"
+        description:
+          $ref: "#/components/schemas/TextModel"
+
+    LabelDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        textColor:
+          type: "string"
+        bgColor:
+          type: "string"
+        icon:
+          type: "string"
+
+    MenuDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+
+    OptionDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        parentId:
+          type: "integer"
+          format: "long"
+        productId:
+          type: "integer"
+          format: "long"
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptionDto"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        description:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        price:
+          type: "integer"
+          format: "double"
+
+    ProductDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        description:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        costPrice:
+          type: "integer"
+          format: "double"
+
+    MerchantDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        logo:
+          type: "string"
+        domain:
+          type: "string"
+        subdomain:
+          type: "string"
+        phone:
+          type: "string"
+        password:
+          type: "string"
+        token:
+          type: "string"
+
+    OutcomeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        staff:
+          $ref: "#/components/schemas/StaffDto"
+        outcomeType:
+          $ref: "#/components/schemas/OutcomeTypeDto"
+
+    StaffDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        phone:
+          type: "string"
+        password:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        image:
+          type: "string"
+        comment:
+          type: "string"
+        position:
+          type: "string"
+
+    OutcomeTypeDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+
+    TextModel:
+      type: "object"
+      properties:
+        uz:
+          type: "string"
+        ru:
+          type: "string"
+        eng:
+          type: "string"
+
+    BranchDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        longitude:
+          type: "number"
+        latitude:
+          type: "number"
+        open:
+          type: "string"
+        close:
+          type: "string"
+        address:
+          type: "string"
+
+    CategoryDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        group_id:
+          type: "integer"
+          format: "long"
+
+    PosterDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        joinPosterApiKey:
+          type: "string"
+        rKeeperClientId:
+          type: "integer"
+          format: "long"
+        rKeeperClientSecret:
+          type: "string"
+
+    AppDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        googleToken:
+          type: "string"
+        appleToken:
+          type: "string"
+        telegramBotToken:
+          type: "string"
+
+    PaymentDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        paymeMerchantId:
+          type: "integer"
+          format: "long"
+        paymeSecret:
+          type: "string"
+        apelsinMerchantId:
+          type: "integer"
+          format: "long"
+        apelsinMerchantToken:
+          type: "string"
+        clickServiceId:
+          type: "integer"
+          format: "long"
+        clickKey:
+          type: "string"
+
+    SmsGatewayDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        eskizId:
+          type: "integer"
+          format: "long"
+        eskizToken:
+          type: "string"
+        playMobileServiceId:
+          type: "integer"
+          format: "long"
+        playMobileKey:
+          type: "string"
+
+    TelephonyDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        onlinePbxToken:
+          type: "string"
+
+    DeliveryDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        yandexClientId:
+          type: "integer"
+          format: "long"
+        yandexToken:
+          type: "string"
+        expressId:
+          type: "integer"
+          format: "long"
+        expressToken:
+          type: "string"
+
+    RoomDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          type: "string"
+        merchantId:
+          type: "integer"
+          format: "long"
+        branchId:
+          type: "integer"
+          format: "long"
+
+    CashbackDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        minCost:
+          type: "integer"
+          format: "double"
+        maxCost:
+          type: "integer"
+          format: "double"
+
+
+    TableDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        qr:
+          type: "string"
+        name:
+          type: "string"
+        roomId:
+          type: "integer"
+          format: "long"
+        branchId:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+
+    VisitDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        user:
+          $ref: "#/components/schemas/UserDto"
+        orders:
+          $ref: "#/components/schemas/OrderDto"
+        waiter:
+          $ref: "#/components/schemas/StaffDto"
+        table:
+          $ref: "#/components/schemas/TableDto"
+        time:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        status:
+          type: "string"
+        payment:
+          $ref: "#/components/schemas/PaymentDto"
+        price:
+          type: "string"
+
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        badge:
+          $ref: "#/components/schemas/BadgeDto"
+        phone:
+          type: "string"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+        birthDay:
+          type: string
+          format: "yyyy-MM-dd"
+        token:
+          type: string
+
+    BookDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        clientId:
+          type: "integer"
+          format: "long"
+        tableId:
+          type: "integer"
+          format: "long"
+        time:
+          type: string
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+        comment:
+          type: string
+
+    ProductInfoDto:
+      type: "object"
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDto"
+        labels:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabelDto"
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptionDto"
+        extras:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExtraDto"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

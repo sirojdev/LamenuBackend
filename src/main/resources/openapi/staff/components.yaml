@@ -1,0 +1,208 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://0.0.0.0:9000/v1'
+    description: 'Local server'
+  - url: 'https://188.166.167.80:9000/v1'
+    description: 'Production server'
+  - url: 'https://api.lamenu.uz/v1'
+    description: 'Domain server'
+paths:
+
+components:
+  schemas:
+    UserDto:
+      type: "object"
+      properties:
+        id:
+          type: integer
+          format: "long"
+        phone:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd hh:mm:ss.SSSSSS"
+    BranchDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        longitude:
+          type: "number"
+        latitude:
+          type: "number"
+        address:
+          type: "string"
+    CategoryDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+    ExtraDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        price:
+          type: "integer"
+          format: "double"
+        description:
+          $ref: "#/components/schemas/TextModel"
+    LabelDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        menuId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        textColor:
+          type: "string"
+        bgColor:
+          type: "string"
+        icon:
+          type: "string"
+
+    MenuDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+
+    OptionDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        description:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        price:
+          type: "integer"
+          format: "double"
+
+    ProductDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        menuId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        description:
+          $ref: "#/components/schemas/TextModel"
+        image:
+          type: "string"
+        costPrice:
+          type: "integer"
+          format: "double"
+
+    LoginRequest:
+      type: "object"
+      properties:
+        deviceUuid:
+          type: "string"
+        phone:
+          type: "string"
+        code:
+          type: "integer"
+          format: "long"
+    LoginResponse:
+      type: "object"
+      properties:
+        loginToken:
+          type: "string"
+        accessToken:
+          type: "string"
+        refreshToken:
+          type: "string"
+        regToken:
+          type: "string"
+    AddressDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        name:
+            type: string
+        type:
+            type: string
+        latitude:
+            type: number
+        longitude:
+            type: number
+        description:
+            type: string
+        details:
+          $ref: "#/components/schemas/Details"
+    Details:
+      type: object
+      properties:
+        building:
+          type: string
+        entrance:
+            type: string
+        floor:
+            type: integer
+        code:
+            type: string
+        comment:
+            type: string
+    MerchantDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "#/components/schemas/TextModel"
+        logo:
+          type: "string"
+        domain:
+          type: "string"
+
+    TextModel:
+      type: "object"
+      properties:
+        uz:
+          type: "string"
+        ru:
+          type: "string"
+        en:
+          type: "string"
+
+

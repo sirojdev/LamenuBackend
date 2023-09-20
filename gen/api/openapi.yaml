@@ -1,0 +1,1058 @@
+openapi: 3.0.3
+info:
+  description: Lamenu documentation Clint allows to you view the schema of Client
+    Lamenu project
+  title: Lamenu documentation Client
+  version: 1.0.0
+servers:
+- description: Local server
+  url: http://127.0.0.1:9000/v1/
+- description: Host server
+  url: http://188.166.167.80:9000/v1/
+- description: Domain server
+  url: https://api.lamenu.uz/v1/
+tags:
+- description: Endpoints related to device
+  name: Device
+- description: Endpoints related to client authentication
+  name: Auth
+- description: Endpoints related to menu
+  name: Menus
+- description: Endpoints related to profile
+  name: Profile
+- description: Endpoints related to favourite
+  name: Favourite
+- description: Endpoints related to order
+  name: Order
+- description: Endpoints related to address
+  name: Address
+paths:
+  /client/device:
+    get:
+      description: Get all client device
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DeviceModel'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Device
+      x-accepts: application/json
+    post:
+      description: Auth client for device
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DeviceModel'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      tags:
+      - Auth
+      x-accepts: application/json
+  /client/device/terminate:
+    post:
+      description: Terminate device by id
+      parameters:
+      - explode: true
+        in: query
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: form
+      responses:
+        "200":
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Device
+      x-accepts: application/json
+  /client/device/terminate/others:
+    post:
+      description: Terminate other devices
+      responses:
+        "200":
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Device
+      x-accepts: application/json
+  /client/auth/send-sms:
+    post:
+      description: Auth client sms
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            schema:
+              properties:
+                phone:
+                  type: string
+              type: object
+        description: A JSON object receive client's phone
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DeviceModel'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Auth
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/auth/verify:
+    post:
+      description: Auth client verify
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object_1'
+        content:
+          application/json:
+            schema:
+              properties:
+                code:
+                  type: string
+              type: object
+        description: A JSON object receive sms code
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DeviceModel'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Auth
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/auth/sign-up:
+    post:
+      description: Auth client sign up
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object_2'
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                image:
+                  type: string
+                birthDay:
+                  type: string
+              type: object
+        description: A JSON object receive with sign up
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DeviceModel'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Auth
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/menus:
+    get:
+      description: Returns a list of all menus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MenuDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Menus
+      x-accepts: application/json
+  /client/profile:
+    get:
+      description: Returns profile by its ID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Profile
+      x-accepts: application/json
+    put:
+      description: Update client profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+        description: A JSON object containing updated profile's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - Profile
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/profile/logout:
+    post:
+      description: Profile logout
+      responses:
+        "200":
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Profile
+      x-accepts: application/json
+  /client/profile/delete:
+    post:
+      description: Profile delete
+      responses:
+        "200":
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Profile
+      x-accepts: application/json
+  /client/profile/firebase:
+    put:
+      description: Update client profile firebase
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceModel'
+        description: A JSON object containing updated profile's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - Profile
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/books:
+    get:
+      description: Returns a list of all books
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BookDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-accepts: application/json
+  /client/book:
+    post:
+      description: Adds a new booking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookDto'
+        description: A JSON object containing booking's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Update a booking's information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookDto'
+        description: A JSON object containing updated booking's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/book/{id}:
+    delete:
+      description: Deletes a booking by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-accepts: application/json
+    get:
+      description: Returns a book by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-accepts: application/json
+  /client/favourite:
+    delete:
+      description: Deletes a favourite by its id
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Favourite
+      x-accepts: application/json
+    get:
+      description: Returns a list of all favourites
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FavouriteDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Favourite
+      x-accepts: application/json
+    post:
+      description: Adds a new favourite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FavouriteDto'
+        description: A JSON object containing favourite's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - Favourite
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Update a favourite's information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FavouriteDto'
+        description: A JSON object containing updated favourite's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - Favourite
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/favourite/{id}:
+    delete:
+      description: Deletes a favourite by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Favourite
+      x-accepts: application/json
+  /client/orders:
+    get:
+      description: Returns a list of all orders
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - Order
+      x-accepts: application/json
+  /client/order:
+    post:
+      description: Adds a new ordering
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDto'
+        description: A JSON object containing ordering's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - Order
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/order/{id}:
+    delete:
+      description: Deletes a ordering by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Order
+      x-accepts: application/json
+  /client/orders/{id}:
+    get:
+      description: Returns a book by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Order
+      x-accepts: application/json
+  /client/addresses:
+    get:
+      description: Returns a list of all address
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BookDto'
+                type: array
+          description: OK
+        "204":
+          description: No Content
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-accepts: application/json
+  /client/address:
+    post:
+      description: Adds a new address
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookDto'
+        description: A JSON object containing address's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-contentType: application/json
+      x-accepts: application/json
+    put:
+      description: Update a booking's information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookDto'
+        description: A JSON object containing updated booking's information
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearerAuth: []
+      tags:
+      - DineIn
+      x-contentType: application/json
+      x-accepts: application/json
+  /client/address/{id}:
+    delete:
+      description: Deletes an address by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Address
+      x-accepts: application/json
+    get:
+      description: Returns an address by its id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDto'
+          description: OK
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      tags:
+      - Address
+      x-accepts: application/json
+components:
+  requestBodies:
+    inline_object_1:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object_1'
+      required: true
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+      required: true
+    inline_object_2:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object_2'
+      required: true
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  schemas:
+    MenuDto:
+      example:
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+      type: object
+    UserDto:
+      example:
+        badge:
+          bgColor: bgColor
+          merchantId: 5
+          name:
+            ru: ru
+            uz: uz
+            eng: eng
+          icon: icon
+          id: 1
+          textColor: textColor
+        firstName: firstName
+        lastName: lastName
+        image: image
+        birthDay: birthDay
+        merchantId: 6
+        phone: phone
+        id: 0
+        token: token
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        badge:
+          $ref: '#/components/schemas/BadgeDto'
+        phone:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+        birthDay:
+          type: string
+        token:
+          type: string
+      type: object
+    BadgeDto:
+      example:
+        bgColor: bgColor
+        merchantId: 5
+        name:
+          ru: ru
+          uz: uz
+          eng: eng
+        icon: icon
+        id: 1
+        textColor: textColor
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/TextModel'
+        textColor:
+          type: string
+        bgColor:
+          type: string
+        icon:
+          type: string
+      type: object
+    TextModel:
+      example:
+        ru: ru
+        uz: uz
+        eng: eng
+      properties:
+        uz:
+          type: string
+        ru:
+          type: string
+        eng:
+          type: string
+      type: object
+    DeviceModel:
+      example:
+        code: code
+        ip: ip
+        expAction: true
+        uuid: uuid
+        token: token
+        firebaseToken: firebaseToken
+        osVersion: osVersion
+        build: build
+        phone: phone
+        blockedUntil: 2000-01-23T04:56:07.000+00:00
+        action: action
+        model: model
+        id: 0
+        brand: brand
+      properties:
+        id:
+          format: long
+          type: integer
+        uuid:
+          type: string
+        osVersion:
+          type: string
+        model:
+          type: string
+        brand:
+          type: string
+        build:
+          type: string
+        firebaseToken:
+          type: string
+        ip:
+          type: string
+        token:
+          type: string
+        blockedUntil:
+          format: date-time
+          type: string
+        code:
+          type: string
+        action:
+          type: string
+        expAction:
+          type: boolean
+        phone:
+          type: string
+      type: object
+    BookDto:
+      example:
+        clientId: 6
+        tableId: 1
+        comment: comment
+        id: 0
+        time: time
+      properties:
+        id:
+          format: long
+          type: integer
+        clientId:
+          format: long
+          type: integer
+        tableId:
+          format: long
+          type: integer
+        time:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        comment:
+          type: string
+      type: object
+    FavouriteDto:
+      example:
+        clientId: 1
+        merchantId: 6
+        name:
+          image: image
+          merchantId: 5
+          name: name
+          costPrice: 2
+          description: description
+          active: true
+          id: 5
+        id: 0
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        clientId:
+          format: long
+          type: integer
+        name:
+          $ref: '#/components/schemas/ProductDto'
+      type: object
+    ProductDto:
+      example:
+        image: image
+        merchantId: 5
+        name: name
+        costPrice: 2
+        description: description
+        active: true
+        id: 5
+      properties:
+        id:
+          format: long
+          type: integer
+        merchantId:
+          format: long
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        costPrice:
+          format: long
+          type: integer
+        active:
+          type: boolean
+      type: object
+    OrderDto:
+      example:
+        createdAt: createdAt
+        totalPrice: 1.4658129805029452
+        totalDiscount: 5.962133916683182
+        deliveryAt: deliveryAt
+        comment: comment
+        id: 0
+        type:
+          name: name
+          id: 6
+        status: status
+        updatedAt: updatedAt
+        deliveredAt: deliveredAt
+      properties:
+        id:
+          format: long
+          type: integer
+        type:
+          $ref: '#/components/schemas/OrderType'
+        status:
+          type: string
+        createdAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        updatedAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        deliveredAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        deliveryAt:
+          format: yyyy-MM-dd hh:mm:ss.SSSSSS
+          type: string
+        totalPrice:
+          format: double
+          type: number
+        totalDiscount:
+          format: double
+          type: number
+        comment:
+          type: string
+      type: object
+    OrderType:
+      example:
+        name: name
+        id: 6
+      properties:
+        id:
+          format: long
+          type: integer
+        name:
+          type: string
+      type: object
+    AddressDto:
+      properties:
+        id:
+          format: long
+          type: integer
+        type:
+          $ref: '#/components/schemas/AddressType'
+        status:
+          type: string
+        details:
+          $ref: '#/components/schemas/AddressDetails'
+        description:
+          type: string
+        latitude:
+          format: double
+          type: integer
+        longitude:
+          format: double
+          type: integer
+      type: object
+    AddressType:
+      properties:
+        name:
+          type: string
+      type: object
+    AddressDetails:
+      properties:
+        building:
+          type: string
+        entrance:
+          type: string
+        code:
+          type: string
+        floor:
+          type: integer
+        comment:
+          type: string
+      type: object
+    inline_object:
+      properties:
+        phone:
+          type: string
+      type: object
+    inline_object_1:
+      properties:
+        code:
+          type: string
+      type: object
+    inline_object_2:
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+        birthDay:
+          type: string
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+
