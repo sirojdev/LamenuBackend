@@ -1,5 +1,6 @@
 package mimsoft.io.plugins
 
+import com.google.gson.GsonBuilder
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -11,6 +12,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import mimsoft.io.utils.TimestampSerializer
+
+val GSON = GsonBuilder().setPrettyPrinting().create()
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
