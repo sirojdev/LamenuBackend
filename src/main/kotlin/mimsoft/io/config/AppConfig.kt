@@ -32,6 +32,3 @@ fun toTimeStamp(time: String?, format: String? = "yyyy-MM-dd"): Timestamp? {
     }
 }
 val FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern(TIMESTAMP_FORMAT)
-
-
-

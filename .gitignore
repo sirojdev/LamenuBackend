@@ -1,6 +1,7 @@
 .gradle
 build/
 gen/
+/gradle
 src/main/gen/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -25,3 +26,13 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/

@@ -35,7 +35,7 @@ class OutcomeTypeServiceTest {
     }
 
     @Test
-    fun update() {
+    fun update() = testApplication {
         val outcomeTypeDto = OutcomeTypeDto(
             id = 24,
             merchantId = 7,

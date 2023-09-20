@@ -8,16 +8,20 @@ import kotlin.test.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import mimsoft.io.client.device.DeviceModel
+import mimsoft.io.utils.plugins.configureRouting
 
 class MyApplicationTest {
-
-
     @Test
     fun testRoot() = testApplication {
-        val response = client.get("/")
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Hello World!", response.bodyAsText())
+        application {
+            configureRouting()
+        }
+        client.get("/").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("Hello World!", bodyAsText())
+        }
     }
+
 
     @Test
     fun testDeviceAuth() {
@@ -43,6 +47,4 @@ class MyApplicationTest {
             }
         }
     }
-
-
 }
