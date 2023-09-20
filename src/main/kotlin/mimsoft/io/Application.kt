@@ -17,5 +17,3 @@ fun Application.module() = runBlocking {
     configureSocket()
     configureFirebase()
 }
-
-

@@ -1,4 +1,5 @@
 package mimsoft.io.utils
+
 import kotlinx.serialization.Serializable
 
 @Serializable

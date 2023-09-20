@@ -305,3 +305,4 @@
 
 scp ./build/libs/lamenu-all.jar root@188.166.167.80:/root
 
+CREATE UNIQUE INDEX unique_deviceId_phone ON session (device_id, phone);

@@ -21,7 +21,7 @@ const val BRANCH =
         primary key,
     name_uz   text not null,
     name_ru   text not null,
-    name_eng  text not null,
+    name_en  text not null,
     longitude double precision not null,
     latitude  double precision not null,
     address   text not null,
