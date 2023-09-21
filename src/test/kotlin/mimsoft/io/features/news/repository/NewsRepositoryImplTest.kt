@@ -12,20 +12,7 @@ class NewsRepositoryImplTest {
 
     private val newsRepositoryImpl = NewsRepositoryImpl
 
-    @Test
-    fun add() = testApplication {// TODO: Xatolik bor...
-        val textModel = TextModel(
-            uz = "Uz",
-            ru = "Ru",
-            eng = "Eng",
-        )
-        val newsDto = NewsDto(
-            merchantId = 1,
-            title = textModel
-        )
-        val response = newsRepositoryImpl.add(newsDto)
-        println("rs: $response")
-    }
+git
 
     @Test
     fun update() = testApplication {
