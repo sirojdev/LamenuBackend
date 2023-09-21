@@ -49,7 +49,7 @@ object TransactionService {
             left join courier c on ct.courier_id = c.id
             where ct.merchant_id = $merchantId and ct.courier_id = $courierId and 
              not ct.deleted
-              order by ct.created desc  
+              order by ct.time desc  
               limit $limit 
               offset $offset
         """.trimIndent()

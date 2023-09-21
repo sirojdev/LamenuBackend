@@ -11,6 +11,8 @@ object TableMapper {
             name = tableDto.name,
             type = tableDto.type,
             qr = tableDto.qr,
+            bookingTime = tableDto.bookingTime,
+            status = tableDto.status?.name,
             roomId = tableDto.room?.id,
             branchId = tableDto.branch?.id,
             merchantId = tableDto.merchantId
@@ -26,6 +28,8 @@ object TableMapper {
             room = RoomDto(
                 id = tableTable.roomId
             ),
+            bookingTime = tableTable.bookingTime,
+            status = TableStatus.valueOf(tableTable.status.toString()),
             qr = tableTable.qr,
             branch = BranchDto(tableTable.branchId),
             merchantId = tableTable.merchantId

@@ -258,24 +258,29 @@ object BookRepositoryImpl : BookRepository {
     }
 
     override suspend fun update(bookDto: BookDto): Boolean {
-        val query = "update $BOOK_TABLE_NAME " +
-                "SET" +
-                " client_id = ${bookDto.client?.id}, " +
-                " table_id = ${bookDto.table?.id}," +
-                " time = ?," +
-                " updated = ?" +
-                " WHERE id = ${bookDto.id} and merchant_id = ${bookDto.merchantId} and not deleted"
+        val query = """
+            update book b
+            SET client_id = COALESCE(${bookDto.client?.id}, b.client_id),
+                table_id  = COALESCE(${bookDto.table?.id}, b.table_id),
+                time      = COALESCE(?, b.time),
+                updated   = ?
+            WHERE id = ${bookDto.id}
+              and merchant_id = ${bookDto.merchantId}
+              and not deleted
+        """.trimIndent()
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                val rs = it.prepareStatement(query).use { ti ->
                     ti.setTimestamp(1, bookDto.time)
                     ti.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
+                if(rs == 1)
+                    return@withContext true
             }
         }
-        return true
+        return false
     }
 
     private suspend fun getByTable(tableId: Long?, time: Timestamp?): BookTable? {

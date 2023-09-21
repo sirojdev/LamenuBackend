@@ -38,7 +38,7 @@ object OperatorSocketService {
                 merchantId = merchantId,
                 session = defaultWebSocketServerSession
             )
-            operatorConnections +=conn
+            operatorConnections += conn
             conn
         } else {
             connection

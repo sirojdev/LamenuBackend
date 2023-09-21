@@ -40,17 +40,18 @@ object FavouriteService {
         }
     }
 
-    suspend fun move(clientId: Long?, merchantId: Long?, deviceId: Long?) {
-        return withContext(DBManager.databaseDispatcher) {
+    suspend fun move(clientId: Long?, merchantId: Long?, deviceId: Long?): Int? {
+        val query = "update favourite \n" +
+                "set device_id = null, client_id = $clientId\n" +
+                "where merchant_id = $merchantId and device_id = $deviceId"
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val query = "update favourite \n" +
-                        "set device_id = null, client_id = $clientId\n" +
-                        "where merchant_id = $merchantId and device_id = $deviceId"
-                it.prepareStatement(query)
-            }.execute()
+                return@withContext it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
         }
-
-
+        return null
     }
 
     suspend fun update(favouriteDto: FavouriteDto): ResponseModel {
@@ -101,7 +102,7 @@ object FavouriteService {
                             ),
                             image = rs.getString("p_image"),
                             costPrice = rs.getLong("p_cost_price"),
-                            category = CategoryDto(id = rs.getLong("p_category_id"),)
+                            category = CategoryDto(id = rs.getLong("p_category_id"))
                         )
                     )
                     list.add(favourite)

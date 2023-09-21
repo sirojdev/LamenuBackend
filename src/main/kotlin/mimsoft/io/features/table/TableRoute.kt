@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 
@@ -51,8 +52,13 @@ fun Route.routeToTable(){
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
         val table = call.receive<TableDto>()
-        tableService.update(table.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK)
+        val response = tableService.update(table.copy(merchantId = merchantId))
+        if(response){
+            call.respond(ResponseModel(body = "Successfully update"))
+        }
+        else{
+            call.respond(HttpStatusCode.Conflict)
+        }
     }
 
     delete("table/{id}"){

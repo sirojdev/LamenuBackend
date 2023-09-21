@@ -42,7 +42,6 @@ fun Route.routeToOperator() {
             }
         }
 
-
         authenticate("operator") {
 
             route("profile") {

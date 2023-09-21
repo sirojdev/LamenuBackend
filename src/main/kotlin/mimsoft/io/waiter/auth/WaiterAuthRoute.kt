@@ -1,6 +1,5 @@
 package mimsoft.io.waiter.auth
 
-import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -12,16 +11,14 @@ import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.device.DeviceType
 import mimsoft.io.features.appKey.MerchantAppKeyRepository
-import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.features.staff.StaffService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.WaiterService
-import java.util.*
 
 fun Route.routeToWaiterAuth() {
     val waiterService = WaiterService
@@ -39,7 +36,14 @@ fun Route.routeToWaiterAuth() {
                 } else {
                     val ip = call.request.host()
                     val appDto = MerchantAppKeyRepository.getByAppId(appKey)
-                    val result = DeviceController.auth(device.copy(ip = ip, merchantId = appDto?.merchantId, appKey = appKey, deviceType = DeviceType.WAITER))
+                    val result = DeviceController.auth(
+                        device.copy(
+                            ip = ip,
+                            merchantId = appDto?.merchantId,
+                            appKey = appKey,
+                            deviceType = DeviceType.WAITER
+                        )
+                    )
                     call.respond(result)
                 }
             }
@@ -63,7 +67,9 @@ fun Route.routeToWaiterAuth() {
                         SessionTable(
                             uuid = uuid,
                             stuffId = authStaff?.id,
-                            merchantId = authStaff?.merchantId
+                            merchantId = authStaff?.merchantId,
+                            deviceId = device?.id,
+                            role = DeviceType.WAITER?.name
                         )
                     )
 
@@ -73,19 +79,19 @@ fun Route.routeToWaiterAuth() {
                                 staffId = authStaff.id,
                                 merchantId = authStaff.merchantId,
                                 uuid = uuid,
+                                branchId = authStaff.branchId
                             )
                         ) ?: HttpStatusCode.NoContent
                     )
                 }
             }
-
         }
 
         authenticate("waiter") {
             post("logout") {
-                val merchant = call.principal<BasePrincipal>()
-                WaiterService.logout(merchant?.uuid)
-                call.respond(HttpStatusCode.OK)
+                val principal = getPrincipal()
+                val response = WaiterService.logout(principal?.uuid)
+                call.respond(response)
             }
         }
     }

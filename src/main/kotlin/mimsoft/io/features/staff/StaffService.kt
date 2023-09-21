@@ -61,7 +61,8 @@ object StaffService {
                     birthDay = it["birth_day"].toString(),
                     image = it["image"] as? String,
                     comment = it["comment"] as? String,
-                    status = it["status"] as? Boolean
+                    status = it["status"] as? Boolean,
+                    branchId = it["branch_id"] as? Long
                 )
 
                 log.info("staffDto: $staffDto")
@@ -103,6 +104,7 @@ object StaffService {
                             image = rs.getString("image"),
                             comment = rs.getString("comment"),
                             status = rs.getBoolean("status"),
+                            branchId = rs.getLong("branch_id")
                         )
                     )
                     staffs.add(staff)
@@ -130,7 +132,8 @@ object StaffService {
                             birthDay = rs.getTimestamp("birth_day"),
                             image = rs.getString("image"),
                             comment = rs.getString("comment"),
-                            status = rs.getBoolean("status")
+                            status = rs.getBoolean("status"),
+                            branchId = rs.getLong("branch_id")
                         )
                     )
                 } else return@withContext null
@@ -158,6 +161,7 @@ object StaffService {
                             comment = rs.getString("comment"),
                             gender = rs.getString("gender"),
                             status = rs.getBoolean("status"),
+                            branchId = rs.getLong("status")
                         )
                     ).copy(
                         orders = OrderService.getAll(
@@ -270,7 +274,7 @@ object StaffService {
         val query = """select s.*, 
                 A.count today_orders, 
                 B.count all_orders,  
-                status.count active_orders ,
+                status.count active_orders, 
                 count(*) over() as total
                 from staff s 
         left join(select courier_id, count(*) 
@@ -312,12 +316,13 @@ object StaffService {
                         allOrderCount = rs.getLong("all_orders"),
                         todayOrderCount = rs.getLong("today_orders"),
                         activeOrderCount = rs.getLong("active_orders"),
-                        status = rs.getBoolean("status")
+                        status = rs.getBoolean("status"),
+                        branchId = rs.getLong("branch_id")
                     )
                     staff.lastLocation = CourierLocationHistoryService.getByStaffId(staff.id)
                     staffs.add(staff)
                 }
-                return@withContext DataPage(staffs,totalCount)
+                return@withContext DataPage(staffs, totalCount)
             }
         }
     }
@@ -368,7 +373,8 @@ object StaffService {
                         allOrderCount = rs.getLong("all_orders"),
                         todayOrderCount = rs.getLong("today_orders"),
                         activeOrderCount = rs.getLong("active_orders"),
-                        status = rs.getBoolean("status")
+                        status = rs.getBoolean("status"),
+                        branchId = rs.getLong("branch_id")
                     )
                     staffs.add(staff)
                 }
@@ -398,9 +404,15 @@ object StaffService {
                             comment = rs.getString("comment"),
                             gender = rs.getString("gender"),
                             status = rs.getBoolean("status"),
+                            branchId = rs.getLong("branch_id")
                         )
                     ).copy(
-                        orders = OrderService.getAll(mapOf("merchantId" to merchantId, "courierId" to id)).body as? List<Order?>
+                        orders = OrderService.getAll(
+                            mapOf(
+                                "merchantId" to merchantId,
+                                "courierId" to id
+                            )
+                        ).body as? List<Order?>
                     )
                 } else return@withContext null
             }
@@ -421,6 +433,7 @@ object StaffService {
         }
         return result
     }
+
     suspend fun getAllWaiters(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query =
             "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and position='waiter' and deleted = false " +
@@ -446,6 +459,7 @@ object StaffService {
                             birthDay = rs.getTimestamp("birth_day").toString(),
                             image = rs.getString("image"),
                             gender = rs.getString("gender"),
+                            branchId = rs.getLong("branch_id"),
                         )
                     )
                 }
@@ -456,6 +470,6 @@ object StaffService {
                 }
             }
         }
-        return DataPage(waiters,total)
+        return DataPage(waiters, total)
     }
 }

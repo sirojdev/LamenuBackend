@@ -12,6 +12,7 @@ import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.plugins.getPrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.ArrayList
 import kotlin.math.min
 
 fun Route.routeToClientOrder() {
@@ -19,6 +20,14 @@ fun Route.routeToClientOrder() {
     val log: Logger = LoggerFactory.getLogger("routeToClientOrder")
     get("orders") {
         val pr = getPrincipal()
+        val statuses = call.parameters["statuses"]
+        val s = statuses?.split(",")?.iterator()
+        val list = ArrayList<String>()
+        if (s != null) {
+            s.forEach {
+                list.add(it)
+            }
+        }
         val search = call.parameters["search"]
         val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
@@ -28,6 +37,7 @@ fun Route.routeToClientOrder() {
                 "userId" to pr?.userId,
                 "merchantId" to pr?.merchantId,
                 "search" to search,
+                "statuses" to statuses,
                 "limit" to limit,
                 "offset" to offset
             ),

@@ -18,7 +18,8 @@ object StaffMapper {
             lastName = staffTable?.lastName,
             firstName = staffTable?.firstName,
             merchantId = staffTable?.merchantId,
-            birthDay = staffTable?.birthDay.toString()
+            birthDay = staffTable?.birthDay.toString(),
+            branchId = staffTable?.branchId
         )
     }
 
@@ -29,6 +30,7 @@ object StaffMapper {
         return StaffTable(
             id = staffDto?.id,
             birthDay = birthDay,
+            branchId = staffDto?.branchId,
             phone = staffDto?.phone,
             image = staffDto?.image,
             gender = staffDto?.gender,
