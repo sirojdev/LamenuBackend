@@ -359,6 +359,8 @@ object ProductRepositoryImpl : ProductRepository {
                     this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
                 }.execute()
+
+
                 println(query)
             }
         }
