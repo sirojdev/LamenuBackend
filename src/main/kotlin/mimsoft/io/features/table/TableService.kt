@@ -66,41 +66,44 @@ object TableService : TableRepository {
                 " qr = ?," +
                 " type = ${dto.type}," +
                 " room_id = ${dto.room?.id}," +
+                " status = ?," +
+                " booking_time = ${dto.bookingTime}," +
+                " room_id = ${dto.room?.id}," +
                 " branch_id = ${dto.branch?.id}, " +
                 " updated = ?" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
-        withContext(Dispatchers.IO) {
-            StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
-                    ti.setString(1, dto.name)
-                    ti.setString(2, dto.qr)
-                    ti.setTimestamp(3, Timestamp(System.currentTimeMillis()))
-                    ti.executeUpdate()
-                }
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                return@withContext it.prepareStatement(query).apply {
+                    this.setString(1, dto.name)
+                    this.setString(2, dto.qr)
+                    this.setString(2, dto.status?.name)
+                    this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
             }
         }
-        return true
     }
 
     override suspend fun getRoomWithTables(merchantId: Long?, branchId: Long?): ArrayList<RoomDto> {
         val query = """
           SELECT
-    r.id AS room_id,
-    r.name AS r_name,
-    CASE
-    WHEN COUNT(t.id) > 0
-        THEN json_agg(json_build_object('id', t.id, 'name', t.name, 'qr', t.qr, 'type', t.type))
-    ELSE '[]'
-    END AS tables
-FROM
-    room r
-        left JOIN
-    tables t ON r.id = t.room_id and t.deleted = false
-WHERE
-    (t.deleted is null or t.deleted = false ) and r.deleted = false AND r.merchant_id = $merchantId AND r.branch_id =$branchId 
-GROUP BY
-    r.name, r.id;
+                r.id AS room_id,
+                r.name AS r_name,
+                CASE
+                WHEN COUNT(t.id) > 0
+                    THEN json_agg(json_build_object('id', t.id, 'name', t.name, 'qr', t.qr, 'type', t.type))
+                ELSE '[]'
+                END AS tables
+            FROM
+                room r
+                    left JOIN
+                tables t ON r.id = t.room_id and t.deleted = false
+            WHERE
+                (t.deleted is null or t.deleted = false ) and r.deleted = false AND r.merchant_id = $merchantId AND r.branch_id =$branchId 
+            GROUP BY
+                r.name, r.id;
         """.trimIndent()
         val rooms: ArrayList<RoomDto> = ArrayList() // Initialize the ArrayList
         withContext(Dispatchers.IO) {
@@ -122,21 +125,45 @@ GROUP BY
         return rooms
     }
 
+    override suspend fun getTablesWaiter(roomId: Long?, branchId: Long?, merchantId: Long?): List<TableDto?> {
+        val query = "select * from tables where room_id = $roomId and branch_id = $branchId and merchant_id = $merchantId and not deleted"
+        val list = mutableListOf<TableDto>()
+        withContext(DBManager.databaseDispatcher){
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while(rs.next()){
+                    val dto = TableDto(
+                        id = rs.getLong("id"),
+                        name = rs.getString("name"),
+                        status = TableStatus.valueOf(rs.getString("status")),
+                        type = rs.getInt("type")
+                    )
+                    list.add(dto)
+                }
+            }
+        }
+        return list
+    }
+
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $TABLE_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { it.prepareStatement(query).apply { this.closeOnCompletion() }.execute() }
+        return withContext(Dispatchers.IO) {
+            ProductRepositoryImpl.repository.connection()
+                .use { return@withContext it.prepareStatement(query).apply { this.closeOnCompletion() }.execute() }
         }
-        return true
     }
 
     override suspend fun getByQr(url: String): TableDto? {
         val query = """
-                select t.id          t_id,
+            select t.id          t_id,
                 t.merchant_id t_merchant_id,
                 qr,
                 type,
                 t.name        t_name,
+                t.status      t_status,
+                t.booking_time t_booking_time,
                 r.id          r_id,
                 r.name        r_name,
                 b.id          b_id,
@@ -150,17 +177,17 @@ GROUP BY
                 open,
                 close,
                 (select json_build_object(
-                   'id', v.id,
-                   'merchantId', v.merchant_id,
-                   'status', v.status,
-                   'clientCount', v.client_count,
-                   'isActive', v.is_active
-                )
+                           'id', v.id,
+                           'merchantId', v.merchant_id,
+                           'status', v.status,
+                           'clientCount', v.client_count,
+                           'isActive', v.is_active
+                       )
                 from visit v
-                where v.table_id = t.id
-                and v.is_active
+                where t.status = 'ACTIVE'
+                and v.table_id = t.id
+                and v.is_active = true
                 and not v.deleted) as json_data
-                
                 from tables t
                 left join branch b on t.branch_id = b.id
                 left join room r on t.room_id = r.id
@@ -185,6 +212,8 @@ GROUP BY
                             qr = rs.getString("qr"),
                             type = rs.getInt("type"),
                             name = rs.getString("t_name"),
+                            status = TableStatus.valueOf(rs.getString("t_status")),
+                            bookingTime = rs.getInt("t_booking_time"),
                             room = RoomDto(
                                 id = rs.getLong("r_id"),
                                 name = rs.getString("r_name"),

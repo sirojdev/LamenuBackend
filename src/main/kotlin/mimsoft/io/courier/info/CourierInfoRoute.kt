@@ -7,19 +7,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.device.DeviceController
-import mimsoft.io.client.device.DeviceModel
-import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.routing.v1.client.generateSessionUUID
-import mimsoft.io.rsa.Generator
-import mimsoft.io.rsa.GeneratorModel
-import mimsoft.io.rsa.Status
-import mimsoft.io.services.sms.SmsSenderService
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.session.SessionTable
-import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCouriersInfo() {
@@ -44,7 +34,7 @@ fun Route.routeToCouriersInfo() {
         val principal = call.principal<BasePrincipal>()
         val firebase = call.parameters["firebase"]
         val session = SessionRepository.get(principal?.uuid)
-        call.respond(DeviceController.editFirebaseWithDeivceId(deviceId  = session?.deviceId,token =firebase ))
+        call.respond(DeviceController.editFirebaseWithDeviceId(deviceId  = session?.deviceId,token =firebase ))
     }
 
     /**

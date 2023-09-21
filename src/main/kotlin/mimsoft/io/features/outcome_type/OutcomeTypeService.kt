@@ -74,7 +74,7 @@ object OutcomeTypeService {
         val checkMerchant = outcomeTypeDto.merchantId?.let { getOneByMerchantId(it) }
         return if (checkMerchant != null)
             ResponseModel(
-                body = update(outcomeTypeDto = outcomeTypeDto)
+                body = update(outcomeTypeDto = checkMerchant.copy(name = outcomeTypeDto.name))
             )
         else {
             ResponseModel(
@@ -88,18 +88,19 @@ object OutcomeTypeService {
         }
     }
 
-    fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
+    suspend fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
         val query = "update $OUTCOME_TYPE_TABLE set " +
                 "name = ? , " +
                 "updated = ? \n" +
                 "where merchant_id = ${outcomeTypeDto?.merchantId} and id = ${outcomeTypeDto?.id} and not deleted "
-
-        repository.connection().use {
-            return it.prepareStatement(query).apply {
-                this.setString(1, outcomeTypeDto?.name)
-                this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
-                this.closeOnCompletion()
-            }.execute()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                it.prepareStatement(query).apply {
+                    this.setString(1, outcomeTypeDto?.name)
+                    this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.execute()
+            }
         }
     }
 

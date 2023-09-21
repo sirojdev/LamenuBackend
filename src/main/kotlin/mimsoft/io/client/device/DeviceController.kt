@@ -267,15 +267,15 @@ object DeviceController {
         return true
     }
 
-    suspend fun editFirebaseWithDeivceId(deviceId: Long?, token: String?): Boolean {
+    suspend fun editFirebaseWithDeviceId(deviceId: Long?, token: String?): Boolean {
         val query = "update device\n" +
                 "    set fb_token = ?,\n" +
                 "    updated_at = ? \n" +
                 "where id in (\n" +
                 "    select device_id from session where device_id = $deviceId \n and not is_expired " +
                 "    ) "
-        withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use {
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
                 it.prepareStatement(query).apply {
                     this.setString(1, token)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
@@ -283,7 +283,6 @@ object DeviceController {
                 }.execute()
             }
         }
-        return true
     }
 
 

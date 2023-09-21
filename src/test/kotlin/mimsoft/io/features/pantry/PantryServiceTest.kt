@@ -1,8 +1,11 @@
 package mimsoft.io.features.pantry
 
-import org.junit.jupiter.api.Test
+import io.ktor.server.testing.*
+import mimsoft.io.utils.toJson
+import mimsoft.io.waiter.table.repository.WaiterTableRepository
+import kotlin.test.Test
+import kotlin.test.assertNotNull
 
-import org.junit.jupiter.api.Assertions.*
 
 class PantryServiceTest {
 
@@ -29,5 +32,12 @@ class PantryServiceTest {
 
     @Test
     fun delete() {
+    }
+
+    @Test
+    fun getFinishTable() = testApplication {
+        val response = WaiterTableRepository.getFinishedTablesWaiters(41, 10, 0)
+        println("response = ${response.data.toJson()}")
+        assertNotNull(response)
     }
 }

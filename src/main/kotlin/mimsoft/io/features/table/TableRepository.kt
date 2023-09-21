@@ -12,4 +12,5 @@ interface TableRepository {
     suspend fun delete(id: Long?, merchantId: Long?): Boolean
     suspend fun getByQr(url: String): TableDto?
     suspend fun getRoomWithTables(merchantId: Long?, branchId: Long?): ArrayList<RoomDto>
+    suspend fun getTablesWaiter(roomId: Long?, branchId: Long?, merchantId: Long?): List<TableDto?>
 }

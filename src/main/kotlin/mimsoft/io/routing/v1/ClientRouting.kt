@@ -27,6 +27,7 @@ fun Route.routeToClient() {
         routeToClientCart()
         routeToPaymentTypes()
         routeToClientNews()
+        routeToClientDineIn()
         authenticate("user") {
             routeToClientPromo()
             routeToClientProfile()

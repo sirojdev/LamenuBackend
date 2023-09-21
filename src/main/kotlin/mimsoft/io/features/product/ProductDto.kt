@@ -26,5 +26,5 @@ data class ProductDto(
     var extras: List<ExtraDto>? = null,
     val labels: List<LabelDto>? = null,
     val joinPosterId: Long? = null,
-    val jowiPosterId: String? = null,
+    val jowiPosterId: String? = null
 )

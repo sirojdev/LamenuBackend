@@ -40,7 +40,7 @@ fun Route.toCourierSocket() {
                             session = this
                         )
                     )
-                    ChatMessageService.sendNotReadMessageInfoCourier(staffId, this)
+                    ChatMessageService.sendNotReadMessageInfoCourier( staffId, this)
                     for (frame in incoming) {
                         val conn = CourierSocketService.setConnection(
                             CourierConnection(
@@ -56,8 +56,7 @@ fun Route.toCourierSocket() {
 
                         val data: SocketData? = Gson().fromJson(receivedText, SocketData::class.java)
                         if (data?.type == SocketType.CHAT) {
-                            val chatMessage: ChatMessageDto? =
-                                Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
+                            val chatMessage: ChatMessageDto? = Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
                             if (chatMessage != null) {
                                 if (conn.session != null) {
                                     ChatMessageService.sendMessageToOperator(
@@ -107,7 +106,7 @@ fun Route.toCourierSocket() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    CourierService.updateIsActive(staffId, false)
+                    CourierService.updateIsActive(staffId,true)
                     CourierSocketService.courierConnections.removeIf { it.session == this }
                     close(CloseReason(CloseReason.Codes.NORMAL, ""))
                 }
