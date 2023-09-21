@@ -1,5 +1,6 @@
 package mimsoft.io.features.operator
 
+import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
@@ -261,7 +262,7 @@ object OperatorService {
                                 ),
                                 staff = staffDto
                             ),
-                            httpStatus = ResponseModel.OK
+                            httpStatus = HttpStatusCode.OK
                         )
                     } else ResponseModel(
                         httpStatus = ResponseModel.SOME_THING_WRONG
@@ -272,7 +273,6 @@ object OperatorService {
     }
 
     suspend fun delete(id: Long?): ResponseModel {
-
         val query = """
             update operator set
                 deleted = true
@@ -282,9 +282,7 @@ object OperatorService {
         return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use { connection ->
                 connection.prepareStatement(query).execute()
-                return@withContext ResponseModel(
-                    httpStatus = OK
-                )
+                return@withContext ResponseModel()
             }
         }
     }

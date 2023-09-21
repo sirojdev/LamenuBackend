@@ -3,12 +3,15 @@ package mimsoft.io.session
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.device.DeviceModel
+import mimsoft.io.features.order.OrderService
 import mimsoft.io.repository.DBManager
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 import java.util.*
 
 object SessionRepository {
-
+    private val log: Logger = LoggerFactory.getLogger(SessionRepository::class.java)
     suspend fun auth(session: SessionTable): SessionTable? {
         if (session.deviceId != null)
             expireOtherSession(deviceId = session.deviceId, merchantId = session.merchantId)
@@ -159,11 +162,11 @@ object SessionRepository {
     suspend fun delete(id: Long?): Boolean =
         DBManager.deleteData(tableName = SESSION_TABLE_NAME, whereValue = id)
 
-    suspend fun expire(uuid: String?) = withContext(Dispatchers.IO) {
+    suspend fun expire(uuid: String?): Boolean = withContext(DBManager.databaseDispatcher) {
         println("uuid -> $uuid")
         val query = "update session set is_expired=true, updated=? where uuid=?"
         DBManager.connection().use {
-            it.prepareStatement(query).apply {
+            return@withContext it.prepareStatement(query).apply {
                 this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
                 this.setString(2, uuid)
                 this.closeOnCompletion()

@@ -51,15 +51,16 @@ object BranchServiceImpl : BranchService {
         val merchantId = dto.merchantId
         val query = "update $BRANCH_TABLE_NAME " +
                 "SET" +
-                " name_uz = ?, " +
-                " name_ru = ?," +
-                " name_eng = ?," +
-                " address = ?, " +
-                " open = ?," +
-                " close = ?," +
-                " longitude = ${dto.longitude}," +
-                " latitude = ${dto.latitude}," +
-                " updated = ?" +
+                " name_uz = COALESCE(?,name_uz), " +
+                " name_ru = COALESCE(?,name_ru)," +
+                " name_eng = COALESCE(?,name_eng)," +
+                " address = COALESCE(?,address) ," +
+                " open = COALESCE(?,open)," +
+                " close = COALESCE(?,close)," +
+                " jowi_id=COALESCE(?,jowi_id)," +
+                " longitude = COALESCE(${dto.longitude},longitude)," +
+                " latitude = COALESCE(${dto.latitude},latitude)," +
+                " updated = COALESCE(?,updated)" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
         withContext(Dispatchers.IO) {

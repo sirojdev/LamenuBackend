@@ -10,4 +10,8 @@ data class CourierLocationHistoryDto (
     val staffId: Long? = null,
     val time: Timestamp? = null,
     val name: String? = null
-)
+) {
+    override fun toString(): String {
+        return "CourierLocationHistoryDto(id=$id, merchantId=$merchantId, longitude=$longitude, latitude=$latitude, staffId=$staffId, time=$time, name=$name)"
+    }
+}

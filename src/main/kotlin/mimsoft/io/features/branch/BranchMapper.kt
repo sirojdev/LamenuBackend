@@ -4,7 +4,7 @@ import mimsoft.io.utils.TextModel
 
 object BranchMapper {
     fun toBranchTable(branchDto: BranchDto?): BranchTable? {
-        return if (branchDto==null) null
+        return if (branchDto == null) null
         else {
             BranchTable(
                 id = branchDto.id,
@@ -18,12 +18,13 @@ object BranchMapper {
                 address = branchDto.address,
                 merchantId = branchDto.merchantId,
                 joinPosterId = branchDto.joinPosterId,
+                jowiId = branchDto.jowiId,
             )
         }
     }
 
     fun toBranchDto(branchTable: BranchTable?): BranchDto? {
-        return if (branchTable==null) null
+        return if (branchTable == null) null
         else BranchDto(
             id = branchTable.id,
             name = TextModel(
@@ -38,6 +39,7 @@ object BranchMapper {
             address = branchTable.address,
             merchantId = branchTable.merchantId,
             joinPosterId = branchTable.joinPosterId,
+            jowiId = branchTable.jowiId
         )
     }
 }

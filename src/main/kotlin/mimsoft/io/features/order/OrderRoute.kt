@@ -14,6 +14,7 @@ import mimsoft.io.services.firebase.FirebaseService
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
+import kotlin.math.min
 
 
 fun Route.routeToOrder() {
@@ -33,8 +34,8 @@ fun Route.routeToOrder() {
                 call.respond(ResponseModel(body = "status required", httpStatus = HttpStatusCode.BadRequest))
             }
             val order = orderService.updateStatus(
-                orderId = orderId!!,
-                merchantId = pr?.merchantId!!,
+                orderId = orderId,
+                merchantId = pr?.merchantId,
                 status = OrderStatus.valueOf(status.toString())
             )
             val st = OrderStatus.valueOf(status!!)
@@ -78,7 +79,6 @@ fun Route.routeToOrder() {
             call.respond(order!!)
 
         }
-
         /**
          * OPERATOR ORDER NI QABUL QILADI
          * */
@@ -117,15 +117,23 @@ fun Route.routeToOrder() {
 
         get {
             val principal = getPrincipal()
-            val response = orderService.getAll(
+            val merchantId = principal?.merchantId
+            val type = call.parameters["type"]
+            val status = call.parameters["status"]
+            val search = call.parameters["search"]
+            val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+
+            val response = orderService.getAll2(
                 mapOf(
-                    "merchantId" to principal?.merchantId as Any,
-                    "type" to call.parameters["type"] as Any,
-                    "status" to call.parameters["status"] as Any,
-                    "search" to call.parameters["search"] as Any,
-                    "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
-                    "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
-                )
+                    "merchantId" to merchantId,
+                    "type" to type,
+                    "status" to status,
+                    "search" to search,
+                    "limit" to limit,
+                    "offset" to offset
+                ),
+                "user","merchant", "branch", "order_price", "products", "collector", "courier", "payment_type"
             )
             call.respond(response.httpStatus, response.body)
         }

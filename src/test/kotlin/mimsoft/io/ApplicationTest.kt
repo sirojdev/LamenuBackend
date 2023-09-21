@@ -3,22 +3,25 @@ package mimsoft.io
 import com.google.gson.Gson
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.server.testing.*
+import kotlin.test.*
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.testing.*
 import mimsoft.io.client.device.DeviceModel
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import mimsoft.io.utils.plugins.configureRouting
 
 class MyApplicationTest {
-
-
     @Test
     fun testRoot() = testApplication {
-        val response = client.get("/")
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Hello World!", response.bodyAsText())
+        application {
+            configureRouting()
+        }
+        client.get("/").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("Hello World!", bodyAsText())
+        }
     }
+
 
     @Test
     fun testDeviceAuth() {

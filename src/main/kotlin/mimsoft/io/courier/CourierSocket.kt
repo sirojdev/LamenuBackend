@@ -24,7 +24,6 @@ fun Route.toCourierSocket() {
     route("courier") {
         authenticate("courier") {
             webSocket("socket") {
-
                     val principal = call.principal<BasePrincipal>()
                     val staffId = principal?.staffId
                     val merchantId = principal?.merchantId
@@ -40,7 +39,7 @@ fun Route.toCourierSocket() {
                             session = this
                         )
                     )
-                    ChatMessageService.sendNotReadMessageInfoCourier(staffId, this)
+                    ChatMessageService.sendNotReadMessageInfoCourier( staffId, this)
                     for (frame in incoming) {
                         val conn = CourierSocketService.setConnection(
                             CourierConnection(
@@ -52,12 +51,11 @@ fun Route.toCourierSocket() {
                         )
                         frame as? Frame.Text ?: continue
                         val receivedText = frame.readText()
-
-
+                        println("connection  ${conn.session}")
+                        println("text -> $receivedText")
                         val data: SocketData? = Gson().fromJson(receivedText, SocketData::class.java)
                         if (data?.type == SocketType.CHAT) {
-                            val chatMessage: ChatMessageDto? =
-                                Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
+                            val chatMessage: ChatMessageDto? = Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
                             if (chatMessage != null) {
                                 if (conn.session != null) {
                                     ChatMessageService.sendMessageToOperator(
@@ -74,6 +72,7 @@ fun Route.toCourierSocket() {
                         } else if (data?.type == SocketType.LOCATION) {
                             val location: CourierLocationHistoryDto? =
                                 Gson().fromJson(data.data.toString(), CourierLocationHistoryDto::class.java)
+                            println("location -> ${location.toString()}")
                             if (location != null) {
                                 CourierLocationHistoryService.add(
                                     location.copy(
@@ -107,7 +106,7 @@ fun Route.toCourierSocket() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    CourierService.updateIsActive(staffId, false)
+                    CourierService.updateIsActive(staffId,true)
                     CourierSocketService.courierConnections.removeIf { it.session == this }
                     close(CloseReason(CloseReason.Codes.NORMAL, ""))
                 }

@@ -6,6 +6,7 @@ import mimsoft.io.features.order.Order
 data class StaffDto(
     val id: Long? = null,
     val token: String? = null,
+    val branchId: Long? = null,
     val image: String? = null,
     val phone: String? = null,
     val gender: String? = null,

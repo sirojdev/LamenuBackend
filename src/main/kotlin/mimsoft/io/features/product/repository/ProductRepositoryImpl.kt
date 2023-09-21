@@ -76,7 +76,7 @@ object ProductRepositoryImpl : ProductRepository {
                             discount = rs.getLong("discount"),
                             productIntegration = ProductIntegrationDto(
                                 idRkeeper = rs.getLong("id_rkeeper"),
-                                idJowi = rs.getLong("id_jowi"),
+                                idJowi = rs.getString("id_jowi"),
                                 idJoinPoster = rs.getLong("id_join_poster")
                             ),
                             active = rs.getBoolean("active"),
@@ -167,7 +167,7 @@ object ProductRepositoryImpl : ProductRepository {
                         discount = rs.getLong("discount"),
                         productIntegration = ProductIntegrationDto(
                             idRkeeper = rs.getLong("id_rkeeper"),
-                            idJowi = rs.getLong("id_jowi"),
+                            idJowi = rs.getString("id_jowi"),
                             idJoinPoster = rs.getLong("id_join_poster")
                         ),
                         active = rs.getBoolean("active"),
@@ -377,7 +377,7 @@ object ProductRepositoryImpl : ProductRepository {
                                 groupId = rs.getLong("c_group_id"),
                             ),
                             productIntegration = ProductIntegrationDto(
-                                idJowi = rs.getLong("id_jowi"),
+                                idJowi = rs.getString("id_jowi"),
                                 idRkeeper = rs.getLong("id_rkeeper"),
                                 idJoinPoster = rs.getLong("id_join_poster")
                             ),
@@ -420,7 +420,7 @@ object ProductRepositoryImpl : ProductRepository {
                         costPrice = rs.getLong("cost_price"),
                         active = rs.getBoolean("active"),
                         productIntegration = ProductIntegrationDto(
-                            idJowi = rs.getLong("id_jowi"),
+                            idJowi = rs.getString("id_jowi"),
                             idRkeeper = rs.getLong("id_rkeeper"),
                             idJoinPoster = rs.getLong("id_join_poster"),
                         ),

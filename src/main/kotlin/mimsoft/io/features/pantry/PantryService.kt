@@ -43,7 +43,7 @@ object PantryService {
         )
 
     fun update(pantryDto: PantryDto): Boolean {
-        val query = "update table $PANTRY_TABLE_NAME" +
+        val query = "update $PANTRY_TABLE_NAME" +
                 " set branch_id = ${pantryDto.branch?.id}," +
                 " product_id = ${pantryDto.product?.id}," +
                 " count = ${pantryDto.count} " +

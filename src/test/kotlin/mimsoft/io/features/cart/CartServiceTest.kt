@@ -63,7 +63,7 @@ class CartServiceTest {// TODO: kamchilik bor...
             deleted = null,
             total = null
         )
-        val response = cartService.check(orderDto, merchantId)
+        val response = cartService.check(orderDto)
 
     }
 
