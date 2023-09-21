@@ -1,8 +1,9 @@
 package mimsoft.io.staff
 
 import mimsoft.io.position.PositionDto
+import java.sql.Timestamp
 
-data class StaffDto (
+data class StaffDto(
     val id: Long? = null,
     val username: String? = null,
     val password: String? = null,
@@ -11,4 +12,5 @@ data class StaffDto (
     val birthDay: String? = null,
     val image: String? = null,
     val position: PositionDto? = null,
+    val token: String? = null
 )

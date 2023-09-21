@@ -49,7 +49,6 @@ dependencies {
 //    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
 //    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
 //    implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
-    implementation("org.projectlombok:lombok:1.18.20")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
