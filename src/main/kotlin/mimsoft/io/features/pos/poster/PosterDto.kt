@@ -1,4 +1,4 @@
-package mimsoft.io.features.poster
+package mimsoft.io.features.pos.poster
 
 data class PosterDto (
     val id: Long? = null,

@@ -5,17 +5,18 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
-import mimsoft.io.features.jowi.JowiService
+import mimsoft.io.features.pos.jowi.JowiService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
-import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
+import mimsoft.io.features.pos.POSController
+import mimsoft.io.features.pos.POSService
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.repository.BaseRepository
@@ -40,7 +41,7 @@ object OrderService {
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
 
-    suspend fun getAll2(
+    suspend fun     getAll2(
         params: Map<String, *>? = null,
         vararg columns: String,
     ): ResponseModel {
@@ -147,6 +148,10 @@ object OrderService {
             }
             val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
             fullOrder?.let { it1 ->
+
+                POSController.getPostFromBranch(1).createOrder(order)
+
+
                 JowiService.createOrder(
                     it1.copy(
                         totalPrice = order.totalPrice,

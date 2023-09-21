@@ -10,6 +10,7 @@ import mimsoft.io.integrate.payme.models.*
 import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_CANCELED
 import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_DONE
 import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_IN_PROGRESS
+import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.STATE_POST_CANCELED
 import mimsoft.io.integrate.payme.models.OrderTransaction.Companion.TRANSACTION_TIMEOUT
 import mimsoft.io.integrate.payme.models.Result
 import mimsoft.io.repository.DBManager
@@ -30,10 +31,7 @@ object PaymeService {
         merchantId: Long? = null
     ): Any {
         return withContext(Dispatchers.IO) {
-
-
             val responseModel = orderService.get(id = account?.orderId)
-
             if (!responseModel.isOk()) return@withContext ErrorResult(
                 error = Error(
                     code = -31050,
@@ -41,10 +39,8 @@ object PaymeService {
                 ),
                 id = transactionId
             )
-
             val order = responseModel.body as Order
-            val price = order.totalPrice as Double?
-
+            val price = ((order.totalPrice ?: 0 )* 100)
             if (order.isPaid == true || order.paymentMethod?.id != PAYME.id) {
                 return@withContext ErrorResult(
                     error = Error(
@@ -55,7 +51,7 @@ object PaymeService {
                 )
             } else {
 
-                return@withContext if (amount != price) {
+                return@withContext if (amount?.toLong() != price) {
                     ErrorResult(
                         error = Error(
                             code = -31001,
@@ -215,8 +211,7 @@ object PaymeService {
                         ),
                         id = transactionId
                     )
-                }
-                else {
+                } else {
                     transaction.state = STATE_DONE
                     transaction.performTime = System.currentTimeMillis()
                     paymeRepository.updateTransaction(transaction)
@@ -235,8 +230,7 @@ object PaymeService {
                         id = transactionId
                     )
                 }
-            }
-            else if (transaction?.state == STATE_DONE) {
+            } else if (transaction?.state == STATE_DONE) {
                 return@withContext ResultResponse(
                     result = hashMapOf(
                         "transaction" to transaction.id.toString(),
@@ -263,7 +257,13 @@ object PaymeService {
         transactionId: Long? = null
     ): Any {
         return withContext(Dispatchers.IO) {
-            val transaction = paymeRepository.getByPaycom(paycomId)
+            val transaction = paymeRepository.getByPaycom(paycomId)?: return@withContext ErrorResult(
+                error = Error(
+                    code = -31003,
+                    message = Message.TRANSACTION_NOT_FOUND
+                ),
+                id = transactionId
+            )
 
             val responseModel = orderService.get(id = transaction?.orderId)
 
@@ -289,8 +289,7 @@ object PaymeService {
                     ),
                     id = transactionId
                 )
-            }
-            else if (transaction?.state == STATE_DONE) {
+            } else if (transaction?.state == STATE_DONE) {
                 if (order.status == OrderStatus.DONE.name) {
                     return@withContext ErrorResult(
                         error = Error(
@@ -300,31 +299,38 @@ object PaymeService {
                         id = transactionId
                     )
                 } else {
-                    transaction.state = STATE_CANCELED
+                    transaction.state = STATE_POST_CANCELED
                     transaction.reason = reason?.toInt()
                     transaction.cancelTime = System.currentTimeMillis()
                     paymeRepository.updateTransaction(transaction)
                     orderService.editPaidOrder(
                         Order(
                             id = transaction.orderId,
-                            isPaid = true
+                            isPaid = false
                         )
                     )
                     return@withContext ResultResponse(
                         result = hashMapOf(
                             "transaction" to transaction.id.toString(),
                             "cancel_time" to transaction.cancelTime,
-                            "state" to STATE_CANCELED
+                            "state" to STATE_POST_CANCELED
                         )
                     )
                 }
-            }
-            else if (transaction?.state == STATE_CANCELED){
+            } else if (transaction?.state == STATE_CANCELED) {
                 return@withContext ResultResponse(
                     result = hashMapOf(
                         "transaction" to transaction.id.toString(),
                         "cancel_time" to transaction.cancelTime,
                         "state" to STATE_CANCELED
+                    )
+                )
+            } else if (transaction?.state == STATE_POST_CANCELED) {
+                return@withContext ResultResponse(
+                    result = hashMapOf(
+                        "transaction" to transaction.id.toString(),
+                        "cancel_time" to transaction.cancelTime,
+                        "state" to STATE_POST_CANCELED
                     )
                 )
             }
@@ -403,7 +409,8 @@ object PaymeService {
     suspend fun getCheckout(orderId: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
         val payment = PaymentService.get(merchantId)
         val params =
-            Base64.getEncoder().encodeToString("m=${payment?.paymeMerchantId};ac.order_id=$orderId;a=$amount".toByteArray())
+            Base64.getEncoder()
+                .encodeToString("m=${payment?.paymeMerchantId};ac.orderId=$orderId;a=$amount".toByteArray())
         return CheckoutLinkModel(link = "https://checkout.paycom.uz/$params")
     }
 }

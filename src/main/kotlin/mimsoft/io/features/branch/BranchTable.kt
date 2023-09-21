@@ -15,6 +15,7 @@ data class BranchTable(
     val address: String? = null,
     val merchantId: Long? = null,
     val joinPosterId: Long? = null,
+    val jowiId: String? = null,
     val deleted: Boolean? = null,
     val updated: Timestamp? = null,
     val created: Timestamp? = null

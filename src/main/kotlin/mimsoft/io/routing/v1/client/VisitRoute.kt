@@ -21,7 +21,7 @@ fun Route.routeToClientVisit() {
             call.respond(HttpStatusCode.Conflict)
             return@post
         } else
-            call.respond(HttpStatusCode.OK, VisitId(response))
+            call.respond(HttpStatusCode.OK, (response))
     }
 
     get("visits") {
@@ -35,7 +35,3 @@ fun Route.routeToClientVisit() {
         } else call.respond(visits)
     }
 }
-
-data class VisitId(
-    val id: Long? = null
-)

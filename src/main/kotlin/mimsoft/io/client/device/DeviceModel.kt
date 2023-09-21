@@ -1,5 +1,6 @@
 package mimsoft.io.client.device
 
+import com.google.common.collect.Table
 import kotlinx.serialization.Serializable
 import java.sql.Timestamp
 

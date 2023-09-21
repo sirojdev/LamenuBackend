@@ -329,7 +329,7 @@ object OrderUtils {
         """.trimIndent()
 
         if (columnsSet.contains("search")) {
-            conditions += " and status = '${params?.get(" status ")}"
+
         }
 
         query += (if (columnsSet.contains("user")) """,
@@ -759,7 +759,7 @@ object OrderUtils {
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
                 ),
-                jowiPosterId = result["b_jowi_id"] as String?
+                jowiId = result["b_jowi_id"] as String?
             ),
             totalPrice = result["o_total_price"] as? Long,
             products = getProducts(products) as List<CartItem>?,
@@ -778,7 +778,8 @@ object OrderUtils {
             productCount = result["o_product_count"] as Int?,
             createdAt = result["o_created_at"] as? Timestamp?,
             updatedAt = result["o_updated_at"] as? Timestamp?,
-            deleted = result["o_deleted"] as? Boolean?
+            deleted = result["o_deleted"] as? Boolean?,
+            deliveredAt = result["o_delivered_at"] as? Timestamp?,
         )
     }
 
