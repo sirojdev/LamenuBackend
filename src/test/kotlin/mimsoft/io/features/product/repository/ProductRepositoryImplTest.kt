@@ -99,7 +99,7 @@ class ProductRepositoryImplTest {
             image = "image",
             costPrice = 123,
             category = categoryDto,
-            productIntegration = productIntegrationDto,            timeCookingMax = 20,
+            productIntegration = productIntegrationDto, timeCookingMax = 20,
             timeCookingMin = 15,
             count = 21,
             discount = 23,
@@ -108,12 +108,9 @@ class ProductRepositoryImplTest {
             labels = labelDto,
             joinPosterId = 34,
             jowiPosterId = "22"
-
         )
         val response = productRepositoryImpl.update(productDto)
         println("rs: $response")
-
-
     }
 
     @Test
