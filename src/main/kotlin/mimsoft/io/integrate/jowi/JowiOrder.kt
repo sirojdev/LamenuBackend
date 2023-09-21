@@ -1,4 +1,4 @@
-package mimsoft.io.features.pos.jowi
+package mimsoft.io.integrate.jowi
 
 
 

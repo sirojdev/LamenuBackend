@@ -8,7 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.branch.repository.BranchService
 import mimsoft.io.features.branch.repository.BranchServiceImpl
-import mimsoft.io.features.pos.jowi.JowiService
+import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
 

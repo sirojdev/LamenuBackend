@@ -58,6 +58,7 @@ object BranchServiceImpl : BranchService {
                 " open = COALESCE(?,open)," +
                 " close = COALESCE(?,close)," +
                 " jowi_id=COALESCE(?,jowi_id)," +
+                " iiko_id=COALESCE(?,iiko_id)," +
                 " longitude = COALESCE(${dto.longitude},longitude)," +
                 " latitude = COALESCE(${dto.latitude},latitude)," +
                 " updated = COALESCE(?,updated)" +
@@ -72,7 +73,9 @@ object BranchServiceImpl : BranchService {
                     ti.setString(4, dto.address)
                     ti.setString(5, dto.open)
                     ti.setString(6, dto.close)
-                    ti.setTimestamp(7, Timestamp(System.currentTimeMillis()))
+                    ti.setString(7, dto.jowiId)
+                    ti.setString(8, dto.iikoId)
+                    ti.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
             }

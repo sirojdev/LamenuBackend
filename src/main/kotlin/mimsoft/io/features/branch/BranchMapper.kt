@@ -19,6 +19,7 @@ object BranchMapper {
                 merchantId = branchDto.merchantId,
                 joinPosterId = branchDto.joinPosterId,
                 jowiId = branchDto.jowiId,
+                iikoId = branchDto.iikoId,
             )
         }
     }
@@ -39,7 +40,8 @@ object BranchMapper {
             address = branchTable.address,
             merchantId = branchTable.merchantId,
             joinPosterId = branchTable.joinPosterId,
-            jowiId = branchTable.jowiId
+            jowiId = branchTable.jowiId,
+            iikoId = branchTable.iikoId,
         )
     }
 }
