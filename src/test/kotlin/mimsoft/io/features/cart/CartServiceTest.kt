@@ -17,7 +17,7 @@ import kotlin.test.Test
 
 class CartServiceTest {
 
-    val cartService = CartService
+    private val cartService = CartService
 
     @Test
     fun check() = testApplication {

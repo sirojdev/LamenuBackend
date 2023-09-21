@@ -63,10 +63,13 @@ object NewsRepositoryImpl : NewsRepository {
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
+        var rs = 0
         val query = "update news set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }

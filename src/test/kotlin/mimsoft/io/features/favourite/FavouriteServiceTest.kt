@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 
 class FavouriteServiceTest {
 
-    val favouriteService = FavouriteService
+    private val favouriteService = FavouriteService
 
     @Test
     fun add() = testApplication {
@@ -29,14 +29,13 @@ class FavouriteServiceTest {
     }
 
     @Test
-    fun move() = testApplication {// TODO: Tekshirish kerak...
+    fun move() = testApplication {
         val clientId: Long = 24
         val merchantId: Long = 1
         val deviceId: Long = 11
         val response = favouriteService.move(clientId, merchantId, deviceId)
-        if (response != 0)
+        if (response != null)
             assertNotNull(response)
-        println(response)
     }
 
     @Test

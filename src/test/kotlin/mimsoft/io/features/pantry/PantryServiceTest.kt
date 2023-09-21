@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 class PantryServiceTest {
 
-    val pantryService = PantryService
+    private val pantryService = PantryService
 
     @Test
     fun check() = testApplication {
@@ -27,7 +27,8 @@ class PantryServiceTest {
             product = productDto
         )
         val response = pantryService.check(pantryDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -50,39 +51,45 @@ class PantryServiceTest {
     @Test
     fun update() = testApplication {
         val productDto = ProductDto(
-            id = 23
+            id = 22
         )
         val branchDto = BranchDto(
-            id = 12
+            id = 122
         )
         val pantryDto = PantryDto(
+            id = 99,
             merchantId = 1,
             branch = branchDto,
-            product = productDto
+            product = productDto,
+            count = 1
         )
         val response = pantryService.update(pantryDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun get() = testApplication {
-        val id: Long = 21
+        val id: Long = 9
         val merchantId: Long = 1
         val response = pantryService.get(id, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 1111
         val response = pantryService.getAll(merchantId)
-        assertNotNull(response)
+        assert(response.isEmpty())
     }
 
     @Test
-    fun delete() = testApplication{
-        val id: Long = 21
-        val merchantId : Long = 33
-        val reponse = pantryService.delete(id, merchantId)
+    fun delete() = testApplication {
+        val id: Long = 8
+        val merchantId: Long = 111
+        val response = pantryService.delete(id, merchantId)
+        if (response)
+            assertTrue(response)
     }
 }

@@ -22,7 +22,7 @@ object NotificationRepositoryImpl : NotificationRepository {
         )
 
     override suspend fun update(dto: NotificationDto?): Boolean {
-        val query = "update $NOTIFICATION_TABLE_NAME set " +
+        val query = "update `` $NOTIFICATION_TABLE_NAME set " +
                 "body_uz = ?, " +
                 "body_ru = ?, " +
                 "body_eng = ?, " +
@@ -39,13 +39,13 @@ object NotificationRepositoryImpl : NotificationRepository {
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).use { notification ->
-                    notification.setString(1,dto?.body?.uz)
-                    notification.setString(2,dto?.body?.ru)
-                    notification.setString(3,dto?.body?.eng)
-                    notification.setString(4,dto?.title?.uz)
-                    notification.setString(5,dto?.title?.ru)
-                    notification.setString(6,dto?.title?.eng)
-                    notification.setString(7,dto?.image)
+                    notification.setString(1, dto?.body?.uz)
+                    notification.setString(2, dto?.body?.ru)
+                    notification.setString(3, dto?.body?.eng)
+                    notification.setString(4, dto?.title?.uz)
+                    notification.setString(5, dto?.title?.ru)
+                    notification.setString(6, dto?.title?.eng)
+                    notification.setString(7, dto?.image)
                     notification.setTimestamp(8, Timestamp(System.currentTimeMillis()))
                 }
             }
@@ -65,8 +65,13 @@ object NotificationRepositoryImpl : NotificationRepository {
         return mapper.toDto(data)
     }
 
-    override suspend fun getAll(merchantId: Long?, limit: Int?, offset: Int?, search: String?): DataPage<NotificationDto> {
-        val dataPage =  repository.getPageData(
+    override suspend fun getAll(
+        merchantId: Long?,
+        limit: Int?,
+        offset: Int?,
+        search: String?
+    ): DataPage<NotificationDto> {
+        val dataPage = repository.getPageData(
             dataClass = NotificationTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
             tableName = NOTIFICATION_TABLE_NAME,
@@ -80,11 +85,14 @@ object NotificationRepositoryImpl : NotificationRepository {
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
+        var rs = 0
         val query = "update $NOTIFICATION_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun getClient(merchantId: Long?, userId: Long?): List<NotificationDto?> {

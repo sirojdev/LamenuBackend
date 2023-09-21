@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 class BookRepositoryImplTest {
 
-    val bookRepositoryImpl = BookRepositoryImpl
+    private val bookRepositoryImpl = BookRepositoryImpl
 
     @Test
     fun getAll() = testApplication {

@@ -9,7 +9,7 @@ import kotlin.test.assertNotNull
 
 class ExtraRepositoryImplTest {
 
-    val extraRepositoryImpl = ExtraRepositoryImpl
+    private val extraRepositoryImpl = ExtraRepositoryImpl
 
     @Test
     fun getAll() = testApplication {

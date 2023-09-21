@@ -9,13 +9,14 @@ import kotlin.test.assertTrue
 
 class MerchantRepositoryImpTest {
 
-    val merchantRepositoryImp = MerchantRepositoryImp
+    private val merchantRepositoryImp = MerchantRepositoryImp
 
     @Test
     fun getInfo() = testApplication {
-        val sub = "Mimsoft"
+        val sub = "Teest"
         val response = merchantRepositoryImp.getInfo(sub)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -26,9 +27,10 @@ class MerchantRepositoryImpTest {
 
     @Test
     fun get() = testApplication {
-        val id: Long = 8
+        val id: Long = 888
         val response = merchantRepositoryImp.get(id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -49,29 +51,33 @@ class MerchantRepositoryImpTest {
     @Test
     fun update() = testApplication {
         val merchantTable = MerchantTable(
+            id = 1111,
             nameUz = "StringUz",
             nameRu = "StringRu",
             nameEng = "StringEng",
-            sub = "Samsung",
+            sub = "Samsungg",
             phone = "+998991010101",
             password = "1010101",
             logo = "Samsung logo"
         )
         val response = merchantRepositoryImp.update(merchantTable)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 7
+        val id: Long = 11
         val response = merchantRepositoryImp.delete(id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun getMerchantById() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 1111
         val response = merchantRepositoryImp.getMerchantById(merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 }

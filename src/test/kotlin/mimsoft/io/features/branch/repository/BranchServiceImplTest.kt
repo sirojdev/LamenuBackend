@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 
 class BranchServiceImplTest {
 
-    val branchServiceImpl = BranchServiceImpl
+    private val branchServiceImpl = BranchServiceImpl
 
     @Test
     fun getAll() = testApplication {

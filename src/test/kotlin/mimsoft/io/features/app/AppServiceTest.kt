@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 class AppServiceTest {
 
-    val appService = AppService
+    private val appService = AppService
 
     @Test
     fun get() = testApplication {

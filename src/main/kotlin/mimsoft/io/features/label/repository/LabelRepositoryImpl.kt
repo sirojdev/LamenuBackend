@@ -41,6 +41,7 @@ object LabelRepositoryImpl : LabelRepository {
         DBManager.postData(dataClass = LabelTable::class, dataObject = labelTable, tableName = LABEL_TABLE_NAME)
 
     override suspend fun update(dto: LabelDto): Boolean {
+        var temp = 0
         val merchantId = dto.merchantId
         val query = "UPDATE $LABEL_TABLE_NAME " +
                 "SET" +
@@ -63,17 +64,21 @@ object LabelRepositoryImpl : LabelRepository {
                     ti.setString(5, dto.bgColor)
                     ti.setString(6, dto.icon)
                     ti.setTimestamp(7, Timestamp(System.currentTimeMillis()))
-                    ti.executeUpdate()
+                    temp = ti.executeUpdate()
                 }
             }
         }
-        return true
+        return temp == 1
     }
+
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
+        var rs = 0
         val query = "update $LABEL_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }

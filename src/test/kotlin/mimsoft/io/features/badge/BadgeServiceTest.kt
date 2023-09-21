@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 
 class BadgeServiceTest {
 
-    val badgeService = BadgeService
+    private val badgeService = BadgeService
 
     @Test
     fun getAll() = testApplication {

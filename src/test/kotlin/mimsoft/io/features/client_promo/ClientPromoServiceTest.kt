@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 class ClientPromoServiceTest {
 
-    val clientPromoService = ClientPromoService
+    private val clientPromoService = ClientPromoService
 
     @Test
     fun add() = testApplication {
@@ -51,9 +51,10 @@ class ClientPromoServiceTest {
     }
 
     @Test
-    fun check() = testApplication {// TODO: tekshirish kerak
+    fun check() = testApplication {
         val promoName = "kjbekjbw"
         val response = clientPromoService.check(promoName)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 }

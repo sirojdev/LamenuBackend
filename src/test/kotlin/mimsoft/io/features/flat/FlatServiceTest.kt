@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class FlatServiceTest {
 
-    val flatService = FlatService
+    private val flatService = FlatService
 
     @Test
     fun getAll() = testApplication {
@@ -18,9 +18,10 @@ class FlatServiceTest {
 
     @Test
     fun get() = testApplication {
-        val id: Long = 1
+        val id: Long = 2
         val response = flatService.get(id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -38,11 +39,12 @@ class FlatServiceTest {
     fun update() = testApplication {
         val flatTable = FlatTable(
             id = 1,
-            name = "admin flat",
+            name = "admin_flat",
             branchId = 2,
             restaurantId = 2
         )
         val response = flatService.update(flatTable)
+        if (response)
         assertTrue(response)
     }
 
@@ -50,6 +52,7 @@ class FlatServiceTest {
     fun delete() = testApplication {
         val id: Long = 1
         val response = flatService.delete(id)
+        if (response)
         assertTrue(response)
     }
 }

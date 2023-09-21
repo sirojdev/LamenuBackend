@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 class MerchantAppKeyRepositoryTest {
 
-    val merchantAppKeyRepository = MerchantAppKeyRepository
+    private val merchantAppKeyRepository = MerchantAppKeyRepository
 
     @Test
     fun add() = testApplication {

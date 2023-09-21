@@ -6,10 +6,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class ProductExtraServiceTest {
+class ProductExtraServiceTest {// TODO: ENG: Not connected to the database; UZ: Ma'lumotlar bazasi bilan bog'lanmagan;
 
-
-    val productExtraService = ProductExtraService
+    private val productExtraService = ProductExtraService
 
     @Test
     fun add() = testApplication {

@@ -8,13 +8,14 @@ import org.junit.jupiter.api.Assertions.*
 
 class OperatorSocketServiceTest {
 
-    val operatorSocketService = OperatorSocketService
+    private val operatorSocketService = OperatorSocketService
 
     @Test
     fun setConnection() = testApplication {
         val staffId: Long = 38
         val merchantId: Long = 1
         val uuid = "asdfasdf"
+
     }
 
     @Test

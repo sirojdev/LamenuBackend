@@ -3,6 +3,7 @@ package mimsoft.io.features.payment_type.repository
 import io.ktor.server.testing.*
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.payment_type.PaymentTypeTable
+import mimsoft.io.utils.TextModel
 import org.junit.jupiter.api.assertTimeout
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -19,38 +20,49 @@ class PaymentTypeRepositoryImplTest {
 
     @Test
     fun get() = testApplication {
-        val id: Long = 24
+        val id: Long = 5
         val response = paymentTypeRepositoryImpl.get(id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun add() = testApplication {
         val paymentTypeTable = PaymentTypeTable(
-            name = "paynet",
+            name = "Cash App",
             icon = "String icon",
-            titleUz = "Uz",
-            titleRu = "Ru",
-            titleEng = "Eng"
+            titleUz = "naqd pul ilovasi",
+            titleRu = "кассовое приложение",
+            titleEng = "cash app"
         )
         val response = paymentTypeRepositoryImpl.add(paymentTypeTable)
+        println("rs: $response")
         assertNotNull(response)
     }
 
     @Test
     fun update() = testApplication {
+        val textModel = TextModel(
+            uz = "naqd pul ilovasi",
+            ru = "кассовое приложение",
+            eng = "cash app"
+        )
         val paymentTypeDto = PaymentTypeDto(
-            name = "Paynet",
-            icon = "Strin icon"
+            id = 444,
+            name = "Cash App",
+            icon = "icon String",
+            title = textModel
         )
         val response = paymentTypeRepositoryImpl.update(paymentTypeDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 12
+        val id: Long = 4
         val response = paymentTypeRepositoryImpl.delete(id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

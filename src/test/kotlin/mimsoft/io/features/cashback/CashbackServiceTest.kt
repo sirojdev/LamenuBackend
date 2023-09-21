@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class CashbackServiceTest {
 
-    val cashbackService = CashbackService
+    private val cashbackService = CashbackService
 
     @Test
     fun getAll() = testApplication {

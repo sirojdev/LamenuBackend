@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 
 class DeliveryServiceTest {
 
-    val deliveryService = DeliveryService
+    private val deliveryService = DeliveryService
 
     @Test
     fun get() = testApplication {

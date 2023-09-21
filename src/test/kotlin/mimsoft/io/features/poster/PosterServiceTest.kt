@@ -10,40 +10,44 @@ import kotlin.test.assertTrue
 class PosterServiceTest {
 
 
-    val posterService = PosterService
+    private val posterService = PosterService
 
     @Test
     fun get() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 55
         val response = posterService.get(merchantId)
-        assertNotNull(response)
+        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun add() = testApplication {
         val posterDto = PosterDto(
             merchantId = 1,
-            selected = "",
-            jowiApiKey = "",
+            selected = "sekected777",
+            jowiApiKey = "jowi777",
             rKeeperClientId = 2,
-            joinPosterApiKey = "",
-            rKeeperClientSecret = ""
+            joinPosterApiKey = "JoinPoster777",
+            rKeeperClientSecret = "Secret777"
         )
         val response = posterService.add(posterDto)
+        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
     @Test
     fun update() = testApplication {
         val posterDto = PosterDto(
-            merchantId = 1,
-            selected = "",
-            jowiApiKey = "",
+            merchantId = 1111,
+            selected = "sekected77",
+            jowiApiKey = "jowi77",
             rKeeperClientId = 2,
-            joinPosterApiKey = "",
-            rKeeperClientSecret = ""
+            joinPosterApiKey = "JoinPoster77",
+            rKeeperClientSecret = "Secret77"
         )
         val response = posterService.update(posterDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

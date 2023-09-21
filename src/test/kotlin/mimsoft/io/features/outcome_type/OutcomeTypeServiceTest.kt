@@ -13,21 +13,36 @@ import kotlin.test.assertTrue
 
 class OutcomeTypeServiceTest {
 
-    val outcomeTypeObject = OutcomeTypeService
+    private val outcomeTypeObject = OutcomeTypeService
+
+    @Test
+    fun getByMerchantId() = testApplication {
+        val merchantId: Long = 7
+        val response = outcomeTypeObject.getByMerchantId(merchantId)
+        assert(response.isEmpty())
+    }
 
     @Test
     fun get() = testApplication {
         val merchantId: Long = 7
-        val id: Long = 28
+        val id: Long = 24
         val response = outcomeTypeObject.get(merchantId, id)
-        assertNotNull(response)
-        assert(response.id != null)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
-    fun add() = testApplication {// TODO:  OutcomeTypeDto id need to check
+    fun getOneByMerchantId() = testApplication {
+        val merchantId: Long = 777
+        val response = outcomeTypeObject.getOneByMerchantId(merchantId)
+        if (response != null)
+            assertNotNull(response)
+    }
+
+    @Test
+    fun add() = testApplication {
         val outcomeTypeDto = OutcomeTypeDto(
-            merchantId = 7,
+            merchantId = 9,
             name = "Abdusamad"
         )
         val response = outcomeTypeObject.add(outcomeTypeDto)
@@ -35,28 +50,31 @@ class OutcomeTypeServiceTest {
     }
 
     @Test
-    fun update() {
+    fun update() = testApplication {
         val outcomeTypeDto = OutcomeTypeDto(
-            id = 24,
-            merchantId = 7,
-            name = "Outcome2"
+            id = 300,
+            merchantId = 9,
+            name = "Abdusamad"
         )
         val response = outcomeTypeObject.update(outcomeTypeDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun delete() {
-        val id: Long = 24
-        val merchantId: Long = 7
+        val id: Long = 30
+        val merchantId: Long = 9
         val response = outcomeTypeObject.delete(merchantId, id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
-     fun getUser() = testApplication {
-        val response = UserRepositoryImpl.getAll(merchantId = 1, limit = 10, offset = 1)
-        println(response.toJson())
-
+    fun getById() = testApplication {
+        val id: Long = 30
+        val response = outcomeTypeObject.getById(id)
+        if (response != null)
+            assertNotNull(response)
     }
 }

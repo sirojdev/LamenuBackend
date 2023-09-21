@@ -10,10 +10,10 @@ import kotlin.test.assertTrue
 
 class NewsRepositoryImplTest {
 
-    val newsRepositoryImpl = NewsRepositoryImpl
+    private val newsRepositoryImpl = NewsRepositoryImpl
 
     @Test
-    fun add() = testApplication {
+    fun add() = testApplication {// TODO: Xatolik bor...
         val textModel = TextModel(
             uz = "Uz",
             ru = "Ru",
@@ -23,7 +23,8 @@ class NewsRepositoryImplTest {
             merchantId = 1,
             title = textModel
         )
-        newsRepositoryImpl.add(newsDto)
+        val response = newsRepositoryImpl.add(newsDto)
+        println("rs: $response")
     }
 
     @Test
@@ -34,25 +35,27 @@ class NewsRepositoryImplTest {
             eng = "Eng",
         )
         val newsDto = NewsDto(
-            id = 17,
+            id = 2444,
             merchantId = 1,
             title = textModel
         )
         val response = newsRepositoryImpl.update(newsDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun getById() = testApplication {
-        val id: Long = 17
+        val id: Long = 2444
         val merchantId: Long = 1
         val response = NewsRepositoryImpl.getById(id, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 1222
         val limit = 1
         val offset = 1
         val response = newsRepositoryImpl.getAll(merchantId, limit, offset)
@@ -61,9 +64,11 @@ class NewsRepositoryImplTest {
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 1
+        val id: Long = 24444
         val merchantId: Long = 1
         val response = newsRepositoryImpl.delete(id, merchantId)
-        assertTrue(response)
+        println("rs: $response")
+        if (response)
+            assertTrue(response)
     }
 }

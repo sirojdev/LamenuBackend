@@ -293,6 +293,7 @@ object DBManager : BaseRepository {
         tableName: String?,
         idColumn: String?
     ): Boolean {
+        var response: Boolean = false
         val tName = tableName ?: dataClass.simpleName
         val filteredProperties =
             dataClass.memberProperties.filter { it.name != "deleted" && it.name != "created" && it.name != "id" }
@@ -330,20 +331,21 @@ object DBManager : BaseRepository {
                 val idValue = dataObject?.let { dataClass.memberProperties.first { it.name == idColumn }.get(it) }
                 statement.setLong(filteredProperties.size + 1, idValue as Long)
 
-                statement.executeUpdate()
+                if (statement.executeUpdate() == 1)
+                    response = true
             }
         }
-        return true
+        return response
     }
 
     override suspend fun deleteData(tableName: String, where: String, whereValue: Any?): Boolean {
+        val bool: Boolean = true
         val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
         return withContext(Dispatchers.IO) {
             connection().use { connection ->
                 val statement = connection.prepareStatement(delete)
                 statement.setObject(1, whereValue)
-                statement.executeUpdate()
-                return@withContext true
+                return@withContext (statement.executeUpdate() == 1)
             }
         }
     }

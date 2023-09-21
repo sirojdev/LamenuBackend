@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class CategoryRepositoryImplTest {
 
-    val categoryRepositoryImpl = CategoryRepositoryImpl
+    private val categoryRepositoryImpl = CategoryRepositoryImpl
 
     @Test
     fun getAllByClient() = testApplication {
