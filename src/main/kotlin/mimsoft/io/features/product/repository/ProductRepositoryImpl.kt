@@ -304,50 +304,14 @@ object ProductRepositoryImpl : ProductRepository {
                    delivery_enabled = ${dto?.deliveryEnabled},
                    time_cooking_max = ${dto?.timeCookingMax},
                    time_cooking_min = ${dto?.timeCookingMin},
-                   discount         = ?,
+                   discount         = ${dto?.discount},
                    updated          = ?
                    where id = ${dto?.id}
                    and merchant_id = ${dto?.merchantId}
         """.trimIndent()
-        withContext(DBManager.databaseDispatcher){
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
-                    this.setString(1,dto?.name?.uz)
-                    this.setString(2,dto?.name?.ru)
-                    this.setString(3,dto?.name?.eng)
-                    this.setString(4,dto?.description?.uz)
-                    this.setString(5,dto?.description?.ru)
-                    this.setString(6,dto?.description?.eng)
-                    this.setString(7,dto?.image)
-                    this.setString(8,dto?.jowiPosterId)
-                    this.setString(9,dto?.image)
-                    this.setString(10,dto?.name?.eng)
-                }
-            }
-        }
-        val query1 = "UPDATE $PRODUCT_TABLE_NAME " +
-                "SET" +
-                " name_uz = ?, " +
-                " name_ru = ?," +
-                " name_eng = ?, " +
-                " description_uz = ?, " +
-                " description_ru = ?," +
-                " description_eng = ?," +
-                " image = ? ," +
-                " category_id = ${dto?.category?.id} ," +
-                " cost_price = ${dto?.costPrice}," +
-                " id_rkeeper = ${dto?.productIntegration?.idRkeeper}," +
-                " id_join_poster = ${dto?.productIntegration?.idJoinPoster}," +
-                " id_jowi = ${dto?.productIntegration?.idJowi}," +
-                " delivery_enabled = ${dto?.deliveryEnabled}," +
-                " time_cooking_max = ${dto?.timeCookingMax}," +
-                " time_cooking_min = ${dto?.timeCookingMin}," +
-                " discount = ? " +
-                " updated = ?" +
-                " WHERE id = ${dto?.id} and merchant_id = $merchantId "
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.setString(1, dto?.name?.uz)
                     this.setString(2, dto?.name?.ru)
                     this.setString(3, dto?.name?.eng)
@@ -355,16 +319,12 @@ object ProductRepositoryImpl : ProductRepository {
                     this.setString(5, dto?.description?.ru)
                     this.setString(6, dto?.description?.eng)
                     this.setString(7, dto?.image)
-                    this.setLong(8, dto?.discount!!)
+                    this.setString(8, dto?.jowiPosterId)
                     this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
-                    this.closeOnCompletion()
-                }.execute()
-
-
-                println(query)
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {

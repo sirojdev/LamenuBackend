@@ -92,7 +92,7 @@ class ProductRepositoryImplTest {
             )
         )
         val productDto = ProductDto(
-            id = 122,
+            id = 12211,
             merchantId = 1,
             name = textModel,
             description = textModel,
@@ -110,11 +110,16 @@ class ProductRepositoryImplTest {
             jowiPosterId = "22"
         )
         val response = productRepositoryImpl.update(productDto)
-        println("rs: $response")
+        if (response)
+            assertNotNull(response)
     }
 
     @Test
-    fun delete() {
+    fun delete() = testApplication {
+        val id: Long = 122
+        val merchantId: Long = 1
+        val response = productRepositoryImpl.delete(id, merchantId)
+        println("rs: $response")
     }
 
     @Test
