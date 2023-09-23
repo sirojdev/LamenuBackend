@@ -11,6 +11,7 @@ object PantryService {
     val repository: BaseRepository = DBManager
     val mapper = PantryMapper
     suspend fun check(pantryDto: PantryDto): Boolean {
+        var rs = 0
         val upsert = """
             with upsert as (
                 update pantry set
@@ -27,11 +28,11 @@ object PantryService {
         withContext(Dispatchers.IO) {
             DBManager.connection().use {
                 repository.connection().use {
-                    val rs = it.prepareStatement(upsert).execute()
+                    rs = it.prepareStatement(upsert).executeUpdate()
                 }
             }
         }
-        return true
+        return rs == 1
     }
 
 
@@ -42,18 +43,21 @@ object PantryService {
             tableName = PANTRY_TABLE_NAME
         )
 
-    fun update(pantryDto: PantryDto): Boolean {
-        val query = "update $PANTRY_TABLE_NAME" +
-                " set branch_id = ${pantryDto.branch?.id}," +
-                " product_id = ${pantryDto.product?.id}," +
-                " count = ${pantryDto.count} " +
-                " where id = ${pantryDto.id} " +
-                " and merchant_id = ${pantryDto.merchantId} " +
-                " and deleted = false"
-        repository.connection().use {
-             it.prepareStatement(query).executeUpdate()
+    suspend fun update(pantryDto: PantryDto): Boolean {
+        var rs = 0
+        val query = """update $PANTRY_TABLE_NAME
+                        set branch_id  = ${pantryDto.branch?.id},
+                            product_id = ${pantryDto.product?.id},
+                            count      = ${pantryDto.count}
+                        where id = ${pantryDto.id}
+                          and merchant_id = ${pantryDto.merchantId}
+                          and deleted = false""".trimIndent()
+        rs = withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun get(id: Long?, merchantId: Long?): PantryTable? {
@@ -78,10 +82,14 @@ object PantryService {
     }
 
     suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $PANTRY_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId"
+        var rs = 0
+        val query =
+            "update $PANTRY_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId and not deleted"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }

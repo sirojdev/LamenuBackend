@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class CategoryGroupServiceTest {
 
-    val categoryGroupService = CategoryGroupService
+    private val categoryGroupService = CategoryGroupService
 
     @Test
     fun getAll() = testApplication {

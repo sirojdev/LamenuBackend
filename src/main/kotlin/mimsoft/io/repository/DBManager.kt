@@ -331,15 +331,15 @@ object DBManager : BaseRepository {
                 val idValue = dataObject?.let { dataClass.memberProperties.first { it.name == idColumn }.get(it) }
                 statement.setLong(filteredProperties.size + 1, idValue as Long)
 
-                if (statement.executeUpdate() == 1) {
+                if (statement.executeUpdate() == 1)
                     response = true
-                }
             }
         }
         return response
     }
 
     override suspend fun deleteData(tableName: String, where: String, whereValue: Any?): Boolean {
+        val bool: Boolean = true
         val delete = "UPDATE $tableName SET deleted = true WHERE NOT deleted AND $where = ?"
         return withContext(Dispatchers.IO) {
             connection().use { connection ->

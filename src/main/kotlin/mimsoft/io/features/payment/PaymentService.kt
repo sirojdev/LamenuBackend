@@ -1,3 +1,5 @@
+@file:Suppress("UNREACHABLE_CODE")
+
 package mimsoft.io.features.payment
 
 import kotlinx.coroutines.Dispatchers
@@ -94,31 +96,37 @@ object PaymentService {
     }
 
     suspend fun update(paymentDto: PaymentDto?): Boolean {
-        val query = "update $PAYMENT_TABLE_NAME set " +
-                "payme_merchant_id = ${paymentDto?.paymeMerchantId}, " +
-                "payme_secret = ?, " +
-                "apelsin_merchant_id = ${paymentDto?.apelsinMerchantId}, " +
-                "apelsin_merchant_token = ?, " +
-                "click_service_id = ${paymentDto?.clickServiceId}, " +
-                "click_key = ?, " +
-                "selected = ?, " +
-                "updated = ? \n" +
-                "click_merchant_id = ? \n" +
-                "where merchant_id = ${paymentDto?.merchantId} and not deleted "
-        return withContext(Dispatchers.IO) {
+        var rs = 0
+        val query1 = """update $PAYMENT_TABLE_NAME
+              set payme_merchant_id      = ?,
+                  payme_secret           = ?,
+                  apelsin_merchant_id    = ?,
+                  apelsin_merchant_token = ?,
+                  click_service_id       = ?,
+                  click_key              = ?,
+                  selected               = ?,
+                  updated                = ?,
+                  click_merchant_id      = ?
+where merchant_id = ${paymentDto?.merchantId}
+  and not
+    deleted""".trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
-                    this.setString(1, paymentDto?.paymeSecret)
-                    this.setString(2, paymentDto?.apelsinMerchantToken)
-                    this.setString(3, paymentDto?.clickKey)
-                    this.setString(4, paymentDto?.selected)
-                    this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
-                    this.setString(6, paymentDto?.clickMerchantId)
+                rs = it.prepareStatement(query1).apply {
+                    this.setString(1, paymentDto?.paymeMerchantId)
+                    this.setString(2, paymentDto?.paymeSecret)
+                    paymentDto?.apelsinMerchantId?.let { it1 -> this.setLong(3, it1) }
+                    this.setString(4, paymentDto?.apelsinMerchantToken)
+                    paymentDto?.clickServiceId?.let { it1 -> this.setLong(5, it1) }
+                    this.setString(6, paymentDto?.clickKey)
+                    this.setString(7, paymentDto?.selected)
+                    this.setTimestamp(8, Timestamp(System.currentTimeMillis()))
+                    this.setString(9, paymentDto?.clickMerchantId)
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
-            true
         }
+        return rs == 1
     }
 
     suspend fun getPaymentTypeClient(merchantId: Long?): List<PaymentTypeDto> {

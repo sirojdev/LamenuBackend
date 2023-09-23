@@ -31,7 +31,7 @@ object ManagersService {
                         this.setString(4, model.firstName)
                         this.setString(5, model.lastName)
                         this.setTimestamp(6, model.lastLogin)
-                        this.setString(7, model.image)
+                        this.setString(7, model. image)
                         this.setString(8, model.role?.name)
                         this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                         this.closeOnCompletion()

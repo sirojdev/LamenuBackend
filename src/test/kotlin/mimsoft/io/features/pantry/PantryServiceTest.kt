@@ -1,37 +1,96 @@
 package mimsoft.io.features.pantry
 
 import io.ktor.server.testing.*
-import mimsoft.io.utils.toJson
-import mimsoft.io.waiter.table.repository.WaiterTableRepository
+import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.favourite.merchant
+import mimsoft.io.features.product.ProductDto
+import org.junit.jupiter.api.assertTimeout
 import kotlin.test.Test
 import kotlin.test.assertNotNull
-
+import kotlin.test.assertTrue
 
 class PantryServiceTest {
 
-    val pantryServiceObject = PantryService
+    private val pantryService = PantryService
 
     @Test
-    fun add() {
-        val pantryDto = PantryDto(
-
+    fun check() = testApplication {
+        val branchDto = BranchDto(
+            id = 2
         )
+        val productDto = ProductDto(
+            id = 1
+        )
+        val pantryDto = PantryDto(
+            merchantId = 1,
+            branch = branchDto,
+            product = productDto
+        )
+        val response = pantryService.check(pantryDto)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
-    fun update() {
+    fun add() = testApplication {
+        val productDto = ProductDto(
+            id = 23
+        )
+        val branchDto = BranchDto(
+            id = 12
+        )
+        val pantryDto = PantryDto(
+            merchantId = 1,
+            branch = branchDto,
+            product = productDto
+        )
+        val response = pantryService.add(pantryDto)
+        assertNotNull(response)
     }
 
     @Test
-    fun get() {
+    fun update() = testApplication {
+        val productDto = ProductDto(
+            id = 22
+        )
+        val branchDto = BranchDto(
+            id = 122
+        )
+        val pantryDto = PantryDto(
+            id = 99,
+            merchantId = 1,
+            branch = branchDto,
+            product = productDto,
+            count = 1
+        )
+        val response = pantryService.update(pantryDto)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
-    fun getAll() {
+    fun get() = testApplication {
+        val id: Long = 9
+        val merchantId: Long = 1
+        val response = pantryService.get(id, merchantId)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
-    fun delete() {
+    fun getAll() = testApplication {
+        val merchantId: Long = 1111
+        val response = pantryService.getAll(merchantId)
+        assert(response.isEmpty())
+    }
+
+    @Test
+    fun delete() = testApplication {
+        val id: Long = 8
+        val merchantId: Long = 111
+        val response = pantryService.delete(id, merchantId)
+        if (response)
+            assertTrue(response)
     }
 
     @Test

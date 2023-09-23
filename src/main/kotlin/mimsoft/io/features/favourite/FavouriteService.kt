@@ -44,14 +44,13 @@ object FavouriteService {
         val query = "update favourite \n" +
                 "set device_id = null, client_id = $clientId\n" +
                 "where merchant_id = $merchantId and device_id = $deviceId"
-        withContext(DBManager.databaseDispatcher) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 return@withContext it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeUpdate()
             }
         }
-        return null
     }
 
     suspend fun update(favouriteDto: FavouriteDto): ResponseModel {
@@ -62,7 +61,7 @@ object FavouriteService {
     suspend fun getAll(clientId: Long?, merchantId: Long?): List<FavouriteDto?> {
         val query = """
             select favourite.*, 
-            p.name_uz p_name_uz, 
+             p.name_uz p_name_uz, 
             p.name_ru p_name_ru, 
             p.name_eng p_name_eng, 
             p.description_uz p_description_uz, 

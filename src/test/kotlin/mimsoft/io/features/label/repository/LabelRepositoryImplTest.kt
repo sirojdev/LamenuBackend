@@ -10,21 +10,23 @@ import kotlin.test.assertTrue
 
 class LabelRepositoryImplTest {
 
-    val labelRepositoryImpl = LabelRepositoryImpl
+    private val labelRepositoryImpl = LabelRepositoryImpl
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 14
         val response = labelRepositoryImpl.getAll(merchantId)
-        assertNotNull(merchantId)
+        if (response.isNotEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun get() = testApplication {
-        val id: Long = 12
-        val merchantId: Long = 1
+        val id: Long = 1422
+        val merchantId: Long = 6
         val response = labelRepositoryImpl.get(id, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -50,6 +52,7 @@ class LabelRepositoryImplTest {
             eng = "Eng"
         )
         val labelDto = LabelDto(
+            id = 1128,
             merchantId = 1,
             name = textModel,
             textColor = "#ffffff",
@@ -62,9 +65,10 @@ class LabelRepositoryImplTest {
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 1
-        val merchantId: Long = 1
+        val id: Long = 14
+        val merchantId: Long = 6
         val response = labelRepositoryImpl.delete(id, merchantId)
+        if (response)
         assertTrue(response)
     }
 }

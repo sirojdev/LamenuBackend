@@ -87,11 +87,14 @@ object NotificationRepositoryImpl : NotificationRepository {
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
+        var rs = 0
         val query = "update $NOTIFICATION_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun getClient(merchantId: Long?, userId: Long?): List<NotificationDto?> {

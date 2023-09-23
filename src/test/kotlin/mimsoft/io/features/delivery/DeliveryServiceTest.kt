@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 
 class DeliveryServiceTest {
 
-    val deliveryService = DeliveryService
+    private val deliveryService = DeliveryService
 
     @Test
     fun get() = testApplication {
@@ -21,23 +21,22 @@ class DeliveryServiceTest {
     @Test
     fun add() = testApplication {
         val deliveryDto = DeliveryDto(
-            merchantId = 5,
+            merchantId = 9,
             yandexClientId = 3,
             expressId = 4,
-            yandexToken = "sodjosidksdnsieros",
-            expressToken = "3j3j4l3j43kjskjdfjso",
+            yandexToken = "yabdextoken",
+            expressToken = "exoresstoken",
             selected = "Yandex"
         )
         val response = deliveryService.add(deliveryDto)
-        assertNotNull(response)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
     @Test
     fun update() = testApplication {
         val deliveryDto = DeliveryDto(
-            id = 14,
-            merchantId = 5,
+            id = 22,
+            merchantId = 9,
             yandexClientId = 3,
             expressId = 4,
             yandexToken = "sdfssd",

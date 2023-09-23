@@ -10,12 +10,12 @@ import kotlin.test.assertTrue
 
 class BadgeServiceTest {
 
-    val badgeServiceObject = BadgeService
+    private val badgeService = BadgeService
 
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 1
-        val response = badgeServiceObject.getAll(merchantId)
+        val response = badgeService.getAll(merchantId)
         assertNotNull(response)
     }
 
@@ -23,7 +23,7 @@ class BadgeServiceTest {
     fun get() = testApplication {
         val merchantId: Long = 1
         val id: Long = 2
-        val response = badgeServiceObject.get(merchantId, id)
+        val response = badgeService.get(merchantId, id)
         assertNotNull(response)
     }
 
@@ -42,7 +42,7 @@ class BadgeServiceTest {
             icon = "Icon",
             merchantId = 2
         )
-        val response = badgeServiceObject.add(badgeDto)
+        val response = badgeService.add(badgeDto)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -61,7 +61,7 @@ class BadgeServiceTest {
             icon = "Icon",
             merchantId = 2
         )
-        val response = badgeServiceObject.update(badgeDto)
+        val response = badgeService.update(badgeDto)
         assertTrue(response)
     }
 
@@ -69,7 +69,7 @@ class BadgeServiceTest {
     fun delete() = testApplication {
         val merchantId: Long = 2
         val id: Long = 17
-        val response = badgeServiceObject.delete(merchantId, id)
+        val response = badgeService.delete(merchantId, id)
         assertTrue(response)
     }
 }

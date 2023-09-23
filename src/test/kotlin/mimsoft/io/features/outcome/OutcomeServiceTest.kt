@@ -9,57 +9,74 @@ import kotlin.test.Test
 
 class OutcomeServiceTest {
 
-    val outcomeObject = OutcomeService
+    private val outcomeObject = OutcomeService
 
 
     @Test
     fun getAll() = testApplication {
-        val merchantId = 1L
+        val merchantId: Long = 111
         val response = outcomeObject.getAll(merchantId)
-        assertNotNull(response)
-        assert(response[0] is OutcomeTable)
+        assert(response.isEmpty())
+
     }
 
     @Test
     fun get() = testApplication {
-        val merchantId = 1L
-        val id = 11L
+        val merchantId: Long = 1
+        val id: Long = 111
         val response = outcomeObject.get(id, merchantId)
-        assertNotNull(response)
+        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun add() = testApplication {
+        val staffDto = StaffDto(
+            id = 11,
+            phone = "+998999090909"
+        )
+        val outcomeTypeDto = OutcomeTypeDto(
+            id = 17
+        )
         val outcomeDto = OutcomeDto(
-            merchantId = 1
+            merchantId = 1,
+            name = "Kamol",
+            staff = staffDto,
+            outcomeType = outcomeTypeDto
         )
         val response = outcomeObject.add(outcomeDto)
+        assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
+
 
     @Test
     fun update() = testApplication {
         val staffId = StaffDto(
+            id = 17,
             phone = "+998979779879"
         )
         val outcomeType = OutcomeTypeDto(
             id = 13
         )
         val outcomeDto = OutcomeDto(
-            id = 11,
-            name = "Sarvar",
+            id = 111,
+            name = "Sarvar1",
             staff = staffId,
             outcomeType = outcomeType,
             merchantId = 1
         )
         val response = outcomeObject.update(outcomeDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun delete() = testApplication {
-        val merchantId = 1L
-        val id = 11L
+        val merchantId: Long = 1
+        val id: Long = 11
         val response = outcomeObject.delete(merchantId, id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

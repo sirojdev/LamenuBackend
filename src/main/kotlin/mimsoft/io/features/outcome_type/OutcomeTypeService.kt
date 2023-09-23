@@ -89,24 +89,30 @@ object OutcomeTypeService {
     }
 
     suspend fun update(outcomeTypeDto: OutcomeTypeDto?): Boolean {
+        var rs = 0
         val query = "update $OUTCOME_TYPE_TABLE set " +
                 "name = ? , " +
                 "updated = ? \n" +
                 "where merchant_id = ${outcomeTypeDto?.merchantId} and id = ${outcomeTypeDto?.id} and not deleted "
-        return withContext(DBManager.databaseDispatcher) {
-            repository.connection().use {
+        withContext(DBManager.databaseDispatcher) {
+            rs = repository.connection().use {
                 it.prepareStatement(query).apply {
                     this.setString(1, outcomeTypeDto?.name)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
+        return rs == 1
     }
 
     fun delete(merchantId: Long?, id: Long?): Boolean {
-        val query = "update $OUTCOME_TYPE_TABLE set deleted = true where merchant_id = $merchantId and id = $id"
-        repository.connection().use { return it.prepareStatement(query).execute() }
+        var rs = 0
+        val query = "update $OUTCOME_TYPE_TABLE set deleted = true where merchant_id = $merchantId and id = $id and not deleted"
+        repository.connection().use {
+            rs = it.prepareStatement(query).executeUpdate()
+        }
+        return rs == 1
     }
 
     suspend fun getById(id: Long?): OutcomeTypeDto? {

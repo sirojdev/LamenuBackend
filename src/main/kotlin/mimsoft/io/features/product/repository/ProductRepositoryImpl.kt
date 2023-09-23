@@ -286,30 +286,32 @@ object ProductRepositoryImpl : ProductRepository {
 
     override suspend fun update(dto: ProductDto?): Boolean {
         val merchantId = dto?.merchantId
-        val query = "UPDATE $PRODUCT_TABLE_NAME " +
-                "SET" +
-                " name_uz = ?, " +
-                " name_ru = ?," +
-                " name_eng = ?, " +
-                " description_uz = ?, " +
-                " description_ru = ?," +
-                " description_eng = ?," +
-                " image = ? ," +
-                " category_id = ${dto?.category?.id} ," +
-                " cost_price = ${dto?.costPrice}," +
-                " id_rkeeper = ${dto?.productIntegration?.idRkeeper}," +
-                " id_join_poster = ${dto?.productIntegration?.idJoinPoster}," +
-                " id_jowi = ${dto?.productIntegration?.idJowi}," +
-                " delivery_enabled = ${dto?.deliveryEnabled}," +
-                " time_cooking_max = ${dto?.timeCookingMax}," +
-                " time_cooking_min = ${dto?.timeCookingMin}," +
-                " discount = ? " +
-                " updated = ?" +
-                " WHERE id = ${dto?.id} and merchant_id = $merchantId "
-
-        withContext(Dispatchers.IO) {
+        var rs = 0
+        val query = """
+               update product
+               set name_uz          = ?,
+                   name_ru          = ?,
+                   name_eng         = ?,
+                   description_uz   = ?,
+                   description_ru   = ?,
+                   description_eng  = ?,
+                   image            = ?,
+                   category_id      = ${dto?.category?.id},
+                   cost_price       = ${dto?.costPrice},
+                   id_rkeeper       = ${dto?.productIntegration?.idRkeeper},
+                   id_join_poster   = ${dto?.productIntegration?.idJoinPoster},
+                   id_jowi          = ?,
+                   delivery_enabled = ${dto?.deliveryEnabled},
+                   time_cooking_max = ${dto?.timeCookingMax},
+                   time_cooking_min = ${dto?.timeCookingMin},
+                   discount         = ${dto?.discount},
+                   updated          = ?
+                   where id = ${dto?.id}
+                   and merchant_id = ${dto?.merchantId}
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.setString(1, dto?.name?.uz)
                     this.setString(2, dto?.name?.ru)
                     this.setString(3, dto?.name?.eng)
@@ -317,24 +319,29 @@ object ProductRepositoryImpl : ProductRepository {
                     this.setString(5, dto?.description?.ru)
                     this.setString(6, dto?.description?.eng)
                     this.setString(7, dto?.image)
-                    this.setLong(8, dto?.discount!!)
+                    this.setString(8, dto?.jowiPosterId)
                     this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
-                    this.closeOnCompletion()
-                }.execute()
-                println(query)
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        return withContext(Dispatchers.IO) {
+        var rs = 0
+        val query = """
+            update product
+            set deleted = true
+            where merchant_id = $merchantId
+             and id = $id
+             and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).execute()
-                return@withContext !rs
+                rs = it.prepareStatement(query).executeUpdate()
             }
         }
+        return rs == 1
     }
 
     override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {

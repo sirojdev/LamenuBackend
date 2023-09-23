@@ -53,12 +53,13 @@ object OutcomeService {
                 dataClass = OutcomeTable::class,
                 dataObject = mapper.toOutcomeTable(outcomeDto),
                 tableName = OUTCOME_TABLE_NAME
-            )?:0,
+            ) ?: 0,
             httpStatus = ResponseModel.OK
         )
     }
 
     suspend fun update(outcomeDto: OutcomeDto?): Boolean {
+        var rs = 0
         val staff = StaffService.getByPhone(outcomeDto?.staff?.phone)
         val outcomeType = OutcomeTypeService.getById(outcomeDto?.outcomeType?.id)
         val query = "update $OUTCOME_TABLE_NAME set " +
@@ -68,18 +69,21 @@ object OutcomeService {
                 "updated = ? \n" +
                 "where id = ${outcomeDto?.id} and merchant_id = ${outcomeDto?.merchantId} and not deleted "
         repository.connection().use {
-           it.prepareStatement(query).apply {
+            rs = it.prepareStatement(query).apply {
                 this.setString(1, outcomeDto?.name)
                 this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
-            }.execute()
+            }.executeUpdate()
         }
-        return true
+        return rs == 1
     }
 
     fun delete(merchantId: Long?, id: Long?): Boolean {
-        val query = "update $OUTCOME_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        repository.connection().use { it.prepareStatement(query).execute() }
-        return true
+        var rs = 0
+        val query = "update $OUTCOME_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and deleted = false"
+        repository.connection().use {
+            rs = it.prepareStatement(query).executeUpdate()
+        }
+        return rs == 1
     }
 }

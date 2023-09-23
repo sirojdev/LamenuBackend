@@ -1,7 +1,11 @@
 package mimsoft.io.features.seles
+
 import mimsoft.io.utils.TextModel
 
-object SalesMerchantMapper {
+object
+
+
+SalesMerchantMapper {
     fun toSalesMerchantTable(restaurantDto: SalesMerchantDto?): SalesMerchantTable? {
         return if (restaurantDto == null) null else SalesMerchantTable(
             id = restaurantDto.id,

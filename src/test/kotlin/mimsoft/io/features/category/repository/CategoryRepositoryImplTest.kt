@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class CategoryRepositoryImplTest {
 
-    val categoryRepositoryImpl = CategoryRepositoryImpl
+    private val categoryRepositoryImpl = CategoryRepositoryImpl
 
     @Test
     fun getAllByClient() = testApplication {
@@ -21,7 +21,7 @@ class CategoryRepositoryImplTest {
 
     @Test
     fun getCategoryForClientById() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 6
         val id: Long = 14
         val response = categoryRepositoryImpl.getCategoryForClientById(id, merchantId)
         assertNotNull(response)

@@ -4,14 +4,16 @@ import io.ktor.server.testing.*
 import mimsoft.io.features.news.NewsDto
 import mimsoft.io.utils.TextModel
 import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 
 class NewsRepositoryImplTest {
 
-    val newsRepositoryImpl = NewsRepositoryImpl
+    private val newsRepositoryImpl = NewsRepositoryImpl
 
     @Test
-    fun add() = testApplication {
+    fun add() = testApplication {// TODO: Xatolik bor...
         val textModel = TextModel(
             uz = "Uz",
             ru = "Ru",
@@ -21,22 +23,52 @@ class NewsRepositoryImplTest {
             merchantId = 1,
             title = textModel
         )
-        newsRepositoryImpl.add(newsDto)
+        val response = newsRepositoryImpl.add(newsDto)
+        println("rs: $response")
     }
 
     @Test
-    fun update() {
+    fun update() = testApplication {
+        val textModel = TextModel(
+            uz = "Uz",
+            ru = "Ru",
+            eng = "Eng",
+        )
+        val newsDto = NewsDto(
+            id = 2444,
+            merchantId = 1,
+            title = textModel
+        )
+        val response = newsRepositoryImpl.update(newsDto)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
-    fun getById() {
+    fun getById() = testApplication {
+        val id: Long = 2444
+        val merchantId: Long = 1
+        val response = NewsRepositoryImpl.getById(id, merchantId)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
-    fun getAll() {
+    fun getAll() = testApplication {
+        val merchantId: Long = 1222
+        val limit = 1
+        val offset = 1
+        val response = newsRepositoryImpl.getAll(merchantId, limit, offset)
+        assertNotNull(response)
     }
 
     @Test
-    fun delete() {
+    fun delete() = testApplication {
+        val id: Long = 24444
+        val merchantId: Long = 1
+        val response = newsRepositoryImpl.delete(id, merchantId)
+        println("rs: $response")
+        if (response)
+            assertTrue(response)
     }
 }

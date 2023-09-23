@@ -14,7 +14,7 @@ object PosterService {
     val mapper = PosterMapper
     suspend fun get(merchantId: Long?): PosterDto? {
         val query = "select * from $POSTER_TABLE where merchant_id = $merchantId and deleted = false"
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -27,7 +27,7 @@ object PosterService {
                             jowiApiKey = rs.getString("jowi_api_key")
                         )
                     )
-                }else return@withContext null
+                } else return@withContext null
             }
         }
     }
@@ -53,6 +53,7 @@ object PosterService {
     }
 
     fun update(posterDto: PosterDto?): Boolean {
+        var rs = 0
         val query = "update $POSTER_TABLE set " +
                 "join_poster_api_key = ?, " +
                 "r_keeper_client_id = ${posterDto?.rKeeperClientId}," +
@@ -62,16 +63,16 @@ object PosterService {
                 "updated = ? \n" +
                 "where merchant_id = ${posterDto?.merchantId} and not deleted "
         repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
+            rs = it.prepareStatement(query).apply {
                 this.setString(1, posterDto?.joinPosterApiKey)
                 this.setString(2, posterDto?.rKeeperClientSecret)
                 this.setString(3, posterDto?.selected)
                 this.setString(4, posterDto?.jowiApiKey)
                 this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
-            }.execute()
+            }.executeUpdate()
         }
-        return true
+        return rs == 1
     }
 }
 

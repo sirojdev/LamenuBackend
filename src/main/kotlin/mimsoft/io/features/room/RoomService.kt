@@ -44,21 +44,26 @@ object RoomService : RoomRepository {
         DBManager.postData(dataClass = RoomTable::class, dataObject = roomTable, tableName = ROOM_TABLE_NAME)
 
     override suspend fun update(roomDto: RoomDto?): Boolean {
-        val query = "update $ROOM_TABLE_NAME set " +
-                "name = ?, " +
-                "branch_id = ${roomDto?.branchId}, " +
-                "updated = ? \n" +
-                "where id = ${roomDto?.id} and merchant_id = ${roomDto?.merchantId} and not deleted "
+        var rs = 0
+        val query = """
+            update room
+            set name      = ?,
+                branch_id = ${roomDto?.branchId},
+                updated   = ?
+            where id = ${roomDto?.id}
+              and merchant_id = ${roomDto?.merchantId}
+              and not deleted 
+        """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
             SmsGatewayService.repository.connection().use {
-                it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.setString(1, roomDto?.name)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
@@ -90,19 +95,21 @@ object RoomService : RoomRepository {
               and r.deleted = false
             order by created
         """.trimIndent()
-        return withContext(DBManager.databaseDispatcher){
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val list = mutableListOf<RoomTableDto>()
                 val rs = it.prepareStatement(query).executeQuery()
-                while (rs.next()){
+                while (rs.next()) {
                     val tables = rs.getString("tables")
-                    val typeToken = object: TypeToken<List<TableDto>>(){}.type
+                    val typeToken = object : TypeToken<List<TableDto>>() {}.type
                     val tableList = Gson().fromJson<List<TableDto>>(tables, typeToken)
-                    list.add(RoomTableDto(
-                        id = rs.getLong("id"),
-                        name = rs.getString("name"),
-                        tables = tableList
-                    ))
+                    list.add(
+                        RoomTableDto(
+                            id = rs.getLong("id"),
+                            name = rs.getString("name"),
+                            tables = tableList
+                        )
+                    )
                 }
                 return@withContext list
             }

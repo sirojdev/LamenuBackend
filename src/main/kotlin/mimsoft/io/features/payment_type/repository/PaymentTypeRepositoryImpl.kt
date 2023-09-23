@@ -15,11 +15,11 @@ object PaymentTypeRepositoryImpl : PaymentTypeRepository {
     val repository: BaseRepository = DBManager
     override suspend fun getAll(): List<PaymentTypeTable?> {
         val query = "select * from payment_type where not deleted"
-        return withContext(DBManager.databaseDispatcher){
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val list = mutableListOf<PaymentTypeTable>()
                 val rs = it.prepareStatement(query).executeQuery()
-                while (rs.next()){
+                while (rs.next()) {
                     list.add(
                         PaymentTypeTable(
                             id = rs.getLong("id"),
@@ -35,6 +35,7 @@ object PaymentTypeRepositoryImpl : PaymentTypeRepository {
             }
         }
     }
+
     override suspend fun get(id: Long?): PaymentTypeDto? {
         val data = repository.getPageData(
             dataClass = PaymentTypeTable::class,
@@ -45,39 +46,56 @@ object PaymentTypeRepositoryImpl : PaymentTypeRepository {
         )?.data?.firstOrNull()
         return PaymentTypeMapper.toDto(data)
     }
-    override suspend fun add(paymentTypeTable: PaymentTypeTable?): Long? =
-        DBManager.postData(dataClass = PaymentTypeTable::class, dataObject = paymentTypeTable, tableName = PAYMENT_TYPE_TABLE_NAME)
-    override suspend fun update(dto: PaymentTypeDto): Boolean {
-        val query = "update $PAYMENT_TYPE_TABLE_NAME " +
-                "SET" +
-                " name = ?, " +
-                " icon = ?," +
-                " title_uz = ?," +
-                " title_ru = ?," +
-                " title_eng = ?," +
-                " updated = ?" +
-                " WHERE id = ${dto.id} and not deleted"
 
-        withContext(Dispatchers.IO) {
+    override suspend fun add(paymentTypeTable: PaymentTypeTable?): Long? =
+        DBManager.postData(
+            dataClass = PaymentTypeTable::class,
+            dataObject = paymentTypeTable,
+            tableName = PAYMENT_TYPE_TABLE_NAME
+        )
+
+    override suspend fun update(dto: PaymentTypeDto): Boolean {
+        var rs = 0
+        val query = """
+            update payment_type
+                   set name      = ?,
+                       icon      = ?,
+                       title_uz  = ?,
+                       title_ru  = ?,
+                       title_eng = ?,
+                       updated   = ?
+                   where id = ${dto.id}
+                     and not deleted;
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                rs = it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.name)
                     ti.setString(2, dto.icon)
                     ti.setString(3, dto.title?.uz)
                     ti.setString(4, dto.title?.ru)
                     ti.setString(5, dto.title?.eng)
-                    ti.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    ti.setTimestamp(6, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
             }
         }
-        return true
+        return rs == 1
     }
+
     override suspend fun delete(id: Long?): Boolean {
-        val query = "update $PAYMENT_TYPE_TABLE_NAME set deleted = true where id = $id"
+        var rs = 0
+        val query = """
+            update payment_type
+            set deleted = true
+            where id = $id
+            and not deleted
+        """.trimIndent()
         withContext(Dispatchers.IO) {
-            LabelRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            LabelRepositoryImpl.repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }
