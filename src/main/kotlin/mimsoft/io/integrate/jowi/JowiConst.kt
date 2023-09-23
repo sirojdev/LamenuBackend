@@ -1,7 +1,7 @@
-package mimsoft.io.features.pos.jowi
+package mimsoft.io.integrate.jowi
 
-import mimsoft.io.features.pos.jowi.JowiConst.API_KEY
-import mimsoft.io.features.pos.jowi.JowiConst.API_SECRET
+import mimsoft.io.integrate.jowi.JowiConst.API_KEY
+import mimsoft.io.integrate.jowi.JowiConst.API_SECRET
 import java.security.MessageDigest
 
 object JowiConst {
