@@ -83,7 +83,12 @@ data class Fiscalization(
     val article: String,
     val excise: String,
     @SerializedName("item_type")
-    val itemType: String
+    val itemType: String,
+    val mark:Mark,
+    @SerializedName("supplier_inn")
+    val supplierInn: String,
+    @SerializedName("vat_code_str")
+    val vatCodeStr: String
 )
 
 data class Mark(
