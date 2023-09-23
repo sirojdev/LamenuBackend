@@ -9,5 +9,6 @@ class WaiterTableDto(
     val tableId: Long? = null,
     val joinTime: Timestamp? = null,
     val finishTime: Timestamp? = null,
-    val table: TableDto? = null
+    val table: TableDto? = null,
+    val count: Int? = null
 )

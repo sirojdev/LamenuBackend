@@ -1,11 +1,11 @@
 package mimsoft.io.manager
 
+import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.repository.Repository
 
 object ManagerService {
 
-    val repository: Repository = DBManager
+    val repository: BaseRepository = DBManager
 
     suspend fun getAll(): List<ManagerTable?> {
         return repository.getData(dataClass = ManagerTable::class, tableName = "manager")

@@ -8,7 +8,7 @@ data class LabelTable(
     var merchantId: Long? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
-    val nameEn: String? = null,
+    val nameEng: String? = null,
     val textColor: String? = null,
     val bgColor: String? = null,
     val icon: String? = null,

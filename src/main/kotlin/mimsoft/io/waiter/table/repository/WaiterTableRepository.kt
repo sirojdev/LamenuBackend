@@ -4,14 +4,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.room.RoomDto
-import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.waiter.info.WaiterInfoDto
-import mimsoft.io.waiter.table.WAITER_TABLE_NAME
-import mimsoft.io.waiter.table.WaiterTableDto
 import java.sql.ResultSet
 
 object WaiterTableRepository {
@@ -22,7 +19,7 @@ object WaiterTableRepository {
                 "from waiter_table wt inner join tables t on wt.table_id = t.id " +
                 "inner join room r on r.id = t.room_id " +
                 "where wt.waiter_id = $waiterId " +
-                "and not wt.deleted and not t.deleted and not r.delted " +
+                "and not wt.deleted and not t.deleted and not r.deleted " +
                 "and wt.finish_time is null order by join_time desc limit $limit offset $offset "
         val list = ArrayList<WaiterTableDto>()
         var total: Int? = null
