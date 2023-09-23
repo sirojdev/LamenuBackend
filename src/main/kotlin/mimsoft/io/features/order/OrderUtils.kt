@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.badge.BadgeDto
@@ -327,7 +328,7 @@ object OrderUtils {
             WHERE o.deleted = false 
         """.trimIndent()
 
-        if(columnsSet.contains("search")){
+        if (columnsSet.contains("search")) {
 
         }
 
@@ -396,7 +397,6 @@ object OrderUtils {
                 (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type p ON o.payment_type = p.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
                 (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "")
-
 
 
 //        conditions += """AND (
@@ -505,7 +505,7 @@ object OrderUtils {
                 params["type"]?.let { it1 -> queryParams.put(++index, it1) }
             }
             if (params["statuses"] != null) {
-                var str: String = ""
+                var str = ""
                 val list = (params["statuses"] as? List<*>)
                 if (list != null) {
                     for (i in list) {
@@ -516,6 +516,19 @@ object OrderUtils {
                 str = str.removeSuffix(",")
                 conditions += " AND o.status IN ($str) "
             }
+
+            /*if (params["statuses"] != null) {
+                var str = ""
+                val list = (params["statuses"] as? ArrayList<*>)
+                if (list != null) {
+                    for (i in list) {
+                        str += "?,"
+                        i?.let { it1 -> queryParams.put(++index, it1) }
+                    }
+                }
+                str = str.removeSuffix(",")
+                conditions += " AND o.status IN ($str) "
+            }*/
             if (params["userId"] != null) {
                 conditions += " AND o.user_id = ${params["userId"] as? Long} "
             }
@@ -539,7 +552,7 @@ object OrderUtils {
                 params["onWave"]?.let { it1 -> queryParams.put(++index, it1) }
             }
 
-            if(params["search"] != null){
+            if (params["search"] != null) {
                 val status = params["search"]
                 conditions += " AND o.status = '$status'"
             }
@@ -551,7 +564,6 @@ object OrderUtils {
             if (params["offset"] != null) {
                 conditions += " OFFSET ${params["offset"] as? Int} "
             }
-
         }
 
         query += (if (columnsSet.contains("user")) """,
@@ -663,7 +675,17 @@ object OrderUtils {
                 gender = result.getOrDefault("gender", null) as? String?,
                 comment = result.getOrDefault("s_comment", null) as? String?
             ) else StaffDto(),
-            courier = StaffDto(id = result.getOrDefault("o_courier_id", null) as? Long),
+            courier = if(columns.contains("courier")) StaffDto(
+                id = result.getOrDefault("o_courier_id", null) as? Long,
+                firstName = result.getOrDefault("s2_first_name", null) as? String?,
+                lastName = result.getOrDefault("s2_last_name", null) as? String?,
+                phone = result.getOrDefault("s2_phone", null) as? String?,
+                image = result.getOrDefault("s2_image", null) as? String?,
+                birthDay = result.getOrDefault("s2_birth_day", null).toString(),
+                position = result.getOrDefault("s2_position", null) as? String?,
+                gender = result.getOrDefault("s2_gender", null) as? String?,
+                comment = result.getOrDefault("s2_comment", null) as? String?
+            ) else StaffDto(),
             address = if (columns.contains("address"))
                 AddressDto(
                     latitude = result.getOrDefault("o_add_lat", null) as? Double?,
@@ -737,7 +759,7 @@ object OrderUtils {
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
                 ),
-                jowiPosterId = result["b_jowi_id"] as String?
+                jowiId = result["b_jowi_id"] as String?
             ),
             totalPrice = result["o_total_price"] as? Long,
             products = getProducts(products) as List<CartItem>?,
@@ -756,7 +778,8 @@ object OrderUtils {
             productCount = result["o_product_count"] as Int?,
             createdAt = result["o_created_at"] as? Timestamp?,
             updatedAt = result["o_updated_at"] as? Timestamp?,
-            deleted = result["o_deleted"] as? Boolean?
+            deleted = result["o_deleted"] as? Boolean?,
+            deliveredAt = result["o_delivered_at"] as? Timestamp?,
         )
     }
 
@@ -798,14 +821,17 @@ object OrderUtils {
 
     suspend fun validate(order: Order): ResponseModel {
 
-        /*if (order.user?.id == null) {
-            return ResponseModel(body = mapOf("message" to "user id or user required"))
-        } else {
-            order.user = UserRepositoryImpl.get(order.user!!.id) ?: return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "user not found")
-            )
-            log.info("user: {}", order.user.toJson())
-        }*/
+        /*
+                if (order.user?.id == null) {
+                    return ResponseModel(body = mapOf("message" to "user id or user required"))
+                } else {
+                    order.user = UserRepositoryImpl.get(order.user!!.id) ?: return ResponseModel(
+                        httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "user not found")
+                    )
+                    log.info("user: {}", order.user.toJson())
+                }
+        */
+
 
         if (order.serviceType == null) {
             return ResponseModel(
@@ -813,15 +839,17 @@ object OrderUtils {
             )
         }
 
-        if (order.serviceType == "DELIVERY") validateAddress(order.address).let {
-            if (!it.isOk()) return it
-            order.address = it.body as? AddressDto
-        }
+        if (order.serviceType == "DELIVERY") {
+            validateAddress(order.address).let {
+                if (!it.isOk()) return it
+                order.address = it.body as? AddressDto
+            }
 
-        if (order.paymentMethod?.id == null) {
-            return ResponseModel(
-                httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "paymentType is required")
-            )
+            if (order.paymentMethod?.id == null) {
+                return ResponseModel(
+                    httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "paymentType is required")
+                )
+            }
         }
 
         if (order.merchant?.id == null) {

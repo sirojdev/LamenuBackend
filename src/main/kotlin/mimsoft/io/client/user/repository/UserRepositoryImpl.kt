@@ -39,9 +39,10 @@ object UserRepositoryImpl : UserRepository {
                 left join badge b on b.id = u.badge_id 
                 where u.merchant_id = $merchantId and not u.deleted 
                 order by u.created desc 
-        """)
-        if(limit != null) query.append(" limit $limit")
-        if(offset != null) query.append(" offset $offset")
+        """
+        )
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
         val list = mutableListOf<UserDto>()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
@@ -133,11 +134,12 @@ object UserRepositoryImpl : UserRepository {
     }
 
     override suspend fun add(userDto: UserDto?): ResponseModel {
+        if (userDto?.birthDay != null) {
+            val statusTimestamp = timestampValidator(userDto.birthDay.toString())
 
-        val statusTimestamp = timestampValidator(userDto?.birthDay.toString())
-
-        if (statusTimestamp.httpStatus != ResponseModel.OK){
-            return statusTimestamp
+            if (statusTimestamp.httpStatus != ResponseModel.OK) {
+                return statusTimestamp
+            }
         }
 
         when {
@@ -165,7 +167,7 @@ object UserRepositoryImpl : UserRepository {
                 dataClass = UserTable::class,
                 dataObject = mapper.toUserTable(userDto),
                 tableName = USER_TABLE_NAME
-            )?:0,
+            ) ?: 0,
             httpStatus = ResponseModel.OK
         )
     }

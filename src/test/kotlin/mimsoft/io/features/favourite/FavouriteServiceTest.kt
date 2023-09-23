@@ -1,6 +1,5 @@
 package mimsoft.io.features.favourite
 
-import io.ktor.http.*
 import io.ktor.server.testing.*
 import mimsoft.io.features.product.ProductDto
 import kotlin.test.Test
@@ -28,6 +27,7 @@ class FavouriteServiceTest {
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
+class FavouriteServiceTest{
     @Test
     fun move() = testApplication {
         val clientId: Long = 24
@@ -37,7 +37,6 @@ class FavouriteServiceTest {
         if (response != null)
             assertNotNull(response)
     }
-
     @Test
     fun update() = testApplication {
         val productDto = ProductDto(
@@ -46,9 +45,11 @@ class FavouriteServiceTest {
         val favouriteDto = FavouriteDto(
             id = 16,
             merchantId = 1,
-            clientId = 26,
-            deviceId = 11,
-            product = productDto
+            deviceId = 21,
+            clientId = 6,
+            product = ProductDto(
+                id = 63
+            )
         )
         val favouriteDto1 = FavouriteDto()
         val response = favouriteService.update(favouriteDto)

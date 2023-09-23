@@ -92,4 +92,11 @@ class PantryServiceTest {
         if (response)
             assertTrue(response)
     }
+
+    @Test
+    fun getFinishTable() = testApplication {
+        val response = WaiterTableRepository.getFinishedTablesWaiters(41, 10, 0)
+        println("response = ${response.data.toJson()}")
+        assertNotNull(response)
+    }
 }

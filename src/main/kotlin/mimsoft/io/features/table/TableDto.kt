@@ -12,5 +12,7 @@ data class TableDto (
     val room: RoomDto? = null,
     val branch: BranchDto? = null,
     val visit: VisitDto? = null,
-    val merchantId: Long? = null
+    val merchantId: Long? = null,
+    val status: TableStatus? = null,
+    val bookingTime: Int? = null,
 )

@@ -5,17 +5,18 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
-import mimsoft.io.features.jowi.JowiService
+import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
-import mimsoft.io.features.order.OrderUtils.joinQuery2
 import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
+import mimsoft.io.features.pos.POSController
+import mimsoft.io.features.pos.POSService
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.repository.BaseRepository
@@ -40,10 +41,11 @@ object OrderService {
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
 
-    suspend fun getAll2(
+    suspend fun     getAll2(
         params: Map<String, *>? = null,
         vararg columns: String,
     ): ResponseModel {
+        val columns2 = columns.toSet()
         val result: List<Map<String, *>>
         val search = getQuery(params = params, *columns, orderId = null)
         log.info("query: ${search.query}")
@@ -53,7 +55,7 @@ object OrderService {
             val order = parseGetAll2(result[0])
             return ResponseModel(
                 body = DataPage(
-                    data = result.map { parseGetAll2(it) },
+                    data = result.map { parseGetAll(it, columns2) },
                     total = order.total?.toInt()
                 )
             )
@@ -113,7 +115,7 @@ object OrderService {
         val query = """
             insert into orders (user_id, user_phone, products, status, 
             add_lat, add_long, add_desc, created_at, service_type,
-            comment, merchant_id, courier_id, collector_id, payment_type, 
+            comment, merchant_id, courier_id, collector_id, payment_type,   
             product_count, total_price, branch_id)
             values (${validOrder.user?.id}, ${validOrder.user?.phone}, ?, ?, 
             ${validOrder.address?.latitude}, ${validOrder.address?.longitude},
@@ -146,6 +148,10 @@ object OrderService {
             }
             val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
             fullOrder?.let { it1 ->
+
+                POSController.getPostFromBranch(1).createOrder(order)
+
+
                 JowiService.createOrder(
                     it1.copy(
                         totalPrice = order.totalPrice,
@@ -168,7 +174,6 @@ object OrderService {
             (responseModel.body as Order).checkoutLink = checkoutLink
             return responseModel
         }
-
     }
 
     suspend fun delete(id: Long?): ResponseModel {
@@ -474,14 +479,14 @@ object OrderService {
         }
     }
 
-    suspend fun updateStatus(orderId: Long, merchantId: Long, status: OrderStatus): Order? {
+    suspend fun updateStatus(orderId: Long?, merchantId: Long?, status: OrderStatus?): Order? {
         val query = "update orders  set status =?" +
                 " where id = $orderId and merchant_id = $merchantId  "
         val order: Order?
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
-                    setString(1, status.name)
+                    setString(1, status?.name)
                     this.closeOnCompletion()
                 }.executeUpdate()
                 order = getById(orderId)

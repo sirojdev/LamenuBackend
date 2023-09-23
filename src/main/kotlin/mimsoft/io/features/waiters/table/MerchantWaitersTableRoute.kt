@@ -59,6 +59,5 @@ fun Route.routeToMerchantWaitersTable() {
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }
         }
-
     }
 }

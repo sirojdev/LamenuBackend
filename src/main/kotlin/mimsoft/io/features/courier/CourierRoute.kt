@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 
 
@@ -18,7 +19,7 @@ fun Route.routeToCourier() {
         routeToCourierLocation()
 
         get("all") {
-            val principal = call.principal<BasePrincipal>()
+            val principal = getPrincipal()
             val merchantId = principal?.merchantId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0

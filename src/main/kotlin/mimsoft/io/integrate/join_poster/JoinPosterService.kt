@@ -8,7 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.order.Order
-import mimsoft.io.features.poster.PosterService
+import mimsoft.io.features.pos.poster.PosterService
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.toJson

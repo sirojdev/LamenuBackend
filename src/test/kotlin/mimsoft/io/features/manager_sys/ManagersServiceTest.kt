@@ -1,13 +1,9 @@
 package mimsoft.io.features.manager_sys
 
-import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlin.math.log
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
-class ManagersServiceTest {
 
     private val managersService = ManagersService
 

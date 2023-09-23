@@ -22,35 +22,37 @@ object NotificationRepositoryImpl : NotificationRepository {
         )
 
     override suspend fun update(dto: NotificationDto?): Boolean {
-        val query = "update `` $NOTIFICATION_TABLE_NAME set " +
-                "body_uz = ?, " +
-                "body_ru = ?, " +
-                "body_eng = ?, " +
-                "title_uz = ?, " +
-                "title_ru = ?, " +
-                "title_eng = ?, " +
-                " image = ?," +
-                " client_id = ${dto?.clientId}," +
-                " is_send_ios = ${dto?.isSendIos}, " +
-                " is_send_android = ${dto?.isSendAndroid}, " +
-                " is_send_bot = ${dto?.isSendBot}, " +
-                "updated = ? where merchant_id = ${dto?.merchantId} and id = ${dto?.id}"
+        var response = 0
+        val query = "update $NOTIFICATION_TABLE_NAME n set " +
+                " body_uz = COALESCE(?, n.body_uz), " +
+                " body_ru = COALESCE(?, n.body_ru), " +
+                " body_eng = COALESCE(?, n.body_eng), " +
+                " title_uz = COALESCE(?, n.title_uz), " +
+                " title_ru = COALESCE(?, n.title_ru), " +
+                " title_eng = COALESCE(?, n.title_eng), " +
+                " image = COALESCE(?, n.image)," +
+                " client_id = COALESCE(${dto?.clientId}, n.client_id)," +
+                " is_send_ios = COALESCE(${dto?.isSendIos}, n.is_send_ios), " +
+                " is_send_android = COALESCE(${dto?.isSendAndroid}, n.is_send_android), " +
+                " is_send_bot = COALESCE(${dto?.isSendBot}, n.is_send_bot), " +
+                " updated = ? where merchant_id = ${dto?.merchantId} and id = ${dto?.id}"
 
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                it.prepareStatement(query).use { notification ->
-                    notification.setString(1, dto?.body?.uz)
-                    notification.setString(2, dto?.body?.ru)
-                    notification.setString(3, dto?.body?.eng)
-                    notification.setString(4, dto?.title?.uz)
-                    notification.setString(5, dto?.title?.ru)
-                    notification.setString(6, dto?.title?.eng)
-                    notification.setString(7, dto?.image)
-                    notification.setTimestamp(8, Timestamp(System.currentTimeMillis()))
-                }
+                response = it.prepareStatement(query).apply {
+                    this.setString(1, dto?.body?.uz)
+                    this.setString(2, dto?.body?.ru)
+                    this.setString(3, dto?.body?.eng)
+                    this.setString(4, dto?.title?.uz)
+                    this.setString(5, dto?.title?.ru)
+                    this.setString(6, dto?.title?.eng)
+                    this.setString(7, dto?.image)
+                    this.setTimestamp(8, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.executeUpdate()
             }
         }
-        return true
+        return response == 1
     }
 
     override suspend fun getById(id: Long, merchantId: Long?): NotificationDto? {

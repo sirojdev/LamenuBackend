@@ -2,39 +2,28 @@ package mimsoft.io.waiter.table.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.order.Order
 import mimsoft.io.features.room.RoomDto
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
+import mimsoft.io.waiter.info.WaiterInfoDto
+import mimsoft.io.waiter.table.WAITER_TABLE_NAME
+import mimsoft.io.waiter.table.WaiterTableDto
 import java.sql.ResultSet
 
 object WaiterTableRepository {
     val repository: BaseRepository = DBManager
     suspend fun getActiveTablesWaiters(waiterId: Long?, limit: Int, offset: Int): DataPage<WaiterTableDto> {
-        val query = """select wt.*, t.name t_name,r.name r_name
-                    from waiter_table wt
-                             inner join tables t on wt.table_id = t.id
-                             inner join room r on r.id = t.room_id
-                    where wt.waiter_id = $waiterId
-                      and wt.deleted = false
-                      and t.deleted = false
-                      and r.deleted = false
-                      and wt.finish_time is null
-                    order by join_time desc 
-                     limit $limit 
-                     offset  $offset"""
-
-
-        val countQuery = """select count(*) count
-                             from waiter_table wt
-                                      inner join tables t on wt.table_id = t.id
-                                      inner join room r on r.id = t.room_id
-                             where wt.waiter_id = $waiterId
-                               and wt.deleted = false
-                               and t.deleted = false
-                               and r.deleted = false
-                               and wt.finish_time is  null """
+        val query = "select count(*) over() as count,  " +
+                "t.name t_name, r.name r_name " +
+                "from waiter_table wt inner join tables t on wt.table_id = t.id " +
+                "inner join room r on r.id = t.room_id " +
+                "where wt.waiter_id = $waiterId " +
+                "and not wt.deleted and not t.deleted and not r.delted " +
+                "and wt.finish_time is null order by join_time desc limit $limit offset $offset "
         val list = ArrayList<WaiterTableDto>()
         var total: Int? = null
 
@@ -43,13 +32,9 @@ object WaiterTableRepository {
                 val rs = it.prepareStatement(query).apply {
                 }.executeQuery()
                 while (rs.next()) {
-                    list.add(
-                        getTables(rs)
-                    )
-                }
-                val crs = it.prepareStatement(countQuery).executeQuery()
-                if (crs.next()) {
-                    total = crs.getInt("count")
+                    val res = getTables(rs)
+                    total = res.count
+                    list.add(res)
                 }
             }
         }
@@ -68,33 +53,23 @@ object WaiterTableRepository {
                 room = RoomDto(
                     name = rs.getString("r_name")
                 )
-            )
+            ),
+            count = rs.getInt("count")
         )
     }
 
     suspend fun getFinishedTablesWaiters(waiterId: Long?, limit: Int, offset: Int): DataPage<WaiterTableDto> {
-        val query = """select wt.*, t.name t_name,r.name r_name
-                       from waiter_table wt
-                                inner join tables t on wt.table_id = t.id
-                                inner join room r on r.id = t.room_id
-                       where wt.waiter_id = $waiterId
-                         and wt.deleted = false
-                         and t.deleted = false
-                         and r.deleted = false
-                         and wt.finish_time is not null
-                       order by join_time desc
-                       limit $limit
-                        offset  $offset """
-
-        val countQuery = """select count(*) count
-                             from waiter_table wt
-                                      inner join tables t on wt.table_id = t.id
-                                      inner join room r on r.id = t.room_id
-                             where wt.waiter_id = $waiterId
-                               and wt.deleted = false
-                               and t.deleted = false
-                               and r.deleted = false
-                               and wt.finish_time is not null """
+        val query = """select count(*) over () as count, wt.*, t.name t_name, r.name r_name
+            from waiter_table wt
+                     inner join tables t on wt.table_id = t.id
+                     inner join room r on r.id = t.room_id
+            where wt.waiter_id = $waiterId
+              and wt.deleted = false
+              and t.deleted = false
+              and r.deleted = false
+              and wt.finish_time is not null
+            order by join_time desc
+            limit $limit offset $offset """.trimIndent()
         val list = ArrayList<WaiterTableDto>()
         var total: Int? = null
         withContext(Dispatchers.IO) {
@@ -102,11 +77,9 @@ object WaiterTableRepository {
                 val rs = it.prepareStatement(query).apply {
                 }.executeQuery()
                 while (rs.next()) {
-                    list.add(getTables(rs))
-                }
-                val crs = it.prepareStatement(countQuery).executeQuery()
-                if (crs.next()) {
-                    total = crs.getInt("count")
+                    val res = (getTables(rs))
+                    list.add(res)
+                    total = res.count
                 }
             }
         }
@@ -176,16 +149,46 @@ object WaiterTableRepository {
         val query = "update  $WAITER_TABLE_NAME " +
                 " set finish_time = now() " +
                 " where waiter_id = $waiterId  and table_id = $tableId and finish_time is null and deleted = false"
-        var result = true;
+        var result = true
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
                 }.executeUpdate()
                 if (rs != 1) {
-                    result = false;
+                    result = false
                 }
             }
         }
         return result
+    }
+
+    suspend fun getWaiterByTableId(tableId: Long?): WaiterInfoDto? {
+        val query = "select s.phone " +
+                "from waiter_table wt " +
+                "         left join waiter w on wt.waiter_id = w.id " +
+                "         left join staff s on w.staff_id = s.id " +
+                "where wt.table_id = $tableId " +
+                "  and not wt.deleted " +
+                "  and not w.deleted " +
+                "  and not s.deleted "
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    return@withContext WaiterInfoDto(
+                        phone = rs.getString("phone")
+                    )
+                } else return@withContext null
+            }
+        }
+    }
+
+    suspend fun update(order: Order) {
+        val query = "update orders set products = ? where id = ${order.id} and not deleted "
+
+        TODO("Not yet implemented")
     }
 }

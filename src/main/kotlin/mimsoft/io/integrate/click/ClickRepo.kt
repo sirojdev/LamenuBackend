@@ -120,28 +120,34 @@ object ClickRepo {
             select * from click
             where click_trans_id = $clickTransId
         """.trimIndent()
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use { connection ->
-                connection.prepareStatement(query).executeQuery().use {
-                    if (it.next()) {
-                        mutableMapOf(
-                            "id" to it.getLong("id"),
-                            "click_trans_id" to it.getLong("click_trans_id"),
-                            "service_id" to it.getLong("service_id"),
-                            "click_paydoc_id" to it.getLong("click_paydoc_id"),
-                            "amount" to it.getLong("amount"),
-                            "action" to it.getInt("action"),
-                            "error" to it.getInt("error"),
-                            "merchant_trans_id" to it.getString("merchant_trans_id"),
-                            "error_note" to it.getString("error_note"),
-                            "sign_time" to it.getString("sign_time"),
-                            "sign_string" to it.getString("sign_string")
-                        )
-                    } else null
+        println("query $query")
+        println("get transaction")
+        var result: Map<String, *>? = null
+        withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                }.executeQuery()
+                if (rs.next()) {
+                    println(" inside reasult sert")
+                    result = mutableMapOf(
+                        "id" to rs.getLong("id"),
+                        "click_trans_id" to rs.getLong("click_trans_id"),
+                        "service_id" to rs.getLong("service_id"),
+                        "click_paydoc_id" to rs.getLong("click_paydoc_id"),
+                        "amount" to rs.getLong("amount"),
+                        "action" to rs.getInt("action"),
+                        "error" to rs.getInt("error"),
+                        "merchant_trans_id" to rs.getString("merchant_trans_id"),
+                        "error_note" to rs.getString("error_note"),
+                        "sign_time" to rs.getString("sign_time"),
+                        "sign_string" to rs.getString("sign_string")
+                    )
                 }
             }
         }
+        return result
     }
+
 
     suspend fun getTransByOrderId(orderId: Long?): Map<String, *>? {
         val query = """
@@ -179,39 +185,39 @@ object ClickRepo {
         }
     }
 
-    suspend fun clickLog(method: String? = null, parameters: Any? = null): List<ClickLogModel?> {
-        val query = if (method != null && parameters != null) """
+        suspend fun clickLog(method: String? = null, parameters: Any? = null): List<ClickLogModel?> {
+            val query = if (method != null && parameters != null) """
            insert into click_logs (method, parameters, created_at)
               values (?, ?, ?) returning *
        """.trimIndent()
-        else """
+            else """
               select * from click_log
          """.trimIndent()
 
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().prepareStatement(query).use { statement ->
-                if (method != null && parameters != null) {
-                    statement.setString(1, method)
-                    statement.setString(2, parameters.toString())
-                    statement.setTimestamp(3, Timestamp(System.currentTimeMillis()))
-                    statement.closeOnCompletion()
-                }
-                statement.executeQuery().let { resultSet ->
-                    val list = mutableListOf<ClickLogModel?>()
-                    while (resultSet.next()) {
-                        list.add(
-                            ClickLogModel(
-                                id = resultSet.getLong("id"),
-                                method = resultSet.getString("method"),
-                                parameters = resultSet.getString("parameters"),
-                                createdAt = resultSet.getString("created_at"),
-                            )
-                        )
+            return withContext(DBManager.databaseDispatcher) {
+                DBManager.connection().prepareStatement(query).use { statement ->
+                    if (method != null && parameters != null) {
+                        statement.setString(1, method)
+                        statement.setString(2, parameters.toString())
+                        statement.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                        statement.closeOnCompletion()
                     }
-                    return@withContext list
+                    statement.executeQuery().let { resultSet ->
+                        val list = mutableListOf<ClickLogModel?>()
+                        while (resultSet.next()) {
+                            list.add(
+                                ClickLogModel(
+                                    id = resultSet.getLong("id"),
+                                    method = resultSet.getString("method"),
+                                    parameters = resultSet.getString("parameters"),
+                                    createdAt = resultSet.getString("created_at"),
+                                )
+                            )
+                        }
+                        return@withContext list
+                    }
                 }
             }
         }
-    }
 
 }

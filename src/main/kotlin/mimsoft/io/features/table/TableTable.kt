@@ -11,6 +11,8 @@ data class TableTable(
     val qr: String? = null,
     val branchId: Long? = null,
     val type: Int? = null,
+    val bookingTime: Int? = null,
+    val status: String? = null,
     val merchantId: Long? = null,
     var deleted: Boolean? = null,
     var created: Timestamp? = null,

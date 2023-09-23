@@ -8,6 +8,9 @@ import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.news.NewsDto
 import mimsoft.io.features.notification.NotificationDto
 import mimsoft.io.features.order.Order
+import mimsoft.io.utils.ResponseModel
+import mimsoft.io.waiter.WaiterService
+import mimsoft.io.waiter.table.repository.WaiterTableRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
@@ -78,4 +81,29 @@ object FirebaseService {
             }
         }
     }
+
+    suspend fun callWaiterFromTable(waiterId: Long, tableId: Long) {
+        val waiter = WaiterService.getById(staffId = waiterId)
+        val device = DeviceController.get(waiter?.phone)
+        val message = MulticastMessage.builder()
+            .putData("title", "Hey, Waiter")
+            .putData("body", "$tableId")
+            .addAllTokens(device.map { it.firebaseToken })
+            .build()
+        log.info("send message: $message")
+        FirebaseMessaging.getInstance().sendEachForMulticast(message)
+    }
+
+    suspend fun sendOrderToWaiter(tableId: Long?, dto: ResponseModel) {
+        val waiter = WaiterTableRepository.getWaiterByTableId(tableId = tableId)
+        val devices = DeviceController.get(phone = waiter?.phone)
+        val message = MulticastMessage.builder()
+            .putData("title", "New order from client")
+            .putData("body", "$dto")
+            .addAllTokens(devices.map { it.firebaseToken })
+            .build()
+        log.info("order send message: $message")
+        FirebaseMessaging.getInstance().sendEachForMulticast(message)
+    }
+
 }

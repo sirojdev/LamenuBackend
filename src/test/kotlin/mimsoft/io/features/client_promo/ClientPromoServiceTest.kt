@@ -4,7 +4,6 @@ import io.ktor.server.testing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.promo.PromoDto
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 

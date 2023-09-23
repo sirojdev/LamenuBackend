@@ -19,13 +19,16 @@ object NewsRepositoryImpl : NewsRepository {
             dataObject = mapper.toTable(dto),
             tableName = "news"
         )
-        val users = UserRepositoryImpl.getAll(merchantId = dto?.merchantId)
-        println("users $users")
-        GlobalScope.launch {
-            FirebaseService.sendNewsAllClient(users = users, data = dto)
+        if(response != null){
+            val users = UserRepositoryImpl.getAll(merchantId = dto?.merchantId)
+            println("users $users")
+            GlobalScope.launch {
+                FirebaseService.sendNewsAllClient(users = users, data = dto)
+            }
         }
         return response
     }
+
 
     override suspend fun update(dto: NewsDto?): Boolean {
         return DBManager.updateData(NewsTable::class, mapper.toTable(dto), "news")

@@ -3,7 +3,7 @@ package mimsoft.io.waiter
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.courier.*
+import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
@@ -54,22 +54,25 @@ object WaiterService {
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 
     suspend fun getById(staffId: Long?): WaiterInfoDto? {
-        val query = "select s.*,c.id c_id ,c.balance c_balance from staff s " +
-                " inner join courier c on c.staff_id = s.id " +
-                " where s.id = $staffId and s.deleted = false and c.deleted = false"
+        val query = """
+                select s.*, w.id w_id, w.balance w_balance from staff s
+                 inner join waiter w on w.staff_id = s.id
+                 where s.id = $staffId and not s.deleted and not w.deleted
+        """.trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
                     return@withContext WaiterInfoDto(
-                        id = rs.getLong("c_id"),
+                        id = rs.getLong("w_id"),
                         firstName = rs.getString("first_name"),
                         lastName = rs.getString("last_name"),
+                        phone = rs.getString("phone"),
                         birthDay = rs.getTimestamp("birth_day"),
                         image = rs.getString("image"),
                         gender = rs.getString("gender"),
                         status = rs.getBoolean("status"),
-                        balance = rs.getDouble("c_balance"),
+                        balance = rs.getDouble("w_balance")
                     )
                 } else return@withContext null
             }
@@ -77,7 +80,7 @@ object WaiterService {
     }
 
 
-    suspend fun updateWaiterInfo(dto: StaffDto): Any {
+    suspend fun updateWaiterProfile(dto: StaffDto): ResponseModel {
         var query = """
              update $STAFF_TABLE_NAME  s
              set
@@ -85,8 +88,8 @@ object WaiterService {
              last_name = COALESCE(?,s.last_name),
              birth_day = COALESCE(?,s.birth_day),
              image = COALESCE(?,s.image),
-             comment = COALESCE(?,s.comment),
-             gender = COALESCE(?,s.gender)  """
+             updated = ? 
+              """
 
         if (dto.newPassword != null) {
             query += " ,password = COALESCE(?,s.password) "
@@ -96,9 +99,9 @@ object WaiterService {
         if (dto.newPassword != null) {
             query += " and password = ? "
         }
-        if(dto.birthDay!=null){
+        if (dto.birthDay != null) {
             val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
-            dto.birthDay=Timestamp(inputFormat.parse(dto.birthDay).time).toString()
+            dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
         }
 
         var rs: Int? = null
@@ -109,26 +112,23 @@ object WaiterService {
                     setString(2, dto.lastName)
                     setTimestamp(3, dto.birthDay?.let { Timestamp.valueOf(it) })
                     setString(4, dto.image)
-                    setString(5, dto.comment)
-                    setString(6, dto.gender)
-                    if(dto.newPassword!=null){
-                        setString(7, dto.newPassword)
-                        setString(8, dto.password)
+                    setTimestamp(5, Timestamp(System.currentTimeMillis()))
+                    if (dto.newPassword != null) {
+                        setString(6, dto.newPassword)
+                        setString(7, dto.password)
                     }
                     this.closeOnCompletion()
                 }.executeUpdate()
             }
         }
-        if (rs == 1) {
-            return ResponseModel(body = "Successfully", HttpStatusCode.OK)
-        } else {
-            return ResponseModel(body = "Courier not found or password incorrect", HttpStatusCode.NotFound)
-        }
 
+        return when (rs) {
+            1 -> ResponseModel(body = "Successfully", HttpStatusCode.OK)
+            else -> ResponseModel(body = "Courier not found or password incorrect", HttpStatusCode.NotFound)
+        }
     }
 
     suspend fun logout(uuid: String?): Boolean {
-        SessionRepository.expire(uuid)
-        return true
+        return SessionRepository.expire(uuid)
     }
 }

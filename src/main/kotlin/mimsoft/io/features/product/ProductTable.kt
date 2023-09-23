@@ -21,7 +21,7 @@ data class ProductTable(
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
     val idRKeeper: Long? = -1,
-    val idJowi: Long? = -1,
+    val idJowi: String? = null,
     val idJoinPoster: Long? = -1,
     val deliveryEnabled: Boolean? = null,
     val timeCookingMax: Long? = null,

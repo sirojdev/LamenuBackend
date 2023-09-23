@@ -18,5 +18,6 @@ data class StaffTable(
     val firstName: String? = null,
     val created: Timestamp? = null,
     val updated: Timestamp? = null,
-    val birthDay: Timestamp? = null
+    val birthDay: Timestamp? = null,
+    val branchId: Long? = null
 )

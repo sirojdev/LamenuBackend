@@ -314,7 +314,7 @@ object DBManager : BaseRepository {
                     val propertyName = property.name
                     val propertyInstance = dataClass.memberProperties.firstOrNull { it.name == propertyName }
                     val value = propertyInstance?.call(dataObject)
-//
+
                     when (property.returnType.toString()) {
                         "java.sql.Timestamp?" -> {
                             if (propertyName == "updated") {
