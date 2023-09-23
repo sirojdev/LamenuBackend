@@ -328,13 +328,20 @@ object ProductRepositoryImpl : ProductRepository {
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $PRODUCT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        return withContext(Dispatchers.IO) {
+        var rs = 0
+        val query = """
+            update product
+            set deleted = true
+            where merchant_id = $merchantId
+             and id = $id
+             and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).execute()
-                return@withContext !rs
+                rs = it.prepareStatement(query).executeUpdate()
             }
         }
+        return rs == 1
     }
 
     override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {

@@ -54,24 +54,26 @@ object PromoService {
         )
 
     suspend fun update(dto: PromoDto): Boolean {
-        val merchantId = dto.merchantId
-        val query = "UPDATE $PROMO_TABLE_NAME " +
-                "SET" +
-                " discount_type = ?, " +
-                " name = ?, " +
-                " delivery_discount = ${dto.deliveryDiscount}," +
-                " amount = ${dto.amount}," +
-                " product_discount = ${dto.productDiscount}," +
-                " is_public = ${dto.isPublic} ," +
-                " min_amount = ${dto.minAmount} ," +
-                " start_date = ? ," +
-                " end_date = ? ," +
-                " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
-
-        withContext(Dispatchers.IO) {
+        var rs = 0
+        val query = """
+            update promo
+            set discount_type     = ?,
+                name              = ?,
+                delivery_discount = ${dto.deliveryDiscount},
+                amount            = ${dto.amount},
+                product_discount  = ${dto.productDiscount},
+                is_public         = ${dto.isPublic},
+                min_amount        = ${dto.minAmount},
+                start_date        = ?,
+                end_date          = ?,
+                updated           = ?
+            where id = ${dto.id}
+              and merchant_id = ${dto.merchantId}
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                rs = it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.discountType)
                     ti.setString(2, dto.name)
                     ti.setTimestamp(3, dto.startDate)
@@ -81,20 +83,27 @@ object PromoService {
                 }
             }
         }
-        return true
+        return rs == 1
     }
 
 
     suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $PROMO_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId"
+        var rs = 0
+        val query = """
+            update promo
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun get(merchantId: Long?, id: Long?): PromoDto? {
@@ -121,9 +130,14 @@ object PromoService {
     }
 
 
-    suspend fun getPromoByCode(code: String?): PromoDto? {
-        val query = "select * from $PROMO_TABLE_NAME where name = '$code' and end_date > CURRENT_TIMESTAMP"
-        return withContext(Dispatchers.IO) {
+    suspend fun getPromoByCode(name: String?): PromoDto? {
+        val query = """
+            select *
+              from promo
+              where name = '$name'
+                and end_date > CURRENT_TIMESTAMP
+        """.trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {

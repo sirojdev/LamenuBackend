@@ -44,21 +44,26 @@ object RoomService : RoomRepository {
         DBManager.postData(dataClass = RoomTable::class, dataObject = roomTable, tableName = ROOM_TABLE_NAME)
 
     override suspend fun update(roomDto: RoomDto?): Boolean {
-        val query = "update $ROOM_TABLE_NAME set " +
-                "name = ?, " +
-                "branch_id = ${roomDto?.branchId}, " +
-                "updated = ? \n" +
-                "where id = ${roomDto?.id} and merchant_id = ${roomDto?.merchantId} and not deleted "
+        var rs = 0
+        val query = """
+            update room
+            set name      = ?,
+                branch_id = ${roomDto?.branchId},
+                updated   = ?
+            where id = ${roomDto?.id}
+              and merchant_id = ${roomDto?.merchantId}
+              and not deleted 
+        """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
             SmsGatewayService.repository.connection().use {
-                it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.setString(1, roomDto?.name)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {

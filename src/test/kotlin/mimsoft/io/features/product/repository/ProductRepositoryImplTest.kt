@@ -1,5 +1,6 @@
 package mimsoft.io.features.product.repository
 
+import io.ktor.server.http.content.*
 import io.ktor.server.testing.*
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.extra.ExtraDto
@@ -8,6 +9,7 @@ import mimsoft.io.features.option.OptionDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductTable
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
+import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.utils.TextModel
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -119,18 +121,33 @@ class ProductRepositoryImplTest {
         val id: Long = 122
         val merchantId: Long = 1
         val response = productRepositoryImpl.delete(id, merchantId)
-        println("rs: $response")
+        if (response)
+            assertNotNull(response)
     }
 
     @Test
-    fun getProductInfo() {
+    fun getProductInfo() = testApplication {
+        val merchantId: Long = 1
+        val id: Long = 122
+        val response = productRepositoryImpl.getProductInfo(merchantId, id)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
-    fun getAllByCategories() {
+    fun getAllByCategories() = testApplication {
+        val merchantId: Long = 1
+        val categoryId: Long = 141
+        val response = productRepositoryImpl.getAllByCategories(merchantId, categoryId)
     }
 
     @Test
-    fun getByName() {
+    fun getByName() = testApplication {
+        val text = "Uzz"
+        val lang = Language.UZ
+        val merchantId: Long = 1
+        val response = productRepositoryImpl.getByName(text, lang, merchantId)
+        assert(response != null)
+        assertNotNull(response)
     }
 }
