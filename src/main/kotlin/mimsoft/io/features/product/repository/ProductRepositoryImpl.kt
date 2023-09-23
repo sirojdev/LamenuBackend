@@ -319,7 +319,7 @@ object ProductRepositoryImpl : ProductRepository {
                     this.setString(5, dto?.description?.ru)
                     this.setString(6, dto?.description?.eng)
                     this.setString(7, dto?.image)
-                    this.setString(8, dto?.jowiPosterId)
+                    this.setLong(8, dto?.discount!!)
                     this.setTimestamp(9, Timestamp(System.currentTimeMillis()))
                 }.executeUpdate()
             }

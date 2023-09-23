@@ -4,7 +4,6 @@ import java.sql.Timestamp
 
 const val OPTION_TABLE_NAME = "options"
 
-const val OPTION_TABLE_NAME = "option"
 data class OptionTable(
     var id: Long? = null,
     var merchantId: Long? = null,

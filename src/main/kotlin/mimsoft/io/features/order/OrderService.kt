@@ -5,7 +5,6 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
-import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
@@ -18,6 +17,7 @@ import mimsoft.io.features.payment.PAYME
 import mimsoft.io.features.pos.POSController
 import mimsoft.io.features.pos.POSService
 import mimsoft.io.integrate.join_poster.JoinPosterService
+import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -465,7 +465,7 @@ object OrderService {
         )
     }
 
-    suspend fun updateOnWave(orderId: Long, onWave: Boolean) {
+    suspend fun updateOnWave(orderId: Long?, onWave: Boolean) {
         val query = "update orders  set on_wave =?" +
                 " where id = $orderId  "
         withContext(DBManager.databaseDispatcher) {

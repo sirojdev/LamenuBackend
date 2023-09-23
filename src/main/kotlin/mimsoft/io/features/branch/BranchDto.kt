@@ -1,7 +1,5 @@
 package mimsoft.io.features.branch
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import mimsoft.io.utils.TextModel
 
 data class BranchDto(
