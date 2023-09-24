@@ -6,6 +6,7 @@ import mimsoft.io.integrate.click.routeToClick
 import mimsoft.io.integrate.iiko.routeToIIko
 import mimsoft.io.integrate.onlinePbx.routeOnlinePbx
 import mimsoft.io.integrate.payme.routeToPayme
+import mimsoft.io.integrate.yandex.routeToYandex
 
 fun Route.routeToIntegration() {
     route("integration") {
@@ -14,5 +15,6 @@ fun Route.routeToIntegration() {
         routeOnlinePbx()
         routeToJowi()
         routeToIIko()
+        routeToYandex()
     }
 }
