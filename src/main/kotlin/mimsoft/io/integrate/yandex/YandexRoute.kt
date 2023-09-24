@@ -24,5 +24,9 @@ fun Route.routeToYandex() {
             val item = call.receive<YandexOrder>()
             call.respond(YandexService.createOrder(item))
         }
+
+        get(){
+            YandexService.search()
+        }
     }
 }

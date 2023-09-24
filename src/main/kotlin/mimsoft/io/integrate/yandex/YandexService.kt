@@ -75,4 +75,46 @@ object YandexService {
         }
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
+
+    suspend fun accept(): ResponseModel {
+        val json = ""
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id={string}"
+        val response = client.post(url) {
+            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
+            contentType(ContentType.Application.Json)
+            header("Accept-Language", "eng")
+            setBody(
+                json
+            )
+        }
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+    }
+
+   suspend fun search(): ResponseModel {
+        val json = ""
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/search"
+        val response = client.post(url) {
+            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
+            contentType(ContentType.Application.Json)
+            header("Accept-Language", "eng")
+            setBody(
+                json
+            )
+        }
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+    }
+
+    suspend fun cancelInfo(): ResponseModel {
+        val json = ""
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id={string}n"
+        val response = client.post(url) {
+            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
+            contentType(ContentType.Application.Json)
+            header("Accept-Language", "eng")
+            setBody(
+                json
+            )
+        }
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+    }
 }
