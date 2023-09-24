@@ -183,9 +183,13 @@ object WaiterTableRepository {
         }
     }
 
-    suspend fun update(order: Order) {
-        val query = "update orders set products = ? where id = ${order.id} and not deleted "
-
-        TODO("Not yet implemented")
+    suspend fun update(order: Order): Boolean {
+        val query = "update orders set products = ? where id = ${order.id} and not deleted"
+        return withContext(DBManager.databaseDispatcher) {
+            val response = repository.connection().use {
+                it.prepareStatement(query).apply { this.closeOnCompletion() }.executeUpdate()
+            }
+            return@withContext response == 1
+        }
     }
 }

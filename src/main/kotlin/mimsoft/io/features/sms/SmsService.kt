@@ -2,6 +2,7 @@ package mimsoft.io.features.sms
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.message.MessageDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -42,18 +43,22 @@ object SmsService {
 
         val query =
             """
-                select s.id   s_id,
-                    s.time s_time,
-                    status,
-                    m.id   m_id,
-                    content,
-                    client_count,
-                   count(*) over() as total 
-                    from sms s
-                left join message m on s.message_id = m.id
-                where s.merchant_id = $merchantId 
-                    and not s.deleted
-                    and not m.deleted limit $limit offset $offset 
+                select s.id                s_id,
+                       s.time              s_time,
+                       status,
+                       m.id                m_id,
+                       content,
+                       client_count,
+                       u.first_name        u_first_name,
+                       u.last_name         u_last_name,
+                       count(*) over () as total
+                from sms s
+                         left join message m on s.message_id = m.id
+                         left join users u on s.client_id = u.id
+                where s.merchant_id = $merchantId
+                  and not s.deleted
+                  and not m.deleted
+                limit $limit offset $offset
             """
         var total = -1
         return withContext(DBManager.databaseDispatcher) {
@@ -72,7 +77,11 @@ object SmsService {
                             id = rs.getLong("m_id"),
                             content = rs.getString("content"),
                         ),
-                        clientCount = rs.getLong("client_count")
+                        clientCount = rs.getLong("client_count"),
+                        client = UserDto(
+                            firstName = rs.getString("u_first_name"),
+                            lastName = rs.getString("u_last_name")
+                        )
                     )
                     list.add(dto)
                 }

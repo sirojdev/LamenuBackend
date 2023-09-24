@@ -17,6 +17,5 @@ data class PromoDto(
 ) {
 
 
-    fun byPercent(): Boolean =
-        discountType == DiscountType.PERCENT.name
+    fun byPercent(): Boolean = discountType == DiscountType.PERCENT.name
 }
