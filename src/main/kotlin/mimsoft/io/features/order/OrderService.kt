@@ -41,7 +41,7 @@ object OrderService {
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
 
-    suspend fun     getAll2(
+    suspend fun getAll2(
         params: Map<String, *>? = null,
         vararg columns: String,
     ): ResponseModel {
