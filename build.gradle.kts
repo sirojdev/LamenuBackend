@@ -46,9 +46,9 @@ dependencies {
     implementation("io.ktor:ktor-client-cio-jvm:2.3.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktor_version")
-//    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
-//    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-//    implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
@@ -68,6 +68,9 @@ dependencies {
     //tgbot
     implementation("org.telegram:telegrambots:6.5.0")
     implementation("io.ktor:ktor-network-jvm:2.3.4")
+
+    //security
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
 
     testImplementation("io.ktor:ktor-server-tests-jvm:2.3.4")

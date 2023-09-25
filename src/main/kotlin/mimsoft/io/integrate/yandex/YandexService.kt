@@ -13,8 +13,10 @@ import mimsoft.io.integrate.yandex.module.Item
 import mimsoft.io.integrate.yandex.module.YandexCheckPrice
 import mimsoft.io.integrate.yandex.module.YandexOrder
 import mimsoft.io.integrate.yandex.module.YandexTraffic
+import mimsoft.io.integrate.yandex.repository.YandexRepository
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.toJson
+import java.util.UUID
 
 object YandexService {
     val client = HttpClient(CIO) {
@@ -27,9 +29,10 @@ object YandexService {
         }
     }
 
-  suspend  fun createOrder(dto: YandexOrder): ResponseModel {
+    suspend fun createOrder(dto: YandexOrder): ResponseModel {
         val json = Gson().toJson(dto)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id={string}"
+        val requestId = UUID.randomUUID()
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=$requestId"
         val response = client.post(url) {
             bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
             contentType(ContentType.Application.Json)
@@ -38,6 +41,7 @@ object YandexService {
                 json
             )
         }
+        YandexRepository.saveYandexOrder(dto,requestId)
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 
@@ -62,7 +66,7 @@ object YandexService {
         return ResponseModel(httpStatus = HttpStatusCode.BadRequest, body = "incorrect body ")
     }
 
-   suspend fun checkPrice(dto: YandexCheckPrice): Any {
+    suspend fun checkPrice(dto: YandexCheckPrice): Any {
         val json = Gson().toJson(dto)
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price"
         val response = client.post(url) {
@@ -90,7 +94,7 @@ object YandexService {
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 
-   suspend fun search(): ResponseModel {
+    suspend fun search(): ResponseModel {
         val json = ""
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/search"
         val response = client.post(url) {
