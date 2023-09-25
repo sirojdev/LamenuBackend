@@ -8,7 +8,7 @@ data class YandexOrder(
     @SerializedName("callback_properties")
     val callbackProperties: CallbackProperties,
     @SerializedName("client_requirements")
-    val clientRequirements: ClientRequirements,
+    val clientRequirements: Requirement,
     val comment: String,
     val due: String,
     @SerializedName("emergency_contact")
@@ -33,21 +33,26 @@ data class YandexOrder(
     @SerializedName("skip_door_to_door")
     val skipDoorToDoor: Boolean,
     @SerializedName("skip_emergency_notify")
-    val skipEmergencyNotify: Boolean
+    val skipEmergencyNotify: Boolean,
+    val requirement: Requirement
 
 )
 
-data class ClientRequirements(
+data class Requirement(
     @SerializedName("assign_robot")
     val assignRobot: Boolean,
     @SerializedName("cargo_loaders")
     val cargoLoaders: Int,
     @SerializedName("cargo_options")
     val cargoOptions: List<String>,
-    @SerializedName("cargo_types")
+    @SerializedName("cargo_type")
     val cargoType: String,
     @SerializedName("pro_courier")
     val proCourier: Boolean,
+    @SerializedName("taxi_class")
+    val taxiClass: String,
+    @SerializedName("same_day_data")
+    val sameDayData:SameDayData
 )
 
 data class CallbackProperties(
@@ -63,137 +68,137 @@ data class EmergencyContact(
 
 data class Item(
     @SerializedName("cost_currency")
-    val costCurrency: String,
+    val costCurrency: String?=null,
     @SerializedName("cost_value")
-    val costValue: String,
+    val costValue: String?=null,
     @SerializedName("droppof_point")
-    val droppofPoint: Int,
+    val droppofPoint: Int?=null,
     @SerializedName("extra_id")
-    val extraId: String,
+    val extraId: String?=null,
     val fiscalization: Fiscalization,
     @SerializedName("pickup_point")
-    val pickupPoint: Int,
-    val quantity: Int,
-    val size: Size,
-    val title: String,
-    val weight: Double
+    val pickupPoint: Int?=null,
+    val quantity: Int?=null,
+    val size: Size?=null,
+    val title: String?=null,
+    val weight: Double?=null
 )
 
 data class Fiscalization(
-    val article: String,
-    val excise: String,
+    val article: String?=null,
+    val excise: String?=null,
     @SerializedName("item_type")
-    val itemType: String,
-    val mark:Mark,
+    val itemType: String?=null,
+    val mark: Mark?=null,
     @SerializedName("supplier_inn")
-    val supplierInn: String,
+    val supplierInn: String?=null,
     @SerializedName("vat_code_str")
-    val vatCodeStr: String
+    val vatCodeStr: String?=null
 )
 
 data class Mark(
-    val code: String,
-    val kind: String
+    val code: String?=null,
+    val kind: String?=null
 )
 
 data class Size(
-    val height: Double,
-    val length: Double,
-    val width: Double
+    val height: Double?=null,
+    val length: Double?=null,
+    val width: Double?=null
 )
 
 
 data class RoutePoint(
-    val address: Address,
-    val buyout: Buyout,
-    val contact: Contact,
+    val address: Address?=null,
+    val buyout: Buyout?=null,
+    val contact: Contact?=null,
     @SerializedName("external_order_cost")
-    val externalOrderCost: ExternalOrderCost,
+    val externalOrderCost: ExternalOrderCost?=null,
     @SerializedName("external_order_id")
-    val externalOrderId: String,
+    val externalOrderId: String?=null,
     @SerializedName("leave_under_door")
-    val leaveUnderDoor: Boolean,
+    val leaveUnderDoor: Boolean?=null,
     @SerializedName("meet_outside")
-    val meetOutside: Boolean,
+    val meetOutside: Boolean?=null,
     @SerializedName("no_door_call")
-    val noDoorCall: Boolean,
+    val noDoorCall: Boolean?=null,
     @SerializedName("payment_on_delivery")
-    val paymentOnDelivery: PaymentOnDelivery,
+    val paymentOnDelivery: PaymentOnDelivery?=null,
     @SerializedName("pick_up_code")
-    val pickupCode: String,
+    val pickupCode: String?=null,
     @SerializedName("point_id")
-    val pointId: Int,
+    val pointId: Int?=null,
     @SerializedName("skip_confirmation")
-    val skipConfirmation: Boolean,
-    val type: String,
+    val skipConfirmation: Boolean?=null,
+    val type: String?=null,
     @SerializedName("visit_order")
-    val visitOrder: Int
+    val visitOrder: Int?=null
 )
 
 data class Address(
-    val building: String,
+    val building: String?=null,
     @SerializedName("building_name")
-    val buildingName: String,
-    val city: String,
-    val comment: String,
-    val coordinates: List<Double>,
-    val country: String,
-    val description: String,
+    val buildingName: String?=null,
+    val city: String?=null,
+    val comment: String?=null,
+    val coordinates: List<Double>?=null,
+    val country: String?=null,
+    val description: String?=null,
     @SerializedName("door_code")
-    val doorCode: String,
+    val doorCode: String?=null,
     @SerializedName("door_code_extra")
-    val doorCodeExtra: String,
+    val doorCodeExtra: String?=null,
     @SerializedName("door_bell_name")
-    val doorbellName: String,
-    val flat: Int,
-    val floor: Int,
-    val fullname: String,
-    val porch: String,
-    val sflat: String,
-    val sfloor: String,
-    val shortname: String,
-    val street: String,
-    val uri: String
+    val doorbellName: String?=null,
+    val flat: Int?=null,
+    val floor: Int?=null,
+    val fullname: String?=null,
+    val porch: String?=null,
+    val sflat: String?=null,
+    val sfloor: String?=null,
+    val shortname: String?=null,
+    val street: String?=null,
+    val uri: String?=null
 )
 
 data class Buyout(
     @SerializedName("payment_method")
-    val paymentMethod: String
+    val paymentMethod: String?=null
 )
 
 data class Contact(
-    val email: String,
-    val name: String,
-    val phone: String,
+    val email: String?=null,
+    val name: String?=null,
+    val phone: String?=null,
     @SerializedName("phone_additional_code")
-    val phoneAdditionalCode: String
+    val phoneAdditionalCode: String?=null
 )
 
 data class ExternalOrderCost(
-    val currency: String,
+    val currency: String?=null,
     @SerializedName("currency_sign")
-    val currencySign: String,
-    val value: String
+    val currencySign: String?=null,
+    val value: String?=null
 )
 
 data class PaymentOnDelivery(
-    val customer: Customer,
+    val customer: Customer?=null,
     @SerializedName("payment_method")
-    val paymentMethod: String
+    val paymentMethod: String?=null
 )
 
 data class Customer(
-    val email: String,
-    val inn: String,
-    val phone: String
+    val email: String?=null,
+    val inn: String?=null,
+    val phone: String?=null
 )
 
 data class SameDayData(
     @SerializedName("delivery_interval")
-    val deliveryInterval: DeliveryInterval
+    val deliveryInterval: DeliveryInterval?=null
 )
 
 data class DeliveryInterval(
-    val from: String,
-    val to: String
+    val from: String?=null,
+    val to: String?=null
 )

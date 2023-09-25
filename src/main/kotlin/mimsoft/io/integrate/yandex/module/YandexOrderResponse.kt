@@ -217,7 +217,7 @@ data class YandexOrderResponse(
     val availableCancelState: String,
     val callbackProperties: CallbackProperties,
     val carrierInfo: CarrierInfo,
-    val clientRequirements: ClientRequirements,
+    val clientRequirements: Requirement,
     val comment: String,
     val corpClientId: String,
     val createdTs: String,
