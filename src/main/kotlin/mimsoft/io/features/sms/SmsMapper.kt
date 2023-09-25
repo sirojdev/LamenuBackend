@@ -1,5 +1,6 @@
 package mimsoft.io.features.sms
 
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.message.MessageDto
 import java.sql.Timestamp
 
@@ -12,7 +13,7 @@ object SmsMapper {
             clientCount = smsTable.clientCount,
             message = MessageDto(id = smsTable.messageId),
             time = smsTable.time.toString(),
-            clientId = smsTable.clientId,
+            client = UserDto(id = smsTable.clientId),
             status = Status.valueOf(smsTable.status ?: "NOT_SENT")
         )
     }
@@ -24,7 +25,7 @@ object SmsMapper {
             merchantId = smsDto.merchantId,
             clientCount = smsDto.clientCount,
             messageId = smsDto.message?.id,
-            clientId = smsDto.clientId,
+            clientId = smsDto.client?.id,
             time = smsDto.time?.let { Timestamp.valueOf(it) },
             status = smsDto.status?.name
         )

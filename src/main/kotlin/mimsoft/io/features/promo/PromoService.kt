@@ -56,23 +56,23 @@ object PromoService {
     suspend fun update(dto: PromoDto): Boolean {
         var rs = 0
         val query = """
-            update promo
-            set discount_type     = ?,
-                name              = ?,
-                delivery_discount = ${dto.deliveryDiscount},
-                amount            = ${dto.amount},
-                product_discount  = ${dto.productDiscount},
-                is_public         = ${dto.isPublic},
-                min_amount        = ${dto.minAmount},
-                start_date        = ?,
-                end_date          = ?,
+            update promo p
+            set discount_type     = COALESCE(?, p.discount_type),
+                name              = COALESCE(?, p.name),
+                delivery_discount = coalesce(${dto.deliveryDiscount}, p.delivery_discount),
+                amount            = coalesce(${dto.amount}, p.amount),
+                product_discount  = coalesce(${dto.productDiscount}, p.product_discount),
+                is_public         = coalesce(${dto.isPublic}, p.is_public),
+                min_amount        = coalesce(${dto.minAmount}, p.min_amount),
+                start_date        = coalesce(?, p.start_date),
+                end_date          = coalesce(?, p.end_date),
                 updated           = ?
             where id = ${dto.id}
               and merchant_id = ${dto.merchantId}
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
-            StaffService.repository.connection().use {
+            repository.connection().use {
                 rs = it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.discountType)
                     ti.setString(2, dto.name)

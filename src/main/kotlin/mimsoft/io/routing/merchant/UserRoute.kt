@@ -7,18 +7,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.UserMapper
 import mimsoft.io.client.user.repository.UserRepository
-import mimsoft.io.config.timestampValidator
 import mimsoft.io.client.user.repository.UserRepositoryImpl
-import mimsoft.io.features.staff.StaffPrincipal
-import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToUserUser() {
 
-    val userRepository : UserRepository = UserRepositoryImpl
+    val userRepository: UserRepository = UserRepositoryImpl
 
     get("users") {
         val principal = call.principal<BasePrincipal>()
@@ -34,12 +29,12 @@ fun Route.routeToUserUser() {
         val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null) {
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val user = userRepository.get(id=id, merchantId=merchantId)
-        if (user==null){
+        val user = userRepository.get(id = id, merchantId = merchantId)
+        if (user == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
@@ -52,11 +47,11 @@ fun Route.routeToUserUser() {
         try {
             val user = call.receive<UserDto>()
 
-            userRepository.add(user.copy(merchantId=merchantId)).let {
+            userRepository.add(user.copy(merchantId = merchantId)).let {
                 if (it.body == null) call.respond(it.httpStatus)
                 else call.respond(it.httpStatus, it.body)
             }
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             call.respond(HttpStatusCode.BadRequest)
         }
@@ -82,11 +77,11 @@ fun Route.routeToUserUser() {
         val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null){
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        userRepository.delete(id=id, merchantId = merchantId)
+        userRepository.delete(id = id, merchantId = merchantId)
         call.respond(HttpStatusCode.OK)
     }
 }

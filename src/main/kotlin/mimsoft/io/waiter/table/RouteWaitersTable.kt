@@ -10,16 +10,12 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.book.BookStatus
-import mimsoft.io.features.book.repository.BookRepository
 import mimsoft.io.features.book.repository.BookRepositoryImpl
-import mimsoft.io.features.favourite.merchant
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
-import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.features.table.TableService
-import mimsoft.io.integrate.payme.models.OrderTransaction
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
@@ -138,12 +134,10 @@ fun Route.routeToWaitersTables() {
             call.respond(response)
         }
 
-        put("update/order/product"){
+        put("update/order/product") {
             val pr = getPrincipal()
             val order = call.receive<Order>()
             WaiterTableRepository.update(order.copy(merchant = MerchantDto(id = pr?.merchantId)))
         }
-
-
     }
 }

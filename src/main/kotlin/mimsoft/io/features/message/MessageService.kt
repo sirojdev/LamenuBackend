@@ -45,7 +45,7 @@ object MessageService {
         coroutineScope {
             messageDto?.smss?.forEach {
                 launch {
-                    userRepository.get(it?.clientId ?: 0)?.phone?.let { it1 ->
+                    userRepository.get(it?.client?.id ?: 0)?.phone?.let { it1 ->
                         smsSender.send(
                             phone = it1,
                             content = messageDto.content,

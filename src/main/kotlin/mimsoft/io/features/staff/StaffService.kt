@@ -272,11 +272,14 @@ object StaffService {
 
     suspend fun getAllCourier(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query = """select s.*, 
+                c.balance c_balance,
+                c.is_active c_is_active,
                 A.count today_orders, 
                 B.count all_orders,  
                 status.count active_orders, 
                 count(*) over() as total
                 from staff s 
+                left join courier c on c.staff_id = s.id
         left join(select courier_id, count(*) 
                     from orders 
                     where date(created_at) = current_date 
@@ -288,7 +291,7 @@ object StaffService {
                     from orders 
                     where status = 'OPEN' 
                     group by courier_id) as status on status.courier_id=s.id 
-        where s.merchant_id = $merchantId 
+        where s.merchant_id = $merchantId and s.position = 'courier'
         limit $limit offset $offset
         """.trimMargin()
         var totalCount = 0
@@ -303,6 +306,8 @@ object StaffService {
                     }
                     val staff = StaffDto(
                         id = rs.getLong("id"),
+                        balance = rs.getLong("c_balance"),
+                        isActive = rs.getBoolean("c_is_active"),
                         merchantId = rs.getLong("merchant_id"),
                         position = rs.getString("position"),
                         phone = rs.getString("phone"),

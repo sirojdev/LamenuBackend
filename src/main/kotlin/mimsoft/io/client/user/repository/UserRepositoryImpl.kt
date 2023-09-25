@@ -23,30 +23,35 @@ object UserRepositoryImpl : UserRepository {
     val repository: BaseRepository = DBManager
     val mapper = UserMapper
     override suspend fun getAll(merchantId: Long?, limit: Long?, offset: Long?): List<UserDto> {
-        var totalCount = 0
+        var totalCount: Int? = null
         val tName = USER_TABLE_NAME
         val query = StringBuilder()
         query.append(
             """
-            select u.*, 
-            b.name_uz b_name_uz, 
-            b.name_ru b_name_ru, 
-            b.name_eng b_name_eng, 
-            b.text_color bt_color, 
-            b.bg_color bg_color, 
-            b.icon b_icon
-                from users u 
-                left join badge b on b.id = u.badge_id 
-                where u.merchant_id = $merchantId and not u.deleted 
-                order by u.created desc 
-        """
+                SELECT u.*,
+                       b.name_uz b_name_uz,
+                       b.name_ru b_name_ru,
+                       b.name_eng b_name_eng,
+                       b.icon b_icon,
+                       b.bg_color bg_color,
+                       b.text_color bt_color,
+                       COUNT(v.id) AS visit_count
+                FROM users u
+                         LEFT JOIN visit v ON v.user_id = u.id
+                         LEFT JOIN badge b ON b.id = u.badge_id
+                where u.merchant_id = $merchantId
+                  and not u.deleted
+                GROUP BY v.user_id, u.id, phone, first_name, last_name, image, birth_day, u.created, u.updated, u.deleted, badge_id,
+                         u.merchant_id, balance, b.name_uz, b.name_ru, b.name_eng, b.icon, b.bg_color, b.text_color
+                order by u.created desc
+            """.trimIndent()
         )
         if (limit != null) query.append(" limit $limit")
         if (offset != null) query.append(" offset $offset")
         val list = mutableListOf<UserDto>()
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query.toString()).executeQuery()
+                val rs = it.prepareStatement(query.toString()).apply { this.closeOnCompletion() }.executeQuery()
                 while (rs.next()) {
                     val dto = UserDto(
                         id = rs.getLong("id"),
@@ -56,6 +61,7 @@ object UserRepositoryImpl : UserRepository {
                         image = rs.getString("image"),
                         birthDay = rs.getTimestamp("birth_day"),
                         cashbackBalance = rs.getDouble("balance"),
+                        visitCount = rs.getInt("visit_count"),
                         badge = BadgeDto(
                             name = TextModel(
                                 uz = rs.getString("b_name_uz"),
@@ -69,7 +75,7 @@ object UserRepositoryImpl : UserRepository {
                     )
                     list.add(dto)
                 }
-                totalCount = tName.let { DBManager.getDataCount(it)!! }
+                totalCount = tName.let { DBManager.getDataCount(it) }
             }
             return@withContext list
         }
@@ -188,28 +194,31 @@ object UserRepositoryImpl : UserRepository {
                 " last_name = ?," +
                 " image = ?," +
                 " birth_day = ? ," +
+                " phone = ? ," +
                 " badge_id = ${userDto.badge?.id}," +
                 " updated = ?" +
                 " WHERE not deleted and id = ${userDto.id} "
+        var rs: Int?
         if (userDto.merchantId != null) {
             query += "and merchant_id = ${userDto.merchantId}"
         }
         println(query)
-        withContext(Dispatchers.IO) {
-            StaffService.repository.connection().use {
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
                 var x = 0
-                it.prepareStatement(query).use { ti ->
-                    ti.setString(++x, userDto.firstName)
-                    ti.setString(++x, userDto.lastName)
-                    ti.setString(++x, userDto.image)
-                    ti.setTimestamp(++x, userDto.birthDay)
-                    ti.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
-                    ti.executeUpdate()
-                }
+                rs = it.prepareStatement(query).apply {
+                    this.setString(++x, userDto.firstName)
+                    this.setString(++x, userDto.lastName)
+                    this.setString(++x, userDto.image)
+                    this.setTimestamp(++x, userDto.birthDay)
+                    this.setString(++x, userDto.phone)
+                    this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.executeUpdate()
             }
         }
         return ResponseModel(
-            httpStatus = ResponseModel.OK
+            body = rs == 1
         )
     }
 
@@ -218,9 +227,12 @@ object UserRepositoryImpl : UserRepository {
         if (merchantId != null) {
             query += "and merchant_id = $merchantId"
         }
-        withContext(Dispatchers.IO) {
-            ExtraRepositoryImpl.repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        var rs: Boolean
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).execute()
+            }
+            return@withContext rs
         }
-        return true
     }
 }
