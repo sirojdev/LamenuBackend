@@ -10,7 +10,6 @@ import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.features.product.ProductDto
 
 object POSController {
-
    suspend fun getPostFromBranch( id : Long) : POSService{
         val merchant = MerchantRepositoryImp.get(id)?.post
 
