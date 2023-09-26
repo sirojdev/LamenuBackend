@@ -13,7 +13,7 @@ class NewsRepositoryImplTest {
     private val newsRepositoryImpl = NewsRepositoryImpl
 
     @Test
-    fun add() = testApplication {// TODO: Xatolik bor...
+    fun add() = testApplication {
         val textModel = TextModel(
             uz = "Uz",
             ru = "Ru",

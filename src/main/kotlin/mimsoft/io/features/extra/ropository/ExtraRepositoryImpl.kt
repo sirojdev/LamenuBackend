@@ -39,21 +39,24 @@ object ExtraRepositoryImpl : ExtraRepository {
     }
 
     override suspend fun update(dto: ExtraDto): Boolean {
+        var rs = 0
         val merchantId = dto.merchantId
-        val query = "UPDATE $EXTRA_TABLE_NAME " +
-                "SET" +
-                " name_uz = ?, " +
-                " name_ru = ?," +
-                " name_eng = ?," +
-                " image = ?," +
-                " price = ${dto.price} ," +
-                " product_id = ${dto.productId} ," +
-                " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
-
-        withContext(Dispatchers.IO) {
+        val query = """
+            update extra
+            set name_uz    = ?,
+                name_ru    = ?,
+                name_eng   = ?,
+                image      = ?,
+                price      = ${dto.price},
+                product_id = ${dto.productId},
+                updated    = ?
+            where id = ${dto.id}
+              and merchant_id = ${dto.id}
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                rs = it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.name?.uz)
                     ti.setString(2, dto.name?.ru)
                     ti.setString(3, dto.name?.eng)
@@ -63,7 +66,7 @@ object ExtraRepositoryImpl : ExtraRepository {
                 }
             }
         }
-        return true
+        return rs == 1
     }
 
     override suspend fun add(extraTable: ExtraTable?): Long? =
@@ -83,10 +86,19 @@ object ExtraRepositoryImpl : ExtraRepository {
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        val query = "update $EXTRA_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            repository.connection().use {it.prepareStatement(query).execute() }
+        var rs = 0
+        val query = """
+            update extra
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }

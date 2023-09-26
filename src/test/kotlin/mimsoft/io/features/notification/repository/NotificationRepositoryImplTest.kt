@@ -59,7 +59,6 @@ class NotificationRepositoryImplTest {
         val response = notificationRepositoryImpl.update(notificationDto)
         if (response)
             assertTrue(response)
-        println("rs: $response")
     }
 
     @Test
@@ -95,8 +94,6 @@ class NotificationRepositoryImplTest {
         val merchantId: Long = 1
         val userId: Long = 2777
         val response = notificationRepositoryImpl.getClient(merchantId, userId)
-        println("rs: $response")
-        if (response.isNotEmpty()) {
-        }
+        assert(response.isEmpty())
     }
 }

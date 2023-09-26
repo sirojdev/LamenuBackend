@@ -24,7 +24,9 @@ object StaffService {
     val mapper = StaffMapper
     val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(StaffService::class.java)
-    suspend fun auth(staff: StaffDto?): ResponseModel {
+    suspend fun
+
+            auth(staff: StaffDto?): ResponseModel {
         LOGGER.info("auth: $staff")
         when {
             staff?.password == null -> {
@@ -161,12 +163,12 @@ object StaffService {
                             comment = rs.getString("comment"),
                             gender = rs.getString("gender"),
                             status = rs.getBoolean("status"),
-                            branchId = rs.getLong("status")
+                            branchId = rs.getLong("branch_id")
                         )
-                    ).copy(
-                        orders = OrderService.getAll(
-                            mapOf("merchantId" to merchantId, "courierId" to id)
-                        ).body as List<Order?>?
+//                    ).copy(
+//                        orders = OrderService.getAll2(
+//                            mapOf("merchantId" to merchantId, "courierId" to id, "limit" to 10, "offset" to 0)
+//                        ).body as List<Order?>?
                     )
                 } else return@withContext null
             }

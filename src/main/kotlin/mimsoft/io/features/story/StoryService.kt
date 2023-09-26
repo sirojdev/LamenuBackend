@@ -41,7 +41,8 @@ object StoryService {
     }
 
     suspend fun getAll(merchantId: Long?): List<StoryDto?> {
-        val query = "select * from $STORY_TABLE_NAME where merchant_id = $merchantId and not deleted order by priority, created"
+        val query =
+            "select * from $STORY_TABLE_NAME where merchant_id = $merchantId and not deleted order by priority, created"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -137,24 +138,31 @@ object StoryService {
     }*/
 
     suspend fun delete(merchantId: Long?, id: Long?): Boolean {
-        val query = "update $STORY_TABLE_NAME " +
-                "set deleted = true where " +
-                "id = $id and " +
-                "merchant_id = $merchantId"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        var rs = 0
+        val query = """
+            update story
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun updatePriority(priorityNumber: Long?, id: Long?, merchantId: Long?): Boolean {
+        var rs = 0
         val query =
             "update $STORY_TABLE_NAME set priority = $priorityNumber where id = $id and merchant_id = $merchantId and not deleted"
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
+        withContext(DBManager.databaseDispatcher) {
+            rs = repository.connection().use {
                 it.prepareStatement(query).executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 }

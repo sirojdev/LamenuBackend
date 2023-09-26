@@ -58,10 +58,19 @@ class RoomServiceTest {
     }
 
     @Test
-    fun delete() {
+    fun delete() = testApplication {
+        val id: Long = 33
+        val merchantId: Long = 1
+        val response = roomService.delete(id, merchantId)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
-    fun getWithTable() {
+    fun getWithTable() = testApplication {
+        val branchId: Long = 33
+        val merchantId: Long = 1
+        val response = roomService.getWithTable(branchId, merchantId)
+        assert(response.isEmpty())
     }
 }

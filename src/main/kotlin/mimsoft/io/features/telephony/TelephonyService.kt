@@ -58,26 +58,38 @@ object TelephonyService {
 
 
     fun update(telephonyDto: TelephonyDto?): Boolean {
-        val query = "update $TELEPHONY_TABLE_NAME set " +
-                "online_pbx_token = ? , " +
-                "selected = ? , " +
-                "updated = ? \n" +
-                "where merchant_id = ${telephonyDto?.merchantId} and not deleted "
+        var rs = 0
+        val query = """
+            update telephony
+            set online_pbx_token = ?,
+                selected         = ?,
+                updated          = ?
+            where merchant_id = ${telephonyDto?.merchantId}
+              and not deleted
+        """.trimIndent()
         repository.connection().use {
-            val rs = it.prepareStatement(query).apply {
+            rs = it.prepareStatement(query).apply {
                 this.setString(1, telephonyDto?.onlinePbxToken)
                 this.setString(2, telephonyDto?.selected)
                 this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
                 this.closeOnCompletion()
-            }.execute()
+            }.executeUpdate()
         }
-        return true
+        return rs == 1
     }
 
     fun delete(merchantId: Long?): Boolean {
-        val query = "update $TELEPHONY_TABLE_NAME set deleted = true where merchant_id = $merchantId"
-        repository.connection().use { val rs = it.prepareStatement(query).execute() }
-        return true
+        var rs = 0
+        val query = """
+            update telephony
+            set deleted = true
+            where merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        repository.connection().use {
+            rs = it.prepareStatement(query).executeUpdate()
+        }
+        return rs == 1
     }
 }
 
