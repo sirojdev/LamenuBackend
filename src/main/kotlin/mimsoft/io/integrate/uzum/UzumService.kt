@@ -10,9 +10,7 @@ import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentService
-import mimsoft.io.integrate.uzum.module.UzumCallBack
-import mimsoft.io.integrate.uzum.module.UzumRegisterResponse
-import mimsoft.io.integrate.uzum.module.UzumRepository
+import mimsoft.io.integrate.uzum.module.*
 import mimsoft.io.utils.ResponseModel
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECParameterSpec
@@ -44,11 +42,11 @@ object UzumService {
         ) {
             headers {
                 append("Content-Type", "application/json")
-                append("X-Merchant-Access-Token", "")
+//                append("X-Merchant-Access-Token", "")
                 append("Content-Language", "uz-UZ")
-                append("X-Fingerprint", "")
+//                append("X-Fingerprint", "")
                 append("X-Signature", "")
-                append("X-API-Key", "")
+//                append("X-API-Key", "")
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(
@@ -58,7 +56,7 @@ object UzumService {
         if (response.status.value == 200) {
             val result = Gson().fromJson(response.body<String>(), UzumRegisterResponse::class.java)
             if (result.errorCode == 0) {
-                UzumRepository.saveTransaction(result, order?.id)
+                UzumRepository.saveTransaction(result, order?.id,order?.totalPrice,UzumOperationType.TO_REGISTER)
                 return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
             } else {
                 return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
@@ -70,7 +68,6 @@ object UzumService {
     }
 
     suspend fun callBack(callBack: UzumCallBack) {
-
 
 
     }
@@ -150,7 +147,7 @@ object UzumService {
         return g.generateKeyPair()
     }
 
-    fun authorize(callBack: UzumCallBack) {
+    fun authorizeTransaction(callBack: UzumCallBack) {
         TODO("Not yet implemented")
     }
 
@@ -158,12 +155,38 @@ object UzumService {
         TODO("Not yet implemented")
     }
 
-    fun refund(callBack: UzumCallBack) {
+    fun refundTransaction(callBack: UzumCallBack) {
         TODO("Not yet implemented")
     }
 
-    fun reverse(callBack: UzumCallBack) {
+    fun reverseTransaction(callBack: UzumCallBack) {
         TODO("Not yet implemented")
+    }
+
+    suspend fun refund(refund: UzumRefund) {
+        val result = client.post() {
+            headers {
+                append("X-Operation-Id", "")
+                append("X-Signature", "")
+                append("X-Terminal-Id", "")
+                append("X-Fingerprint", "")
+                append("X-API-Key", "")
+            }
+            setBody(Gson().toJson(refund))
+        }
+    }
+
+    suspend fun reverse(reverse: UzumRefund) {
+        val result = client.post() {
+            headers {
+                append("X-Operation-Id", "")
+                append("X-Signature", "")
+                append("X-Terminal-Id", "")
+                append("X-Fingerprint", "")
+                append("X-API-Key", "")
+            }
+            setBody(Gson().toJson(reverse))
+        }
     }
 
 

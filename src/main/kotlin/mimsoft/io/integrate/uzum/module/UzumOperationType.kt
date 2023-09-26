@@ -1,5 +1,6 @@
 package mimsoft.io.integrate.uzum.module
 
 enum class UzumOperationType {
-    AUTHORIZE,COMPLETE,REFUND,REVERSE
+    TO_REGISTER,
+    AUTHORIZE, COMPLETE, REFUND, REVERSE
 }
