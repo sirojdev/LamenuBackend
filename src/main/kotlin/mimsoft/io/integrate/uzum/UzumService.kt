@@ -10,7 +10,9 @@ import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentService
+import mimsoft.io.integrate.uzum.module.UzumCallBack
 import mimsoft.io.integrate.uzum.module.UzumRegisterResponse
+import mimsoft.io.integrate.uzum.module.UzumRepository
 import mimsoft.io.utils.ResponseModel
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECParameterSpec
@@ -42,12 +44,12 @@ object UzumService {
         ) {
             headers {
                 append("Content-Type", "application/json")
-                append("X-Merchant-Access-Token", "xc")
+                append("X-Merchant-Access-Token", "")
                 append("Content-Language", "uz-UZ")
                 append("X-Fingerprint", "")
                 append("X-Signature", "")
                 append("X-API-Key", "")
-                append("X-Terminal-Id", "")
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(
                 Gson().toJson(uzumDto)
@@ -55,11 +57,36 @@ object UzumService {
         }
         if (response.status.value == 200) {
             val result = Gson().fromJson(response.body<String>(), UzumRegisterResponse::class.java)
-            return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
+            if (result.errorCode == 0) {
+                UzumRepository.saveTransaction(result, order?.id)
+                return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
+            } else {
+                return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
+            }
         } else {
             //todo save error
             return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.BadRequest)
         }
+    }
+
+    suspend fun callBack(callBack: UzumCallBack) {
+
+
+
+    }
+
+
+    suspend fun complete() {
+        client.post("https://www.inplat-tech.ru/api/v1/acquiring/complete") {
+            headers {
+                append("X-Operation-Id", "")
+                append("X-Signature", "")
+                append("X-Terminal-Id", "")
+                append("X-Fingerprint", "")
+                append("X-API-Key", "")
+            }
+        }
+
     }
 
     fun generateECDSAKeyPair(): KeyPair {
@@ -121,6 +148,22 @@ object UzumService {
         val g = KeyPairGenerator.getInstance("ECDSA", "BC")
         g.initialize(ecSpec, SecureRandom())
         return g.generateKeyPair()
+    }
+
+    fun authorize(callBack: UzumCallBack) {
+        TODO("Not yet implemented")
+    }
+
+    fun completeTransaction(callBack: UzumCallBack) {
+        TODO("Not yet implemented")
+    }
+
+    fun refund(callBack: UzumCallBack) {
+        TODO("Not yet implemented")
+    }
+
+    fun reverse(callBack: UzumCallBack) {
+        TODO("Not yet implemented")
     }
 
 

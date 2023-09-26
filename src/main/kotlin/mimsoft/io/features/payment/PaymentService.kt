@@ -36,6 +36,8 @@ object PaymentService {
                             paymeSecret = rs.getString("payme_secret"),
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
                             apelsinMerchantToken = rs.getString("apelsin_merchant_token"),
+                            uzumTerminalId = rs.getString("uzum_terminal_id"),
+                            uzumId = rs.getString("uzum_id"),
                             clickServiceId = rs.getLong("click_service_id"),
                             clickMerchantId = rs.getString("click_merchant_id"),
                             clickKey = rs.getString("click_key"),
