@@ -1,7 +1,9 @@
 package mimsoft.io.features.payment
 
 import java.sql.Timestamp
+
 const val PAYMENT_TABLE_NAME = "payment"
+
 data class PaymentTable(
     val id: Long? = null,
     val merchantId: Long? = null,
@@ -9,6 +11,8 @@ data class PaymentTable(
     val paymeSecret: String? = null,
     val apelsinMerchantId: Long? = null,
     val apelsinMerchantToken: String? = null,
+    val uzumId: String? = null,
+    val uzumTerminalId: String? = null,
     val clickServiceId: Long? = null,
     val clickMerchantId: String? = null,
     val clickKey: String? = null,

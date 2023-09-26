@@ -21,19 +21,19 @@ object UzumMapper {
             phoneNumber = null,
             operationType = "PAYMENT"
         )
-        register.merchantParams = MerchantParams(
-            Cart(
-                items = listOf(
-                    UzumItems(
-                        title = order?.comment.toString(),
-                        productId = order?.id.toString(),
-                        quantity = order?.productCount,
-                        unitPrice = order?.productPrice?.toInt(),
-                        total = order?.totalPrice?.toInt(),
-                    )
-                )
-            )
-        )
+//        register.merchantParams = MerchantParams(
+//            Cart(
+//                items = listOf(
+//                    UzumItems(
+//                        title = order?.comment.toString(),
+//                        productId = order?.id.toString(),
+//                        quantity = order?.productCount,
+//                        unitPrice = order?.productPrice?.toInt(),
+//                        total = order?.totalPrice?.toInt(),
+//                    )
+//                )
+//            )
+//        )
         register.sessionTimeoutSecs = 900
 
     }
