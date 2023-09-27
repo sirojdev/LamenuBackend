@@ -57,15 +57,19 @@ object OperatorSocketService {
 
     suspend fun findNearCourierAndSendOrderToCourier(order: Order, offset: Int) {
         val courierIdList = CourierSocketService.courierIdList(order.merchant?.id)
+        println("inside near courier and send order")
+        println(courierIdList)
         if (courierIdList.isNotEmpty()) {
             val courier = CourierService.findNearCourier(order.branch?.id, offset, courierIdList)
             if (courier != null) {
-                println(courier)
+                println("courier :$courier")
                 if (CourierSocketService.courierConnections.isNotEmpty()) {
                     val connection =
                         CourierSocketService.courierConnections.find { it.staffId == courier.staffId }
+                    println("connection $connection")
                     if (connection?.session != null) {
                         CoroutineScope(Dispatchers.IO).launch {
+                            println("inside send method")
                             val socketDto = SocketData(data = Gson().toJson(order), type = SocketType.ORDER)
                             connection.session!!.send(Gson().toJson(socketDto))
                         }
@@ -80,12 +84,15 @@ object OperatorSocketService {
                         )
                         waitAnswer(150000, order.id, connection.staffId, offset, order)
                     } else {
+                        println("inside recursive")
                         findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
                     }
                 } else {
+                    println("inside recursive update on vawe")
                     OrderService.updateOnWave(orderId = order.id!!, false)
                 }
             } else {
+                println("inside recursive update on vaefjhcdsbhjvbdch")
                 OrderService.updateOnWave(orderId = order.id!!, false)
             }
         }

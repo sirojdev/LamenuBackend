@@ -25,6 +25,7 @@ data class Order(
     var productCount: Int? = null,
     var totalPrice: Long? = null,
     val totalDiscount: Long? = null,
+    val deliveryPrice: Long? = null,
     val productPrice: Long? = null,
     val productDiscount: Long? = null,
     var address: AddressDto? = null,

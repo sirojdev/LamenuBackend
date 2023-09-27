@@ -47,6 +47,7 @@ object UzumRepository {
         }
         return result
     }
+
     suspend fun getTransactionByMerchantOrderId(orderId: Long?): UzumPaymentTable? {
         val query =
             "select * from $UZUM_PAYMENT_TABLE where order_id = $orderId"
@@ -58,7 +59,7 @@ object UzumRepository {
                     this.closeOnCompletion()
                 }.executeQuery()
                 if (rs.next()) {
-                    result =getOne(rs)
+                    result = getOne(rs)
                 }
             }
         }
@@ -66,7 +67,7 @@ object UzumRepository {
     }
 
     private fun getOne(rs: ResultSet): UzumPaymentTable? {
-       return UzumPaymentTable(
+        return UzumPaymentTable(
             id = rs.getLong("id"),
             merchantId = rs.getLong("merchant_id"),
             orderId = rs.getLong("order_id"),
@@ -88,6 +89,37 @@ object UzumRepository {
                 val rs = connection.prepareStatement(query).apply {
                     setString(1, operationType.name)
                     setString(2, uzumOrderId)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+    }
+
+  suspend  fun saveLog(callBack: UzumEventCallBack) {
+        val query =
+            "insert into uzum_event (uzum_order_id,merchant_order_id," +
+                    "event_type,action_code,code_description ) " +
+                    "values(${callBack.orderId},${callBack.orderNumber},?,${callBack.actionCode},?) "
+        println("get transaction uzum")
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
+                    setString(1, callBack.eventType?.name)
+                    setString(2, callBack.actionCodeDescription)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+    }
+    suspend  fun getLog(limit:Int,offset:Int,merchantId:String) {
+        val query =
+            "select * from uzum_event where merchant_id = $merchantId" +
+                    "limit $limit " +
+                    "offset $offset"
+        println("get log uzum")
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeUpdate()
             }

@@ -785,8 +785,12 @@ object OrderUtils {
     }
 
     private suspend fun getProducts(products: String?): List<CartItem?>? {
-        val products = gsonToList(products, CartItem::class.java)
-        return getByCartItem2(products)
+        val productList = gsonToList(products, CartItem::class.java)
+        if (productList.isNullOrEmpty()){
+            return null
+        }else{
+            return getByCartItem2(productList)
+        }
     }
 
     fun parse(result: Map<String, *>): Any {
