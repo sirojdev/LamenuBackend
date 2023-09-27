@@ -36,20 +36,20 @@ fun Route.routeToUzum() {
             }
             when (callBack.operationType) {
                 UzumOperationType.AUTHORIZE -> {
-                    if (uzumOrder?.operationType!=UzumOperationType.TO_REGISTER){
-                        call.respond(HttpStatusCode.NoContent,"this transaction not found or status not equal")
-                    }else{
-                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId,UzumOperationType.AUTHORIZE)
-//                        UzumService.authorizeTransaction(callBack)
+                    if (uzumOrder?.operationType != UzumOperationType.TO_REGISTER) {
+                        call.respond(HttpStatusCode.NoContent, "this transaction not found or status not equal")
+                    } else {
+                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.AUTHORIZE)
+                        UzumService.complete(uzumOrder)
                         call.respond(HttpStatusCode.OK)
                     }
                 }
 
                 UzumOperationType.COMPLETE -> {
-                    if (uzumOrder?.operationType!=UzumOperationType.TO_REGISTER){
-                        call.respond(HttpStatusCode.NoContent,"this transaction not found or status not equal")
-                    }else{
-                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId,UzumOperationType.AUTHORIZE)
+                    if (uzumOrder?.operationType != UzumOperationType.AUTHORIZE) {
+                        call.respond(HttpStatusCode.NoContent, "this transaction not found or status not equal")
+                    } else {
+                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.COMPLETE)
 //                        UzumService.authorizeTransaction(callBack)
                         call.respond(HttpStatusCode.OK)
                     }
@@ -57,10 +57,10 @@ fun Route.routeToUzum() {
                 }
 
                 UzumOperationType.REFUND -> {
-                    if (uzumOrder?.operationType!=UzumOperationType.COMPLETE){
-                        call.respond(HttpStatusCode.NoContent,"this transaction not found or status not equal")
-                    }else{
-                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId,UzumOperationType.REFUND)
+                    if (uzumOrder?.operationType != UzumOperationType.COMPLETE) {
+                        call.respond(HttpStatusCode.NoContent, "this transaction not found or status not equal")
+                    } else {
+                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.REFUND)
 //                        UzumService.authorizeTransaction(callBack)
                         call.respond(HttpStatusCode.OK)
                     }
@@ -68,10 +68,10 @@ fun Route.routeToUzum() {
                 }
 
                 UzumOperationType.REVERSE -> {
-                    if (uzumOrder?.operationType!=UzumOperationType.AUTHORIZE){
-                        call.respond(HttpStatusCode.NoContent,"this transaction not found or status not equal")
-                    }else{
-                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId,UzumOperationType.AUTHORIZE)
+                    if (uzumOrder?.operationType != UzumOperationType.AUTHORIZE) {
+                        call.respond(HttpStatusCode.NoContent, "this transaction not found or status not equal")
+                    } else {
+                        UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.AUTHORIZE)
 //                        UzumService.authorizeTransaction(callBack)
                         call.respond(HttpStatusCode.OK)
                     }
@@ -85,18 +85,32 @@ fun Route.routeToUzum() {
             val callBack = call.receive<UzumEventCallBack>()
         }
         post("refund") {
-            val refund = call.receive<UzumRefund>()
-            if (refund.orderId == null || refund.amount == null) {
-                call.respond(HttpStatusCode.BadRequest, "orderId or amount is null ")
+            // TOLOVNI QAYTARISH
+            val merchantOrderId = call.parameters["orderId"]?.toLongOrNull()
+//            val refund = call.receive<UzumRefund>()
+//            if (refund.orderId == null) {
+//                call.respond(HttpStatusCode.BadRequest, "orderId  is null ")
+//            }
+            val uzumOrder = UzumRepository.getTransactionByMerchantOrderId(merchantOrderId)
+            if (uzumOrder == null) {
+                call.respond(HttpStatusCode.BadRequest, " order not found")
             }
-            UzumService.refund(refund)
+            if (uzumOrder?.operationType==UzumOperationType.COMPLETE){
+                call.respond(HttpStatusCode.MethodNotAllowed,"order operation type not complete")
+            }
+            call.respond(
+                UzumService.refund(
+                    UzumRefund(orderId = uzumOrder?.uzumOrderId, amount = uzumOrder?.price),
+                    uzumOrder
+                )
+            )
         }
         post("reverse") {
             val reverse = call.receive<UzumRefund>()
             if (reverse == null) {
                 call.respond(HttpStatusCode.BadRequest, "orderId or amount is null ")
             }
-            UzumService.reverse(reverse)
+            call.respond(UzumService.reverse(reverse))
         }
     }
 
