@@ -8,5 +8,6 @@ class UzumRegisterResponse(
 
 data class UzumResult(
     var orderId: String? = null,
-    var paymentRedirectUrl: String? = null
+    var paymentRedirectUrl: String? = null,
+    var operationId:String?=null
 )

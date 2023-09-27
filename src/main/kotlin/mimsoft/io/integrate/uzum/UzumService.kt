@@ -13,13 +13,12 @@ import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.integrate.uzum.module.*
 import mimsoft.io.utils.ResponseModel
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.spec.ECParameterSpec
-import java.io.UnsupportedEncodingException
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
 import java.security.*
-import java.security.spec.ECGenParameterSpec
 
 
 object UzumService {
+    const val securityToken = "123"
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             gson {
@@ -45,8 +44,8 @@ object UzumService {
 //                append("X-Merchant-Access-Token", "")
                 append("Content-Language", "uz-UZ")
 //                append("X-Fingerprint", "")
-                append("X-Signature", "")
-//                append("X-API-Key", "")
+                append("X-Signature", generateSignature(securityToken, generateKeys()).toString())
+                append("X-API-Key", "")
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(
@@ -56,7 +55,13 @@ object UzumService {
         if (response.status.value == 200) {
             val result = Gson().fromJson(response.body<String>(), UzumRegisterResponse::class.java)
             if (result.errorCode == 0) {
-                UzumRepository.saveTransaction(result, order?.id,order?.totalPrice,UzumOperationType.TO_REGISTER)
+                UzumRepository.saveTransaction(
+                    result,
+                    order?.id,
+                    order?.totalPrice?.times(100),
+                    UzumOperationType.TO_REGISTER,
+                    order?.merchant?.id
+                )
                 return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
             } else {
                 return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
@@ -73,62 +78,55 @@ object UzumService {
     }
 
 
-    suspend fun complete() {
-        client.post("https://www.inplat-tech.ru/api/v1/acquiring/complete") {
+    suspend fun complete(uzumOrder: UzumPaymentTable) {
+        val payment = PaymentService.get(uzumOrder.merchantId)
+        val body = UzumRefund(orderId = uzumOrder.uzumOrderId, amount = uzumOrder.price?.toInt())
+        val result = client.post("https://www.inplat-tech.ru/api/v1/acquiring/complete") {
             headers {
                 append("X-Operation-Id", "")
-                append("X-Signature", "")
-                append("X-Terminal-Id", "")
+                append("X-Signature", generateSignature(securityToken, generateKeys()).toString())
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
                 append("X-Fingerprint", "")
                 append("X-API-Key", "")
             }
+            setBody(Gson().toJson(body))
         }
-
+        if (result.status.value == 200) {
+            val result = Gson().fromJson(result.body<String>(), UzumRegisterResponse::class.java)
+            if (result.errorCode == 0) {
+//                UzumRepository.saveTransaction(
+//                    result,
+//                    order?.id,
+//                    order?.totalPrice,
+//                    UzumOperationType.TO_REGISTER,
+//                    order?.merchant?.id
+//                )
+//                return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
+            } else {
+//                return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
+            }
+        } else {
+            //todo save error
+//            return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.BadRequest)
+        }
     }
 
-    fun generateECDSAKeyPair(): KeyPair {
-        val keyPairGenerator = KeyPairGenerator.getInstance("EC")
-        val ecSpec = ECGenParameterSpec("secp256r1") // You can choose a different elliptic curve if needed
-        keyPairGenerator.initialize(ecSpec)
-        return keyPairGenerator.generateKeyPair()
-    }
 
-    fun signMessage(privateKey: PrivateKey, message: ByteArray): ByteArray {
-        val signature = Signature.getInstance("SHA256withECDSA")
-        signature.initSign(privateKey)
-        signature.update(message)
-        return signature.sign()
-    }
-
-    @Throws(
-        SignatureException::class,
-        UnsupportedEncodingException::class,
-        InvalidKeyException::class,
-        NoSuchAlgorithmException::class,
-        NoSuchProviderException::class
-    )
-    fun GenerateSignature(plaintext: String, keys: KeyPair): ByteArray {
-        val ecdsaSign = Signature
+    private fun generateSignature(plaintext: String, keys: KeyPair): ByteArray {
+        val ecdsaSign: Signature = Signature
             .getInstance("SHA256withECDSA", "BC")
         ecdsaSign.initSign(keys.private)
         ecdsaSign.update(plaintext.toByteArray(charset("UTF-8")))
-        val signature = ecdsaSign.sign()
+        val signature: ByteArray = ecdsaSign.sign()
         println(signature.toString())
         return signature
     }
 
-    @Throws(
-        SignatureException::class,
-        InvalidKeyException::class,
-        UnsupportedEncodingException::class,
-        NoSuchAlgorithmException::class,
-        NoSuchProviderException::class
-    )
-    fun ValidateSignature(
+    fun validateSignature(
         plaintext: String, pair: KeyPair,
         signature: ByteArray?
     ): Boolean {
-        val ecdsaVerify = Signature.getInstance(
+        val ecdsaVerify: Signature = Signature.getInstance(
             "SHA256withECDSA",
             "BC"
         )
@@ -137,10 +135,8 @@ object UzumService {
         return ecdsaVerify.verify(signature)
     }
 
-    @Throws(NoSuchAlgorithmException::class, NoSuchProviderException::class, InvalidAlgorithmParameterException::class)
-    fun GenerateKeys(): KeyPair {
-        //  Other named curves can be found in http://www.bouncycastle.org/wiki/display/JA1/Supported+Curves+%28ECDSA+and+ECGOST%29
-        val ecSpec: ECParameterSpec = ECNamedCurveTable
+    private fun generateKeys(): KeyPair {
+        val ecSpec: ECNamedCurveParameterSpec? = ECNamedCurveTable
             .getParameterSpec("B-571")
         val g = KeyPairGenerator.getInstance("ECDSA", "BC")
         g.initialize(ecSpec, SecureRandom())
@@ -163,30 +159,34 @@ object UzumService {
         TODO("Not yet implemented")
     }
 
-    suspend fun refund(refund: UzumRefund) {
-        val result = client.post() {
+    suspend fun refund(refund: UzumRefund, uzumOrder: UzumPaymentTable?):String {
+        val payment = PaymentService.get(uzumOrder?.merchantId)
+        val result = client.post("https://www.inplat-tech.ru/api/v1/acquiring/refund") {
             headers {
                 append("X-Operation-Id", "")
-                append("X-Signature", "")
+                append("X-Signature", generateSignature(securityToken, generateKeys()).toString())
                 append("X-Terminal-Id", "")
-                append("X-Fingerprint", "")
+                append("X-Fingerprint", payment?.uzumTerminalId ?: "")
                 append("X-API-Key", "")
             }
             setBody(Gson().toJson(refund))
         }
+        return result.body<String>()
     }
 
-    suspend fun reverse(reverse: UzumRefund) {
-        val result = client.post() {
+    suspend fun reverse(reverse: UzumRefund): String {
+        val payment = PaymentService.get(1)
+        val result = client.post("https://www.inplat-tech.ru/api/v1/acquiring/reverse") {
             headers {
                 append("X-Operation-Id", "")
-                append("X-Signature", "")
-                append("X-Terminal-Id", "")
+                append("X-Signature", generateSignature(securityToken, generateKeys()).toString())
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
                 append("X-Fingerprint", "")
-                append("X-API-Key", "")
+                append("X-API-Key", payment?.uzumTerminalId ?: "")
             }
             setBody(Gson().toJson(reverse))
         }
+        return result.body<String>()
     }
 
 
