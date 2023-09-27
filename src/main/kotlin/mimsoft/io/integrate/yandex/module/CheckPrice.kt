@@ -4,24 +4,25 @@ import com.google.gson.annotations.SerializedName
 
 
 data class YandexCheckPrice(
-    val items: List<Items>? = null,
+    var items: List<Items>? = null,
     @SerializedName("route_points")
     val routePoints: List<RoutePoints>? = null,
-    val requirements: Requirements? = null,
+    val requirements: CheckPriceRequirements? = null,
     val skipDoorToDoor: Boolean = false
 )
-data class Items (
-    @SerializedName("quantity" ) var quantity : Int?    = null,
-    @SerializedName("size"     ) var size     : Size?   = Size(),
-    @SerializedName("weight"   ) var weight   : Double? = null
+
+data class Items(
+    var quantity: Int? = null,
+    var size: Size? = null,
+    var weight: Double? = null
 )
 
 data class RoutePoints(
-    @SerializedName("coordinates") var coordinates: ArrayList<Double> = arrayListOf(),
-    @SerializedName("fullname") var fullname: String? = null
+    var coordinates: ArrayList<Double>?=null,
+    var fullname: String? = null
 )
 
-data class Requirements(
+data class CheckPriceRequirements(
     @SerializedName("cargo_loaders") var cargoLoaders: Int? = null,
     @SerializedName("cargo_options") var cargoOptions: List<String>? = null,
     @SerializedName("cargo_type") var cargoType: String? = null,
