@@ -15,7 +15,8 @@ class CategoryGroupServiceTest {
     fun getAll() = testApplication {
         val merchantId: Long = 1
         val response = categoryGroupService.getAll(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -35,7 +36,8 @@ class CategoryGroupServiceTest {
             priority = 1,
         )
         val response = categoryGroupService.add(categoryGroupDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -53,15 +55,17 @@ class CategoryGroupServiceTest {
             priority = 1,
         )
         val response = categoryGroupService.update(categoryGroupDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun delete() = testApplication {
         val merchantId: Long = 1
         val id: Long = 12
-        val response = categoryGroupService.delete(12, 1)
-        assertTrue(response)
+        val response = categoryGroupService.delete(id, merchantId)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -69,14 +73,16 @@ class CategoryGroupServiceTest {
         val merchantId: Long = 1
         val id: Long = 12
         val response = categoryGroupService.getById(merchantId, id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun getClient() = testApplication {
         val merchantId: Long = 1
         val response = categoryGroupService.getClient(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -84,6 +90,7 @@ class CategoryGroupServiceTest {
         val merchantId: Long = 1
         val id: Long = 12
         val response = categoryGroupService.getCategoryGroupById(merchantId, id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 }

@@ -14,8 +14,7 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
-import mimsoft.io.features.pos.POSController
-import mimsoft.io.features.pos.POSService
+import mimsoft.io.features.pos.poster.POSController
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.integrate.payme.PaymeService
@@ -41,7 +40,7 @@ object OrderService {
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
 
-    suspend fun     getAll2(
+    suspend fun getAll2(
         params: Map<String, *>? = null,
         vararg columns: String,
     ): ResponseModel {
@@ -495,7 +494,7 @@ object OrderService {
         return order
     }
 
-    suspend fun getById(id: Long?, vararg columns: String): Order? {
+    suspend fun     getById(id: Long?, vararg columns: String): Order? {
         val result: List<Map<String, *>>
         val search = getQuery(params = null, *columns, orderId = id)
         result = repository.selectList(query = search.query, args = search.queryParams)

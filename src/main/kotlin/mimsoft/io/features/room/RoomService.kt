@@ -72,8 +72,8 @@ object RoomService : RoomRepository {
         val query = """
             update room
             set deleted = true
-            where id = :id
-              and merchant_id = :merchantId
+            where id = $id
+              and merchant_id = $merchantId
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {

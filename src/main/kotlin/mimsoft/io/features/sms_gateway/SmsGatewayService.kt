@@ -76,6 +76,7 @@ object SmsGatewayService {
     }
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
+        var rs = 0
         withContext(Dispatchers.IO) {
             val query = "update $SMS_GATEWAY_TABLE set " +
                     "eskiz_email = ?, " +
@@ -85,17 +86,17 @@ object SmsGatewayService {
                     "updated = ? \n" +
                     "where merchant_id = ${smsGatewayDto?.merchantId} and not deleted "
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                 rs = it.prepareStatement(query).apply {
                     this.setString(1, smsGatewayDto?.eskizEmail)
                     this.setString(2, smsGatewayDto?.eskizPassword)
                     this.setString(3, smsGatewayDto?.playMobileUsername)
                     this.setString(4, smsGatewayDto?.playMobilePassword)
                     this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
 }

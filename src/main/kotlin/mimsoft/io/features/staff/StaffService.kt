@@ -228,22 +228,20 @@ object StaffService {
     }
 
     suspend fun update(staff: StaffDto): ResponseModel {
-        val merchantId = staff.merchantId
         val birthDay = toTimeStamp(staff.birthDay, TIMESTAMP_FORMAT)
-
         val query = """
-            UPDATE $STAFF_TABLE_NAME 
-            SET
-                first_name = ?,
-                last_name = ?,
-                birth_day = ?,
-                image = ?,
-                position = ?,
-                updated = ?
-            WHERE id = ? and merchant_id = $merchantId and not deleted 
+            update staff
+            set first_name = ?,
+                last_name  = ?,
+                birth_day  = ?,
+                image      = ?,
+                position   = ?,
+                updated    = ?
+            where id = ${staff.id}
+              and merchant_id = ${staff.merchantId}
+              and not deleted
         """.trimIndent()
-
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, staff.firstName)
@@ -263,11 +261,14 @@ object StaffService {
     }
 
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        val query = "update $STAFF_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        var rs = 0
+        val query = "update $STAFF_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and not deleted"
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id

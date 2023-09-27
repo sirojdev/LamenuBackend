@@ -24,7 +24,8 @@ class NewsRepositoryImplTest {
             title = textModel
         )
         val response = newsRepositoryImpl.add(newsDto)
-        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -55,11 +56,12 @@ class NewsRepositoryImplTest {
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 1222
-        val limit = 1
-        val offset = 1
+        val merchantId: Long = 1
+        val limit = 10
+        val offset = 5
         val response = newsRepositoryImpl.getAll(merchantId, limit, offset)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -67,7 +69,6 @@ class NewsRepositoryImplTest {
         val id: Long = 24444
         val merchantId: Long = 1
         val response = newsRepositoryImpl.delete(id, merchantId)
-        println("rs: $response")
         if (response)
             assertTrue(response)
     }

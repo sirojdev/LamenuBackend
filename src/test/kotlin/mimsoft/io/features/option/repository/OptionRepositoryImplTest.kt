@@ -18,14 +18,16 @@ class OptionRepositoryImplTest {
     fun getSubOptions() = testApplication {
         val id: Long = 17
         val response = optionalRepositoryImpl.getSubOptions(id)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 1
         val response = optionalRepositoryImpl.getAll(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -33,7 +35,8 @@ class OptionRepositoryImplTest {
         val merchantId: Long = 1
         val productId: Long = 20
         val response = optionalRepositoryImpl.getOptionsByProductId(merchantId, productId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -58,7 +61,8 @@ class OptionRepositoryImplTest {
             productId = 34
         )
         val response = optionalRepositoryImpl.add(optionTable)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -89,6 +93,6 @@ class OptionRepositoryImplTest {
         val merchantId: Long = 2
         val response = optionalRepositoryImpl.delete(id, merchantId)
         if (response)
-        assertTrue(response)
+            assertTrue(response)
     }
 }

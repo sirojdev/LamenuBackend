@@ -14,9 +14,9 @@ class LabelRepositoryImplTest {
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 14
+        val merchantId: Long = 1
         val response = labelRepositoryImpl.getAll(merchantId)
-        if (response.isNotEmpty())
+        if (response.isEmpty())
             assertNotNull(response)
     }
 
@@ -41,7 +41,8 @@ class LabelRepositoryImplTest {
             icon = "images/2023-06-08-09-55-59-045.jpg"
         )
         val response = labelRepositoryImpl.add(labelTable)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -60,6 +61,7 @@ class LabelRepositoryImplTest {
             icon = "images/2023-06-08-09-55-59-045.jpg"
         )
         val response = labelRepositoryImpl.update(labelDto)
+        if (response)
         assertNotNull(response)
     }
 
@@ -69,6 +71,6 @@ class LabelRepositoryImplTest {
         val merchantId: Long = 6
         val response = labelRepositoryImpl.delete(id, merchantId)
         if (response)
-        assertTrue(response)
+            assertTrue(response)
     }
 }

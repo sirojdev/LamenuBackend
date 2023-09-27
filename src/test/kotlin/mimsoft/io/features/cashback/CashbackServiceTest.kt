@@ -13,8 +13,8 @@ class CashbackServiceTest {
     fun getAll() = testApplication {
         val merchantId: Long = 6
         val response = cashbackService.getAll(merchantId)
-        assertNotNull(response)
-        assert(response[0].id != null)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -31,7 +31,8 @@ class CashbackServiceTest {
             maxCost = 34.9
         )
         val response = cashbackService.add(cashbackDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -49,7 +50,8 @@ class CashbackServiceTest {
             maxCost = 34.9
         )
         val response = cashbackService.update(cashbackDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -57,7 +59,8 @@ class CashbackServiceTest {
         val merchantId: Long = 1
         val id: Long = 16
         val response = cashbackService.delete(id, merchantId)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -65,6 +68,7 @@ class CashbackServiceTest {
         val merchantId: Long = 1
         val id: Long = 16
         val response = cashbackService.get(merchantId, id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 }

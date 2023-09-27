@@ -32,7 +32,7 @@ import mimsoft.io.features.outcome_type.routeToOutcomeType
 import mimsoft.io.features.pantry.routeToPantry
 import mimsoft.io.features.payment.payment_integration.routeToPaymentIntegration
 import mimsoft.io.features.payment.routeToPayment
-import mimsoft.io.features.pos.poster.routeToPoster
+//import mimsoft.io.features.pos.poster.routeToPoster
 import mimsoft.io.features.product.product_extra.routeToProductExtra
 import mimsoft.io.features.product.product_label.routeToProductLabel
 import mimsoft.io.features.product.product_option.routeToProductOption
@@ -90,7 +90,7 @@ fun Route.routeToMerchant() {
                 routeToTable()
                 routeToOption()
                 routeToBranch()
-                routeToPoster()
+//                routeToPoster()
                 routeToCourier()
                 routeToCollector()
                 routeToPayment()

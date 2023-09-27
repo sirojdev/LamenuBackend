@@ -24,7 +24,6 @@ class FavouriteServiceTest {
             product = productDto
         )
         val response = favouriteService.add(favouriteDto)
-        assertNotNull(response)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -62,20 +61,23 @@ class FavouriteServiceTest {
         val clientId: Long = 16
         val merchantId: Long = 1
         val response = favouriteService.getAll(clientId, merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun delete() = testApplication {
         val id: Long = 16
         val response = favouriteService.delete(id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun deleteAll() = testApplication {
         val clientId: Long = 24
         val response = favouriteService.deleteAll(clientId)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

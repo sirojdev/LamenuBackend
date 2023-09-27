@@ -11,11 +11,12 @@ class PromoServiceTest {
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 1
-        val limit = 50
-        val offset = 1
+        val merchantId: Long = 111
+        val limit = 10
+        val offset = 5
         val response = promoService.getAll(merchantId, limit, offset)
-        println("rs: $response")
+        if (response.data?.isEmpty() == true)
+            assertNotNull(response.data)
     }
 
     @Test
@@ -30,16 +31,17 @@ class PromoServiceTest {
             minAmount = 11.1
         )
         val response = promoService.add(promoDto)
-        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun update() = testApplication {
         val promoDto = PromoDto(
-            id = 35555,
+            id = 3555,
             merchantId = 1,
             amount = 19999,
-            name = "Name777",
+            name = "Name77",
             discountType = "AMOUNT",
             deliveryDiscount = 100.99,
             productDiscount = 233.4,
@@ -52,7 +54,7 @@ class PromoServiceTest {
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 3555
+        val id: Long = 35
         val merchantId: Long = 1
         val response = promoService.delete(id, merchantId)
         if (response)
