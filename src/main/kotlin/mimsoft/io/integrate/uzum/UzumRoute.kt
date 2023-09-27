@@ -83,6 +83,7 @@ fun Route.routeToUzum() {
         }
         post("event-callback") {
             val callBack = call.receive<UzumEventCallBack>()
+            UzumRepository.saveLog(callBack)
         }
         post("refund") {
             // TOLOVNI QAYTARISH
