@@ -8,14 +8,10 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
-import mimsoft.io.features.order.Order
-import mimsoft.io.integrate.yandex.module.Item
-import mimsoft.io.integrate.yandex.module.YandexCheckPrice
-import mimsoft.io.integrate.yandex.module.YandexOrder
-import mimsoft.io.integrate.yandex.module.YandexTraffic
+import mimsoft.io.integrate.integrate.MerchantIntegrateRepository
+import mimsoft.io.integrate.yandex.module.*
 import mimsoft.io.integrate.yandex.repository.YandexRepository
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.toJson
 import java.util.UUID
 
 object YandexService {
@@ -41,7 +37,7 @@ object YandexService {
                 json
             )
         }
-        YandexRepository.saveYandexOrder(dto,requestId)
+        YandexRepository.saveYandexOrder(dto, requestId)
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 
@@ -66,11 +62,31 @@ object YandexService {
         return ResponseModel(httpStatus = HttpStatusCode.BadRequest, body = "incorrect body ")
     }
 
-    suspend fun checkPrice(dto: YandexCheckPrice): Any {
+    suspend fun checkPrice(dto: YandexCheckPrice, merchantId: Long?): Any {
+        val integrateKeys = MerchantIntegrateRepository.get(merchantId)
+        if (dto.items.isNullOrEmpty()) {
+            dto.items = listOf(Items(quantity = 1, Size(height = 0.05, length = 0.15, width = 0.1), weight = 2.105))
+        }
+        if (dto.requirements == null) {
+            CheckPriceRequirements(
+                cargoOptions = arrayListOf("thermobag", "auto_courier"),
+                proCourier = true, taxiClass = "courier"
+            )
+        }
+        if (dto.routePoints == null) {
+            listOf(
+                RoutePoints(
+                    coordinates = arrayListOf(55.0, 45.0)
+                ),
+                RoutePoints(
+                    coordinates = arrayListOf(55.0, 45.0)
+                )
+            )
+        }
         val json = Gson().toJson(dto)
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price"
         val response = client.post(url) {
-            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
+            bearerAuth(integrateKeys?.yandexDeliveryKey.toString())
             contentType(ContentType.Application.Json)
             header("Accept-Language", "eng")
             setBody(
