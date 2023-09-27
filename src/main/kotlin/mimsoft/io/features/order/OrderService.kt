@@ -14,8 +14,7 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
-import mimsoft.io.features.pos.POSController
-import mimsoft.io.features.pos.POSService
+import mimsoft.io.features.pos.poster.POSController
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.integrate.payme.PaymeService

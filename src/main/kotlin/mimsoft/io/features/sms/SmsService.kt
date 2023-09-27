@@ -40,7 +40,6 @@ object SmsService {
     ): DataPage<SmsDto> {
 
 
-
         val query =
             """
                 select s.id                s_id,
@@ -66,7 +65,7 @@ object SmsService {
                 val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<SmsDto>()
                 while (rs.next()) {
-                    if(total==-1){
+                    if (total == -1) {
                         total = rs.getInt("total")
                     }
                     val dto = SmsDto(
@@ -85,7 +84,7 @@ object SmsService {
                     )
                     list.add(dto)
                 }
-                return@withContext DataPage(list,total)
+                return@withContext DataPage(list, total)
             }
         }
     }
@@ -124,17 +123,17 @@ object SmsService {
     }
 
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        val query = "update $SMS_TABLE set deleted = true where id = $id and merchant_id = $merchantId"
+        var rs = 0
+        val query = "update $SMS_TABLE set deleted = true where id = $id and merchant_id = $merchantId and not deleted"
         withContext(Dispatchers.IO) {
-            repository.connection().use { it.prepareStatement(query).execute() }
+            repository.connection().use { rs = it.prepareStatement(query).executeUpdate() }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun deleteByMessageId(messageId: Long): Boolean {
         return repository.deleteData(SMS_TABLE, where = "message_id", whereValue = messageId)
     }
-
 
 
     suspend fun checkSmsTime(phone: String): Int {
@@ -204,9 +203,9 @@ object SmsService {
                     this.setString(4, phone)
                     this.closeOnCompletion()
                 }.executeQuery()
-                if(rs.next()){
+                if (rs.next()) {
                     return@withContext rs.getString("status")
-                }else return@withContext null
+                } else return@withContext null
             }
         }
     }

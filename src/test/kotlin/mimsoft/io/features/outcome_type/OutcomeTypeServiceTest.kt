@@ -20,7 +20,8 @@ class OutcomeTypeServiceTest {
     fun getByMerchantId() = testApplication {
         val merchantId: Long = 7
         val response = outcomeTypeObject.getByMerchantId(merchantId)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test

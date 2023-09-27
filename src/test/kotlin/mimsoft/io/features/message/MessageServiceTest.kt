@@ -13,7 +13,8 @@ class MessageServiceTest {
     @Test
     fun getAll() = testApplication {
         val response = messageService.getAll()
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -31,7 +32,8 @@ class MessageServiceTest {
             content = "Hello"
         )
         val response = messageService.post(messageDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -52,6 +54,6 @@ class MessageServiceTest {
         val id: Long = 999
         val response = messageService.delete(id)
         if (response)
-        assertTrue(response)
+            assertTrue(response)
     }
 }

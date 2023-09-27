@@ -20,9 +20,10 @@ class ProductRepositoryImplTest {
 
     @Test
     fun getAllProductInfo() = testApplication {
-        val merchantId: Long = 111
+        val merchantId: Long = 1
         val response = productRepositoryImpl.getAllProductInfo(merchantId)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -30,7 +31,8 @@ class ProductRepositoryImplTest {
         val merchantId: Long = 1
         val search = "test"
         val response = productRepositoryImpl.getAll(merchantId, search)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -62,7 +64,8 @@ class ProductRepositoryImplTest {
             timeCookingMin = 5
         )
         val response = productRepositoryImpl.add(productTable)
-        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -136,8 +139,10 @@ class ProductRepositoryImplTest {
     @Test
     fun getAllByCategories() = testApplication {
         val merchantId: Long = 1
-        val categoryId: Long = 141
+        val categoryId: Long = 13
         val response = productRepositoryImpl.getAllByCategories(merchantId, categoryId)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test

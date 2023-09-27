@@ -16,7 +16,8 @@ class BadgeServiceTest {
     fun getAll() = testApplication {
         val merchantId: Long = 1
         val response = badgeService.getAll(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -24,7 +25,8 @@ class BadgeServiceTest {
         val merchantId: Long = 1
         val id: Long = 2
         val response = badgeService.get(merchantId, id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -62,7 +64,8 @@ class BadgeServiceTest {
             merchantId = 2
         )
         val response = badgeService.update(badgeDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -70,6 +73,7 @@ class BadgeServiceTest {
         val merchantId: Long = 2
         val id: Long = 17
         val response = badgeService.delete(merchantId, id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

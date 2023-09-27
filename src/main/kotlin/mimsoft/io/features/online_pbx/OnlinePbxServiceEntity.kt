@@ -5,7 +5,7 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.ResponseModel.Companion.ALREADY_EXISTS
 
-object OnlinePbxServiceEntity {
+object OnlinePbxServiceEntity { // TODO: There is a drawback... Kamchilik bor...
 
     val repository: BaseRepository = DBManager
 

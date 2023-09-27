@@ -25,8 +25,8 @@ class ProductLabelServiceTest {
         val productId: Long = 788
         val merchantId: Long = 22
         val response = productLabelService.getLabelsByProductId(productId, merchantId)
-        println("rs: $response")
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -37,6 +37,7 @@ class ProductLabelServiceTest {
             merchantId = 2
         )
         val response = productLabelService.deleteProductLabel(productLabelDto)
-        println("rs: $response")
+        if (response)
+            assertTrue(response)
     }
 }

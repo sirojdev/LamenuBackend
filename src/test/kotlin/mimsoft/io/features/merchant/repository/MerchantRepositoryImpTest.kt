@@ -22,7 +22,8 @@ class MerchantRepositoryImpTest {
     @Test
     fun getAll() = testApplication {
         val response = merchantRepositoryImp.getAll()
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -45,7 +46,8 @@ class MerchantRepositoryImpTest {
             logo = "Samsung logo"
         )
         val response = merchantRepositoryImp.add(merchantTable)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test

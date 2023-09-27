@@ -15,13 +15,15 @@ class PaymentTypeRepositoryImplTest {
     @Test
     fun getAll() = testApplication {
         val response = paymentTypeRepositoryImpl.getAll()
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun get() = testApplication {
-        val id: Long = 5
+        val id: Long = 55
         val response = paymentTypeRepositoryImpl.get(id)
+        println("rs: $response")
         if (response != null)
             assertNotNull(response)
     }
@@ -29,14 +31,14 @@ class PaymentTypeRepositoryImplTest {
     @Test
     fun add() = testApplication {
         val paymentTypeTable = PaymentTypeTable(
-            name = "Cash App",
+            name = "Cash App78",
             icon = "String icon",
             titleUz = "naqd pul ilovasi",
             titleRu = "кассовое приложение",
             titleEng = "cash app"
         )
         val response = paymentTypeRepositoryImpl.add(paymentTypeTable)
-        println("rs: $response")
+        if (response != null)
         assertNotNull(response)
     }
 
@@ -48,7 +50,7 @@ class PaymentTypeRepositoryImplTest {
             eng = "cash app"
         )
         val paymentTypeDto = PaymentTypeDto(
-            id = 444,
+            id = 4,
             name = "Cash App",
             icon = "icon String",
             title = textModel

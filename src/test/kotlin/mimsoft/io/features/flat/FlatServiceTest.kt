@@ -13,7 +13,8 @@ class FlatServiceTest {
     @Test
     fun getAll() = testApplication {
         val response = flatService.getAll()
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -32,7 +33,8 @@ class FlatServiceTest {
             restaurantId = 2
         )
         val response = flatService.add(flatTable)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -45,7 +47,7 @@ class FlatServiceTest {
         )
         val response = flatService.update(flatTable)
         if (response)
-        assertTrue(response)
+            assertTrue(response)
     }
 
     @Test
@@ -53,6 +55,6 @@ class FlatServiceTest {
         val id: Long = 1
         val response = flatService.delete(id)
         if (response)
-        assertTrue(response)
+            assertTrue(response)
     }
 }

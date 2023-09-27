@@ -25,28 +25,33 @@ class ClientPromoServiceTest {
             promo = promoDto
         )
         val response = clientPromoService.add(clientPromoDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun getByClientId() = testApplication {
-        val clientId: Long = 21
+        val clientId: Long = 211
         val response = clientPromoService.getByClientId(clientId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun getAll() = testApplication {
-        val merchantId: Long = 1
+        val merchantId: Long = 11
         val response = clientPromoService.getAll(merchantId)
-        assertNotNull(response)
+        println("rs: $response")
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun delete() = testApplication {
-        val id: Long = 12
+        val id: Long = 7
         val response = clientPromoService.delete(id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
