@@ -58,7 +58,7 @@ fun Route.toCourierSocket() {
                             val chatMessage: ChatMessageDto? = Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
                             if (chatMessage != null) {
                                 if (conn.session != null) {
-                                    ChatMessageService.sendMessageToOperator(
+                                 val id =    ChatMessageService.sendMessageToOperator(
                                         ChatMessageSaveDto(
                                             fromId = staffId,
                                             toId = merchantId,
@@ -67,6 +67,7 @@ fun Route.toCourierSocket() {
                                             message = chatMessage.message
                                         )
                                     )
+                                    conn.session!!.send(Gson().toJson(SocketData(type = SocketType.RESPONSE_CHAT,data=Gson().toJson(chatMessage.copy(id=id)))))
                                 }
                             }
                         } else if (data?.type == SocketType.LOCATION) {

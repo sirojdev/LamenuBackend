@@ -15,7 +15,7 @@ object ChatMessageService {
     private val messageService = ChatMessageRepository
     suspend fun sendMessageToOperator(
         message: ChatMessageSaveDto
-    ) {
+    ): Long? {
         val connectionList = OperatorSocketService.operatorConnections.filter { it.merchantId == message.toId }
         var operator = false
         for (connection in connectionList) {
@@ -24,12 +24,13 @@ object ChatMessageService {
                 println("inside connection")
                 val dto = SocketData(type = SocketType.CHAT, data = Gson().toJson(message))
                 connection.session?.send(Gson().toJson(dto))
-                messageService.addMessage(message, message.toId, true)
+              return  messageService.addMessage(message, message.toId, true)
             }
         }
         if (!operator) {
-            messageService.addMessage(message, message.toId, false)
+         return   messageService.addMessage(message, message.toId, false)
         }
+        return null
 
     }
     suspend fun sendMessageToCourier(

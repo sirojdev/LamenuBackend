@@ -18,7 +18,7 @@ fun Route.routeToUzum() {
             call.respond(UzumService.register(orderId))
         }
 
-        post("call-back") {
+        post("callback") {
             val callBack = call.receive<UzumCallBack>()
             if (callBack.orderId == null || callBack.operationState == null || callBack.operationType == null || callBack.orderNumber == null) {
                 call.respond(HttpStatusCode.BadRequest, "orderId or operationState or operationType is null ")
@@ -81,7 +81,7 @@ fun Route.routeToUzum() {
                 else -> {}
             }
         }
-        post("event-call-back") {
+        post("event-callback") {
             val callBack = call.receive<UzumEventCallBack>()
         }
         post("refund") {
