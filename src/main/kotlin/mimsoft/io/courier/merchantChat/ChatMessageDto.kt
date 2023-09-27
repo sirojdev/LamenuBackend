@@ -7,7 +7,9 @@ import java.sql.Timestamp
 @Serializable
 data class ChatMessageDto(
     val message: String? = null,
-    val toId: Long? = null
+    val uuid: String? = null,
+    val toId: Long? = null,
+    val id:Long? = null
 )
 
 data class ChatMessageSaveDto(
