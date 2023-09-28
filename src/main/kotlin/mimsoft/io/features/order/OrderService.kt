@@ -495,7 +495,7 @@ object OrderService {
         return order
     }
 
-    suspend fun     getById(id: Long?, vararg columns: String): Order? {
+    suspend fun getById(id: Long?, vararg columns: String): Order? {
         val result: List<Map<String, *>>
         val search = getQuery(params = null, *columns, orderId = id)
         result = repository.selectList(query = search.query, args = search.queryParams)

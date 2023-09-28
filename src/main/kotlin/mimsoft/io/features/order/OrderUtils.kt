@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.badge.BadgeDto
@@ -601,6 +600,8 @@ object OrderUtils {
                     b.name_uz b_name_uz,
                     b.name_ru b_name_ru,
                     b.name_eng b_name_eng , 
+                    b.longitude b_longitude,
+                    b.latitude b_latitude ,
                     b.jowi_id b_jowi_id """ else "") +
                 (if (columnsSet.contains("payment_type"))
                     """,
@@ -759,7 +760,9 @@ object OrderUtils {
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
                 ),
-                jowiId = result["b_jowi_id"] as String?
+                jowiId = result["b_jowi_id"] as String?,
+                longitude = result["b_longitude"] as Double?,
+                latitude = result["b_latitude"] as Double?,
             ),
             totalPrice = result["o_total_price"] as? Long,
             products = getProducts(products) as List<CartItem>?,

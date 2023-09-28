@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 data class YandexCheckPrice(
     var items: List<Items>? = null,
     @SerializedName("route_points")
-    val routePoints: List<RoutePoints>? = null,
+    var routePoints: List<RoutePoints>? = null,
     val requirements: CheckPriceRequirements? = null,
     val skipDoorToDoor: Boolean = false
 )
