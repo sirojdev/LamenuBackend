@@ -7,7 +7,12 @@ data class UzumCallBack(
     var merchantOperationId: String? = null,
     val orderNumber:String?=null,
     val rrn:String?=null
-)
+
+) {
+    override fun toString(): String {
+        return "UzumCallBack(orderId=$orderId, operationState=$operationState, operationType=$operationType, merchantOperationId=$merchantOperationId, orderNumber=$orderNumber, rrn=$rrn)"
+    }
+}
 
 data class UzumEventCallBack(
     var orderId: String? = null,
