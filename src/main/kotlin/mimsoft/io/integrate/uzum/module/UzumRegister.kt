@@ -10,7 +10,7 @@ data class UzumRegister(
     var failureUrl: String? = null,
     var viewType: String? = null,
     var paymentParams: PaymentParams? = null,
-    var merchantParams: MerchantParams? = MerchantParams(),
+    var merchantParams: MerchantParams? =null,
     var sessionTimeoutSecs: Int? = null
 )
 

@@ -2,6 +2,7 @@ package mimsoft.io.integrate.uzum.module
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.integrate.join_poster.JoinPosterService.log
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.ResultSet
@@ -17,7 +18,7 @@ object UzumRepository {
     ) {
         val query =
             "insert into $UZUM_PAYMENT_TABLE (order_id, uzum_order_id,price,created_date,operation_type,merchant_id) values ($orderId,?,$totalPrice,now(),?,$merchantId)"
-        println("insert transaction uzum")
+        log.info("insert transaction uzum")
         return withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
                 val rs = connection.prepareStatement(query).apply {
@@ -32,7 +33,7 @@ object UzumRepository {
     suspend fun getTransactionByUzumOrderId(orderId: String?): UzumPaymentTable? {
         val query =
             "select * from $UZUM_PAYMENT_TABLE where uzum_order_id = ?"
-        println("get transaction uzum")
+        log.info("get transaction uzum")
         var result: UzumPaymentTable? = null
         withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
@@ -51,7 +52,7 @@ object UzumRepository {
     suspend fun getTransactionByMerchantOrderId(orderId: Long?): UzumPaymentTable? {
         val query =
             "select * from $UZUM_PAYMENT_TABLE where order_id = $orderId"
-        println("get transaction uzum")
+        log.info("get transaction uzum")
         var result: UzumPaymentTable? = null
         withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
@@ -80,6 +81,7 @@ object UzumRepository {
     }
 
     suspend fun updateOperationType(uzumOrderId: String?, operationType: UzumOperationType) {
+        log.info("inside update statement")
         val query =
             "update $UZUM_PAYMENT_TABLE set operation_type= ? where uzum_order_id = ? "
         println("get transaction uzum")
