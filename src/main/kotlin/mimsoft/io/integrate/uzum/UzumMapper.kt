@@ -14,9 +14,9 @@ object UzumMapper {
         register.paymentDetails = order?.comment
         register.orderNumber = order?.id.toString()
 //        register.successUrl = "https://api.lamenu.uz"
-        register.successUrl = " https://test-chk-api.ipt-merch.com/ "
+        register.successUrl = " https://google.com/ "
 //        register.failureUrl = "https://google.com/"
-        register.failureUrl = " https://test-chk-api.ipt-merch.com/ "
+        register.failureUrl = " https://google.com/ "
         register.viewType = "REDIRECT"
         register.paymentParams = PaymentParams(
             payType = "TWO_STEP",

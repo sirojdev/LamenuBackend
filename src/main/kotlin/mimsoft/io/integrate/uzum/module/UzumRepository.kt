@@ -113,6 +113,21 @@ object UzumRepository {
             }
         }
     }
+    suspend  fun saveLog(error:UzumError) {
+        val query =
+            "insert into uzum_event (uzum_order_id,action_code,code_description ) " +
+                    "values(?,${error.actionCode},?) "
+        log.info("save log")
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
+                    setString(1, error.orderId)
+                    setString(2, error.actionCodeDescription)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+    }
     suspend  fun getLog(limit:Int,offset:Int,merchantId:String) {
         val query =
             "select * from uzum_event where merchant_id = $merchantId" +

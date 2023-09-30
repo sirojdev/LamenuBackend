@@ -13,12 +13,17 @@ import mimsoft.io.features.book.BookDto
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
+import mimsoft.io.integrate.uzum.UzumService
 import mimsoft.io.services.socket.SocketData
 import mimsoft.io.services.socket.SocketType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 import java.sql.Timestamp
 
 object OperatorSocketService {
+    val log: Logger = LoggerFactory.getLogger(OperatorSocketService::class.java)
+    const val WAIT_TIME = 15000
     val operatorConnections: MutableSet<OperatorConnection> = Collections.synchronizedSet(LinkedHashSet())
     val sendOrderList: MutableSet<SenderOrdersToCourierDto> = Collections.synchronizedSet(LinkedHashSet())
 
@@ -57,19 +62,19 @@ object OperatorSocketService {
 
     suspend fun findNearCourierAndSendOrderToCourier(order: Order, offset: Int) {
         val courierIdList = CourierSocketService.courierIdList(order.merchant?.id)
-        println("inside near courier and send order")
-        println(courierIdList)
+        log.info("inside near courier and send order")
+        log.info(courierIdList.toString())
         if (courierIdList.isNotEmpty()) {
             val courier = CourierService.findNearCourier(order.branch?.id, offset, courierIdList)
             if (courier != null) {
-                println("courier :$courier")
+                log.info("courier :$courier")
                 if (CourierSocketService.courierConnections.isNotEmpty()) {
                     val connection =
                         CourierSocketService.courierConnections.find { it.staffId == courier.staffId }
-                    println("connection $connection")
+                    log.info("connection $connection")
                     if (connection?.session != null) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            println("inside send method")
+                            log.info("inside send method")
                             val socketDto = SocketData(data = Gson().toJson(order), type = SocketType.ORDER)
                             connection.session!!.send(Gson().toJson(socketDto))
                         }
@@ -82,17 +87,17 @@ object OperatorSocketService {
                                 offset = offset
                             )
                         )
-                        waitAnswer(150000, order.id, connection.staffId, offset, order)
+                        waitAnswer(WAIT_TIME.toLong(), order.id, connection.staffId, offset, order)
                     } else {
-                        println("inside recursive")
+                        log.info("inside recursive")
                         findNearCourierAndSendOrderToCourier(order, offset = offset!! + 1)
                     }
                 } else {
-                    println("inside recursive update on vawe")
+                    log.info("inside recursive update on vawe")
                     OrderService.updateOnWave(orderId = order.id!!, false)
                 }
             } else {
-                println("inside recursive update on vaefjhcdsbhjvbdch")
+                log.info("inside recursive update on vaefjhcdsbhjvbdch")
                 OrderService.updateOnWave(orderId = order.id!!, false)
             }
         }
@@ -113,19 +118,21 @@ object OperatorSocketService {
         }
     }
 
-    suspend fun acceptedOrder(response: AcceptedDto, staffId: Long?) {
+    suspend fun acceptedOrder(response: AcceptedDto, staffId: Long?): Boolean {
         val dto = sendOrderList.find {
-            it.courierId == staffId && response.orderId == it.orderId
+            it.courierId == staffId && response.orderId == it.orderId && it.time > (Timestamp(System.currentTimeMillis() - WAIT_TIME))
         }
         if (dto != null) {
             sendOrderList.removeIf {
                 it.courierId == staffId && response.orderId == it.orderId
             }
-            CourierOrderService.joinOrderToCourier(
+            val order = CourierOrderService.joinOrderToCourier(
                 courierId = dto.courierId,
                 orderId = dto.orderId,
             )
-//                                    OrderRepositoryImpl.updateOnWave(dto.orderId,true)
+            return order != null
+        } else {
+            return false
         }
     }
 
