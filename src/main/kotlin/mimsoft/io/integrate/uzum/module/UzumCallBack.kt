@@ -21,6 +21,11 @@ data class UzumEventCallBack(
     var actionCodeDescription: String? = null,
     val orderNumber:String?=null,
 )
+data class UzumError(
+    var orderId: String? = null,
+    var actionCode: Int? = null,
+    var actionCodeDescription: String? = null,
+)
 enum class UzumEventType{
     FORM_CLOSED
 }

@@ -10,8 +10,6 @@ import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentService
-import mimsoft.io.integrate.join_poster.JoinPosterService.log
-import mimsoft.io.integrate.uzum.UzumService.log
 import mimsoft.io.integrate.uzum.module.*
 import mimsoft.io.utils.ResponseModel
 import org.bouncycastle.jce.ECNamedCurveTable
@@ -40,25 +38,15 @@ object UzumService {
     suspend fun register(orderId: Long): ResponseModel {
         val order = OrderService.getById(orderId)
         val payment = PaymentService.get(order?.merchant?.id)
-//        if (order?.products.isNullOrEmpty()) {
-//            return ResponseModel(body = "in order product not found", httpStatus = HttpStatusCode.BadRequest)
-//        }
         val uzumDto = UzumMapper.toDto(order)
-//        generateSignature(securityToken, generateKeys())
-//        val key = generateKeys()
-//        val signature = generateSignature(securityToken, key)
-//        val valid = validateSignature(securityToken,key,signature.toByteArray())
-
         val response = client.post(
             "https://test-chk-api.ipt-merch.com/api/v1/payment/register"
         ) {
             headers {
                 append("Content-Type", "application/json")
-//                append("X-Merchant-Access-Token", "")
+                append("X-Operation-Id", UUID.randomUUID().toString())
                 append("Content-Language", "uz-UZ")
-//                append("X-Fingerprint", "")
                 append("X-Signature", generateSignature(securityToken, generateKeys()))
-//                append("X-Signature", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3")
                 append("X-API-Key", payment?.uzumApiKey.toString())
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
@@ -80,13 +68,17 @@ object UzumService {
                 )
                 return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
             } else {
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
                 return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
             }
-        } else {
-            println("response.status.value   ${response.status.value}")
-            //todo save error
-            return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.BadRequest)
         }
+        return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.MethodNotAllowed)
     }
 
     suspend fun callBack(callBack: UzumCallBack) {
@@ -95,43 +87,40 @@ object UzumService {
     }
 
 
-    suspend fun complete(uzumOrder: UzumPaymentTable) {
-        log.info("INSIDI complete")
+    suspend fun complete(uzumOrder: UzumPaymentTable): Boolean {
+        log.info("inside complete")
         val payment = PaymentService.get(uzumOrder.merchantId)
-        val body = UzumRefund(orderId = uzumOrder.uzumOrderId, amount = uzumOrder.price?.toInt())
-        val result = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/complete") {
+        val body = UzumRefund(orderId = uzumOrder.uzumOrderId, amount = uzumOrder.price)
+        val response = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/complete") {
             headers {
                 append("Content-Type", "application/json")
-//                append("X-Merchant-Access-Token", "")
+                append("X-Operation-Id", UUID.randomUUID().toString())
                 append("Content-Language", "uz-UZ")
-//                append("X-Fingerprint", "")
                 append("X-Signature", generateSignature(securityToken, generateKeys()))
-//                append("X-Signature", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3")
                 append("X-API-Key", payment?.uzumApiKey.toString())
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(Gson().toJson(body))
         }
-        log.info("response.status.value   ${result.status.value}")
-        log.info("response.status.value   ${result.body<String>()}")
-        if (result.status.value == 200) {
-            val result = Gson().fromJson(result.body<String>(), UzumRegisterResponse::class.java)
+        log.info("response.status.value   ${response.status.value}")
+        log.info("response.status.value   ${response.body<String>()}")
+        if (response.status.value == 200) {
+            val result = Gson().fromJson(response.body<String>(), UzumRegisterResponse::class.java)
             if (result.errorCode == 0) {
-//                UzumRepository.saveTransaction(
-//                    result,
-//                    order?.id,
-//                    order?.totalPrice,
-//                    UzumOperationType.TO_REGISTER,
-//                    order?.merchant?.id
-//                )
-//                return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
+                UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.AUTHORIZE)
+                return true
             } else {
-//                return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+                return false
             }
-        } else {
-            //todo save error
-//            return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.BadRequest)
         }
+        return false
     }
 
 
@@ -140,10 +129,7 @@ object UzumService {
         ecdsaSign.initSign(keys.private)
         ecdsaSign.update(plaintext.toByteArray(StandardCharsets.UTF_8))
         val signature: ByteArray = ecdsaSign.sign()
-
-        // Convert the signature byte array to Base64-encoded string
         val base64Signature = Base64.getEncoder().encodeToString(signature)
-
         return base64Signature
     }
 
@@ -151,14 +137,9 @@ object UzumService {
         val ecdsaVerify: Signature = Signature.getInstance("SHA256withECDSA", "BC")
         ecdsaVerify.initVerify(pair.public)
         ecdsaVerify.update(plaintext.toByteArray(StandardCharsets.UTF_8))
-
-        // Decode the Base64-encoded signature string back to a byte array
         val signatureBytes = Base64.getDecoder().decode(signature)
-
         return ecdsaVerify.verify(signatureBytes)
     }
-
-
 
 
     fun generateKeys(): KeyPair {
@@ -191,18 +172,30 @@ object UzumService {
         val result = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/refund") {
             headers {
                 append("Content-Type", "application/json")
-//                append("X-Merchant-Access-Token", "")
+                append("X-Operation-Id", UUID.randomUUID().toString())
                 append("Content-Language", "uz-UZ")
-//                append("X-Fingerprint", "")
                 append("X-Signature", generateSignature(securityToken, generateKeys()))
-//                append("X-Signature", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3")
                 append("X-API-Key", payment?.uzumApiKey.toString())
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(Gson().toJson(refund))
         }
-        println("response.status.value   ${result.status.value}")
-        println("response.status.value   ${result.body<String>()}")
+        log.info("response.status.value   ${result.status.value}")
+        log.info("response.status.value   ${result.body<String>()}")
+        if (result.status.value==200){
+            val result = Gson().fromJson(result.body<String>(), UzumRegisterResponse::class.java)
+            if (result.errorCode==0){
+
+            }else{
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+            }
+        }
         return result.body<String>()
     }
 
@@ -211,18 +204,30 @@ object UzumService {
         val result = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/reverse") {
             headers {
                 append("Content-Type", "application/json")
-//                append("X-Merchant-Access-Token", "")
                 append("Content-Language", "uz-UZ")
-//                append("X-Fingerprint", "")
+                append("X-Operation-Id", UUID.randomUUID().toString())
                 append("X-Signature", generateSignature(securityToken, generateKeys()))
-//                append("X-Signature", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3")
                 append("X-API-Key", payment?.uzumApiKey.toString())
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(Gson().toJson(reverse))
         }
-        println("response.status.value   ${result.status.value}")
-        println("response.status.value   ${result.body<String>()}")
+        log.info("response.status.value   ${result.status.value}")
+        log.info("response.status.value   ${result.body<String>()}")
+        if (result.status.value==200){
+            val result = Gson().fromJson(result.body<String>(), UzumRegisterResponse::class.java)
+            if (result.errorCode==0){
+
+            }else{
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+            }
+        }
         return result.body<String>()
     }
 
