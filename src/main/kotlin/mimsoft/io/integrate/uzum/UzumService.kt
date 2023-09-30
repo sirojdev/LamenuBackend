@@ -81,10 +81,7 @@ object UzumService {
         return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.MethodNotAllowed)
     }
 
-    suspend fun callBack(callBack: UzumCallBack) {
 
-
-    }
 
 
     suspend fun complete(uzumOrder: UzumPaymentTable): Boolean {
@@ -151,21 +148,7 @@ object UzumService {
         return g.generateKeyPair()
     }
 
-    fun authorizeTransaction(callBack: UzumCallBack) {
-        TODO("Not yet implemented")
-    }
 
-    fun completeTransaction(callBack: UzumCallBack) {
-        TODO("Not yet implemented")
-    }
-
-    fun refundTransaction(callBack: UzumCallBack) {
-        TODO("Not yet implemented")
-    }
-
-    fun reverseTransaction(callBack: UzumCallBack) {
-        TODO("Not yet implemented")
-    }
 
     suspend fun refund(refund: UzumRefund, uzumOrder: UzumPaymentTable?): String {
         val payment = PaymentService.get(uzumOrder?.merchantId)
