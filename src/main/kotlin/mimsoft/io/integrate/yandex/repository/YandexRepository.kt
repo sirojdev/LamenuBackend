@@ -13,17 +13,23 @@ object YandexRepository {
     private val repository: BaseRepository = DBManager
     val log: Logger = LoggerFactory.getLogger(YandexRepository::class.java)
 
-    suspend fun saveYandexOrder(dto: YandexOrder) {
+    suspend fun saveYandexOrder(dto: YandexOrderDto) {
         // tugatilmagan
         val query =
-            "select * from $YANDEX_ORDER where order_id = "
+            """INSERT INTO $YANDEX_ORDER (order_id, order_status, claim_id, operation_id)
+SELECT ${dto.orderId}, ?, ?, ?
+WHERE NOT EXISTS (
+    SELECT 1 FROM $YANDEX_ORDER WHERE order_id = ${dto.orderId}
+);"""
         log.info("save yandex order")
         withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
                 val rs = connection.prepareStatement(query).apply {
+                    setString(1, "register")
+                    setString(2, dto.claimId)
+                    setString(3, dto.operationId)
                     this.closeOnCompletion()
-                }.executeQuery()
-
+                }.executeUpdate()
             }
         }
     }
@@ -44,7 +50,6 @@ object YandexRepository {
             }
         }
         return result
-
     }
 
     private fun getOne(rs: ResultSet): YandexOrderDto? {
@@ -52,6 +57,7 @@ object YandexRepository {
             id = rs.getLong("id"),
             claimId = rs.getString("claim_id"),
             orderId = rs.getLong("order_id"),
+            operationId = rs.getString("operation_id"),
             createdDate = rs.getTimestamp("created_date"),
             updatedDate = rs.getTimestamp("updated_date")
         )

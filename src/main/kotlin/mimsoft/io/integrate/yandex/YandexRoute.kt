@@ -35,6 +35,10 @@ fun Route.routeToYandex() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             YandexService.confirm(orderId = orderId, merchantId = 1)
         }
+        get("info") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            YandexService.info(orderId)
+        }
 
         get() {
             YandexService.search()
