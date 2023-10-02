@@ -1,4 +1,4 @@
-package mimsoft.io.integrate.yandex
+package mimsoft.io.integrate.yandex.module
 
 import com.google.gson.annotations.SerializedName
 

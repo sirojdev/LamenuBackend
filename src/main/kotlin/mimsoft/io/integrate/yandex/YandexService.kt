@@ -33,6 +33,7 @@ object YandexService {
     suspend fun createOrder(dto: YandexOrder, orderId: Long?): ResponseModel {
         val merchantIntegrateDto = MerchantIntegrateRepository.get(1)
         val order = OrderService.getById(orderId, "branch", "user")
+
         if (dto.callbackProperties == null) {
             dto.callbackProperties = CallbackProperties(
                 callbackUrl = "https://api.lamenu.uz/v1/integrate/yandex/callback"
@@ -116,7 +117,12 @@ object YandexService {
         ).also { dto.routePoints = it }
         val json = Gson().toJson(dto)
         log.info("GSON $json")
-        val requestId = UUID.randomUUID().toString()
+        val yandexOrder = YandexRepository.getYandexOrder(orderId)
+        val requestId = if (yandexOrder == null) {
+            UUID.randomUUID().toString()
+        } else {
+            yandexOrder.operationId
+        }
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=$requestId"
         val response = client.post(url) {
             bearerAuth(merchantIntegrateDto?.yandexDeliveryKey.toString())
@@ -133,8 +139,15 @@ object YandexService {
         } else if (response.status.value == 429) {
             ResponseModel(body = "Слишком много запросов", httpStatus = response.status)
         } else {
-//            YandexRepository.saveYandexOrder(dto)
-            ResponseModel(httpStatus = response.status, body = response.body<String>())
+            val responseDto = Gson().fromJson(response.body<String>(), YandexOrderResponse::class.java)
+            YandexRepository.saveYandexOrder(
+                YandexOrderDto(
+                    operationId = requestId,
+                    claimId = responseDto.id,
+                    orderId = order.id,
+                )
+            )
+            return ResponseModel(httpStatus = response.status, body = response.body<String>())
         }
     }
 
@@ -248,7 +261,23 @@ object YandexService {
         }
         log.info("response $response")
         log.info("body ${response.body<String>()}")
-        val confirmDto = Gson().fromJson(response.body<String>(),YandexConfirm::class.java)
+        val confirmDto = Gson().fromJson(response.body<String>(), YandexConfirm::class.java)
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+    }
+
+    suspend fun info(orderId: Long?): ResponseModel {
+        val yandexOrder = YandexRepository.getYandexOrder(orderId)
+        val merchantIntegrateDto = MerchantIntegrateRepository.get(1)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id={string}"
+        val response = client.post(url) {
+            bearerAuth(merchantIntegrateDto?.yandexDeliveryKey.toString())
+            contentType(ContentType.Application.Json)
+            header("Accept-Language", "en")
+            setBody("{\"version\":1}")
+        }
+        log.info("response $response")
+        log.info("body ${response.body<String>()}")
+        val confirmDto = Gson().fromJson(response.body<String>(), YandexConfirm::class.java)
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 }
