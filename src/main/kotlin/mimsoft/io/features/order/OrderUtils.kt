@@ -25,6 +25,13 @@ import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 
 object OrderUtils {
+    //val tableNames = listOf(
+    //        mapOf(
+    //            "branch" to listOf("name_uz", "name_eng", "name_ru"),
+    //            "payment" to listOf("icon", "name")
+    //        )
+    //    )
+//    method(tableNames)
 
     val log: Logger = LoggerFactory.getLogger("OrderUtils")
 
@@ -451,6 +458,28 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
+    fun generateQuery(conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>): String {
+        val selectColumns = mutableListOf<String>()
+        val joinStatements = mutableListOf<String>()
+        for (tableNameMap in tableNames) {
+            for ((tableName, columns) in tableNameMap) {
+                selectColumns.addAll(columns.map { "$tableName.$it" })
+                if (joinStatements.isNotEmpty()) {
+                    val previousTable = joinStatements.last().substringAfter("JOIN").substringBefore("ON").trim()
+                    val joinStatement = "JOIN $tableName ON $previousTable.id = $tableName.id"
+                    joinStatements.add(joinStatement)
+                } else {
+                    // The first table doesn't require a JOIN statement
+                    joinStatements.add(tableName)
+                }
+            }
+        }
+
+        val query = "SELECT ${selectColumns.joinToString(", ")} FROM ${joinStatements.joinToString(" ")}"
+
+        return query
+    }
+
     fun getQuery(params: Map<String, *>?, vararg columns: String, orderId: Long?): Search {
         val columnsSet = columns.toSet()
         var query = """
@@ -789,9 +818,9 @@ object OrderUtils {
 
     private suspend fun getProducts(products: String?): List<CartItem?>? {
         val productList = gsonToList(products, CartItem::class.java)
-        if (productList.isNullOrEmpty()){
+        if (productList.isNullOrEmpty()) {
             return null
-        }else{
+        } else {
             return getByCartItem2(productList)
         }
     }
