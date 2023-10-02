@@ -31,6 +31,7 @@ object YandexService {
     }
 
     suspend fun createOrder(dto: YandexOrder, orderId: Long?): ResponseModel {
+        val merchantIntegrateDto = MerchantIntegrateRepository.get(1)
         val order = OrderService.getById(orderId, "branch", "user")
         if (dto.callbackProperties == null) {
             dto.callbackProperties = CallbackProperties(
@@ -113,19 +114,15 @@ object YandexService {
                 visitOrder = 2
             )
         ).also { dto.routePoints = it }
-
-
         val json = Gson().toJson(dto)
         log.info("GSON $json")
-        val requestId = UUID.randomUUID()
+        val requestId = UUID.randomUUID().toString()
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=$requestId"
         val response = client.post(url) {
-            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
+            bearerAuth(merchantIntegrateDto?.yandexDeliveryKey.toString())
             contentType(ContentType.Application.Json)
-            header("Accept-Language", "eng")
-            setBody(
-                json
-            )
+            header("Accept-Language", "en")
+            setBody(json)
         }
         log.info("response :${response.status.value}")
         log.info("body :${response.body<String>()}")
@@ -136,7 +133,7 @@ object YandexService {
         } else if (response.status.value == 429) {
             ResponseModel(body = "Слишком много запросов", httpStatus = response.status)
         } else {
-            YandexRepository.saveYandexOrder(dto, requestId)
+//            YandexRepository.saveYandexOrder(dto)
             ResponseModel(httpStatus = response.status, body = response.body<String>())
         }
     }
@@ -152,7 +149,7 @@ object YandexService {
         val response = client.post(url) {
             bearerAuth(merchantIntegrateDto?.yandexDeliveryKey ?: "")
             contentType(ContentType.Application.Json)
-            header("Accept-Language", "eng")
+            header("Accept-Language", "en")
             setBody(
                 json
             )
@@ -189,7 +186,7 @@ object YandexService {
         val response = client.post(url) {
             bearerAuth(integrateKeys?.yandexDeliveryKey.toString())
             contentType(ContentType.Application.Json)
-            header("Accept-Language", "eng")
+            header("Accept-Language", "en")
             setBody(
                 json
             )
@@ -203,7 +200,7 @@ object YandexService {
         val response = client.post(url) {
             bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
             contentType(ContentType.Application.Json)
-            header("Accept-Language", "eng")
+            header("Accept-Language", "en")
             setBody(
                 json
             )
@@ -217,7 +214,7 @@ object YandexService {
         val response = client.post(url) {
             bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
             contentType(ContentType.Application.Json)
-            header("Accept-Language", "eng")
+            header("Accept-Language", "en")
             setBody(
                 json
             )
@@ -231,11 +228,27 @@ object YandexService {
         val response = client.post(url) {
             bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
             contentType(ContentType.Application.Json)
-            header("Accept-Language", "eng")
+            header("Accept-Language", "en")
             setBody(
                 json
             )
         }
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+    }
+
+    suspend fun confirm(orderId: Long?, merchantId: Long): ResponseModel {
+        val yandexOrder = YandexRepository.getYandexOrder(orderId)
+        val merchantIntegrateDto = MerchantIntegrateRepository.get(merchantId)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id={string}"
+        val response = client.post(url) {
+            bearerAuth(merchantIntegrateDto?.yandexDeliveryKey.toString())
+            contentType(ContentType.Application.Json)
+            header("Accept-Language", "en")
+            setBody("{\"version\":1}")
+        }
+        log.info("response $response")
+        log.info("body ${response.body<String>()}")
+        val confirmDto = Gson().fromJson(response.body<String>(),YandexConfirm::class.java)
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 }

@@ -29,7 +29,11 @@ fun Route.routeToYandex() {
         post("create") {
             val item = call.receive<YandexOrder>()
             val orderId = call.parameters["orderId"]?.toLongOrNull()
-            call.respond(YandexService.createOrder(item,orderId))
+            call.respond(YandexService.createOrder(item, orderId))
+        }
+        post("confirm") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            YandexService.confirm(orderId = orderId, merchantId = 1)
         }
 
         get() {
@@ -37,7 +41,7 @@ fun Route.routeToYandex() {
         }
 
         post("callback") {
-            val myOrderId =call.parameters["my_order_id"]
+            val myOrderId = call.parameters["my_order_id"]
             val claimId = call.parameters["claim_id"]
             println("my order id  = $myOrderId")
             println("my claim id  = $claimId")
