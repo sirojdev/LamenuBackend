@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
+import mimsoft.io.features.order.OrderUtils.generateQuery
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
 import mimsoft.io.features.order.OrderUtils.parse
@@ -40,6 +41,11 @@ object OrderService {
 
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
+    suspend fun getUniversal(
+        conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>
+    ) {
+        val query = generateQuery(conditions,tableNames)
+    }
 
     suspend fun getAll2(
         params: Map<String, *>? = null,

@@ -14,9 +14,12 @@ import mimsoft.io.integrate.integrate.MerchantIntegrateRepository
 import mimsoft.io.integrate.yandex.module.*
 import mimsoft.io.integrate.yandex.repository.YandexRepository
 import mimsoft.io.utils.ResponseModel
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 object YandexService {
+    private val log: Logger = LoggerFactory.getLogger(YandexService::class.java)
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             gson {
@@ -50,44 +53,70 @@ object YandexService {
         dto.items = arrayListOf(
             YandexOrderItem(
                 costCurrency = "UZS",
-                costValue = "1",
-                droppofPoint = 1,
-                pickupPoint = 0,
+                costValue = "0",
+                droppofPoint = 2,
+                pickupPoint = 1,
                 quantity = 1,
-                size = Size(height = 0.05, length = 0.15, width = 0.1),
-                title = order?.comment ?: "",
+                size = Size(height = 0.20, length = 0.15, width = 0.2),
+                title = "Foods",
                 weight = 2.105,
             )
         )
-        dto.routePoints = listOf(
+        listOf(
             YandexOrderRoutePoint(
                 address = Address(
                     comment = order?.branch?.name?.uz,
                     coordinates = listOf(
                         order?.branch?.longitude!!,
-                        order?.branch?.latitude!!
+                        order.branch?.latitude!!
                     ),
-                    description =order.address?.description
+                    description = order.address?.description,
+                    fullname = order.branch?.name?.uz
 
                 ),
                 contact = Contact(
-                    name = order?.user?.firstName,
-                    phone = order?.user?.phone
+                    name = order.branch?.name?.uz,
+                    phone = order.user?.phone
                 ),
                 externalOrderCost = ExternalOrderCost(
                     currency = "UZS",
-                    value = "1000"
+                    currencySign = "₽",
+                    value = "0"
                 ),
                 externalOrderId = "${order.id}",
-//                paymentOnDelivery = PaymentOnDelivery(
-//
-//                )
-
+                type = "source",
+                pointId = 1,
+                visitOrder = 1
+            ),
+            YandexOrderRoutePoint(
+                address = Address(
+                    comment = order.comment,
+                    coordinates = listOf(
+                        order.address?.longitude!!,
+                        order.address?.latitude!!
+                    ),
+                    description = order.address?.description,
+                    fullname = order.address?.description
+                ),
+                contact = Contact(
+                    name = order.user?.firstName,
+                    phone = order.user?.phone
+                ),
+                externalOrderCost = ExternalOrderCost(
+                    currency = "UZS",
+                    currencySign = "₽",
+                    value = "0"
+                ),
+                externalOrderId = "${order.id}",
+                type = "destination",
+                pointId = 2,
+                visitOrder = 2
             )
-        )
+        ).also { dto.routePoints = it }
 
 
         val json = Gson().toJson(dto)
+        log.info("GSON $json")
         val requestId = UUID.randomUUID()
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=$requestId"
         val response = client.post(url) {
@@ -98,15 +127,17 @@ object YandexService {
                 json
             )
         }
-        if (response.status.value == 403) {
-            return ResponseModel(body = "Оплата при получении недоступна", httpStatus = response.status)
+        log.info("response :${response.status.value}")
+        log.info("body :${response.body<String>()}")
+        return if (response.status.value == 403) {
+            ResponseModel(body = "Оплата при получении недоступна", httpStatus = response.status)
         } else if (response.status.value == 400) {
-            return ResponseModel(body = "Неправильное тело запроса", httpStatus = response.status)
-        }else if (response.status.value==429){
-            return ResponseModel(body = "Слишком много запросов", httpStatus = response.status)
-        }else{
+            ResponseModel(body = "Неправильное тело запроса", httpStatus = response.status)
+        } else if (response.status.value == 429) {
+            ResponseModel(body = "Слишком много запросов", httpStatus = response.status)
+        } else {
             YandexRepository.saveYandexOrder(dto, requestId)
-            return ResponseModel(httpStatus = response.status, body = response.body<String>())
+            ResponseModel(httpStatus = response.status, body = response.body<String>())
         }
     }
 

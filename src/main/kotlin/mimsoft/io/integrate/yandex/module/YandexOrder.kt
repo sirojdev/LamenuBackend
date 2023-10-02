@@ -56,6 +56,7 @@ data class Requirement(
 )
 
 data class CallbackProperties(
+    @SerializedName("callback_url")
     var callbackUrl: String?=null
 )
 
@@ -69,7 +70,7 @@ data class EmergencyContact(
 data class YandexOrderItem(
     @SerializedName("cost_currency")
     var costCurrency: String? = null,
-    @SerializedName("cost_var ue")
+    @SerializedName("cost_value")
     var costValue: String? = null,
     @SerializedName("droppof_point")
     var droppofPoint: Int? = null,
