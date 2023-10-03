@@ -41,11 +41,38 @@ fun Route.routeToYandex() {
             val merchantId = call.principal<BasePrincipal>()?.merchantId
             call.respond(YandexService.info(orderId, merchantId))
         }
-
-        get() {
-            YandexService.search()
+        get("info-courier") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.courierInfo(orderId, merchantId))
+        }
+        get("courier-location") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.courierLocation(orderId, merchantId))
+        }
+        get("tracking-link") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.trackingLink(orderId, merchantId))
         }
 
+        get("cancel-info") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.cancelInfo(orderId, merchantId))
+        }
+        post("cancel") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val state = call.parameters["state"]
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.cancel(orderId, merchantId,state))
+        }
+        get("confirm-code") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.confirmCode(orderId, merchantId))
+        }
         post("callback") {
             val myOrderId = call.parameters["my_order_id"]
             val claimId = call.parameters["claim_id"]

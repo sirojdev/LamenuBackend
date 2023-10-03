@@ -52,6 +52,38 @@ object YandexRepository {
         return result
     }
 
+    /** bu methoddan faqat order yandexda create bolgandan song ishlating */
+    suspend fun getYandexOrderWithKey(orderId: Long?): YandexOrderDto? {
+        val query =
+            """select *  from yandex inner join merchant_integration on merchant_integration.merchant_id = yandex.merchant_id where yandex.order_id = $orderId"""
+        log.info("get yandex order")
+        var result: YandexOrderDto? = null
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    result = getOneWithKey(rs)
+                }
+            }
+        }
+        return result
+    }
+
+    private fun getOneWithKey(rs: ResultSet): YandexOrderDto? {
+        return YandexOrderDto(
+            id = rs.getLong("id"),
+            claimId = rs.getString("claim_id"),
+            orderId = rs.getLong("order_id"),
+            operationId = rs.getString("operation_id"),
+            createdDate = rs.getTimestamp("created_date"),
+            updatedDate = rs.getTimestamp("updated_date"),
+            yandexKey = rs.getString("yandex_delivery_key")
+        )
+    }
+
+
     private fun getOne(rs: ResultSet): YandexOrderDto? {
         return YandexOrderDto(
             id = rs.getLong("id"),
