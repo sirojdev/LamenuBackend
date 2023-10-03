@@ -73,6 +73,12 @@ fun Route.routeToYandex() {
             val merchantId = call.principal<BasePrincipal>()?.merchantId
             call.respond(YandexService.confirmCode(orderId, merchantId))
         }
+
+        get("point-eta"){
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.pointEta(orderId, merchantId))
+        }
         post("callback") {
             val myOrderId = call.parameters["my_order_id"]
             val claimId = call.parameters["claim_id"]
