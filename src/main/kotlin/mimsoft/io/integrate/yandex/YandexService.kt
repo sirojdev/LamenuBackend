@@ -287,7 +287,20 @@ object YandexService {
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
+
     suspend fun confirmCode(orderId: Long?, merchantId: Long?): Any {
-        TODO("Not yet implemented")
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val body = YandexCode(claimId = yOrder?.claimId)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/confirmation_code"
+        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun pointEta(orderId: Long?, merchantId: Long?): Any {
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val body = YandexCode(claimId = yOrder?.claimId)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/points-eta?claim_id=${yOrder?.claimId}"
+        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 }
