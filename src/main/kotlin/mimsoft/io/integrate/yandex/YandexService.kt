@@ -191,54 +191,11 @@ object YandexService {
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 
-    suspend fun accept(): ResponseModel {
-        val json = ""
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id={string}"
-        val response = client.post(url) {
-            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
-            contentType(ContentType.Application.Json)
-            header("Accept-Language", "en")
-            setBody(
-                json
-            )
-        }
-        return ResponseModel(httpStatus = response.status, body = response.body<String>())
-    }
-
-    suspend fun search(): ResponseModel {
-        val json = ""
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/search"
-        val response = client.post(url) {
-            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
-            contentType(ContentType.Application.Json)
-            header("Accept-Language", "en")
-            setBody(
-                json
-            )
-        }
-        return ResponseModel(httpStatus = response.status, body = response.body<String>())
-    }
-
-    suspend fun cancelInfo(): ResponseModel {
-        val json = ""
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id={string}n"
-        val response = client.post(url) {
-            bearerAuth("y0_AgAAAABw_w6NAAc6MQAAAADtbrxfa_TWk_I-Q_-dqxteHd5J2F7P5UQ")
-            contentType(ContentType.Application.Json)
-            header("Accept-Language", "en")
-            setBody(
-                json
-            )
-        }
-        return ResponseModel(httpStatus = response.status, body = response.body<String>())
-    }
-
     suspend fun confirm(orderId: Long?, merchantId: Long): ResponseModel {
-        val yandexOrder = YandexRepository.getYandexOrder(orderId)
-        val merchantIntegrateDto = MerchantIntegrateRepository.get(merchantId)
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
         val body = YandexConfirm(version = 1)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yandexOrder?.claimId}"
-        val response = createPostRequest(url, body, merchantIntegrateDto?.yandexDeliveryKey.toString())
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yOrder?.claimId}"
+        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
         log.info("response $response")
         log.info("body ${response.body<String>()}")
         return when (response.status.value) {
@@ -251,16 +208,16 @@ object YandexService {
             404 -> ResponseModel(body = "Заявка не найдена", httpStatus = response.status)
             409 -> ResponseModel(body = "Недопустимое действие над заявкой", httpStatus = response.status)
             429 -> ResponseModel(body = "Слишком много запросов", httpStatus = response.status)
-            else -> {ResponseModel(body = "Something wrong", httpStatus = response.status)}
+            else -> {
+                ResponseModel(body = "Something wrong", httpStatus = response.status)
+            }
         }
     }
 
     suspend fun info(orderId: Long?, merchantId: Long?): ResponseModel {
-        val yandexOrder = YandexRepository.getYandexOrder(orderId)
-//        val merchantIntegrateDto = MerchantIntegrateRepository.get(merchantId)
-        val merchantIntegrateDto = MerchantIntegrateRepository.get(1)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${yandexOrder?.claimId}"
-        val response = createPostRequest(url, merchantIntegrateDto?.yandexDeliveryKey.toString())
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${yOrder?.claimId}"
+        val response = createPostRequest(url, yOrder?.yandexKey.toString())
         log.info("response $response")
         log.info("body ${response.body<String>()}")
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
@@ -275,11 +232,62 @@ object YandexService {
         }
     }
 
+    private suspend fun createGetRequest(url: String, token: String): HttpResponse {
+        return client.get(url) {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            header("Accept-Language", "en")
+        }
+    }
+
     private suspend fun createPostRequest(url: String, token: String): HttpResponse {
         return client.post(url) {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             header("Accept-Language", "en")
         }
+    }
+
+    suspend fun courierInfo(orderId: Long?, merchantId: Long?): Any {
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/driver-voiceforwarding"
+        val body = YandexCourier(claimId = yOrder?.claimId)
+        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun courierLocation(orderId: Long?, merchantId: Long?): ResponseModel {
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val url =
+            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/performer-position?claim_id=${yOrder?.claimId}"
+        val response = createGetRequest(url, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun trackingLink(orderId: Long?, merchantId: Long?): Any {
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val url =
+            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/tracking-links?claim_id=${yOrder?.claimId}"
+        val response = createGetRequest(url, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun cancelInfo(orderId: Long?, merchantId: Long?): Any {
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id=${yOrder?.claimId}"
+        val response = createPostRequest(url, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun cancel(orderId: Long?, merchantId: Long?, state: String?): Any {
+        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
+        val body = YandexCancel(cancelState = state, version = 1)
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel?claim_id=${yOrder?.claimId}"
+        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun confirmCode(orderId: Long?, merchantId: Long?): Any {
+        TODO("Not yet implemented")
     }
 }
