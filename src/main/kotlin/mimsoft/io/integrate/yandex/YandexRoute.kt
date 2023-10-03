@@ -29,15 +29,17 @@ fun Route.routeToYandex() {
         post("create") {
             val item = call.receive<YandexOrder>()
             val orderId = call.parameters["orderId"]?.toLongOrNull()
-            call.respond(YandexService.createOrder(item, orderId))
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.createOrder(item, orderId, merchantId))
         }
         post("confirm") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
-            YandexService.confirm(orderId = orderId, merchantId = 1)
+            call.respond(YandexService.confirm(orderId = orderId, merchantId = 1))
         }
         get("info") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
-            YandexService.info(orderId)
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.info(orderId, merchantId))
         }
 
         get() {

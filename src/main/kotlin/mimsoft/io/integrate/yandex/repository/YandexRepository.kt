@@ -17,15 +17,15 @@ object YandexRepository {
         // tugatilmagan
         val query =
             """INSERT INTO $YANDEX_ORDER (order_id, order_status, claim_id, operation_id)
-SELECT ${dto.orderId}, ?, ?, ?
-WHERE NOT EXISTS (
-    SELECT 1 FROM $YANDEX_ORDER WHERE order_id = ${dto.orderId}
-);"""
+               SELECT ${dto.orderId}, ?, ?, ?
+               WHERE NOT EXISTS (
+               SELECT 1 FROM $YANDEX_ORDER WHERE order_id = ${dto.orderId}
+                );"""
         log.info("save yandex order")
         withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
-                val rs = connection.prepareStatement(query).apply {
-                    setString(1, "register")
+                connection.prepareStatement(query).apply {
+                    setString(1, dto.orderStatus)
                     setString(2, dto.claimId)
                     setString(3, dto.operationId)
                     this.closeOnCompletion()
@@ -61,5 +61,9 @@ WHERE NOT EXISTS (
             createdDate = rs.getTimestamp("created_date"),
             updatedDate = rs.getTimestamp("updated_date")
         )
+    }
+
+    fun update() {
+        TODO("Not yet implemented")
     }
 }

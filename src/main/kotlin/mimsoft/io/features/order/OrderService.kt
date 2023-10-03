@@ -15,7 +15,6 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
-import mimsoft.io.features.pos.POSController
 import mimsoft.io.features.pos.POSService
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.jowi.JowiService
@@ -154,10 +153,6 @@ object OrderService {
             }
             val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
             fullOrder?.let { it1 ->
-
-                POSController.getPostFromBranch(1).createOrder(order)
-
-
                 JowiService.createOrder(
                     it1.copy(
                         totalPrice = order.totalPrice,

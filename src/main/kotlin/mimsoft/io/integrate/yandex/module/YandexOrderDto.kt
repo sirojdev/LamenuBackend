@@ -9,6 +9,7 @@ data class YandexOrderDto(
     val claimId: String? = null,
     val orderId: Long? = null,
     val orderStatus: String? = null,
+    val version:Int?=null,
     val operationId: String? = null,
     val createdDate: Timestamp? = null,
     val updatedDate: Timestamp? = null,
