@@ -73,6 +73,13 @@ fun Route.routeToYandex() {
             val merchantId = call.principal<BasePrincipal>()?.merchantId
             call.respond(YandexService.confirmCode(orderId, merchantId))
         }
+        get("bulk-info") {
+            val branchId = call.parameters["branchId"]?.toLongOrNull()
+            val limit  = call.parameters["limit"]?.toIntOrNull()?:10
+            val offset = call.parameters["offset"]?.toIntOrNull()?:0
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.bulkInfo(branchId,merchantId,offset,limit))
+        }
 
         get("point-eta"){
             val orderId = call.parameters["orderId"]?.toLongOrNull()

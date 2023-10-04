@@ -59,6 +59,8 @@ object YandexService {
                         claimId = responseDto.id,
                         orderId = order?.id,
                         orderStatus = "new",
+                        merchantId = order?.merchant?.id,
+                        branchId = order?.branch?.id
                     )
                 )
                 return ResponseModel(httpStatus = response.status, body = response.body<String>())
@@ -301,6 +303,16 @@ object YandexService {
         val body = YandexCode(claimId = yOrder?.claimId)
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/points-eta?claim_id=${yOrder?.claimId}"
         val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    suspend fun bulkInfo(branchId: Long?, merchantId: Long?, offset: Int, limit: Int): ResponseModel {
+        val yOrderList = YandexRepository.getYandexOrderList(branchId, limit, offset)
+        val body = YandexBulk()
+        val key = MerchantIntegrateRepository.get(1)
+        yOrderList.forEach { o->body.claimIds?.add(o.claimId?:"") }
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/bulk_info"
+        val response = createPostRequest(url, body, key?.yandexDeliveryKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 }

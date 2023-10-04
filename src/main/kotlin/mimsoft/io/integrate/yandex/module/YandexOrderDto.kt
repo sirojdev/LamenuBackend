@@ -6,6 +6,8 @@ const val YANDEX_ORDER = "yandex"
 
 data class YandexOrderDto(
     val id: Long? = null,
+    val merchantId: Long? = null,
+    val branchId: Long? = null,
     val claimId: String? = null,
     val orderId: Long? = null,
     val orderStatus: String? = null,
