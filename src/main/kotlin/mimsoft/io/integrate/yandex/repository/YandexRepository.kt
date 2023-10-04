@@ -16,8 +16,8 @@ object YandexRepository {
     suspend fun saveYandexOrder(dto: YandexOrderDto) {
         // tugatilmagan
         val query =
-            """INSERT INTO $YANDEX_ORDER (order_id, order_status, claim_id, operation_id)
-               SELECT ${dto.orderId}, ?, ?, ?
+            """INSERT INTO $YANDEX_ORDER (order_id, order_status, claim_id, operation_id,branch_id,merchant_id)
+               SELECT ${dto.orderId}, ?, ?, ?,${dto.branchId},${dto.merchantId}
                WHERE NOT EXISTS (
                SELECT 1 FROM $YANDEX_ORDER WHERE order_id = ${dto.orderId}
                 );"""
@@ -55,7 +55,7 @@ object YandexRepository {
     /** bu methoddan faqat order yandexda create bolgandan song ishlating */
     suspend fun getYandexOrderWithKey(orderId: Long?): YandexOrderDto? {
         val query =
-            """select *  from yandex inner join merchant_integration on merchant_integration.merchant_id = yandex.merchant_id where yandex.order_id = $orderId"""
+            """select yandex.*,yandex.branch_id b_id,yandex.merchant_id m_id  from yandex inner join merchant_integration on merchant_integration.merchant_id = yandex.merchant_id where yandex.order_id = $orderId"""
         log.info("get yandex order")
         var result: YandexOrderDto? = null
         withContext(Dispatchers.IO) {
@@ -71,7 +71,7 @@ object YandexRepository {
         return result
     }
 
-    private fun getOneWithKey(rs: ResultSet): YandexOrderDto? {
+    private fun getOneWithKey(rs: ResultSet): YandexOrderDto {
         return YandexOrderDto(
             id = rs.getLong("id"),
             claimId = rs.getString("claim_id"),
@@ -79,7 +79,9 @@ object YandexRepository {
             operationId = rs.getString("operation_id"),
             createdDate = rs.getTimestamp("created_date"),
             updatedDate = rs.getTimestamp("updated_date"),
-            yandexKey = rs.getString("yandex_delivery_key")
+            yandexKey = rs.getString("yandex_delivery_key"),
+            merchantId = rs.getLong("m_id"),
+            branchId = rs.getLong("b_id"),
         )
     }
 
@@ -91,11 +93,37 @@ object YandexRepository {
             orderId = rs.getLong("order_id"),
             operationId = rs.getString("operation_id"),
             createdDate = rs.getTimestamp("created_date"),
-            updatedDate = rs.getTimestamp("updated_date")
+            updatedDate = rs.getTimestamp("updated_date"),
+            branchId = rs.getLong("branch_id"),
+            merchantId = rs.getLong("merchant_id")
         )
     }
 
     fun update() {
         TODO("Not yet implemented")
+    }
+
+    suspend fun getYandexOrderList(branchId: Long?, limit: Int, offset: Int): ArrayList<YandexOrderDto> {
+        val query = """select * from yandex where branch_id = $branchId limit $limit offset $offset"""
+        log.info("get yandex order list from branch id $branchId")
+        val result: ArrayList<YandexOrderDto> = arrayListOf()
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    result.add(getOneShort(rs))
+                }
+            }
+        }
+        return result
+    }
+
+    private fun getOneShort(rs: ResultSet): YandexOrderDto {
+        return YandexOrderDto(
+            claimId = rs.getString("claim_id"),
+            orderId = rs.getLong("order_id"),
+        )
     }
 }
