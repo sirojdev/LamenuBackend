@@ -61,6 +61,15 @@ object OperatorSocketService {
     }
 
     suspend fun findNearCourierAndSendOrderToCourier(order: Order, offset: Int) {
+        val orderCourierDto =
+            OrderCourierDto(
+                id = order.id,
+                address = order.address?.description,
+                branchName = order.branch?.name,
+                clientFirst = order.user?.firstName,
+                clientLastName = order.user?.lastName,
+                price = order.totalPrice
+            )
         val courierIdList = CourierSocketService.courierIdList(order.merchant?.id)
         log.info("inside near courier and send order")
         log.info(courierIdList.toString())
@@ -75,7 +84,7 @@ object OperatorSocketService {
                     if (connection?.session != null) {
                         CoroutineScope(Dispatchers.IO).launch {
                             log.info("inside send method")
-                            val socketDto = SocketData(data = Gson().toJson(order), type = SocketType.ORDER)
+                            val socketDto = SocketData(data = Gson().toJson(orderCourierDto), type = SocketType.ORDER)
                             connection.session!!.send(Gson().toJson(socketDto))
                         }
                         OrderService.updateOnWave(orderId = order.id!!, true)

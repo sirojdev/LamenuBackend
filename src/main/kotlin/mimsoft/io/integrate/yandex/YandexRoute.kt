@@ -1,5 +1,6 @@
 package mimsoft.io.integrate.yandex
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -7,7 +8,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.integrate.yandex.module.YandexCheckPrice
 import mimsoft.io.integrate.yandex.module.YandexOrder
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
+import org.glassfish.grizzly.http.util.HttpStatus
 
 fun Route.routeToYandex() {
     route("yandex") {
@@ -66,7 +69,7 @@ fun Route.routeToYandex() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val state = call.parameters["state"]
             val merchantId = call.principal<BasePrincipal>()?.merchantId
-            call.respond(YandexService.cancel(orderId, merchantId,state))
+            call.respond(YandexService.cancel(orderId, merchantId, state))
         }
         get("confirm-code") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
@@ -75,16 +78,22 @@ fun Route.routeToYandex() {
         }
         get("bulk-info") {
             val branchId = call.parameters["branchId"]?.toLongOrNull()
-            val limit  = call.parameters["limit"]?.toIntOrNull()?:10
-            val offset = call.parameters["offset"]?.toIntOrNull()?:0
+            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val merchantId = call.principal<BasePrincipal>()?.merchantId
-            call.respond(YandexService.bulkInfo(branchId,merchantId,offset,limit))
+            call.respond(YandexService.bulkInfo(branchId, merchantId, offset, limit))
         }
 
-        get("point-eta"){
+        get("point-eta") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val merchantId = call.principal<BasePrincipal>()?.merchantId
             call.respond(YandexService.pointEta(orderId, merchantId))
+        }
+
+        post("edit") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val merchantId = call.principal<BasePrincipal>()?.merchantId
+            call.respond(YandexService.edit(orderId, merchantId))
         }
         post("callback") {
             val myOrderId = call.parameters["my_order_id"]

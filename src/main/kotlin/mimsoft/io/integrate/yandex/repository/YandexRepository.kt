@@ -16,8 +16,8 @@ object YandexRepository {
     suspend fun saveYandexOrder(dto: YandexOrderDto) {
         // tugatilmagan
         val query =
-            """INSERT INTO $YANDEX_ORDER (order_id, order_status, claim_id, operation_id,branch_id,merchant_id)
-               SELECT ${dto.orderId}, ?, ?, ?,${dto.branchId},${dto.merchantId}
+            """INSERT INTO $YANDEX_ORDER (order_id, order_status, claim_id, operation_id,branch_id,merchant_id,version)
+               SELECT ${dto.orderId}, ?, ?, ?,${dto.branchId},${dto.merchantId},${dto.version}
                WHERE NOT EXISTS (
                SELECT 1 FROM $YANDEX_ORDER WHERE order_id = ${dto.orderId}
                 );"""
@@ -55,7 +55,7 @@ object YandexRepository {
     /** bu methoddan faqat order yandexda create bolgandan song ishlating */
     suspend fun getYandexOrderWithKey(orderId: Long?): YandexOrderDto? {
         val query =
-            """select yandex.*,yandex.branch_id b_id,yandex.merchant_id m_id  from yandex inner join merchant_integration on merchant_integration.merchant_id = yandex.merchant_id where yandex.order_id = $orderId"""
+            """select yandex.*,yandex.branch_id b_id,yandex.merchant_id m_id ,merchant_integration.* from yandex inner join merchant_integration on merchant_integration.merchant_id = yandex.merchant_id where yandex.order_id = $orderId"""
         log.info("get yandex order")
         var result: YandexOrderDto? = null
         withContext(Dispatchers.IO) {
@@ -75,6 +75,7 @@ object YandexRepository {
         return YandexOrderDto(
             id = rs.getLong("id"),
             claimId = rs.getString("claim_id"),
+            version = rs.getInt("version"),
             orderId = rs.getLong("order_id"),
             operationId = rs.getString("operation_id"),
             createdDate = rs.getTimestamp("created_date"),
@@ -99,8 +100,21 @@ object YandexRepository {
         )
     }
 
-    fun update() {
-        TODO("Not yet implemented")
+    suspend fun update(orderId: Long?, version: Int): Boolean {
+        val query = """update yandex set version = $version where order_id = $orderId"""
+        log.info("update version order = $orderId to $version")
+        var result=false
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                if (rs==1){
+                    result=true
+                }
+            }
+        }
+        return result
     }
 
     suspend fun getYandexOrderList(branchId: Long?, limit: Int, offset: Int): ArrayList<YandexOrderDto> {
