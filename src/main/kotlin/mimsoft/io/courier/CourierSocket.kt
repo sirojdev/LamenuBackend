@@ -17,6 +17,7 @@ import mimsoft.io.features.operator.socket.AcceptedDto
 import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.services.socket.SocketData
 import mimsoft.io.services.socket.SocketType
+import mimsoft.io.utils.plugins.GSON
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.toJson
 import java.sql.Timestamp
@@ -59,13 +60,14 @@ fun Route.toCourierSocket() {
                             val chatMessage: ChatMessageDto? =
                                 Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
                             if (chatMessage != null) {
+                                val time =  Timestamp(System.currentTimeMillis())
                                 if (conn.session != null) {
                                     ChatMessageService.sendMessageToOperator(
                                         ChatMessageSaveDto(
                                             fromId = staffId,
                                             toId = merchantId,
                                             sender = Sender.COURIER,
-                                            time = Timestamp(System.currentTimeMillis()),
+                                            time = time,
                                             message = chatMessage.message
                                         )
                                     )
@@ -73,7 +75,7 @@ fun Route.toCourierSocket() {
                                         Gson().toJson(
                                             SocketData(
                                                 type = SocketType.RESPONSE_CHAT,
-                                                data = Gson().toJson(chatMessage)
+                                                data = Gson().toJson(chatMessage.copy(time=GSON.toJson(time)))
                                             )
                                         )
                                     )
