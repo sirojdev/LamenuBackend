@@ -1,10 +1,11 @@
 package mimsoft.io.features.manager_sys
 
+import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlin.math.log
+import junit.framework.TestCase.assertEquals
 import kotlin.test.Test
 
-
+class FavouriteServiceTest {
     private val managersService = ManagersService
 
     @Test
@@ -19,6 +20,7 @@ import kotlin.test.Test
             role = managerSysRole
         )
         val response = managersService.addManager(managerSysModel)
+        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -27,7 +29,7 @@ import kotlin.test.Test
         val id: Long = 7
         val phone = "+998901001011"
         val response = managersService.getManager(id, phone)
-        println(response.body)
+        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 

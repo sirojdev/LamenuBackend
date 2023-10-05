@@ -2,6 +2,8 @@ package mimsoft.io.features.poster
 
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import mimsoft.io.features.pos.poster.PosterDto
+import mimsoft.io.features.pos.poster.PosterService
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -10,7 +12,7 @@ import kotlin.test.assertTrue
 class PosterServiceTest {
 
 
-    private val posterService = PosterService
+    val posterService = PosterService
 
     @Test
     fun get() = testApplication {

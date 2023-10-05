@@ -13,19 +13,24 @@ object StopListService {
     val repository: BaseRepository = DBManager
 
     suspend fun decrementCount(id: Long?, merchantId: Long?): Boolean {
-        val query = "UPDATE $STOP_LIST_TABLE_NAME " +
-                "SET count = IF(count > 0, count - 1, count) " +
-                "WHERE id = $id and merchant_id = $merchantId"
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                it.prepareStatement(query).execute()
+        var rs = 0
+        val query = """
+            update stoplist
+            set count = case when count > 0 then count - 1 else count end
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted;
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            rs = repository.connection().use {
+                it.prepareStatement(query).executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun get(id: Long?, merchantId: Long?): StopListDto? {
-        val query = "select from $STOP_LIST_TABLE_NAME where id = $id and merchant_id = $merchantId "
+        val query = "select * from $STOP_LIST_TABLE_NAME where id = $id and merchant_id = $merchantId "
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -72,37 +77,42 @@ object StopListService {
         return true
     }
 
-/*
-    suspend fun update(stopListDto: StopListDto): Boolean {
-        withContext(Dispatchers.IO) {
-            val query = "update $STOP_LIST_TABLE_NAME set " +
-                        " branch_id = ${stopListDto.branchId}, " +
-                        " product_id = ${stopListDto.productId}, " +
-                        " count = ${stopListDto.count}, " +
-                        " updated = ${Timestamp(System.currentTimeMillis())}" +
-                        " where merchant_id = ${stopListDto.merchantId} and id = ${stopListDto.id}"
-            repository.connection().use { val rs = it.prepareStatement(query).executeQuery() }
-        }
-        return true
-    }*/
+    /*
+        suspend fun update(stopListDto: StopListDto): Boolean {
+            withContext(Dispatchers.IO) {
+                val query = "update $STOP_LIST_TABLE_NAME set " +
+                            " branch_id = ${stopListDto.branchId}, " +
+                            " product_id = ${stopListDto.productId}, " +
+                            " count = ${stopListDto.count}, " +
+                            " updated = ${Timestamp(System.currentTimeMillis())}" +
+                            " where merchant_id = ${stopListDto.merchantId} and id = ${stopListDto.id}"
+                repository.connection().use { val rs = it.prepareStatement(query).executeQuery() }
+            }
+            return true
+        }*/
 
 
     suspend fun update(stopListDto: StopListDto): Boolean {
-        val query ="update $STOP_LIST_TABLE_NAME set " +
-                " branch_id = ${stopListDto.branchId}, " +
-                " product_id = ${stopListDto.productId}, " +
-                " count = ${stopListDto.count}, " +
-                " updated = ? \n" +
-                "where merchant_id = ${stopListDto.merchantId} and not deleted "
-        withContext(Dispatchers.IO) {
+        var rs = 0
+        val query = """
+            update stoplist
+            set product_id = ${stopListDto.productId},
+                count      = ${stopListDto.count},
+                updated    = ?
+            where merchant_id = ${stopListDto.merchantId}
+              and id = ${stopListDto.id}
+              and branch_id = ${stopListDto.branchId}
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             SmsGatewayService.repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun getByProduct(productId: Long?): StopListDto? {

@@ -56,7 +56,7 @@ class ProductRepositoryImplTest {
             image = "https://images.theconversation.com/files/368263/original/file-20201109-22-lqiq5c.jpg",
             costPrice = 11,
             idRKeeper = -13,
-            idJowi = -1,
+            idJowi = "-1",
             idJoinPoster = 98,
             timeCookingMax = 10,
             timeCookingMin = 5
@@ -108,8 +108,7 @@ class ProductRepositoryImplTest {
             options = optionDto,
             extras = extraDto,
             labels = labelDto,
-            joinPosterId = 34,
-            jowiPosterId = "22"
+            joinPosterId = 34
         )
         val response = productRepositoryImpl.update(productDto)
         if (response)
