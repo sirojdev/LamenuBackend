@@ -51,9 +51,19 @@ object CourierOrderService {
         return result
     }
 
-    suspend fun getOrderToCourier(courierId: Long?, orderId: Long?): ResponseModel {
-        val query = " update orders set courier_id = $courierId  " +
-                " where status = ? and id = $orderId and courier_id is null "
+    suspend fun joinWithApiOrderToCourier(courierId: Long?, orderId: Long?): ResponseModel {
+        val query = """UPDATE orders
+                      SET courier_id = $courierId
+                      WHERE
+                          status = ? -- Specify the status condition here
+                          AND id = $orderId
+                          AND courier_id IS NULL
+                          AND $courierId IN (
+                              SELECT id
+                              FROM courier
+                              WHERE active_order_count = 0
+                          );
+                      """
         val result = withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
@@ -63,7 +73,10 @@ object CourierOrderService {
         }
         if (result == 1) {
 //            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
-            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
+            return ResponseModel(
+                body = OrderService.getById(orderId, "user", "branch", "payment_type") ?: "Not found",
+                httpStatus = HttpStatusCode.OK
+            )
         }
         return ResponseModel(httpStatus = HttpStatusCode.MethodNotAllowed)
     }
@@ -80,14 +93,18 @@ object CourierOrderService {
             }
         }
         if (result == 1) {
-            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
+            return ResponseModel(
+                body = OrderService.getById(orderId, "user", "branch", "payment_type") ?: "Not found",
+                httpStatus = HttpStatusCode.OK
+            )
         }
         return ResponseModel(httpStatus = HttpStatusCode.MethodNotAllowed)
     }
 
-    suspend fun toDelivered(courierId: Long?, orderId: Long?): ResponseModel {
-        val query = " update orders set status = ?  ,updated_at = now() ,delivered_at = now() " +
-                " where status = ? and id = $orderId and courier_id = $courierId "
+    suspend fun toDelivered(courierId: Long?, orderId: Long?, long: String?, lat: String?): ResponseModel {
+        val query =
+            " update orders set status = ?  ,updated_at = now() ,delivered_at = now(), delivered_longitude = $long,delivered_latitude = $lat" +
+                    " where status = ? and id = $orderId and courier_id = $courierId "
         val result = withContext(Dispatchers.IO) {
             repository.connection().use {
                 it.prepareStatement(query).apply {
@@ -97,7 +114,10 @@ object CourierOrderService {
             }
         }
         if (result == 1) {
-            return ResponseModel(body=OrderService.getById(orderId,"user","branch","payment_type")?:"Not found", httpStatus = HttpStatusCode.OK)
+            return ResponseModel(
+                body = OrderService.getById(orderId, "user", "branch", "payment_type") ?: "Not found",
+                httpStatus = HttpStatusCode.OK
+            )
         }
         return ResponseModel(httpStatus = HttpStatusCode.MethodNotAllowed)
     }

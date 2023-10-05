@@ -10,6 +10,7 @@ import mimsoft.io.courier.merchantChat.ChatMessageDto
 import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
 import mimsoft.io.courier.merchantChat.ChatMessageService
 import mimsoft.io.courier.merchantChat.Sender
+import mimsoft.io.courier.transaction.CourierConnectDto
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
@@ -19,7 +20,6 @@ import mimsoft.io.services.socket.SocketData
 import mimsoft.io.services.socket.SocketType
 import mimsoft.io.utils.plugins.GSON
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.toJson
 import java.sql.Timestamp
 
 fun Route.toCourierSocket() {
@@ -32,7 +32,7 @@ fun Route.toCourierSocket() {
                 val uuid = principal?.uuid
                 try {
                     println(principal?.staffId)
-                    CourierService.updateIsActive(staffId, true)
+//                    CourierService.updateIsActive(staffId, true)
                     CourierSocketService.setConnection(
                         CourierConnection(
                             staffId = staffId,
@@ -60,7 +60,7 @@ fun Route.toCourierSocket() {
                             val chatMessage: ChatMessageDto? =
                                 Gson().fromJson(data.data.toString(), ChatMessageDto::class.java)
                             if (chatMessage != null) {
-                                val time =  Timestamp(System.currentTimeMillis())
+                                val time = Timestamp(System.currentTimeMillis())
                                 if (conn.session != null) {
                                     ChatMessageService.sendMessageToOperator(
                                         ChatMessageSaveDto(
@@ -75,7 +75,7 @@ fun Route.toCourierSocket() {
                                         Gson().toJson(
                                             SocketData(
                                                 type = SocketType.RESPONSE_CHAT,
-                                                data = Gson().toJson(chatMessage.copy(time=GSON.toJson(time)))
+                                                data = Gson().toJson(chatMessage.copy(time = GSON.toJson(time)))
                                             )
                                         )
                                     )
@@ -109,10 +109,17 @@ fun Route.toCourierSocket() {
                                 if (response.status == "ACCEPTED") {
                                     val order = OperatorSocketService.acceptedOrder(response, staffId)
                                     if (order) {
-                                        conn.session?.send(Gson().toJson(data))
+                                        conn.session?.send(
+                                            Gson().toJson(
+                                                SocketData(
+                                                    type = SocketType.RESPONSE_ORDER,
+                                                    data = Gson().toJson(response.copy(status = "ACCEPTED"))
+                                                )
+                                            )
+                                        )
                                     } else {
                                         val result = SocketData(
-                                            type = SocketType.ACCEPT,
+                                            type = SocketType.RESPONSE_ORDER,
                                             data = Gson().toJson(response.copy(status = "NOT_ACCEPTED"))
                                         )
                                         conn.session?.send(Gson().toJson(result))
@@ -121,13 +128,20 @@ fun Route.toCourierSocket() {
                                     OperatorSocketService.notAccepted(response, staffId)
                                 }
                             }
+                        } else if (data?.type == SocketType.CONNECT) {
+                            val connect = Gson().fromJson(data.data.toString(), CourierConnectDto::class.java)
+                            if (connect.status == true) {
+                                CourierService.updateIsActive(staffId, true)
+                            } else if (connect.status == false) {
+                                CourierService.updateIsActive(staffId, false)
+                            }
                         }
                     }
 
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    CourierService.updateIsActive(staffId, true)
+                    CourierService.updateIsActive(staffId, false)
                     CourierSocketService.courierConnections.removeIf { it.session == this }
                     close(CloseReason(CloseReason.Codes.NORMAL, ""))
                 }
