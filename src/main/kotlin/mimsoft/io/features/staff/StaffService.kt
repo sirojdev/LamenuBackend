@@ -53,7 +53,7 @@ object StaffService {
                 val staffDto = StaffDto(
                     id = it["id"] as? Long,
                     merchantId = it["merchant_id"] as? Long,
-                    position = it["position"] as? String,
+                    position = StaffPosition.valueOf((it["position"] as? String).toString()),
                     phone = it["phone"] as String,
                     password = it["password"] as? String,
                     firstName = it["first_name"] as? String,
@@ -94,17 +94,11 @@ object StaffService {
                     val staff = mapper.toDto(
                         StaffTable(
                             id = rs.getLong("id"),
-                            merchantId = rs.getLong("merchant_id"),
                             position = rs.getString("position"),
                             phone = rs.getString("phone"),
-                            password = rs.getString("password"),
                             firstName = rs.getString("first_name"),
                             lastName = rs.getString("last_name"),
-                            birthDay = rs.getTimestamp("birth_day"),
-                            image = rs.getString("image"),
-                            comment = rs.getString("comment"),
-                            status = rs.getBoolean("status"),
-                            branchId = rs.getLong("branch_id")
+                            image = rs.getString("image")
                         )
                     )
                     staffs.add(staff)
@@ -114,9 +108,10 @@ object StaffService {
         }
     }
 
-    suspend fun getById(id: Long?): StaffDto? {
-        val query = "select * from $STAFF_TABLE_NAME where id = $id and deleted = false"
-        return withContext(Dispatchers.IO) {
+    suspend fun getById(id: Long?, merchantId: Long? = null): StaffDto? {
+        var query = "select * from $STAFF_TABLE_NAME where id = $id and deleted = false"
+        if (merchantId != null) query += " and merchant_id = $merchantId"
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -143,32 +138,35 @@ object StaffService {
 
     suspend fun get(id: Long?, merchantId: Long?): StaffDto? {
         val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
-        return withContext(Dispatchers.IO) {
+        var staffDto: StaffDto? = null
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
-                    return@withContext mapper.toDto(
-                        StaffTable(
-                            id = rs.getLong("id"),
-                            merchantId = rs.getLong("merchant_id"),
-                            position = rs.getString("position"),
-                            phone = rs.getString("phone"),
-                            password = rs.getString("password"),
-                            firstName = rs.getString("first_name"),
-                            lastName = rs.getString("last_name"),
-                            birthDay = rs.getTimestamp("birth_day"),
-                            image = rs.getString("image"),
-                            comment = rs.getString("comment"),
-                            gender = rs.getString("gender"),
-                            status = rs.getBoolean("status"),
-                            branchId = rs.getLong("status")
-                        )
-                    ).copy(
-                        orders = OrderService.getAll(
-                            mapOf("merchantId" to merchantId, "courierId" to id)
-                        ).body as List<Order?>?
+                    staffDto = StaffDto(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        position = StaffPosition.valueOf(rs.getString("position")),
+                        phone = rs.getString("phone"),
+                        password = rs.getString("password"),
+                        firstName = rs.getString("first_name"),
+                        lastName = rs.getString("last_name"),
+                        birthDay = rs.getTimestamp("birth_day").toString(),
+                        image = rs.getString("image"),
+                        comment = rs.getString("comment"),
+                        gender = rs.getString("gender"),
+                        status = rs.getBoolean("status"),
+                        branchId = rs.getLong("branch_id")
                     )
-                } else return@withContext null
+                    if (staffDto?.position == StaffPosition.COURIER) {
+                        staffDto?.copy(
+                            orders = OrderService.getAll(
+                                mapOf("merchantId" to merchantId, "courierId" to id)
+                            ).body as List<Order?>?
+                        )
+                    }
+                }
+                return@withContext staffDto
             }
         }
     }
@@ -190,9 +188,7 @@ object StaffService {
                 tableName = STAFF_TABLE_NAME,
                 where = mapOf("phone" to phone as String)
             )?.data?.firstOrNull()
-
         }
-
     }
 
     suspend fun add(staff: StaffDto?): ResponseModel {
@@ -225,47 +221,54 @@ object StaffService {
 
     }
 
-    suspend fun update(staff: StaffDto): ResponseModel {
+    suspend fun update(staff: StaffDto): Boolean {
         val merchantId = staff.merchantId
         val birthDay = toTimeStamp(staff.birthDay, TIMESTAMP_FORMAT)
 
         val query = """
-            UPDATE $STAFF_TABLE_NAME 
+            UPDATE $STAFF_TABLE_NAME s
             SET
-                first_name = ?,
-                last_name = ?,
-                birth_day = ?,
-                image = ?,
-                position = ?,
+                first_name = coalesce(?, s.first_name),
+                last_name = coalesce(?, s.last_name),
+                birth_day = coalesce(?, s.birth_day),
+                image = coalesce(?, s.image),
+                position = coalesce(?, s.position),
+                phone = coalesce(?, s.phone),
+                comment = coalesce(?, s.comment),
+                password  =coalesce(?, s.password),
+                gender = coalesce(?, s.gender),
                 updated = ?
             WHERE id = ? and merchant_id = $merchantId and not deleted 
         """.trimIndent()
 
-        withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                val rs = it.prepareStatement(query).use { ti ->
                     ti.setString(1, staff.firstName)
                     ti.setString(2, staff.lastName)
                     ti.setTimestamp(3, birthDay)
                     ti.setString(4, staff.image)
-                    ti.setString(5, staff.position)
-                    ti.setTimestamp(6, Timestamp(System.currentTimeMillis()))
-                    staff.id?.let { it1 -> ti.setLong(7, it1) }
+                    ti.setString(5, staff.position?.name)
+                    ti.setString(6, staff.phone)
+                    ti.setString(7, staff.comment)
+                    ti.setString(8, staff.password)
+                    ti.setString(9, staff.gender)
+                    ti.setTimestamp(10, Timestamp(System.currentTimeMillis()))
+                    staff.id?.let { it1 -> ti.setLong(11, it1) }
                     ti.executeUpdate()
                 }
+                return@withContext rs > 0
             }
         }
-        return ResponseModel(
-            httpStatus = ResponseModel.OK,
-        )
     }
 
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
         val query = "update $STAFF_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                return@withContext it.prepareStatement(query).execute()
+            }
         }
-        return true
     }
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
@@ -309,7 +312,7 @@ object StaffService {
                         balance = rs.getLong("c_balance"),
                         isActive = rs.getBoolean("c_is_active"),
                         merchantId = rs.getLong("merchant_id"),
-                        position = rs.getString("position"),
+                        position = StaffPosition.valueOf(rs.getString("position")),
                         phone = rs.getString("phone"),
                         password = rs.getString("password"),
                         firstName = rs.getString("first_name"),
@@ -366,7 +369,7 @@ object StaffService {
                     val staff = StaffDto(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
-                        position = rs.getString("position"),
+                        position = StaffPosition.valueOf(rs.getString("position")),
                         phone = rs.getString("phone"),
                         password = rs.getString("password"),
                         firstName = rs.getString("first_name"),
@@ -457,7 +460,7 @@ object StaffService {
                         StaffDto(
                             id = rs.getLong("id"),
                             merchantId = rs.getLong("merchant_id"),
-                            position = rs.getString("position"),
+                            position = StaffPosition.valueOf(rs.getString("position")),
                             phone = rs.getString("phone"),
                             firstName = rs.getString("first_name"),
                             lastName = rs.getString("last_name"),

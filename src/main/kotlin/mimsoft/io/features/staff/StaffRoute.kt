@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.utils.*
 import mimsoft.io.utils.principal.BasePrincipal
+import okhttp3.internal.notify
 
 fun Route.routeToStaff() {
 
@@ -29,7 +30,7 @@ fun Route.routeToStaff() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val staff = StaffService.get(id = id, merchantId = merchantId)
+            val staff = StaffService.getById(id = id, merchantId = merchantId)
             if (staff == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -60,7 +61,10 @@ fun Route.routeToStaff() {
                 return@put
             }
             val status = StaffService.update(staff.copy(merchantId = merchantId))
-            call.respond(status.httpStatus, status)
+            if (!status) {
+                call.respond(HttpStatusCode.NoContent)
+            }
+            call.respond(HttpStatusCode.OK)
         }
 
         delete("{id}") {

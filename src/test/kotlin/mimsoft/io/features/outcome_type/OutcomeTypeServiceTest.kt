@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
+import mimsoft.io.utils.TextModel
 import mimsoft.io.utils.toJson
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,19 +32,16 @@ class OutcomeTypeServiceTest {
             assertNotNull(response)
     }
 
-    @Test
-    fun getOneByMerchantId() = testApplication {
-        val merchantId: Long = 777
-        val response = outcomeTypeObject.getOneByMerchantId(merchantId)
-        if (response != null)
-            assertNotNull(response)
-    }
 
     @Test
     fun add() = testApplication {
         val outcomeTypeDto = OutcomeTypeDto(
             merchantId = 9,
-            name = "Abdusamad"
+            name = TextModel(
+                uz = "Abdusamad",
+                ru = "Abdusamad",
+                eng = "Abdusamad"
+            )
         )
         val response = outcomeTypeObject.add(outcomeTypeDto)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
@@ -54,7 +52,11 @@ class OutcomeTypeServiceTest {
         val outcomeTypeDto = OutcomeTypeDto(
             id = 300,
             merchantId = 9,
-            name = "Abdusamad"
+            name = TextModel(
+                uz = "Abdusamad",
+                ru = "Abdusamad",
+                eng = "Abdusamad"
+            )
         )
         val response = outcomeTypeObject.update(outcomeTypeDto)
         if (response)
@@ -68,13 +70,5 @@ class OutcomeTypeServiceTest {
         val response = outcomeTypeObject.delete(merchantId, id)
         if (response)
             assertTrue(response)
-    }
-
-    @Test
-    fun getById() = testApplication {
-        val id: Long = 30
-        val response = outcomeTypeObject.getById(id)
-        if (response != null)
-            assertNotNull(response)
     }
 }

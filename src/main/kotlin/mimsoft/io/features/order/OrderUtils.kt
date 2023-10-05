@@ -18,6 +18,7 @@ import mimsoft.io.features.option.OptionDto
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.staff.StaffDto
+import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.*
 import org.slf4j.Logger
@@ -671,18 +672,18 @@ object OrderUtils {
                 phone = result.getOrDefault("s_phone", null) as? String?,
                 image = result.getOrDefault("s_image", null) as? String?,
                 birthDay = result.getOrDefault("s_birth_day", null).toString(),
-                position = result.getOrDefault("s_position", null) as? String?,
+                position = StaffPosition.valueOf((result.getOrDefault("s_position", null) as? String?).toString()),
                 gender = result.getOrDefault("gender", null) as? String?,
                 comment = result.getOrDefault("s_comment", null) as? String?
             ) else StaffDto(),
-            courier = if(columns.contains("courier")) StaffDto(
+            courier = if (columns.contains("courier")) StaffDto(
                 id = result.getOrDefault("o_courier_id", null) as? Long,
                 firstName = result.getOrDefault("s2_first_name", null) as? String?,
                 lastName = result.getOrDefault("s2_last_name", null) as? String?,
                 phone = result.getOrDefault("s2_phone", null) as? String?,
                 image = result.getOrDefault("s2_image", null) as? String?,
                 birthDay = result.getOrDefault("s2_birth_day", null).toString(),
-                position = result.getOrDefault("s2_position", null) as? String?,
+                position = StaffPosition.valueOf((result.getOrDefault("s2_position", null) as? String?).toString()),
                 gender = result.getOrDefault("s2_gender", null) as? String?,
                 comment = result.getOrDefault("s2_comment", null) as? String?
             ) else StaffDto(),
@@ -742,7 +743,7 @@ object OrderUtils {
                 phone = result["s_phone"] as? String?,
                 image = result["s_image"] as? String?,
                 birthDay = result["s_birth_day"].toString(),
-                position = result["s_position"] as? String?,
+                position = StaffPosition.valueOf((result["s_position"] as? String?).toString()),
                 gender = result["gender"] as? String?,
                 comment = result["s_comment"] as? String?
             ),

@@ -6,6 +6,7 @@ import mimsoft.io.courier.merchantChat.ChatMessageInfoDto
 import mimsoft.io.courier.merchantChat.ChatMessageSaveDto
 import mimsoft.io.courier.merchantChat.Sender
 import mimsoft.io.features.staff.StaffDto
+import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.ResultSet
@@ -111,7 +112,7 @@ object ChatMessageRepository {
                             firstName = rs.getString("first_name"),
                             lastName = rs.getString("last_name"),
                             image = rs.getString("image"),
-                            position = rs.getString("position"),
+                            position = StaffPosition.valueOf(rs.getString("position")),
                             gender = rs.getString("gender"),
                             comment = rs.getString("comment")
                         )

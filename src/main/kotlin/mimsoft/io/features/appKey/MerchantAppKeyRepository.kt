@@ -1,6 +1,7 @@
 package mimsoft.io.features.appKey
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.withContext
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -24,7 +25,7 @@ object MerchantAppKeyRepository {
     suspend fun getAll(merchantId: Long?): ArrayList<MerchantAppKeyDto> {
         var query = "select * from $MERCHANT_APP_KEY_TABLE where deleted = false"
         if (merchantId != null) {
-            query+=" and merchant_id = $merchantId"
+            query += " and merchant_id = $merchantId"
         }
         val list = ArrayList<MerchantAppKeyDto>()
         withContext(Dispatchers.IO) {
@@ -72,8 +73,8 @@ object MerchantAppKeyRepository {
     suspend fun deleteByAppId(id: Long?): Boolean {
         val query =
             "update $MERCHANT_APP_KEY_TABLE set deleted = true where deleted = false  and app_id = $id"
-        var result: Boolean = false
-        withContext(Dispatchers.IO) {
+        var result: Boolean
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()

@@ -1,4 +1,4 @@
-package mimsoft.io.waiter.auth
+package mimsoft.io.branchOperator
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -11,20 +11,19 @@ import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.device.DeviceType
 import mimsoft.io.features.appKey.MerchantAppKeyRepository
+import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.waiter.WaiterService
 
-fun Route.routeToWaiterAuth() {
-    val waiterService = WaiterService
+fun Route.routeToBranchOperatorAuth() {
+    val branchOperatorService = BranchOperatorService
     val sessionRepo = SessionRepository
-    route("waiter") {
+    route("branch") {
         route("device") {
             post {
                 val device: DeviceModel = call.receive()
@@ -37,14 +36,7 @@ fun Route.routeToWaiterAuth() {
                 } else {
                     val ip = call.request.host()
                     val appDto = MerchantAppKeyRepository.getByAppId(appKey)
-                    val result = DeviceController.auth(
-                        device.copy(
-                            ip = ip,
-                            merchantId = appDto?.merchantId,
-                            appKey = appKey,
-                            deviceType = DeviceType.WAITER
-                        )
-                    )
+                    val result = DeviceController.auth(device.copy(ip = ip, merchantId = appDto?.merchantId, appKey = appKey, deviceType = DeviceType.COURIER))
                     call.respond(result)
                 }
             }
@@ -53,34 +45,34 @@ fun Route.routeToWaiterAuth() {
         authenticate("device") {
             post("auth") {
                 val device = call.principal<DevicePrincipal>()
-                val waiter = call.receive<StaffDto>()
-                val status = waiterService.auth(waiter.copy(merchantId = device?.merchantId))
+                val branchAdmin = call.receive<StaffDto>()
+                val status = branchOperatorService.auth(branchAdmin.copy(merchantId = device?.merchantId))
 
                 if (status.httpStatus != ResponseModel.OK)
                     call.respond(status.httpStatus, status)
                 else {
                     val authStaff = status.body as StaffDto?
-                    if (authStaff?.position != StaffPosition.WAITER) {
+                    if (authStaff?.position != StaffPosition.BRANCH) {
                         call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
                     }
-                    val uuid = waiterService.generateUuid(authStaff?.id)
+                    val uuid = CourierService.generateUuid(authStaff?.id)
                     sessionRepo.auth(
                         SessionTable(
+                            deviceId =device?.id,
                             uuid = uuid,
                             stuffId = authStaff?.id,
                             merchantId = authStaff?.merchantId,
-                            deviceId = device?.id,
-                            role = DeviceType.WAITER?.name
+                            role = DeviceType.BRANCH.name
                         )
                     )
 
                     call.respond(
                         authStaff?.copy(
-                            token = JwtConfig.generateWaiterToken(
-                                staffId = authStaff.id,
+                            token = JwtConfig.generateBranchToken(
+                                branchAdmin = authStaff.id,
+                                branchId = authStaff.branchId,
                                 merchantId = authStaff.merchantId,
-                                uuid = uuid,
-                                branchId = authStaff.branchId
+                                uuid = uuid
                             )
                         ) ?: HttpStatusCode.NoContent
                     )
@@ -88,13 +80,12 @@ fun Route.routeToWaiterAuth() {
             }
         }
 
-        authenticate("waiter") {
+        authenticate("branch") {
             post("logout") {
-                val principal = getPrincipal()
-                val response = WaiterService.logout(principal?.uuid)
-                call.respond(response)
+                val merchant = call.principal<BasePrincipal>()
+                CourierService.logout(merchant?.uuid)
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
-
 }

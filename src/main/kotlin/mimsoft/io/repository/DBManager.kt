@@ -384,8 +384,10 @@ object DBManager : BaseRepository {
         }
     }
 
-    suspend fun getDataCount(tableName: String): Int? {
-        val query = "SELECT COUNT(*) FROM $tableName WHERE NOT deleted"
+    suspend fun getDataCount(tableName: String, merchantId: Long? = null, branchId: Long? = null): Int? {
+        var query = "SELECT COUNT(*) FROM $tableName WHERE NOT deleted"
+        if(merchantId != null) query += " AND merchant_id = $merchantId"
+        if(branchId != null) query += " AND branch_id = $branchId"
         var count: Int?
         withContext(Dispatchers.IO) {
             connection().use { connection ->
