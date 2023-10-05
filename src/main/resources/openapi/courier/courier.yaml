@@ -350,6 +350,18 @@ paths:
           schema:
             type: "integer"
             format: "long"
+        - name: "long"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "double"
+        - name: "lat"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "double"
       responses:
         "200":
           description: "OK"
@@ -369,7 +381,7 @@ paths:
       description: get order by id if this order belong to other courier 405 , order not found  404
       parameters:
         - name: "id"
-          in: "query"
+          in: "path"
           required: true
           schema:
             type: "integer"

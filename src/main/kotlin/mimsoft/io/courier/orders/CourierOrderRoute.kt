@@ -1,5 +1,6 @@
 package mimsoft.io.courier.orders
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
@@ -30,7 +31,7 @@ fun Route.routeToCourierOrders() {
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
                 ),
-                "user","branch","payment_type","products"
+                "user", "branch", "payment_type", "products"
             )
 
             call.respond(orderList.httpStatus, orderList.body)
@@ -48,7 +49,7 @@ fun Route.routeToCourierOrders() {
                     "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
                     "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any
                 ),
-                "user","branch","payment_type","products"
+                "user", "branch", "payment_type", "products"
             )
 
             call.respond(orderList.httpStatus, orderList.body)
@@ -57,29 +58,40 @@ fun Route.routeToCourierOrders() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            val result = courierOrderService.getOrderToCourier(
+            val result = courierOrderService.joinWithApiOrderToCourier(
                 courierId = courierId,
                 orderId = orderId,
             )
-            call.respond(result.httpStatus, result.body)
+            call.respond(result)
         }
         get("onway") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            call.respond( courierOrderService.toOnWay(
-                courierId = courierId,
-                orderId = orderId,
-            ))
+            call.respond(
+                courierOrderService.toOnWay(
+                    courierId = courierId,
+                    orderId = orderId,
+                )
+            )
         }
         get("delivered") {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
+            val long = call.parameters["long"]
+            val lat = call.parameters["lat"]
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            call.respond(courierOrderService.toDelivered(
-                courierId = courierId,
-                orderId = orderId,
-            ))
+            if (orderId==null||long==null||lat==null){
+                call.respond(HttpStatusCode.BadRequest,"orderId or latitude or longitude is null")
+            }
+            call.respond(
+                courierOrderService.toDelivered(
+                    courierId = courierId,
+                    long = long,
+                    lat = lat,
+                    orderId = orderId,
+                )
+            )
         }
         get("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
