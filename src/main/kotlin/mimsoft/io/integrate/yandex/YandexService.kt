@@ -48,7 +48,7 @@ object YandexService {
                 body = "Order id = $orderId not found",
                 httpStatus = HttpStatusCode.NotFound
             )
-        val body = Gson().toJson(createOrderObject(order, dto, merchant))
+        val body = (createOrderObject(order, dto, merchant))
         log.info("GSON $body")
         val yandexOrder = YandexRepository.getYandexOrder(orderId)
         val requestId = if (yandexOrder == null) UUID.randomUUID().toString() else yandexOrder.operationId
@@ -63,10 +63,10 @@ object YandexService {
                     YandexOrderDto(
                         operationId = requestId,
                         claimId = responseDto.id,
-                        orderId = order?.id,
+                        orderId = order.id,
                         orderStatus = "new",
-                        merchantId = order?.merchant?.id,
-                        branchId = order?.branch?.id,
+                        merchantId = order.merchant?.id,
+                        branchId = order.branch?.id,
                         version = 1
                     )
                 )
@@ -204,7 +204,7 @@ object YandexService {
                         order.branch?.latitude!!
                     ),
                     description = order.address?.description,
-                    fullname = order.branch?.address?:""
+                    fullname = order.branch?.address ?: ""
 
                 ),
                 contact = Contact(
@@ -252,10 +252,10 @@ object YandexService {
     suspend fun tariff(branchId: Long?, merchantId: Long?): ResponseModel {
         val branch = BranchServiceImpl.get(id = branchId, merchantId = merchantId)
             ?: return ResponseModel(body = "Branch id= $branchId not found", httpStatus = HttpStatusCode.NotFound)
-        val dto = YandexTraffic(start_point = listOf(branch?.longitude, branch?.latitude), fullname = branch?.address)
+        val dto = YandexTraffic(start_point = listOf(branch.longitude, branch.latitude), fullname = branch.address)
         val response = createPostRequest(
             "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/tariffs",
-            Gson().toJson(dto),
+            (dto),
             MerchantIntegrateRepository.get(merchantId)?.yandexDeliveryKey.toString()
         )
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
@@ -286,7 +286,7 @@ object YandexService {
 
         }
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price"
-        val response = createPostRequest(url, Gson().toJson(dto), integrateKeys?.yandexDeliveryKey.toString())
+        val response = createPostRequest(url, dto, integrateKeys?.yandexDeliveryKey.toString())
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
 
@@ -295,8 +295,8 @@ object YandexService {
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
         val body = YandexConfirm(version = 1)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yOrder?.claimId}"
-        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yOrder.claimId}"
+        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
         log.info("response $response")
         log.info("body ${response.body<String>()}")
         return when (response.status.value) {
@@ -306,9 +306,6 @@ object YandexService {
                 ResponseModel(body = response.body<String>(), response.status)
             }
 
-            404 -> ResponseModel(body = "Заявка не найдена", httpStatus = response.status)
-            409 -> ResponseModel(body = "Недопустимое действие над заявкой", httpStatus = response.status)
-            429 -> ResponseModel(body = "Слишком много запросов", httpStatus = response.status)
             else -> {
                 ResponseModel(body = "Something wrong", httpStatus = response.status)
             }
@@ -319,8 +316,8 @@ object YandexService {
         val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${yOrder?.claimId}"
-        val response = createPostRequest(url, yOrder?.yandexKey.toString())
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${yOrder.claimId}"
+        val response = createPostRequest(url, yOrder.yandexKey.toString())
         log.info("response $response")
         log.info("body ${response.body<String>()}")
         return ResponseModel(httpStatus = response.status, body = response.body<String>())
@@ -356,8 +353,8 @@ object YandexService {
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/driver-voiceforwarding"
-        val body = YandexCourier(claimId = yOrder?.claimId)
-        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        val body = YandexCourier(claimId = yOrder.claimId)
+        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -366,8 +363,8 @@ object YandexService {
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
         val url =
-            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/performer-position?claim_id=${yOrder?.claimId}"
-        val response = createGetRequest(url, yOrder?.yandexKey.toString())
+            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/performer-position?claim_id=${yOrder.claimId}"
+        val response = createGetRequest(url, yOrder.yandexKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -376,8 +373,8 @@ object YandexService {
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
         val url =
-            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/tracking-links?claim_id=${yOrder?.claimId}"
-        val response = createGetRequest(url, yOrder?.yandexKey.toString())
+            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/tracking-links?claim_id=${yOrder.claimId}"
+        val response = createGetRequest(url, yOrder.yandexKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -385,8 +382,8 @@ object YandexService {
         val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id=${yOrder?.claimId}"
-        val response = createPostRequest(url, yOrder?.yandexKey.toString())
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id=${yOrder.claimId}"
+        val response = createPostRequest(url, yOrder.yandexKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -394,8 +391,8 @@ object YandexService {
         val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
         val body = YandexCancel(cancelState = state, version = 1)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel?claim_id=${yOrder?.claimId}"
-        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel?claim_id=${yOrder.claimId}"
+        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -403,9 +400,9 @@ object YandexService {
     suspend fun confirmCode(orderId: Long?, merchantId: Long?): Any {
         val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-        val body = YandexCode(claimId = yOrder?.claimId)
+        val body = YandexCode(claimId = yOrder.claimId)
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/confirmation_code"
-        val response = createPostRequest(url, body, yOrder?.yandexKey.toString())
+        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -438,7 +435,7 @@ object YandexService {
                 body = "Order id = $orderId not found",
                 httpStatus = HttpStatusCode.NotFound
             )
-        val body = Gson().toJson(createOrder(YandexOrder(), orderId, merchantId))
+        val body = createOrderObject(order, YandexOrder(), merchant)
         log.info("GSON $body")
         val yandexOrder = YandexRepository.getYandexOrderWithKey(orderId)
         val url =
@@ -454,6 +451,7 @@ object YandexService {
                 )
                 return ResponseModel(httpStatus = response.status, body = response.body<String>())
             }
+
             else -> {
                 ResponseModel(httpStatus = response.status, body = response.body<String>())
             }
