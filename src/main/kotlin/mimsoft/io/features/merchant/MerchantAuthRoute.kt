@@ -15,7 +15,7 @@ fun Route.merchantAuthRoute() {
 
     post("auth") {
         val merchant = call.receive<MerchantDto>()
-        val merchantAuth = authService.auth(merchant)
+        val merchantAuth = authService.auth(merchantDto = merchant)
         if (merchantAuth != null) {
             call.respond(merchantAuth)
         } else

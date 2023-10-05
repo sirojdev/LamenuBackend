@@ -311,6 +311,29 @@ fun Application.configureSecurity() {
             }
         }
 
+
+        jwt("branch") {
+            realm = JwtConfig.issuer
+            verifier(JwtConfig.verifierBranch)
+            validate { cr ->
+                val merchantId = cr.payload.getClaim("merchantId").asLong()
+                val branchId = cr.payload.getClaim("branchId").asLong()
+                val uuid = cr.payload.getClaim("uuid").asString()
+                if (merchantId != null && uuid != null && branchId != null) {
+                    val session = SessionRepository.getMerchantByUUID(uuid)
+
+                    if (session != null && session.merchantId == merchantId && session.isExpired != true) {
+                        BasePrincipal(
+                            merchantId = session.merchantId,
+                            branchId = session.branchId,
+                            uuid = uuid
+                        )
+                    } else null
+
+                } else null
+            }
+        }
+
         basic(name = "payme") {
             realm = "Server"
             validate { credentials ->

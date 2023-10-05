@@ -2,6 +2,7 @@ package mimsoft.io.features.staff
 
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
+import okhttp3.internal.notifyAll
 
 object StaffMapper {
 
@@ -14,9 +15,9 @@ object StaffMapper {
             gender = staffTable?.gender,
             comment = staffTable?.comment,
             password = staffTable?.password,
-            position = staffTable?.position,
             lastName = staffTable?.lastName,
             firstName = staffTable?.firstName,
+            position = StaffPosition.valueOf(staffTable?.position.toString()),
             merchantId = staffTable?.merchantId,
             birthDay = staffTable?.birthDay.toString(),
             branchId = staffTable?.branchId
@@ -37,7 +38,7 @@ object StaffMapper {
             status = staffDto?.status,
             comment = staffDto?.comment,
             password = staffDto?.password,
-            position = staffDto?.position,
+            position = staffDto?.position?.name,
             lastName = staffDto?.lastName,
             firstName = staffDto?.firstName,
             merchantId = staffDto?.merchantId

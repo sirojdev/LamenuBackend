@@ -3,6 +3,7 @@ package mimsoft.io.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import mimsoft.io.features.branch.BranchId
 import mimsoft.io.rsa.GeneratorModel
 import mimsoft.io.utils.principal.Role
 import java.util.*
@@ -21,6 +22,7 @@ object JwtConfig {
     private const val secretManager = "maNager_5642+rN-pingU"
     private const val secretCourier = "dsfgahHJjhbfih214l_fd4-pingU"
     private const val secretWaiter = "sdfNdfNzdfnsjd23nsd+rN-pingU"
+    private const val secretBranch = "sdfJHVsihfsHjc+rN-pingU"
 
     private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
     private const val validityAccessBoard = 36_000_000 * 1000L // 10 hours
@@ -33,6 +35,7 @@ object JwtConfig {
     private val algorithmLogin = Algorithm.HMAC512(secretLogin)
 
     private val algorithmMerchant = Algorithm.HMAC512(secretMerchant)
+    private val algorithmBranch = Algorithm.HMAC512(secretBranch)
     private val algorithmDevice = Algorithm.HMAC512(secretDevice)
     private val algorithmUser = Algorithm.HMAC512(secretUser)
     private val algorithmStaff = Algorithm.HMAC512(secretStuff)
@@ -49,6 +52,7 @@ object JwtConfig {
     val verifierBoard: JWTVerifier = JWT.require(algorithmBoard).withIssuer(issuer).build()
 
     val verifierDevice: JWTVerifier = JWT.require(algorithmDevice).withIssuer(issuer).build()
+    val verifierBranch: JWTVerifier = JWT.require(algorithmBranch).withIssuer(issuer).build()
     val verifierMerchant: JWTVerifier = JWT.require(algorithmMerchant).withIssuer(issuer).build()
     val verifierUser: JWTVerifier = JWT.require(algorithmUser).withIssuer(issuer).build()
     val verifierStaff: JWTVerifier = JWT.require(algorithmStaff).withIssuer(issuer).build()
@@ -166,6 +170,17 @@ object JwtConfig {
         .withClaim("courierId", staffId)
         .withExpiresAt(getExpiration(validityAccessUser))
         .sign(algorithmUser)
+
+
+    fun generateBranchToken(merchantId: Long?, uuid: String?, branchId: Long?, branchAdmin: Long?): String = JWT.create()
+        .withSubject("branch")
+        .withIssuer(issuer)
+        .withClaim("merchantId", merchantId)
+        .withClaim("branchAdmin", branchAdmin)
+        .withClaim("uuid", uuid)
+        .withClaim("branchId", branchId)
+        .withExpiresAt(getExpiration(validityLogin))
+        .sign(algorithmBranch)
 
     fun generateWaiterToken(merchantId: Long?, staffId: Long?, uuid: String?, branchId: Long?): String = JWT.create()
         .withSubject("waiter")
