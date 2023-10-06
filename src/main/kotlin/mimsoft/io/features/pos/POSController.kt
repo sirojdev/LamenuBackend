@@ -13,7 +13,7 @@ object POSController {
    suspend fun getPostFromBranch( id : Long) : POSService{
         val merchant = MerchantRepositoryImp.get(id)?.post
 
-      return when(merchant){
+      /*return when(merchant){
            "jowi"->{
                Jowi(id)
            }
@@ -21,6 +21,6 @@ object POSController {
        }
 
 
-    }
+    }*/
 
 }
