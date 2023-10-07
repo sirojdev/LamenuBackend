@@ -15,9 +15,7 @@ class OnlinePbxServiceEntityTest {
             merchantId = 1,
             domain = "kun.uz",
             phone = "+998999090909",
-            key = "key_test",
-            created = null,
-            updated = null
+            key = "key_test"
         )
         val response = onlinePbxServiceEntity.add(onlinePbxEntity)
         println("rs: ${response.httpStatus}")

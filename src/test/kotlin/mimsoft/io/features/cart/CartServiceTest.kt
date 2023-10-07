@@ -15,7 +15,7 @@ import mimsoft.io.features.staff.StaffDto
 import org.junit.jupiter.api.Assertions.*
 import kotlin.test.Test
 
-class CartServiceTest {
+class CartServiceTest { // TODO: Xatolik bor...
 
     private val cartService = CartService
 
@@ -54,6 +54,7 @@ class CartServiceTest {
             totalPrice = 125250
         )
         val response = cartService.check(orderDto)
+        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 

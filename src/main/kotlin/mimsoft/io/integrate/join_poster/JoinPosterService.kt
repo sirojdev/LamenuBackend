@@ -8,7 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.order.Order
-import mimsoft.io.features.pos.poster.PosterService
+//import mimsoft.io.features.pos.poster.PosterService
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.toJson
@@ -38,12 +38,12 @@ object JoinPosterService {
             httpStatus = HttpStatusCode.BadRequest,
             body = "Merchant id is null"
         )
-        val posterDetails = PosterService.get(order.merchant?.id)
-        log.info("posterDetails->${posterDetails?.toJson()}")
+//        val posterDetails = PosterService.get(order.merchant?.id)
+//        log.info("posterDetails->${posterDetails?.toJson()}")
 
 
         val response = client.post(
-            "https://joinposter.com/api/incomingOrders.createIncomingOrder?token=${posterDetails?.joinPosterApiKey}"
+//            "https://joinposter.com/api/incomingOrders.createIncomingOrder?token=${posterDetails?.joinPosterApiKey}"
         ) {
             contentType(ContentType.Application.Json)
             setBody(

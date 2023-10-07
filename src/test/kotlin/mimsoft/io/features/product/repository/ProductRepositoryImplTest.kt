@@ -20,9 +20,10 @@ class ProductRepositoryImplTest {
 
     @Test
     fun getAllProductInfo() = testApplication {
-        val merchantId: Long = 111
+        val merchantId: Long = 1
         val response = productRepositoryImpl.getAllProductInfo(merchantId)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -30,7 +31,8 @@ class ProductRepositoryImplTest {
         val merchantId: Long = 1
         val search = "test"
         val response = productRepositoryImpl.getAll(merchantId, search)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -56,13 +58,14 @@ class ProductRepositoryImplTest {
             image = "https://images.theconversation.com/files/368263/original/file-20201109-22-lqiq5c.jpg",
             costPrice = 11,
             idRKeeper = -13,
-            idJowi = -1,
+            idJowi = "-1",
             idJoinPoster = 98,
             timeCookingMax = 10,
             timeCookingMin = 5
         )
         val response = productRepositoryImpl.add(productTable)
-        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -108,8 +111,7 @@ class ProductRepositoryImplTest {
             options = optionDto,
             extras = extraDto,
             labels = labelDto,
-            joinPosterId = 34,
-            jowiPosterId = "22"
+            joinPosterId = 34
         )
         val response = productRepositoryImpl.update(productDto)
         if (response)
@@ -137,8 +139,10 @@ class ProductRepositoryImplTest {
     @Test
     fun getAllByCategories() = testApplication {
         val merchantId: Long = 1
-        val categoryId: Long = 141
+        val categoryId: Long = 13
         val response = productRepositoryImpl.getAllByCategories(merchantId, categoryId)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test

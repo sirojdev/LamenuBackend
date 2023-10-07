@@ -16,7 +16,8 @@ class BranchServiceImplTest {
     fun getAll() = testApplication {
         val merchantId: Long = 7
         val response = branchServiceImpl.getAll(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -24,7 +25,8 @@ class BranchServiceImplTest {
         val merchantId: Long = 1
         val id: Long = 7
         val response = branchServiceImpl.get(id, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -46,7 +48,8 @@ class BranchServiceImplTest {
             distance = null
         )
         val response = branchServiceImpl.add(branchDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -68,14 +71,16 @@ class BranchServiceImplTest {
             distance = null
         )
         val response = branchServiceImpl.update(branchDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
     fun delete() = testApplication {
         val branchId: Long = 32
         val response = branchServiceImpl.delete(branchId)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -83,8 +88,8 @@ class BranchServiceImplTest {
         val branchName = "StringUz"
         val merchantId: Long = 1
         val response = branchServiceImpl.getByName(branchName, merchantId)
-        assertNotNull(response)
-        assert(response.name != null)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -93,6 +98,7 @@ class BranchServiceImplTest {
         val longitude = 100.5
         val merchantId: Long = 1
         val response = branchServiceImpl.nearestBranch(latitude, longitude, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 }

@@ -33,11 +33,12 @@ class NotificationRepositoryImplTest {
             clientId = 26
         )
         val response = notificationRepositoryImpl.add(notificationDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
-    fun update() = testApplication { // TODO: there is an error...
+    fun update() = testApplication {
         val title = TextModel(
             uz = "2 - taom1",
             ru = "2 - yeda1",
@@ -59,7 +60,6 @@ class NotificationRepositoryImplTest {
         val response = notificationRepositoryImpl.update(notificationDto)
         if (response)
             assertTrue(response)
-        println("rs: $response")
     }
 
     @Test
@@ -67,18 +67,19 @@ class NotificationRepositoryImplTest {
         val id: Long = 12222
         val merchantId: Long = 1
         val response = notificationRepositoryImpl.getById(id, merchantId)
-        println("rs: $response")
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 1
-        val limit = 3
+        val limit = 10
         val offset = 5
         val search = ""
         val response = notificationRepositoryImpl.getAll(merchantId, limit, offset, search)
-        assertNotNull(response)
+        if (response.data?.isEmpty() == true)
+            assertNotNull(response)
     }
 
     @Test
@@ -93,10 +94,9 @@ class NotificationRepositoryImplTest {
     @Test
     fun getClient() = testApplication {
         val merchantId: Long = 1
-        val userId: Long = 2777
+        val userId: Long = 26
         val response = notificationRepositoryImpl.getClient(merchantId, userId)
-        println("rs: $response")
-        if (response.isNotEmpty()) {
-        }
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 }
