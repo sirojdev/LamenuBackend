@@ -1,4 +1,4 @@
-package mimsoft.io.features.pos.poster
+package mimsoft.io.features.pos
 
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.order.Order
