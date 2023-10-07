@@ -458,27 +458,57 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
-    fun generateQuery(conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>): String {
-        val selectColumns = mutableListOf<String>()
-        val joinStatements = mutableListOf<String>()
-        for (tableNameMap in tableNames) {
-            for ((tableName, columns) in tableNameMap) {
-                selectColumns.addAll(columns.map { "$tableName.$it" })
-                if (joinStatements.isNotEmpty()) {
-                    val previousTable = joinStatements.last().substringAfter("JOIN").substringBefore("ON").trim()
-                    val joinStatement = "JOIN $tableName ON $previousTable.id = $tableName.id"
-                    joinStatements.add(joinStatement)
-                } else {
-                    // The first table doesn't require a JOIN statement
-                    joinStatements.add(tableName)
+    // val conditions = mapOf("merchant_id" to "1")
+//    val tableNames = arrayListOf(
+//        mapOf(
+//            "branch" to listOf("branch_id","name_uz", "name_eng", "name_ru"),
+//            "payment_type" to listOf("payment_type","icon", "name"),
+//            "users" to listOf("user_id", "last_name", "phone")
+//        )
+//    )
+    fun generateQuery(
+        conditions: Map<String, Map<String, *>>?,
+        tableNames: ArrayList<Map<String, List<String>>>
+    ): Search {
+        val query = StringBuilder("SELECT ")
+        val joins = ArrayList<String>()
+        val i = "_"
+        for (tableMap in tableNames) {
+            for ((tableName, columns) in tableMap) {
+                val joinColumn = columns[0]
+                for (index in 1 until columns.size) {
+                    query.append("$tableName.${columns[index]} as $tableName$i${columns[index]} , ")
                 }
+                joins.add(" LEFT JOIN $tableName ON orders.$joinColumn = $tableName.id")
             }
         }
 
-        val query = "SELECT ${selectColumns.joinToString(", ")} FROM ${joinStatements.joinToString(" ")}"
+        // Remove the trailing comma and space
+        if (query.endsWith(", ")) {
+            query.setLength(query.length - 2)
+        }
 
-        return query
+        query.append(" FROM orders ")
+        query.append(joins.joinToString(" "))
+        var index = 0
+        val queryParams: MutableMap<Int, Any> = mutableMapOf()
+        // Add conditions if any
+        conditions?.let { conditionMap ->
+            val conditionsList = conditionMap.entries.map { (tableName, columnValues) ->
+                columnValues.entries.joinToString(" AND ") { (column, value) ->
+                    val condition = "$tableName.$column = ?"
+                    queryParams[++index] = value as Any
+                    condition
+                }
+            }
+            val conditionsStr = conditionsList.joinToString(" AND ")
+            if (conditionsStr.isNotBlank()) {
+                query.append(" WHERE $conditionsStr")
+            }
+        }
+        return Search(query.toString(), queryParams)
     }
+
 
     fun getQuery(params: Map<String, *>?, vararg columns: String, orderId: Long?): Search {
         val columnsSet = columns.toSet()
@@ -813,6 +843,82 @@ object OrderUtils {
             updatedAt = result["o_updated_at"] as? Timestamp?,
             deleted = result["o_deleted"] as? Boolean?,
             deliveredAt = result["o_delivered_at"] as? Timestamp?,
+        )
+    }
+    suspend fun parseGetAll3(result: Map<String, *>): Order {
+        val products = result["orders_products"] as? String
+        log.info("products {}", products)
+        return Order(
+            id = result["orders_id"] as? Long?,
+            posterId = result["orders_post_id"] as? Long?,
+            serviceType = result["orders_service_type"] as? String?,
+            status = result["orders_status"] as? String?,
+            total = result["count"] as? Long?,
+            user = UserDto(
+                id = result["orders_user_id"] as? Long?,
+                firstName = result["users_first_name"] as? String?,
+                lastName = result["users_last_name"] as? String?,
+                phone = result["users_phone"] as? String?,
+                image = result["users_image"] as? String?,
+                birthDay = result["users_birth_day"] as? Timestamp?,
+                badge = BadgeDto(id = result["users_badge_id"] as? Long?)
+            ),
+            merchant = MerchantDto(
+                name = TextModel(
+                    uz = result["merchant_name_uz"] as? String?,
+                    ru = result["merchant_name_en"] as? String?,
+                    eng = result["merchant_name_ru"] as? String?
+                ),
+                id = result["orders_merchant_id"] as? Long?,
+                phone = result["merchant_phone"] as? String?,
+                sub = result["merchant_sub"] as? String?,
+                logo = result["merchant_logo"] as? String?,
+                isActive = result["merchant_is_active"] as? Boolean?
+            ),
+            collector = StaffDto(
+                id = result["orders_collector_id"] as? Long?,
+                firstName = result["staff_first_name"] as? String?,
+                lastName = result["staff_last_name"] as? String?,
+                phone = result["staff_phone"] as? String?,
+                image = result["staff_image"] as? String?,
+                gender = result["staff_gender"] as? String?,
+            ),
+            courier = StaffDto(id = result["orders_courier_id"] as? Long),
+            address = AddressDto(
+                latitude = result["orders_add_lat"] as? Double?,
+                longitude = result["orders_add_long"] as? Double?,
+                description = result["orders_add_desc"] as? String
+            ),
+            branch = BranchDto(
+                id = result["orders_branch_id"] as? Long,
+                name = TextModel(
+                    uz = result["branch_name_uz"] as String?,
+                    ru = result["branch_name_ru"] as String?,
+                    eng = result["branch_name_eng"] as String?
+                ),
+                jowiId = result["branch_jowi_id"] as String?,
+                longitude = result["branch_longitude"] as Double?,
+                latitude = result["branch_latitude"] as Double?,
+            ),
+            totalPrice = result["orders_total_price"] as? Long,
+            products = getProducts(products) as List<CartItem>?,
+            paymentMethod = PaymentTypeDto(
+                id = result["orders_payment_type"] as? Long,
+                title = TextModel(
+                    uz = result["payment_title_uz"] as? String,
+                    ru = result["payment_title_ru"] as? String,
+                    eng = result["payment_title_eng"] as? String
+                ),
+                name = result["payment_name"] as? String,
+                icon = result["payment_icon"] as? String
+            ),
+            isPaid = result["orders_is_paid"] as? Boolean?,
+            comment = result["orders_comment"] as? String?,
+            productCount = result["orders_product_count"] as Int?,
+            createdAt = result["orders_created_at"] as? Timestamp?,
+            updatedAt = result["orders_updated_at"] as? Timestamp?,
+            deleted = result["orders_deleted"] as? Boolean?,
+            deliveredAt = result["orders_delivered_at"] as? Timestamp?,
         )
     }
 
