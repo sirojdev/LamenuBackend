@@ -1,4 +1,4 @@
-package mimsoft.io.features.pos
+package mimsoft.io.features.pos.poster
 
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.order.Order
@@ -13,6 +13,5 @@ interface POSService  {
     fun getBranches(): List<BranchDto>
 
     fun getOrders() : List<Order>
-
 
 }
