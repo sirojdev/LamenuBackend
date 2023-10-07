@@ -148,7 +148,7 @@ object OrderService {
             val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
             fullOrder?.let { it1 ->
 
-                POSController.getPostFromBranch(1).createOrder(order)
+                POSController.getPostFromBranch(1)?.createOrder(order)
 
 
                 JowiService.createOrder(

@@ -75,7 +75,3 @@ object PosterService {
         return rs == 1
     }
 }
-
-
-
-

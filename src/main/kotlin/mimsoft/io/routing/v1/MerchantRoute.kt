@@ -1,8 +1,8 @@
 package mimsoft.io.routing.v1
 
+//import mimsoft.io.features.pos.poster.routeToPoster
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.news.routeToNews
 import mimsoft.io.features.app.routeToApp
 import mimsoft.io.features.area.routeToArea
 import mimsoft.io.features.badge.routeToBadge
@@ -21,9 +21,9 @@ import mimsoft.io.features.kitchen.routeToKitchen
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
-import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
+import mimsoft.io.features.news.routeToNews
 import mimsoft.io.features.notification.routeToNotification
 import mimsoft.io.features.online_pbx.routeToOnlinePbx
 import mimsoft.io.features.operator.routeToOperatorEntity
@@ -34,7 +34,7 @@ import mimsoft.io.features.outcome_type.routeToOutcomeType
 import mimsoft.io.features.pantry.routeToPantry
 import mimsoft.io.features.payment.payment_integration.routeToPaymentIntegration
 import mimsoft.io.features.payment.routeToPayment
-//import mimsoft.io.features.pos.poster.routeToPoster
+import mimsoft.io.features.pos.poster.routeToPoster
 import mimsoft.io.features.product.product_extra.routeToProductExtra
 import mimsoft.io.features.product.product_label.routeToProductLabel
 import mimsoft.io.features.product.product_option.routeToProductOption
@@ -54,6 +54,7 @@ import mimsoft.io.features.visit.routeToVisits
 import mimsoft.io.features.waiters.routToMerchantWaiters
 import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
+import mimsoft.io.routing.merchant.routeToUserUser
 
 
 fun Route.routeToMerchant() {
@@ -93,7 +94,7 @@ fun Route.routeToMerchant() {
                 routeToTable()
                 routeToOption()
                 routeToBranch()
-//                routeToPoster()
+                routeToPoster()
                 routeToCourier()
                 routeToCollector()
                 routeToPayment()
