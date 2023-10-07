@@ -20,14 +20,16 @@ class FavouriteServiceTest {
             role = managerSysRole
         )
         val response = managersService.addManager(managerSysModel)
+        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
     @Test
     fun getManager() = testApplication {
         val id: Long = 7
-        val phone = "+989990010101"
+        val phone = "+998901001011"
         val response = managersService.getManager(id, phone)
+        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -48,10 +50,10 @@ class FavouriteServiceTest {
     fun updateManager() = testApplication {
         val managerSysRole = ManagerSysRole.MANAGER
         val managerSysModel = ManagerSysModel(
-            phone = "+98999001010111",
+            phone = "+998901001011",
             password = "12345677",
             firstName = "Salim",
-            lastName = "Sarvarov77",
+            lastName = "Sarvarov",
             image = "image",
             role = managerSysRole
         )

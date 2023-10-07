@@ -15,8 +15,7 @@ class ExtraRepositoryImplTest {
     fun getAll() = testApplication {
         val merchantId: Long = 11212
         val response = extraRepositoryImpl.getAll(merchantId)
-        if (response.isEmpty())
-            assertNotNull(response)
+        assert(response.isEmpty())
     }
 
     @Test
@@ -61,8 +60,7 @@ class ExtraRepositoryImplTest {
             merchantId = 1
         )
         val response = extraRepositoryImpl.add(extraTable)
-        if (response != null)
-            assertNotNull(response)
+        assertNotNull(response)
     }
 
     @Test
