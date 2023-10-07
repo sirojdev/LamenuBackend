@@ -2,7 +2,7 @@ package mimsoft.io.integrate.jowi
 
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.order.Order
-import mimsoft.io.features.pos.POSService
+import mimsoft.io.features.pos.poster.POSService
 import mimsoft.io.features.product.ProductDto
 
 class Jowi(private val merchantId: Long) : POSService {
