@@ -88,11 +88,11 @@ fun Route.routeToOrder() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val merchantId = principal?.merchantId
             val rs = orderService.accepted(merchantId, orderId)
-            val order = OrderService.get(orderId).body as Order
+            val order = OrderService.getById(orderId,"branch","user") as Order
             if (rs) {
                 FirebaseService.sendNotificationOrderToClient(order)
-                var offsett = 0
-                OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
+//                var offsett = 0
+//                OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
                 val offSet = 0
                 OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offSet)
                 BoardSocketService.sendOrderToBoard(order, BoardOrderStatus.IN_PROGRESS, Action.ADD)

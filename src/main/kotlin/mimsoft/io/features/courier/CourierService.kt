@@ -76,6 +76,7 @@ FROM
     and clh.merchant_id = c.merchant_id 
     and clh.staff_id = c.staff_id 
     and c.is_active = true 
+    and c.active_order_count = 0
     and c.staff_id in ($inQuery)
         INNER JOIN
     branch b ON c.merchant_id = b.merchant_id AND b.id = $branchId

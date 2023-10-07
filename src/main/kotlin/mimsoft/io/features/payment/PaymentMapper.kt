@@ -10,6 +10,8 @@ object PaymentMapper {
             paymeSecret = paymentDto.paymeSecret,
             apelsinMerchantId = paymentDto.apelsinMerchantId,
             apelsinMerchantToken = paymentDto.apelsinMerchantToken,
+            uzumApiKey = paymentDto.uzumApiKey,
+            uzumTerminalId = paymentDto.uzumTerminalId,
             clickServiceId = paymentDto.clickServiceId,
             clickMerchantId = paymentDto.clickMerchantId,
             clickKey = paymentDto.clickKey,
@@ -29,6 +31,9 @@ object PaymentMapper {
             clickServiceId = paymentTable.clickServiceId,
             clickMerchantId = paymentTable.clickMerchantId,
             clickKey = paymentTable.clickKey,
+            uzumApiKey = paymentTable.uzumApiKey,
+            uzumTerminalId = paymentTable.uzumTerminalId,
+            uzumSecretSignature = paymentTable.uzumSecretSignature,
             selected = paymentTable.selected
         )
     }

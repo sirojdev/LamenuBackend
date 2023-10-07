@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
+import mimsoft.io.features.order.OrderUtils.generateQuery
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
 import mimsoft.io.features.order.OrderUtils.parse
@@ -14,7 +15,6 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
-import mimsoft.io.features.pos.POSController
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.integrate.payme.PaymeService
@@ -39,6 +39,11 @@ object OrderService {
 
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
+    suspend fun getUniversal(
+        conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>
+    ) {
+        val query = generateQuery(conditions,tableNames)
+    }
 
     suspend fun getAll2(
         params: Map<String, *>? = null,
@@ -147,10 +152,6 @@ object OrderService {
             }
             val fullOrder = getById((responseModel.body as Order).id, "user", "branch", "products", "address")
             fullOrder?.let { it1 ->
-
-                POSController.getPostFromBranch(1)?.createOrder(order)
-
-
                 JowiService.createOrder(
                     it1.copy(
                         totalPrice = order.totalPrice,
@@ -494,7 +495,7 @@ object OrderService {
         return order
     }
 
-    suspend fun     getById(id: Long?, vararg columns: String): Order? {
+    suspend fun getById(id: Long?, vararg columns: String): Order? {
         val result: List<Map<String, *>>
         val search = getQuery(params = null, *columns, orderId = id)
         result = repository.selectList(query = search.query, args = search.queryParams)

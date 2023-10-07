@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
-import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.badge.BadgeDto
@@ -26,6 +25,13 @@ import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 
 object OrderUtils {
+    //val tableNames = listOf(
+    //        mapOf(
+    //            "branch" to listOf("name_uz", "name_eng", "name_ru"),
+    //            "payment" to listOf("icon", "name")
+    //        )
+    //    )
+//    method(tableNames)
 
     val log: Logger = LoggerFactory.getLogger("OrderUtils")
 
@@ -452,6 +458,28 @@ object OrderUtils {
         return Search(query + joins + conditions, queryParams)
     }
 
+    fun generateQuery(conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>): String {
+        val selectColumns = mutableListOf<String>()
+        val joinStatements = mutableListOf<String>()
+        for (tableNameMap in tableNames) {
+            for ((tableName, columns) in tableNameMap) {
+                selectColumns.addAll(columns.map { "$tableName.$it" })
+                if (joinStatements.isNotEmpty()) {
+                    val previousTable = joinStatements.last().substringAfter("JOIN").substringBefore("ON").trim()
+                    val joinStatement = "JOIN $tableName ON $previousTable.id = $tableName.id"
+                    joinStatements.add(joinStatement)
+                } else {
+                    // The first table doesn't require a JOIN statement
+                    joinStatements.add(tableName)
+                }
+            }
+        }
+
+        val query = "SELECT ${selectColumns.joinToString(", ")} FROM ${joinStatements.joinToString(" ")}"
+
+        return query
+    }
+
     fun getQuery(params: Map<String, *>?, vararg columns: String, orderId: Long?): Search {
         val columnsSet = columns.toSet()
         var query = """
@@ -602,6 +630,8 @@ object OrderUtils {
                     b.name_uz b_name_uz,
                     b.name_ru b_name_ru,
                     b.name_eng b_name_eng , 
+                    b.longitude b_longitude,
+                    b.latitude b_latitude ,
                     b.jowi_id b_jowi_id """ else "") +
                 (if (columnsSet.contains("payment_type"))
                     """,
@@ -760,7 +790,9 @@ object OrderUtils {
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
                 ),
-                jowiId = result["b_jowi_id"] as String?
+                jowiId = result["b_jowi_id"] as String?,
+                longitude = result["b_longitude"] as Double?,
+                latitude = result["b_latitude"] as Double?,
             ),
             totalPrice = result["o_total_price"] as? Long,
             products = getProducts(products) as List<CartItem>?,
@@ -785,8 +817,12 @@ object OrderUtils {
     }
 
     private suspend fun getProducts(products: String?): List<CartItem?>? {
-        val products = gsonToList(products, CartItem::class.java)
-        return getByCartItem2(products)
+        val productList = gsonToList(products, CartItem::class.java)
+        if (productList.isNullOrEmpty()) {
+            return null
+        } else {
+            return getByCartItem2(productList)
+        }
     }
 
     fun parse(result: Map<String, *>): Any {

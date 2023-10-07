@@ -350,6 +350,18 @@ paths:
           schema:
             type: "integer"
             format: "long"
+        - name: "long"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "double"
+        - name: "lat"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "double"
       responses:
         "200":
           description: "OK"
@@ -369,7 +381,7 @@ paths:
       description: get order by id if this order belong to other courier 405 , order not found  404
       parameters:
         - name: "id"
-          in: "query"
+          in: "path"
           required: true
           schema:
             type: "integer"
@@ -529,6 +541,10 @@ components:
           type: string
         gender:
           type: string
+        password:
+          type: string
+        newPassword:
+          type: string
 
     CourierInfoDto:
       type: object
@@ -674,8 +690,8 @@ components:
         merchantId:
           type: "integer"
           format: "long"
-        badge:
-          $ref: '#/components/schemas/BadgeDto'
+#        badge:
+#          $ref: '#/components/schemas/BadgeDto'
         phone:
           type: "string"
         firstName:
@@ -842,6 +858,33 @@ components:
         amount:
           type: "integer"
           format: "double"
+
+    ProductDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        merchantId:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: '#/components/schemas/TextModel'
+        description:
+          $ref: '#/components/schemas/TextModel'
+        image:
+          type: string
+        costPrice:
+          type: "integer"
+          format: "long"
+        active:
+          type: boolean
+        categoryId:
+          type: "integer"
+          format: "long"
+        count:
+          type: "integer"
+          format: "long"
 
 
   securitySchemes:

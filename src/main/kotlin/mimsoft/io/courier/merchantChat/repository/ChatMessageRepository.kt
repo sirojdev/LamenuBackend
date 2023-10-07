@@ -10,25 +10,36 @@ import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.ResultSet
+import java.sql.SQLException
+import java.sql.Statement
 import java.sql.Timestamp
 
 object ChatMessageRepository {
     val repository: BaseRepository = DBManager
-    suspend fun addMessage(message: ChatMessageSaveDto, to: Long?, isSend: Boolean) {
+    suspend fun addMessage(message: ChatMessageSaveDto, to: Long?, isSend: Boolean): Long? {
         val query = " INSERT INTO chat_message (from_id,to_id,is_send,send_time,sender,message,operator_id) " +
-                " values (${message.fromId},$to,?,now(),?,?,${message.operatorId})"
-
+                " values (${message.fromId},$to,?,now(),?,?,${message.operatorId}) returning id"
+        var id: Long? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
+                val statement = it.prepareStatement(query, Statement.RETURN_GENERATED_KEYS).apply {
                     setBoolean(1, isSend)
                     setString(2, message.sender?.name)
                     setString(3, message.message)
                     this.closeOnCompletion()
-                }.executeUpdate()
+                }
+                val result = statement.executeUpdate()
+                println(result)
+                statement.generatedKeys.use { generatedKeys ->
+                    if (generatedKeys.next()) {
+                        id = generatedKeys.getLong(1)
+                    } else {
+                        throw SQLException("Creating user failed, no ID obtained.")
+                    }
+                }
             }
         }
-
+        return id;
     }
 
     private fun getMessageList(
@@ -41,7 +52,7 @@ object ChatMessageRepository {
                     id = rs.getLong("id"),
                     fromId = rs.getLong("from_id"),
                     toId = rs.getLong("to_id"),
-                    operator =StaffDto(
+                    operator = StaffDto(
                         id = rs.getLong("s_id"),
                         lastName = rs.getString("s_last_name"),
                         firstName = rs.getString("s_first_name"),
@@ -58,7 +69,7 @@ object ChatMessageRepository {
     }
 
     suspend fun getUserMessages(from: Long?, to: Long?, limit: Int, offset: Int): ArrayList<ChatMessageSaveDto> {
-        val query ="select cm.*,s.id s_id,s.first_name s_first_name,s.last_name s_last_name,s.image s_image\n" +
+        val query = "select cm.*,s.id s_id,s.first_name s_first_name,s.last_name s_last_name,s.image s_image\n" +
                 "from chat_message cm\n" +
                 "left join staff s on s.id = cm.operator_id\n" +
                 "where (to_id = $to and from_id =$from)\n" +

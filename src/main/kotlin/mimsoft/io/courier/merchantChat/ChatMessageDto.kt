@@ -2,12 +2,16 @@ package mimsoft.io.courier.merchantChat
 
 import kotlinx.serialization.Serializable
 import mimsoft.io.features.staff.StaffDto
+import org.glassfish.grizzly.http.util.TimeStamp
 import java.sql.Timestamp
 
 @Serializable
 data class ChatMessageDto(
     val message: String? = null,
-    val toId: Long? = null
+    val time:String?=null,
+    val uuid: String? = null,
+    val toId: Long? = null,
+    val id:Long? = null
 )
 
 data class ChatMessageSaveDto(

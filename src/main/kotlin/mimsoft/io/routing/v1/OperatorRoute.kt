@@ -28,11 +28,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 fun Route.routeToOperator() {
-
     val log: Logger = LoggerFactory.getLogger("routeToOperator")
-
     route("operator") {
-
         post("auth") {
             val staff = call.receive<StaffDto>()
 
@@ -41,11 +38,8 @@ fun Route.routeToOperator() {
                 call.respond(it.httpStatus, it.body)
             }
         }
-
         authenticate("operator") {
-
             route("profile") {
-
                 get {
                     val principal = call.principal<BasePrincipal>()
 

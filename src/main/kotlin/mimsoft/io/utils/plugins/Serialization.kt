@@ -10,7 +10,7 @@ import io.ktor.server.routing.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val GSON: Gson = GsonBuilder().setPrettyPrinting().create()
+val GSON: Gson = GsonBuilder().setPrettyPrinting().setDateFormat("dd.MM.yyyy HH:mm:ss.sss").create()
 
 val LOGGER: Logger = LoggerFactory.getLogger("LaLogger")
 

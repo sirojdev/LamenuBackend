@@ -10,16 +10,21 @@ import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentService
-import mimsoft.io.integrate.uzum.module.UzumRegisterResponse
+import mimsoft.io.integrate.uzum.module.*
 import mimsoft.io.utils.ResponseModel
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.spec.ECParameterSpec
-import java.io.UnsupportedEncodingException
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.nio.charset.StandardCharsets
 import java.security.*
-import java.security.spec.ECGenParameterSpec
+import java.util.*
 
 
 object UzumService {
+    val log: Logger = LoggerFactory.getLogger(UzumService::class.java)
+    const val securityToken = "123"
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             gson {
@@ -33,94 +38,180 @@ object UzumService {
     suspend fun register(orderId: Long): ResponseModel {
         val order = OrderService.getById(orderId)
         val payment = PaymentService.get(order?.merchant?.id)
-        if (order?.products.isNullOrEmpty()) {
-            return ResponseModel(body = "in order product not found", httpStatus = HttpStatusCode.BadRequest)
-        }
         val uzumDto = UzumMapper.toDto(order)
         val response = client.post(
-            "https://www.inplat-tech.ru/api/v1/payment/register"
+            "https://test-chk-api.ipt-merch.com/api/v1/payment/register"
         ) {
             headers {
                 append("Content-Type", "application/json")
-                append("X-Merchant-Access-Token", "xc")
+                append("X-Operation-Id", UUID.randomUUID().toString())
                 append("Content-Language", "uz-UZ")
-                append("X-Fingerprint", "")
-                append("X-Signature", "")
-                append("X-API-Key", "")
-                append("X-Terminal-Id", "")
+                append("X-Signature", generateSignature(securityToken, generateKeys()))
+                append("X-API-Key", payment?.uzumApiKey.toString())
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
             setBody(
                 Gson().toJson(uzumDto)
             )
         }
+        log.info("response.status.value   ${response.status.value}")
+        log.info("response.status.value   ${response.body<String>()}")
         if (response.status.value == 200) {
             val result = Gson().fromJson(response.body<String>(), UzumRegisterResponse::class.java)
-            return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
-        } else {
-            //todo save error
-            return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.BadRequest)
+            if (result.errorCode == 0) {
+                UzumRepository.saveTransaction(
+                    result,
+                    order?.id,
+                    order?.totalPrice?.times(100),
+                    UzumOperationType.TO_REGISTER,
+                    order?.merchant?.id
+                )
+                return ResponseModel(body = result, httpStatus = HttpStatusCode.OK)
+            } else {
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+                return ResponseModel(body = result, httpStatus = HttpStatusCode.BadRequest)
+            }
         }
+        return ResponseModel(body = response.body<String>(), httpStatus = HttpStatusCode.MethodNotAllowed)
     }
 
-    fun generateECDSAKeyPair(): KeyPair {
-        val keyPairGenerator = KeyPairGenerator.getInstance("EC")
-        val ecSpec = ECGenParameterSpec("secp256r1") // You can choose a different elliptic curve if needed
-        keyPairGenerator.initialize(ecSpec)
-        return keyPairGenerator.generateKeyPair()
+
+
+
+    suspend fun complete(uzumOrder: UzumPaymentTable): Boolean {
+        log.info("inside complete")
+        val payment = PaymentService.get(uzumOrder.merchantId)
+        val body = UzumRefund(orderId = uzumOrder.uzumOrderId, amount = uzumOrder.price)
+        val response = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/complete") {
+            headers {
+                append("Content-Type", "application/json")
+                append("X-Operation-Id", UUID.randomUUID().toString())
+                append("Content-Language", "uz-UZ")
+                append("X-Signature", generateSignature(securityToken, generateKeys()))
+                append("X-API-Key", payment?.uzumApiKey.toString())
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
+            }
+            setBody(Gson().toJson(body))
+        }
+        log.info("response.status.value   ${response.status.value}")
+        log.info("response.status.value   ${response.body<String>()}")
+        if (response.status.value == 200) {
+            val result = Gson().fromJson(response.body<String>(), UzumRegisterResponse::class.java)
+            if (result.errorCode == 0) {
+                UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.AUTHORIZE)
+                return true
+            } else {
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+                return false
+            }
+        }
+        return false
     }
 
-    fun signMessage(privateKey: PrivateKey, message: ByteArray): ByteArray {
-        val signature = Signature.getInstance("SHA256withECDSA")
-        signature.initSign(privateKey)
-        signature.update(message)
-        return signature.sign()
-    }
 
-    @Throws(
-        SignatureException::class,
-        UnsupportedEncodingException::class,
-        InvalidKeyException::class,
-        NoSuchAlgorithmException::class,
-        NoSuchProviderException::class
-    )
-    fun GenerateSignature(plaintext: String, keys: KeyPair): ByteArray {
-        val ecdsaSign = Signature
-            .getInstance("SHA256withECDSA", "BC")
+    fun generateSignature(plaintext: String, keys: KeyPair): String {
+        val ecdsaSign: Signature = Signature.getInstance("SHA256withECDSA", "BC")
         ecdsaSign.initSign(keys.private)
-        ecdsaSign.update(plaintext.toByteArray(charset("UTF-8")))
-        val signature = ecdsaSign.sign()
-        println(signature.toString())
-        return signature
+        ecdsaSign.update(plaintext.toByteArray(StandardCharsets.UTF_8))
+        val signature: ByteArray = ecdsaSign.sign()
+        val base64Signature = Base64.getEncoder().encodeToString(signature)
+        return base64Signature
     }
 
-    @Throws(
-        SignatureException::class,
-        InvalidKeyException::class,
-        UnsupportedEncodingException::class,
-        NoSuchAlgorithmException::class,
-        NoSuchProviderException::class
-    )
-    fun ValidateSignature(
-        plaintext: String, pair: KeyPair,
-        signature: ByteArray?
-    ): Boolean {
-        val ecdsaVerify = Signature.getInstance(
-            "SHA256withECDSA",
-            "BC"
-        )
+    fun validateSignature(plaintext: String, pair: KeyPair, signature: String?): Boolean {
+        val ecdsaVerify: Signature = Signature.getInstance("SHA256withECDSA", "BC")
         ecdsaVerify.initVerify(pair.public)
-        ecdsaVerify.update(plaintext.toByteArray(charset("UTF-8")))
-        return ecdsaVerify.verify(signature)
+        ecdsaVerify.update(plaintext.toByteArray(StandardCharsets.UTF_8))
+        val signatureBytes = Base64.getDecoder().decode(signature)
+        return ecdsaVerify.verify(signatureBytes)
     }
 
-    @Throws(NoSuchAlgorithmException::class, NoSuchProviderException::class, InvalidAlgorithmParameterException::class)
-    fun GenerateKeys(): KeyPair {
-        //  Other named curves can be found in http://www.bouncycastle.org/wiki/display/JA1/Supported+Curves+%28ECDSA+and+ECGOST%29
-        val ecSpec: ECParameterSpec = ECNamedCurveTable
+
+    fun generateKeys(): KeyPair {
+        val ecSpec: ECNamedCurveParameterSpec? = ECNamedCurveTable
             .getParameterSpec("B-571")
+        Security.addProvider(BouncyCastleProvider())
         val g = KeyPairGenerator.getInstance("ECDSA", "BC")
         g.initialize(ecSpec, SecureRandom())
         return g.generateKeyPair()
+    }
+
+
+
+    suspend fun refund(refund: UzumRefund, uzumOrder: UzumPaymentTable?): String {
+        val payment = PaymentService.get(uzumOrder?.merchantId)
+        val result = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/refund") {
+            headers {
+                append("Content-Type", "application/json")
+                append("X-Operation-Id", UUID.randomUUID().toString())
+                append("Content-Language", "uz-UZ")
+                append("X-Signature", generateSignature(securityToken, generateKeys()))
+                append("X-API-Key", payment?.uzumApiKey.toString())
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
+            }
+            setBody(Gson().toJson(refund))
+        }
+        log.info("response.status.value   ${result.status.value}")
+        log.info("response.status.value   ${result.body<String>()}")
+        if (result.status.value==200){
+            val result = Gson().fromJson(result.body<String>(), UzumRegisterResponse::class.java)
+            if (result.errorCode==0){
+
+            }else{
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+            }
+        }
+        return result.body<String>()
+    }
+
+    suspend fun reverse(reverse: UzumRefund): String {
+        val payment = PaymentService.get(1)
+        val result = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/reverse") {
+            headers {
+                append("Content-Type", "application/json")
+                append("Content-Language", "uz-UZ")
+                append("X-Operation-Id", UUID.randomUUID().toString())
+                append("X-Signature", generateSignature(securityToken, generateKeys()))
+                append("X-API-Key", payment?.uzumApiKey.toString())
+                append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
+            }
+            setBody(Gson().toJson(reverse))
+        }
+        log.info("response.status.value   ${result.status.value}")
+        log.info("response.status.value   ${result.body<String>()}")
+        if (result.status.value==200){
+            val result = Gson().fromJson(result.body<String>(), UzumRegisterResponse::class.java)
+            if (result.errorCode==0){
+
+            }else{
+                UzumRepository.saveLog(
+                    UzumError(
+                        actionCode = result.errorCode,
+                        actionCodeDescription = result.message,
+                        orderId = result.result?.orderId
+                    )
+                )
+            }
+        }
+        return result.body<String>()
     }
 
 

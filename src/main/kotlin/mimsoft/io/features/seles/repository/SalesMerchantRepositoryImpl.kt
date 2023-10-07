@@ -7,7 +7,7 @@ import mimsoft.io.repository.DBManager
 
 
 
-object MerchantRepositoryImp : SalesMerchantInterface {
+object SalesMerchantRepositoryImpl : SalesMerchantInterface {
     override suspend fun getAll(): List<SalesMerchantTable?> =
         DBManager.getData(dataClass = SalesMerchantTable::class, tableName = SALES_MERCHANT_TABLE_NAME)
             .filterIsInstance<SalesMerchantTable?>()
