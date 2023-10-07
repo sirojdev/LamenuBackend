@@ -39,11 +39,11 @@ object OrderService {
 
     private val repository: BaseRepository = DBManager
     private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
-    suspend fun getUniversal(
-        conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>
-    ) {
-        val query = generateQuery(conditions,tableNames)
-    }
+//    suspend fun getUniversal(
+//        conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>
+//    ) {
+//        val query = generateQuery(conditions,tableNames)
+//    }
 
     suspend fun getAll2(
         params: Map<String, *>? = null,
