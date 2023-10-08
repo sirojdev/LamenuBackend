@@ -25,7 +25,7 @@ class StaffServiceTest {
             birthDay = null,
             password = "Passwor2",
             newPassword = null,
-            position = "collector",
+            position = StaffPosition.COLLECTOR,
             merchantId = 1,
             lastName = "Name2",
             firstName = "Name1",
@@ -86,7 +86,7 @@ class StaffServiceTest {
             gender = "Erkak",
             comment = "This is comment7",
             password = "Passwor272",
-            position = "collector",
+            position = StaffPosition.COLLECTOR,
             merchantId = 1,
             lastName = "Ravshanov",
             firstName = "Ravshan"
@@ -105,7 +105,7 @@ class StaffServiceTest {
             gender = "Erkak",
             comment = "This is comment7",
             password = "Passwor888",
-            position = "collector",
+            position = StaffPosition.COLLECTOR,
             merchantId = 1,
             lastName = "Ravshanov",
             firstName = "Ravshan",
@@ -113,7 +113,7 @@ class StaffServiceTest {
         )
         val response = staffService.update(staff)
         println("rs: $response")
-        assertEquals(HttpStatusCode.OK, response.httpStatus)
+        assertTrue(response)
 
     }
 

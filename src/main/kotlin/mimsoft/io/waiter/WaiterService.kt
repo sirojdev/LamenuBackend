@@ -47,7 +47,7 @@ object WaiterService {
                         "merchant_id" to authDto.merchantId as Any
                     )
                 )?.data?.firstOrNull()
-            ),
+            )
         )
     }
 
