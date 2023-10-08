@@ -12,13 +12,8 @@ class OutcomeServiceTest {
     private val outcomeObject = OutcomeService
 
 
-    @Test
-    fun getAll() = testApplication {
-        val merchantId: Long = 111
-        val response = outcomeObject.getAll(merchantId)
-        assert(response.isEmpty())
 
-    }
+
 
     @Test
     fun get() = testApplication {

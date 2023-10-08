@@ -47,8 +47,8 @@ object BranchServiceImpl : BranchService {
         )
 
 
-    override suspend fun update(dto: BranchDto): Boolean {
-        val merchantId = dto.merchantId
+    override suspend fun update(branchDto: BranchDto): Boolean {
+        val merchantId = branchDto.merchantId
         val query = "update $BRANCH_TABLE_NAME " +
                 "SET" +
                 " name_uz = COALESCE(?,name_uz), " +
@@ -59,28 +59,29 @@ object BranchServiceImpl : BranchService {
                 " close = COALESCE(?,close)," +
                 " jowi_id=COALESCE(?,jowi_id)," +
                 " iiko_id=COALESCE(?,iiko_id)," +
-                " longitude = COALESCE(${dto.longitude},longitude)," +
-                " latitude = COALESCE(${dto.latitude},latitude)," +
+                " longitude = COALESCE(${branchDto.longitude},longitude)," +
+                " latitude = COALESCE(${branchDto.latitude},latitude)," +
                 " updated = COALESCE(?,updated)" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
+                " WHERE id = ${branchDto.id} and merchant_id = $merchantId and not deleted"
 
-        withContext(Dispatchers.IO) {
-            StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
-                    ti.setString(1, dto.name?.uz)
-                    ti.setString(2, dto.name?.ru)
-                    ti.setString(3, dto.name?.eng)
-                    ti.setString(4, dto.address)
-                    ti.setString(5, dto.open)
-                    ti.setString(6, dto.close)
-                    ti.setString(7, dto.jowiId)
-                    ti.setString(8, dto.iikoId)
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).use { ti ->
+                    ti.setString(1, branchDto.name?.uz)
+                    ti.setString(2, branchDto.name?.ru)
+                    ti.setString(3, branchDto.name?.eng)
+                    ti.setString(4, branchDto.address)
+                    ti.setString(5, branchDto.open)
+                    ti.setString(6, branchDto.close)
+                    ti.setString(7, branchDto.jowiId)
+                    ti.setString(8, branchDto.iikoId)
                     ti.setTimestamp(9, Timestamp(System.currentTimeMillis()))
+                    ti.closeOnCompletion()
                     ti.executeUpdate()
                 }
+                return@withContext rs == 1
             }
         }
-        return true
     }
 
 

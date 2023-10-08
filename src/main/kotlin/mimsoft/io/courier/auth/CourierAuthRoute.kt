@@ -13,6 +13,7 @@ import mimsoft.io.client.device.DeviceType
 import mimsoft.io.features.appKey.MerchantAppKeyRepository
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
+import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
@@ -51,7 +52,7 @@ fun Route.routeToCourierAuth() {
                     call.respond(status.httpStatus, status)
                 else {
                     val authStaff = status.body as StaffDto?
-                    if (authStaff?.position != "courier") {
+                    if (authStaff?.position != StaffPosition.COURIER) {
                         call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
                     }
                     val uuid = courierService.generateUuid(authStaff?.id)

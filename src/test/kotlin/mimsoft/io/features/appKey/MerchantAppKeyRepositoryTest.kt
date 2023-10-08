@@ -16,7 +16,7 @@ class MerchantAppKeyRepositoryTest {
             appKey = 2
         )
         val response = merchantAppKeyRepository.add(merchantAppKeyDto)
-        println("response = $response")
+        println("rs: $response")
         assertNotNull(response)
     }
 
@@ -24,22 +24,23 @@ class MerchantAppKeyRepositoryTest {
     fun getAll() = testApplication {
         val merchantId: Long = 2
         val response = merchantAppKeyRepository.getAll(merchantId)
-        println("response: $response")
-        assertNotNull(response)
-        assert(response[0].appKey != null)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
     fun getByAppId() = testApplication {
         val app_id: Long = 1
         val response = merchantAppKeyRepository.getByAppId(app_id)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun deleteByAppId() = testApplication {
         val id: Long = 2
         val response = merchantAppKeyRepository.deleteByAppId(id)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

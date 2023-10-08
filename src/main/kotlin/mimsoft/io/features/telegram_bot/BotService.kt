@@ -18,6 +18,7 @@ object BotService : BotRepository {
 
         return data ?: emptyList()
     }
+
     override suspend fun get(id: Long?, merchantId: Long?): BotTable? {
         val data = repository.getPageData(
             dataClass = BotTable::class,
@@ -30,11 +31,12 @@ object BotService : BotRepository {
         return data
 
     }
+
     override suspend fun add(botTable: BotTable?): Long? =
         DBManager.postData(dataClass = BotTable::class, dataObject = botTable, tableName = TELEGRAM_BOT_TABLE_NAME)
 
     override suspend fun update(dto: BotDto): Boolean {
-        val merchantId = dto.merchantId
+        var rs = 0
         val query = """
             UPDATE $TELEGRAM_BOT_TABLE_NAME 
             SET
@@ -42,12 +44,14 @@ object BotService : BotRepository {
                 tg_username = ?,
                 group_id = ?,
                 updated = ?
-            WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted 
+            WHERE id = ${dto.id}
+                and merchant_id = ${dto.merchantId}
+                and not deleted 
         """.trimIndent()
 
         withContext(Dispatchers.IO) {
             StaffService.repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                rs = it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.tgToken)
                     ti.setString(2, dto.tgUsername)
                     ti.setString(3, dto.groupId)
@@ -56,13 +60,23 @@ object BotService : BotRepository {
                 }
             }
         }
-        return true
+        return rs == 1
     }
+
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $TELEGRAM_BOT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+        var rs = 0
+        val query = """
+            update tg_bot
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }

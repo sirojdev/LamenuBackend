@@ -20,7 +20,7 @@ fun Route.routeToProduct() {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
 
-        val products = (productRepository.getAllProductInfo(merchantId = merchantId))
+        val products = productRepository.getAllProductInfo(merchantId = merchantId)
         if (products.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get

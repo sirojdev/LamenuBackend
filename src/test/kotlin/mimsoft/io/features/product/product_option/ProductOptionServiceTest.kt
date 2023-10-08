@@ -1,13 +1,23 @@
 package mimsoft.io.features.product.product_option
 
-import org.junit.jupiter.api.Test
+import io.ktor.server.testing.*
+import kotlin.test.Test
 
-import org.junit.jupiter.api.Assertions.*
 
-class ProductOptionServiceTest {
+class ProductOptionServiceTest { // TODO:  sql table not created...
+
+
+    private val productOptionService = ProductOptionService
 
     @Test
-    fun add() {
+    fun add() = testApplication {
+        val productOptionDto = ProductOptionDto(
+            productId = null,
+            optionId = null,
+            merchantId = null
+        )
+        val response = productOptionService.add(productOptionDto)
+
     }
 
     @Test

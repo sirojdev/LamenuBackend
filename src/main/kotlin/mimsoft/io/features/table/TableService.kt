@@ -59,31 +59,33 @@ object TableService : TableRepository {
     }
 
     override suspend fun update(dto: TableDto): Boolean {
-        val merchantId = dto.merchantId
-        val query = "UPDATE $TABLE_TABLE_NAME " +
-                "SET" +
-                " name = ?, " +
-                " qr = ?," +
-                " type = ${dto.type}," +
-                " room_id = ${dto.room?.id}," +
-                " status = ?," +
-                " booking_time = ${dto.bookingTime}," +
-                " room_id = ${dto.room?.id}," +
-                " branch_id = ${dto.branch?.id}, " +
-                " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
-
-        return withContext(DBManager.databaseDispatcher) {
+        var rs = 0
+        val query = """
+            update tables
+            set name         = ?,
+                qr           = ?,
+                type         = ${dto.type},
+                room_id      = ${dto.room?.id},
+                status       = ?,
+                booking_time = ${dto.bookingTime},
+                branch_id    = ${dto.branch?.id},
+                updated      = ?
+            where id = ${dto.id}
+              and merchant_id = ${dto.merchantId}
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                return@withContext it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     this.setString(1, dto.name)
                     this.setString(2, dto.qr)
-                    this.setString(2, dto.status?.name)
-                    this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    this.setString(3, dto.status?.name)
+                    this.setTimestamp(4, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()
             }
         }
+        return rs == 1
     }
 
     override suspend fun getRoomWithTables(merchantId: Long?, branchId: Long?): ArrayList<RoomDto> {
@@ -126,14 +128,15 @@ object TableService : TableRepository {
     }
 
     override suspend fun getTablesWaiter(roomId: Long?, branchId: Long?, merchantId: Long?): List<TableDto?> {
-        val query = "select * from tables where room_id = $roomId and branch_id = $branchId and merchant_id = $merchantId and not deleted"
+        val query =
+            "select * from tables where room_id = $roomId and branch_id = $branchId and merchant_id = $merchantId and not deleted"
         val list = mutableListOf<TableDto>()
-        withContext(DBManager.databaseDispatcher){
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeQuery()
-                while(rs.next()){
+                while (rs.next()) {
                     val dto = TableDto(
                         id = rs.getLong("id"),
                         name = rs.getString("name"),
@@ -148,11 +151,22 @@ object TableService : TableRepository {
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $TABLE_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        return withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection()
-                .use { return@withContext it.prepareStatement(query).apply { this.closeOnCompletion() }.execute() }
+        var rs = 0
+        val query = """
+            update tables
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            ProductRepositoryImpl.repository.connection().use {
+                rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
         }
+        return rs == 1
     }
 
     override suspend fun getByQr(url: String): TableDto? {

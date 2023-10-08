@@ -149,35 +149,57 @@ object VisitService {
 
 
     suspend fun update(dto: VisitDto): Boolean {
+        var rs = 0
         val query = """
-            update $VISIT_TABLE_NAME set user_id = ${dto.user?.id}, waiter_id = ${dto.waiter?.id}, 
-            table_id = ${dto.table?.id}, payment_type_id = ${dto.payment?.id}, 
-            price = ${dto.price}, orders = ?, time = ?, status = ?, updated = ?, user_data = ?, 
-            waiter_data = ?, table_data = ?, payment_type_data = ? where id = ${dto.id} 
-            and merchant_id = ${dto.merchantId} and not deleted
+            update visit
+            set user_id           = ${dto.user?.id},
+                waiter_id         = ${dto.waiter?.id},
+                table_id          = ${dto.table?.id},
+                payment_type_id   = ${dto.payment?.id},
+                price             = ${dto.price},
+                orders            = ?,
+                time              = ?,
+                status            = ?,
+                updated           = ?,
+                user_data         = ?,
+                waiter_data       = ?,
+                table_data        = ?,
+                payment_type_data = ?
+            where id = ${dto.id}
+              and merchant_id = ${dto.merchantId}
+              and not deleted
         """.trimIndent()
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query).apply {
                     setString(1, ObjectMapper().writeValueAsString(dto.orders))
-                    setTimestamp(2, dto.time)
+                    setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     setString(3, dto.status?.name)
                     setTimestamp(4, Timestamp(System.currentTimeMillis()))
                     setString(5, Gson().toJson(dto.user))
                     setString(6, Gson().toJson(dto.waiter))
                     setString(7, Gson().toJson(dto.table))
                     setString(8, Gson().toJson(dto.payment))
-                }.executeQuery()
+                }.executeUpdate()
             }
         }
-        return true
+        return rs == 1
     }
 
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        val query = "update $VISIT_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { it.prepareStatement(query).execute() }
+        var rs = 0
+        val query = """
+            update visit
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query).executeUpdate()
+            }
         }
-        return true
+        return rs == 1
     }
 }

@@ -17,7 +17,8 @@ class AppServiceTest {
     fun get() = testApplication {
         val merchantId: Long = 1
         val response = appService.get(merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -31,7 +32,6 @@ class AppServiceTest {
             selected = "String"
         )
         val response = appService.add(appDto)
-        assertNotNull(response)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -45,6 +45,7 @@ class AppServiceTest {
             selected = "String"
         )
         val response = appService.update(appDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

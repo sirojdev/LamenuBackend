@@ -1,9 +1,10 @@
 package mimsoft.io.routing.v1
 
+//import mimsoft.io.features.pos.poster.routeToPoster
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.news.routeToNews
 import mimsoft.io.features.app.routeToApp
+import mimsoft.io.features.area.routeToArea
 import mimsoft.io.features.badge.routeToBadge
 import mimsoft.io.features.branch.routeToBranch
 import mimsoft.io.features.cashback.routeToCashback
@@ -15,13 +16,14 @@ import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
+import mimsoft.io.features.income.routeToIncome
 import mimsoft.io.features.kitchen.routeToKitchen
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
-import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
+import mimsoft.io.features.news.routeToNews
 import mimsoft.io.features.notification.routeToNotification
 import mimsoft.io.features.online_pbx.routeToOnlinePbx
 import mimsoft.io.features.operator.routeToOperatorEntity
@@ -52,6 +54,7 @@ import mimsoft.io.features.visit.routeToVisits
 import mimsoft.io.features.waiters.routToMerchantWaiters
 import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
+import mimsoft.io.routing.merchant.routeToUserUser
 
 
 fun Route.routeToMerchant() {
@@ -80,6 +83,7 @@ fun Route.routeToMerchant() {
             route("settings") {
                 routeToApp()
                 routeToBot()
+                routeToArea()
                 routeToRoom()
                 routeToFlat()
                 routeToBadge()
@@ -107,15 +111,18 @@ fun Route.routeToMerchant() {
                 routeToOperatorEntity()
             }
 
-            route("finance") {
-                routeToOutcome()
-            }
             route("crm") {
                 routeToSms()
                 routeToMessage()
                 routeToPromo()
                 routeToUserUser()
                 routeToNotification()
+            }
+        }
+        authenticate("branch") {
+            route("finance") {
+                routeToOutcome()
+                routeToIncome()
             }
         }
     }

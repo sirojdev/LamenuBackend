@@ -36,28 +36,33 @@ object DeliveryService {
     suspend fun add(deliveryDto: DeliveryDto?): ResponseModel {
         if (deliveryDto?.merchantId == null) return ResponseModel(httpStatus = ResponseModel.MERCHANT_ID_NULL)
         val checkMerchant = get(deliveryDto.merchantId)
-        if (checkMerchant != null) update(deliveryDto = deliveryDto)
-        return ResponseModel(
-            body = repository.postData(
-                dataClass = DeliveryTable::class,
-                dataObject = mapper.toDeliveryTable(deliveryDto), tableName = DELIVERY_TABLE_NAME
-            )?:0,
-            httpStatus = ResponseModel.OK
-        )
+        if (checkMerchant != null){
+            val rs = update(deliveryDto = deliveryDto)
+            return ResponseModel(rs)
+        }
+        else{
+            return ResponseModel(
+                body = repository.postData(
+                    dataClass = DeliveryTable::class,
+                    dataObject = mapper.toDeliveryTable(deliveryDto), tableName = DELIVERY_TABLE_NAME
+                )?:0,
+                httpStatus = ResponseModel.OK
+            )
+        }
     }
 
 
     fun update(deliveryDto: DeliveryDto?): Boolean {
-        val query = "update $DELIVERY_TABLE_NAME set " +
-                "yandex_client_id = ${deliveryDto?.yandexClientId}, " +
-                "yandex_token = ?, " +
-                "express_id = ${deliveryDto?.expressId}, " +
-                "express_token = ?, " +
-                "selected = ?, " +
+        val query = "update $DELIVERY_TABLE_NAME d set " +
+                "yandex_client_id = coalesce(${deliveryDto?.yandexClientId}, d.yandex_client_id), " +
+                "yandex_token = coalesce(?, d.yandex_token), " +
+                "express_id = coalesce(${deliveryDto?.expressId}, d.express_id), " +
+                "express_token = coalesce(?, d.express_token), " +
+                "selected = coalesce(?, d.selected), " +
                 "updated = ? \n" +
                 "where merchant_id = ${deliveryDto?.merchantId} and not deleted "
         repository.connection().use {
-             it.prepareStatement(query).apply {
+             return it.prepareStatement(query).apply {
                 this.setString(1, deliveryDto?.yandexToken)
                 this.setString(2, deliveryDto?.expressToken)
                 this.setString(3, deliveryDto?.selected)
@@ -65,7 +70,6 @@ object DeliveryService {
                 this.closeOnCompletion()
             }.execute()
         }
-        return true
     }
 }
 

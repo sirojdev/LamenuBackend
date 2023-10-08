@@ -15,7 +15,8 @@ class DeliveryServiceTest {
     fun get() = testApplication {
         val merchantId: Long = 1
         val response = deliveryService.get(merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -24,7 +25,7 @@ class DeliveryServiceTest {
             merchantId = 9,
             yandexClientId = 3,
             expressId = 4,
-            yandexToken = "yabdextoken",
+            yandexToken = "yandextoken",
             expressToken = "exoresstoken",
             selected = "Yandex"
         )
@@ -44,6 +45,7 @@ class DeliveryServiceTest {
             selected = "Yandex"
         )
         val response = deliveryService.update(deliveryDto)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 }

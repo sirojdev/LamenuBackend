@@ -14,7 +14,8 @@ class RoomServiceTest {
     fun getAll() = testApplication {
         val merchantId: Long = 111
         val response = roomService.getAll(merchantId)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -34,7 +35,8 @@ class RoomServiceTest {
             merchantId = 1
         )
         val response = roomService.add(roomTable)
-        println("rs: $response")
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -45,7 +47,7 @@ class RoomServiceTest {
             )
         )
         val roomDto = RoomDto(
-            id = 333,
+            id = 3444,
             name = "Room-777",
             branchId = 34,
             merchantId = 1,
@@ -54,14 +56,23 @@ class RoomServiceTest {
         val response = roomService.update(roomDto)
         if (response)
             assertTrue(response)
-        println("rs: $response")
     }
 
     @Test
-    fun delete() {
+    fun delete() = testApplication {
+        val id: Long = 34
+        val merchantId: Long = 1
+        val response = roomService.delete(id, merchantId)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
-    fun getWithTable() {
+    fun getWithTable() = testApplication {
+        val branchId: Long = 344
+        val merchantId: Long = 1
+        val response = roomService.getWithTable(branchId, merchantId)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 }

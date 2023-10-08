@@ -2,6 +2,7 @@ package mimsoft.io.routing
 
 import io.ktor.server.routing.*
 import mimsoft.io.board.routeToBoard
+import mimsoft.io.branchOperator.routeToBranchOperatorAuth
 import mimsoft.io.client.user.routeToUser
 import mimsoft.io.courier.routeToCouriers
 import mimsoft.io.features.manager_sys.routeToSysManager
@@ -18,6 +19,7 @@ fun Route.routeToV1() {
     routeToSysManager()
     routeToCouriers()
     routeToMerchant()
+    routeToBranchOperatorAuth()
     routeToWaiter()
     routeToBoard()
     routeToClient()

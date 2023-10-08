@@ -1,5 +1,3 @@
-@file:Suppress("NAME_SHADOWING")
-
 package mimsoft.io.features.outcome_type
 
 import io.ktor.http.*

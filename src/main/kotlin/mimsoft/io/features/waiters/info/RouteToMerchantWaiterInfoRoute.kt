@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
@@ -20,7 +21,7 @@ fun Route.routeToMerchantWaiterInfoRoute() {
                 return@get
             }
             val staff = StaffService.get(id = id, merchantId = merchantId)
-            if (staff == null || staff.position != "waiter") {
+            if (staff == null || staff.position != StaffPosition.WAITER) {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
             }

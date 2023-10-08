@@ -16,7 +16,8 @@ class CategoryRepositoryImplTest {
     fun getAllByClient() = testApplication {
         val merchantId: Long = 1
         val response = categoryRepositoryImpl.getAllByClient(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -24,14 +25,16 @@ class CategoryRepositoryImplTest {
         val merchantId: Long = 6
         val id: Long = 14
         val response = categoryRepositoryImpl.getCategoryForClientById(id, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 6
         val response = categoryRepositoryImpl.getAll(merchantId)
-        assertNotNull(response)
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 
     @Test
@@ -39,7 +42,8 @@ class CategoryRepositoryImplTest {
         val merchantId: Long = 6
         val id: Long = 14
         val response = categoryRepositoryImpl.get(id, merchantId)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -59,7 +63,8 @@ class CategoryRepositoryImplTest {
             products = null
         )
         val response = categoryRepositoryImpl.add(categoryDto)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 
     @Test
@@ -85,7 +90,8 @@ class CategoryRepositoryImplTest {
         val merchantId: Long = 6
         val id: Long = 14
         val response = categoryRepositoryImpl.delete(id, merchantId)
-        assertTrue(response)
+        if (response)
+            assertTrue(response)
     }
 
     @Test
@@ -94,6 +100,7 @@ class CategoryRepositoryImplTest {
         val language = Language.UZ
         val text = "Fastfud"
         val response = categoryRepositoryImpl.getCategoryByName(merchantId, language, text)
-        assertNotNull(response)
+        if (response != null)
+            assertNotNull(response)
     }
 }

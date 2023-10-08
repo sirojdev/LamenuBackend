@@ -241,8 +241,7 @@ FROM
     }
 
     suspend fun logout(uuid: String?): Boolean {
-        SessionRepository.expire(uuid)
-        return true
+        return SessionRepository.expire(uuid)
     }
 
 }

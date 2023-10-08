@@ -54,12 +54,12 @@ object PosterService {
 
     fun update(posterDto: PosterDto?): Boolean {
         var rs = 0
-        val query = "update $POSTER_TABLE set " +
-                "join_poster_api_key = ?, " +
-                "r_keeper_client_id = ${posterDto?.rKeeperClientId}," +
-                "r_keeper_client_secret = ?, " +
-                "selected = ?, " +
-                "jowi_api_key = ?, " +
+        val query = "update $POSTER_TABLE p set " +
+                "join_poster_api_key = coalesce(?, p.join_poster_api_key), " +
+                "r_keeper_client_id = coalesce(${posterDto?.rKeeperClientId}, p.r_keeper_client_id)," +
+                "r_keeper_client_secret = coalesce(?, p.r_keeper_client_secret), " +
+                "selected = coalesce(?, p.selected), " +
+                "jowi_api_key = coalesce(?, p.jowi_api_key), " +
                 "updated = ? \n" +
                 "where merchant_id = ${posterDto?.merchantId} and not deleted "
         repository.connection().use {
@@ -75,7 +75,3 @@ object PosterService {
         return rs == 1
     }
 }
-
-
-
-

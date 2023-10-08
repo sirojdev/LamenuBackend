@@ -11,16 +11,4 @@ object AppMapper {
             selected = appDto.selected
         )
     }
-
-    fun toAppDto(appTable: AppTable?): AppDto? {
-        return if (appTable == null) null
-        else AppDto(
-            id = appTable.id,
-            merchantId = appTable.merchantId,
-            googleToken = appTable.googleToken,
-            appleToken = appTable.appleToken,
-            telegramBotToken = appTable.telegramBotToken,
-            selected = appTable.selected
-        )
-    }
 }

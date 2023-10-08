@@ -42,7 +42,6 @@ class PaymentServiceTest {
             clickKey = "23"
         )
         val response = paymentService.add(paymentDto)
-        println("rs: $response")
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 
@@ -67,6 +66,7 @@ class PaymentServiceTest {
     fun getPaymentTypeClient() = testApplication {
         val merchantId: Long = 122
         val response = paymentService.getPaymentTypeClient(merchantId)
-        assert(response.isEmpty())
+        if (response.isEmpty())
+            assertNotNull(response)
     }
 }

@@ -17,7 +17,7 @@ object SmsGatewayService {
     val mapper = SmsGatewayMapper
 
     fun getProvider(smsGatewayDto: SmsGatewayDto?): SmsProvider? {
-        val merchantId = smsGatewayDto?.merchantId ?: return null
+        smsGatewayDto?.merchantId ?: return null
         return when (smsGatewayDto.selected) {
             SMSGatewaySelected.PLAY_MOBILE.name -> PlayMobileProvider(
                 password = smsGatewayDto.playMobilePassword,
@@ -37,7 +37,7 @@ object SmsGatewayService {
 
     suspend fun get(merchantId: Long?): SmsGatewayDto? {
         val query = "select * from $SMS_GATEWAY_TABLE where merchant_id = $merchantId and deleted = false"
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -76,12 +76,12 @@ object SmsGatewayService {
     }
 
     suspend fun update(smsGatewayDto: SmsGatewayDto?): Boolean {
-        withContext(Dispatchers.IO) {
-            val query = "update $SMS_GATEWAY_TABLE set " +
-                    "eskiz_email = ?, " +
-                    "eskiz_password = ?, " +
-                    "play_mobile_username = ?, " +
-                    "play_mobile_password = ?, " +
+        return withContext(Dispatchers.IO) {
+            val query = "update $SMS_GATEWAY_TABLE s set " +
+                    "eskiz_email = coalesce(?, s.eskiz_email), " +
+                    "eskiz_password = (?, s.eskiz_password), " +
+                    "play_mobile_username = (?, s.play_mobile_username), " +
+                    "play_mobile_password = (?, s.play_mobile_password), " +
                     "updated = ? \n" +
                     "where merchant_id = ${smsGatewayDto?.merchantId} and not deleted "
             repository.connection().use {
@@ -93,11 +93,10 @@ object SmsGatewayService {
                     this.setTimestamp(5, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
                 }.execute()
+                return@withContext rs
             }
         }
-        return true
     }
-
 }
 
 

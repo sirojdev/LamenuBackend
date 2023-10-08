@@ -109,9 +109,18 @@ object SessionRepository {
     }
 
     suspend fun getMerchantByUUID(uuid: String?): SessionTable? {
-        val query = "select * from session s inner join merchant m on m.id = s.merchant_id " +
-                "where uuid = ? and not is_expired and not m.deleted and not s.deleted"
-        return withContext(Dispatchers.IO) {
+        val query = """
+            select s.*, b.id b_id
+            from session s
+                     inner join merchant m on m.id = s.merchant_id
+                     left join staff st on s.stuff_id = st.id
+                     left join branch b on st.branch_id = b.id
+            where uuid = ?
+              and not is_expired
+              and not m.deleted
+              and not s.deleted
+        """.trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
             DBManager.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.setString(1, uuid)
@@ -122,6 +131,7 @@ object SessionRepository {
                     SessionTable(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
+                        branchId = rs.getLong("b_id"),
                         userId = rs.getLong("user_id"),
                         isExpired = rs.getBoolean("is_expired")
                     )
