@@ -83,7 +83,7 @@ object UzumRepository {
     suspend fun updateOperationType(uzumOrderId: String?, operationType: UzumOperationType) {
         log.info("inside update statement")
         val query =
-            "update $UZUM_PAYMENT_TABLE set operation_type= ? where uzum_order_id = ? "
+            "update $UZUM_PAYMENT_TABLE set operation_type= ? ,updated_date = now() where uzum_order_id = ? "
         println("get transaction uzum")
         var result: UzumPaymentTable? = null
         withContext(Dispatchers.IO) {

@@ -30,8 +30,8 @@ object PaymentService {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
-                    return@withContext PaymentMapper.toPaymentDto(
-                        PaymentTable(
+                    return@withContext (
+                        PaymentDto(
                             paymeMerchantId = rs.getString("payme_merchant_id"),
                             paymeSecret = rs.getString("payme_secret"),
                             apelsinMerchantId = rs.getLong("apelsin_merchant_id"),
@@ -39,6 +39,7 @@ object PaymentService {
                             uzumTerminalId = rs.getString("uzum_terminal_id"),
                             uzumSecretSignature = rs.getString("uzum_secret_signature"),
                             uzumApiKey = rs.getString("uzum_api_key"),
+                            uzumFiscal = rs.getString("uzum_fiscal"),
                             clickServiceId = rs.getLong("click_service_id"),
                             clickMerchantId = rs.getString("click_merchant_id"),
                             clickKey = rs.getString("click_key"),

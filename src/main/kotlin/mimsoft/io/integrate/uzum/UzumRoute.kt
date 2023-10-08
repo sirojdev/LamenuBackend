@@ -50,10 +50,10 @@ fun Route.routeToUzum() {
                     } else {
                         log.info("inside AUTHORIZE")
                         val result = UzumService.complete(uzumOrder)
-                        if(result){
+                        if (result) {
                             log.info("OK complete")
                             call.respond(HttpStatusCode.OK)
-                        }else{
+                        } else {
                             log.info("NOT OK ")
                             call.respond(HttpStatusCode.MethodNotAllowed)
                         }
@@ -110,12 +110,11 @@ fun Route.routeToUzum() {
             }
             if (uzumOrder?.operationType != UzumOperationType.COMPLETE) {
                 call.respond(HttpStatusCode.MethodNotAllowed, "order operation type not complete")
-            }else{
+            } else {
                 log.info("inside before refund ")
                 call.respond(
                     UzumService.refund(
-                        UzumRefund(orderId = uzumOrder?.uzumOrderId, amount = uzumOrder?.price),
-                        uzumOrder
+                        UzumRefund(orderId = uzumOrder?.uzumOrderId, amount = uzumOrder?.price), uzumOrder
                     )
                 )
             }
@@ -127,8 +126,24 @@ fun Route.routeToUzum() {
             val reverse = call.receive<UzumRefund>()
             if (reverse == null) {
                 call.respond(HttpStatusCode.BadRequest, "orderId or amount is null ")
+                return@post
+            }else{
+                call.respond(UzumService.reverse(reverse))
             }
-            call.respond(UzumService.reverse(reverse))
+        }
+        post("fiscal") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            if (orderId == null) {
+                call.respond(HttpStatusCode.BadRequest, "orderId is null ")
+            }
+            call.respond(UzumService.fiscal(orderId))
+        }
+        post("fiscal-refund") {
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
+            if (orderId == null) {
+                call.respond(HttpStatusCode.BadRequest, "orderId is null ")
+            }
+            call.respond(UzumService.fiscalRefund(orderId))
         }
     }
 
