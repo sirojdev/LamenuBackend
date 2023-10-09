@@ -12,6 +12,8 @@ fun Route.routeToWaiter(){
         route("waiter") {
             routeToWaitersInfo()
             routeToWaitersTables()
+            routeToWaiterCategory()
+            routeToWaiterCategoryByGroup()
         }
     }
 }

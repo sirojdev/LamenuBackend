@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-server-status-pages:$ktor_version")
     implementation("com.google.firebase:firebase-admin:9.2.0")
     implementation("org.slf4j:slf4j-log4j12:2.0.5")
     implementation("io.ktor:ktor-client-okhttp-jvm:2.3.4")

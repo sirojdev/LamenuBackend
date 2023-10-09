@@ -7,7 +7,6 @@ import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
-import mimsoft.io.features.staff.StaffTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.session.SessionRepository
@@ -21,34 +20,25 @@ object WaiterService {
     val repository: BaseRepository = DBManager
 
 
-    suspend fun auth(authDto: StaffDto?): ResponseModel {
-        when {
-            authDto?.password == null -> {
-                return ResponseModel(
-                    httpStatus = ResponseModel.PASSWORD_NULL,
-                )
-            }
-
-            authDto.phone == null -> {
-                return ResponseModel(
-                    httpStatus = ResponseModel.PHONE_NULL
-                )
+    suspend fun auth(authDto: StaffDto?): StaffDto? {
+        val query = """
+                select * from staff where phone = ? and password = ? and not deleted and position = 'WAITER' and merchant_id =${authDto?.merchantId}
+        """.trimIndent()
+        return withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, authDto?.phone)
+                    setString(2, authDto?.password)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    return@withContext StaffDto(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                    )
+                } else return@withContext null
             }
         }
-
-        return ResponseModel(
-            body = StaffService.mapper.toDto(
-                StaffService.repository.getPageData(
-                    dataClass = StaffTable::class,
-                    tableName = STAFF_TABLE_NAME,
-                    where = mapOf(
-                        "phone" to authDto?.phone as Any,
-                        "password" to authDto.password as Any,
-                        "merchant_id" to authDto.merchantId as Any
-                    )
-                )?.data?.firstOrNull()
-            ),
-        )
     }
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
@@ -79,8 +69,26 @@ object WaiterService {
         }
     }
 
+    suspend fun getWithPasswordAndImages(id: Long?): StaffDto? {
+        val query = "select * from $STAFF_TABLE_NAME where id = $id and deleted = false and position='WAITER' "
+        return withContext(DBManager.databaseDispatcher) {
+            StaffService.repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    StaffDto(
+                        id = rs.getLong("id"),
+                        merchantId = rs.getLong("merchant_id"),
+                        password = rs.getString("password"),
+                        image = rs.getString("image"),
+                        branchId = rs.getLong("branch_id")
+                    )
+                } else return@withContext null
+            }
+        }
+    }
 
-    suspend fun updateWaiterProfile(dto: StaffDto): ResponseModel {
+
+    suspend fun updateWaiterProfile(dto: StaffDto): Boolean {
         var query = """
              update $STAFF_TABLE_NAME  s
              set
@@ -88,23 +96,15 @@ object WaiterService {
              last_name = COALESCE(?,s.last_name),
              birth_day = COALESCE(?,s.birth_day),
              image = COALESCE(?,s.image),
-             updated = ? 
+             updated = ? ,
+             password = COALESCE(?,s.password)
               """
-
-        if (dto.newPassword != null) {
-            query += " ,password = COALESCE(?,s.password) "
-        }
         query += "   where s.id = ${dto.id} and s.deleted = false "
-
-        if (dto.newPassword != null) {
-            query += " and password = ? "
-        }
         if (dto.birthDay != null) {
             val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
             dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
         }
-
-        var rs: Int? = null
+        var rs: Int?
         withContext(Dispatchers.IO) {
             CourierService.repository.connection().use {
                 rs = it.prepareStatement(query).apply {
@@ -113,19 +113,12 @@ object WaiterService {
                     setTimestamp(3, dto.birthDay?.let { Timestamp.valueOf(it) })
                     setString(4, dto.image)
                     setTimestamp(5, Timestamp(System.currentTimeMillis()))
-                    if (dto.newPassword != null) {
-                        setString(6, dto.newPassword)
-                        setString(7, dto.password)
-                    }
+                    setString(6, dto.newPassword)
                     this.closeOnCompletion()
                 }.executeUpdate()
             }
         }
-
-        return when (rs) {
-            1 -> ResponseModel(body = "Successfully", HttpStatusCode.OK)
-            else -> ResponseModel(body = "Courier not found or password incorrect", HttpStatusCode.NotFound)
-        }
+        return rs == 1
     }
 
     suspend fun logout(uuid: String?): Boolean {
