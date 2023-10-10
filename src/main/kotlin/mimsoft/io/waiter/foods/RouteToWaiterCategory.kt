@@ -1,4 +1,4 @@
-package mimsoft.io.waiter
+package mimsoft.io.waiter.foods
 
 import io.ktor.http.*
 import io.ktor.server.application.*

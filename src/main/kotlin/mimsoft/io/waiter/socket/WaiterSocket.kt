@@ -17,7 +17,7 @@ import mimsoft.io.utils.principal.BasePrincipal
 import java.sql.Timestamp
 
 
-fun Route.toOperatorSocket() {
+fun Route.toWaiterSocket() {
     route("waiter") {
 
         authenticate("waiter") {
