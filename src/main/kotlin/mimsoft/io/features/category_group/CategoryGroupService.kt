@@ -28,7 +28,7 @@ object CategoryGroupService {
             tableName = CATEGORY_GROUP_TABLE
         )?.data
 
-        return data?.map { mapper.toDto(it?:CategoryGroupTable()) } ?: emptyList()
+        return data?.map { mapper.toDto(it ?: CategoryGroupTable()) } ?: emptyList()
     }
 
     suspend fun add(dto: CategoryGroupDto): Long? =
@@ -150,7 +150,8 @@ object CategoryGroupService {
             }
         }
     }
-    suspend fun getCategoryGroupWithBranchId(merchantId: Long?,branchId:Long?): List<CategoryGroupDto> {
+
+    suspend fun getCategoryGroupWithBranchId(merchantId: Long?, branchId: Long?): List<CategoryGroupDto> {
         val query = """
             SELECT cg.id,
                    cg.title_uz,
@@ -226,7 +227,8 @@ FROM category_group cg
         'priority', c.priority
     )) as c_list,
                            c.group_id
-                    FROM (select * from category c2 where c2.merchant_id = 1 order by c2.priority) as c
+                    FROM (select * from category c2 where c2.merchant_id = 
+                    $merchantId order by c2.priority) as c
                     where c.merchant_id = $merchantId
                     group by c.group_id) c on c.group_id = cg.id
 WHERE cg.id = $id
@@ -288,5 +290,35 @@ order by cg.priority,
                 return@withContext null
             }
         }
+    }
+
+    suspend fun getCategoryGroupByIdInBranch(branchId: Long?, groupId: Long?): MutableList<CategoryDto> {
+        val query = """
+       select * from category c inner join category_group cg on c.group_id = cg.id
+        where c.group_id = $groupId and cg.branch_id = $branchId and c.deleted = false and cg.deleted = false 
+        """.trimIndent()
+        val list = mutableListOf<CategoryDto>()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    list.add(
+                        CategoryDto(
+                            id = rs.getLong("id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
+                            image = rs.getString("image"),
+                            priority = rs.getInt("priority")
+                        )
+                    )
+                }
+            }
+        }
+        return list
     }
 }
