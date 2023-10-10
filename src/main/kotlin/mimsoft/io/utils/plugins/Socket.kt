@@ -31,6 +31,7 @@ fun Application.configureSocket() {
         toOperatorSocket()
         routeToBoardSocket()
         toCourierSocket()
+        toWaiterSocket()
         webSocket("api/v1/ws") {
 
             send(

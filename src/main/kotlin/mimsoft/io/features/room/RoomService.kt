@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.book.BookStatus
 import mimsoft.io.features.category.CATEGORY_TABLE_NAME
 import mimsoft.io.features.category.CategoryTable
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
@@ -11,8 +12,11 @@ import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
 import mimsoft.io.features.sms_gateway.SmsGatewayService
 import mimsoft.io.features.table.TableDto
+import mimsoft.io.features.table.TableStatus
+import mimsoft.io.features.visit.enums.CheckStatus
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.waiter.room.TableInfoDto
 import java.sql.Timestamp
 
 object RoomService : RoomRepository {
@@ -128,5 +132,48 @@ object RoomService : RoomRepository {
                 return@withContext list
             }
         }
+    }
+
+    suspend fun getWithTableForWaiter(branchId: Long?, roomId: Long?): List<TableInfoDto?> {
+        val query = """
+             select t.id t_id,
+                    t.name t_name,
+                    t.room_id t_room_id,
+                    t.status t_status,
+                    b.id b_id,
+                    b.time b_time,
+                    b.status b_status,
+                    b.visitor_count b_visit_count,
+                    v.id v_id,
+                    v.status v_status,
+                    v.client_count v_client_count
+             from tables t left join visit v on t.id = v.table_id and v.status <>'CLOSED'
+             left join book b on t.id = b.table_id and b.status ='ACCEPTED'
+             where t.room_id = $roomId and t.branch_id = $branchId and not t.deleted
+        """.trimIndent()
+        val list = mutableListOf<TableInfoDto>()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    list.add(
+                        TableInfoDto(
+                            id = rs.getLong("t_id"),
+                            name = rs.getString("t_name"),
+                            roomId = rs.getLong("t_room_id"),
+                            status = rs.getString("t_status")?.let { TableStatus.valueOf(it) },
+                            bookId = rs.getLong("b_id"),
+                            bookingTime = rs.getTimestamp("b_time"),
+                            bookingStatus = rs.getString("b_status")?.let { BookStatus.valueOf(it) },
+                            bookingVisitorCount = rs.getInt("b_visit_count"),
+                            visitId = rs.getLong("v_id"),
+                            visitStatus = rs.getString("v_status")?.let { CheckStatus.valueOf(it) },
+                            visitClientCount = rs.getInt("v_client_count")
+                        )
+                    )
+                }
+            }
+        }
+        return list
     }
 }

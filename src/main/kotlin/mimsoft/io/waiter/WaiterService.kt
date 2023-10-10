@@ -35,6 +35,7 @@ object WaiterService {
                     return@withContext StaffDto(
                         id = rs.getLong("id"),
                         merchantId = rs.getLong("merchant_id"),
+                        branchId = rs.getLong("branch_id"),
                     )
                 } else return@withContext null
             }
