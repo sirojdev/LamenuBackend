@@ -19,7 +19,7 @@ object ProductRepositoryImpl : ProductRepository {
     val repository: BaseRepository = DBManager
     val mapper = ProductMapper
 
-    override suspend fun getAllProductInfo(merchantId: Long?): List<ProductInfoDto?> {
+    override suspend fun getAllProductInfo(merchantId: Long?, branchId: Long?): List<ProductInfoDto?> {
         val query = """
             select 
                 p.id              p_id,
@@ -49,7 +49,9 @@ object ProductRepositoryImpl : ProductRepository {
             from product p
                 left join category c on p.category_id = c.id
                 left join pantry pan on pan.product_id = p.id
-            where p.merchant_id = $merchantId and p.deleted = false""".trimIndent()
+            where p.merchant_id = $merchantId
+             and p.branch_id = $branchId
+             and p.deleted = false""".trimIndent()
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -99,7 +101,7 @@ object ProductRepositoryImpl : ProductRepository {
         }
     }
 
-    override suspend fun getAll(merchantId: Long?, search: String?): List<ProductDto?> {
+    override suspend fun getAll(merchantId: Long?, search: String?, branchId: Long?): List<ProductDto?> {
         var query = """
         select p.id           p_id,
             p.name_uz         p_name_uz,
@@ -122,7 +124,7 @@ object ProductRepositoryImpl : ProductRepository {
             COALESCE( pan.count, -1) pan_count 
             from product p
             left join pantry pan on pan.product_id = p.id
-                where p.merchant_id = $merchantId and not p.deleted 
+                where p.merchant_id = $merchantId and p.branch_id = $branchId and not p.deleted 
         """.trimIndent()
         if (search != null) {
             val s = search.lowercase().replace("'", "_")
@@ -285,8 +287,7 @@ object ProductRepositoryImpl : ProductRepository {
         DBManager.postData(dataClass = ProductTable::class, dataObject = productTable, tableName = PRODUCT_TABLE_NAME)
 
     override suspend fun update(dto: ProductDto?): Boolean {
-        val merchantId = dto?.merchantId
-        var rs = 0
+        var rs: Int
         val query = """
                update product
                set name_uz          = ?,
@@ -327,12 +328,13 @@ object ProductRepositoryImpl : ProductRepository {
         return rs == 1
     }
 
-    override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        var rs = 0
+    override suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
         val query = """
             update product
             set deleted = true
             where merchant_id = $merchantId
+            and branch_id = $branchId
              and id = $id
              and not deleted
         """.trimIndent()
@@ -344,12 +346,12 @@ object ProductRepositoryImpl : ProductRepository {
         return rs == 1
     }
 
-    override suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto? {
+    override suspend fun getProductInfo(merchantId: Long?, id: Long?, branchId: Long?): ProductInfoDto? {
         val query = """
             select p.*, c.id c_id, c.name_uz c_name_uz, c.name_ru c_name_ru, c.name_eng c_name_eng, c.image c_image,  c.group_id c_group_id
                 from product p
             inner join category c on p.category_id = c.id 
-                where p.merchant_id = $merchantId 
+                where p.merchant_id = $merchantId and p.branch_id = $branchId
                 and p.id = $id 
                 and not p.deleted 
         """.trimIndent()

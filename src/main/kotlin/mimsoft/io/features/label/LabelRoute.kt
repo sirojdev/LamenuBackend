@@ -14,55 +14,61 @@ import kotlin.collections.map
 fun Route.routeToLabel() {
 
     val labelRepository: LabelRepository = LabelRepositoryImpl
-    get("/labels") {
+    get("labels") {
         val pr = call.principal<BasePrincipal>()
+        val branchId = pr?.branchId
         val merchantId = pr?.merchantId
-        val labels = labelRepository.getAll(merchantId = merchantId).map { LabelMapper.toLabelDto(it) }
+        val labels = labelRepository.getAll(merchantId = merchantId, branchId = branchId).map { LabelMapper.toLabelDto(it) }
         if (labels.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
         }
-        call.respond (HttpStatusCode.OK, labels)
+        call.respond (labels)
     }
 
-    get("/label/{id}") {
+    get("label/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val label = LabelMapper.toLabelDto(labelRepository.get(id = id, merchantId = merchantId))
+        val label = LabelMapper.toLabelDto(labelRepository.get(id = id, merchantId = merchantId, branchId = branchId))
         if (label != null) {
-            call.respond(HttpStatusCode.OK, label)
+            call.respond(label)
+            return@get
         } else {
             call.respond(HttpStatusCode.NoContent)
         }
     }
 
-    post("/label") {
+    post("label") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val label = call.receive<LabelDto>()
-        val id = labelRepository.add(LabelMapper.toLabelTable(label.copy(merchantId = merchantId)))
-        call.respond(HttpStatusCode.OK, LabelId(id))
+        val response = labelRepository.add(LabelMapper.toLabelTable(label.copy(merchantId = merchantId, branchId = branchId)))
+        call.respond(LabelId(response))
     }
 
-    put("/label") {
+    put("label") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val label = call.receive<LabelDto>()
-        labelRepository.update(label.copy(merchantId = merchantId))
+        labelRepository.update(label.copy(merchantId = merchantId, branchId = branchId))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("/label/{id}") {
+    delete("label/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {
-            val deleted = labelRepository.delete(id = id, merchantId = merchantId)
+            val deleted = labelRepository.delete(id = id, merchantId = merchantId, branchId = branchId)
             if (deleted) {
                 call.respond(HttpStatusCode.OK)
             } else {

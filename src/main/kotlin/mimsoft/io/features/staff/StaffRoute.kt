@@ -7,9 +7,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.config.timestampValidator
-import mimsoft.io.utils.*
+import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
-import okhttp3.internal.notify
 
 fun Route.routeToStaff() {
 
@@ -18,19 +18,21 @@ fun Route.routeToStaff() {
         get {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
-            val staffs = StaffService.getAll(merchantId = merchantId)
+            val branchId = pr?.branchId
+            val staffs = StaffService.getAll(merchantId = merchantId, branchId = branchId)
             call.respond(staffs.ifEmpty { HttpStatusCode.NoContent })
         }
 
         get("{id}") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val staff = StaffService.getById(id = id, merchantId = merchantId)
+            val staff = StaffService.getById(id = id, merchantId = merchantId, branchId = branchId)
             if (staff == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -41,26 +43,28 @@ fun Route.routeToStaff() {
         post {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
             if (statusTimestamp.httpStatus != ResponseModel.OK) {
                 call.respond(statusTimestamp)
                 return@post
             }
-            val status = StaffService.add(staff.copy(merchantId = merchantId))
+            val status = StaffService.add(staff.copy(merchantId = merchantId, branchId = branchId))
             call.respond(status.httpStatus, status)
         }
 
         put {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val staff = call.receive<StaffDto>()
             val statusTimestamp = timestampValidator(staff.birthDay)
             if (statusTimestamp.httpStatus != ResponseModel.OK) {
                 call.respond(statusTimestamp)
                 return@put
             }
-            val status = StaffService.update(staff.copy(merchantId = merchantId))
+            val status = StaffService.update(staff.copy(merchantId = merchantId, branchId = branchId))
             if (!status) {
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -68,15 +72,16 @@ fun Route.routeToStaff() {
         }
 
         delete("{id}") {
-            val pr = call.principal<BasePrincipal>()
+            val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
 
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            val staff = StaffService.delete(id = id, merchantId = merchantId)
+            val staff = StaffService.delete(id = id, merchantId = merchantId, branchId = branchId)
             call.respond(staff)
         }
     }

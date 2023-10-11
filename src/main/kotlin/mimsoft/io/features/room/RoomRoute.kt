@@ -15,7 +15,8 @@ fun Route.routeToRoom() {
     get("rooms") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val rooms = roomService.getAll(merchantId)
+        val branchId = pr?.branchId
+        val rooms = roomService.getAll(merchantId = merchantId, branchId = branchId)
         if (rooms.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -25,12 +26,13 @@ fun Route.routeToRoom() {
     get("room/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = roomService.get(id=id, merchantId=merchantId)
+        val room = roomService.get(id=id, merchantId=merchantId, branchId = branchId)
         if (room == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -41,28 +43,31 @@ fun Route.routeToRoom() {
     post("room") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val room = call.receive<RoomDto>()
-        roomService.add(roomMapper.toRoomTable(room.copy(merchantId = merchantId)))
+        roomService.add(roomMapper.toRoomTable(room.copy(merchantId = merchantId, branchId = branchId)))
         call.respond(HttpStatusCode.OK)
     }
 
     put("room") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val room = call.receive<RoomDto>()
-        roomService.update(room.copy(merchantId=merchantId))
+        roomService.update(room.copy(merchantId=merchantId, branchId = branchId))
         call.respond(HttpStatusCode.OK)
     }
 
     delete("room/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        roomService.delete(id=id, merchantId=merchantId)
-        call.respond(HttpStatusCode.OK)
+        val response = roomService.delete(id=id, merchantId=merchantId, branchId = branchId)
+        call.respond(response)
     }
 }

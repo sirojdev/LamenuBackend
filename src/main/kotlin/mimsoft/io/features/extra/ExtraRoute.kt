@@ -2,23 +2,22 @@ package mimsoft.io.features.extra
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.extra.ropository.ExtraRepository
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
-import mimsoft.io.utils.principal.BasePrincipal
-import kotlin.collections.map
+import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToExtra() {
 
     val extraRepository: ExtraRepository = ExtraRepositoryImpl
     val mapper = ExtraMapper
-    get("/extras") {
-        val pr = call.principal<BasePrincipal>()
+    get("extras") {
+        val pr = getPrincipal()
         val merchantId = pr?.merchantId
-        val extras = extraRepository.getAll(merchantId = merchantId).map { mapper.toExtraDto(it) }
+        val branchId = pr?.branchId
+        val extras = extraRepository.getAll(merchantId = merchantId, branchId = branchId).map { mapper.toExtraDto(it) }
         if (extras.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -26,15 +25,16 @@ fun Route.routeToExtra() {
         call.respond(HttpStatusCode.OK, extras)
     }
 
-    get("/extra/{id}") {
-        val pr = call.principal<BasePrincipal>()
+    get("extra/{id}") {
+        val pr = getPrincipal()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
-        if (id==null) {
+        if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val extra = mapper.toExtraDto(extraRepository.get(id = id, merchantId=merchantId))
+        val extra = mapper.toExtraDto(extraRepository.get(id = id, merchantId = merchantId, branchId = branchId))
         if (extra != null) {
             call.respond(HttpStatusCode.OK, extra)
         } else {
@@ -42,30 +42,32 @@ fun Route.routeToExtra() {
         }
     }
 
-    post("/extra") {
-        val pr = call.principal<BasePrincipal>()
+    post("extra") {
+        val pr = getPrincipal()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val extra = call.receive<ExtraDto>()
         println(extra)
-        val id = extraRepository.add(mapper.toExtraTable(extra.copy(merchantId = merchantId)))
+        val id = extraRepository.add(mapper.toExtraTable(extra.copy(merchantId = merchantId, branchId = branchId)))
         call.respond(HttpStatusCode.OK, ExtraId(id))
     }
 
-    put("/extra") {
+    put("extra") {
+        val pr = getPrincipal()
         val extra = call.receive<ExtraDto>()
-        println("Extra-------------------------------->>>$extra")
-        val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        extraRepository.update(extra.copy(merchantId = merchantId))
+        val branchId = pr?.branchId
+        extraRepository.update(extra.copy(merchantId = merchantId, branchId = branchId))
         call.respond(HttpStatusCode.OK)
     }
 
-    delete("/extra/{id}") {
-        val pr = call.principal<BasePrincipal>()
+    delete("extra/{id}") {
+        val pr = getPrincipal()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {
-            val deleted = extraRepository.delete(id, merchantId)
+            val deleted = extraRepository.delete(id = id, merchantId = merchantId, branchId = branchId)
             if (deleted) {
                 call.respond(HttpStatusCode.OK)
             } else {

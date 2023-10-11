@@ -168,17 +168,16 @@ FROM
         )
 
 
-    suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { it.prepareStatement(query).execute() }
+    suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        val query = "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and"
+        return withContext(DBManager.databaseDispatcher) {
+            ProductRepositoryImpl.repository.connection().use { return@withContext it.prepareStatement(query).execute() }
         }
-        return true
     }
 
-    suspend fun get(id: Long?, merchantId: Long?): CourierDto? {
-        val query = "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
-        return withContext(Dispatchers.IO) {
+    suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): CourierDto? {
+        val query = "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and id = $id and branch_id = $branchId and deleted = false"
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {

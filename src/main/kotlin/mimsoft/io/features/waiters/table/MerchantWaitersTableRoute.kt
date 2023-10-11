@@ -25,12 +25,13 @@ fun Route.routeToMerchantWaitersTable() {
             }
         }
         get("active") {
-            val merchantPrincipal = call.principal<BasePrincipal>()
+            val pr = call.principal<BasePrincipal>()
+            val branchId = pr?.branchId
             val waiterId = call.parameters["waiterId"]?.toLong()
-            val merchantId = merchantPrincipal?.merchantId
+            val merchantId = pr?.merchantId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val isExist = StaffService.isExist(waiterId, merchantId)
+            val isExist = StaffService.isExist(waiterId, merchantId, branchId)
             if(isExist){
                 val activeTables = waterTableRepository.getActiveTablesWaiters(waiterId, limit, offset)
                 if (activeTables.data?.isEmpty() == true) {
@@ -45,10 +46,11 @@ fun Route.routeToMerchantWaitersTable() {
         get("finished") {
             val merchantPrincipal = call.principal<BasePrincipal>()
             val merchantId = merchantPrincipal?.merchantId
+            val branchId = merchantPrincipal?.branchId
             val waiterId = call.parameters["waiterId"]?.toLong()
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val isExist = StaffService.isExist(waiterId, merchantId)
+            val isExist = StaffService.isExist(waiterId, merchantId, branchId)
             if(isExist){
                 val activeTables = waterTableRepository.getFinishedTablesWaiters(waiterId, limit, offset)
                 if (activeTables.data?.isEmpty() == true) {

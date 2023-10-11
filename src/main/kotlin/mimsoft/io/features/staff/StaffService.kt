@@ -13,6 +13,7 @@ import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
+import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
 import org.slf4j.Logger
@@ -84,8 +85,9 @@ object StaffService {
         }
     }
 
-    suspend fun getAll(merchantId: Long?): List<StaffDto?> {
-        val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and deleted = false"
+    suspend fun getAll(merchantId: Long?, branchId: Long?): List<StaffDto?> {
+        val query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and branch_id = $branchId and deleted = false"
         return withContext(DBManager.databaseDispatcher) {
             val staffs = arrayListOf<StaffDto?>()
             repository.connection().use {
@@ -108,9 +110,10 @@ object StaffService {
         }
     }
 
-    suspend fun getById(id: Long?, merchantId: Long? = null): StaffDto? {
+    suspend fun getById(id: Long?, merchantId: Long? = null, branchId: Long? = null): StaffDto? {
         var query = "select * from $STAFF_TABLE_NAME where id = $id and deleted = false"
         if (merchantId != null) query += " and merchant_id = $merchantId"
+        if (branchId != null) query += " and branch_id = $branchId"
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -136,8 +139,10 @@ object StaffService {
         }
     }
 
-    suspend fun get(id: Long?, merchantId: Long?): StaffDto? {
-        val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
+    suspend fun get(id: Long?, merchantId: Long?, branchId: Long? = null): StaffDto? {
+        var query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
+        if (branchId != null) query += "and branch_id = $branchId"
         var staffDto: StaffDto? = null
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
@@ -171,14 +176,15 @@ object StaffService {
         }
     }
 
-    suspend fun getByPhone(phone: String?, merchantId: Long? = null): StaffTable? {
+    suspend fun getByPhone(phone: String?, merchantId: Long? = null, branchId: Long? = null): StaffTable? {
         if (merchantId != null) {
             return DBManager.getPageData(
                 dataClass = StaffTable::class,
                 tableName = STAFF_TABLE_NAME,
                 where = mapOf(
                     "phone" to phone as Any,
-                    "merchant_id" to merchantId as Any
+                    "merchant_id" to merchantId as Any,
+                    "branch_id" to branchId as Any
                 )
             )?.data?.firstOrNull()
 
@@ -238,7 +244,9 @@ object StaffService {
                 password  =coalesce(?, s.password),
                 gender = coalesce(?, s.gender),
                 updated = ?
-            WHERE id = ? and merchant_id = $merchantId and not deleted 
+            WHERE id = ? and merchant_id = $merchantId 
+            and branch_id = ${staff.branchId} 
+            and not deleted 
         """.trimIndent()
 
         return withContext(DBManager.databaseDispatcher) {
@@ -262,8 +270,9 @@ object StaffService {
         }
     }
 
-    suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        val query = "update $STAFF_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
+    suspend fun delete(id: Long, merchantId: Long?, branchId: Long?): Boolean {
+        val query =
+            "update $STAFF_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId "
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 return@withContext it.prepareStatement(query).execute()
@@ -273,7 +282,7 @@ object StaffService {
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 
-    suspend fun getAllCourier(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
+    suspend fun getAllCourier(merchantId: Long?, branchId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query = """select s.*, 
                 c.balance c_balance,
                 c.is_active c_is_active,
@@ -292,9 +301,9 @@ object StaffService {
                     group by courier_id) as B on B.courier_id=s.id 
         left join (select courier_id, count(*) 
                     from orders 
-                    where status = 'OPEN' 
+                    where status = '${OrderStatus.OPEN.name}'
                     group by courier_id) as status on status.courier_id=s.id 
-        where s.merchant_id = $merchantId and s.position = 'courier'
+        where s.merchant_id = $merchantId and s.branch_id = $branchId and s.position = '${StaffPosition.COURIER.name}'
         limit $limit offset $offset
         """.trimMargin()
         var totalCount = 0
@@ -336,7 +345,7 @@ object StaffService {
     }
 
 
-    suspend fun getAllCollector(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
+    suspend fun getAllCollector(merchantId: Long?, branchId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query = """select s.*, 
                 A.count today_orders, 
                 B.count all_orders,  
@@ -352,9 +361,9 @@ object StaffService {
                     group by collector_id) as B on B.collector_id=s.id 
         left join (select collector_id, count(*) 
                     from orders 
-                    where status = 'OPEN' 
+                    where status = '${OrderStatus.OPEN.name}' 
                     group by collector_id) as status on status.collector_id=s.id 
-        where s.merchant_id = $merchantId and s.position = 'collector' and s.deleted = false 
+        where s.merchant_id = $merchantId and s.branch_id = $branchId and s.position = '${StaffPosition.COLLECTOR.name}' and s.deleted = false 
         limit $limit offset $offset
         """.trimMargin()
         var totalCount = 0
@@ -392,8 +401,9 @@ object StaffService {
     }
 
 
-    suspend fun getCollector(id: Long?, merchantId: Long?): StaffDto? {
-        val query = "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
+    suspend fun getCollector(id: Long?, merchantId: Long?, branchId: Long?): StaffDto? {
+        val query =
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and branch_id = $branchId and deleted = false"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -418,7 +428,8 @@ object StaffService {
                         orders = OrderService.getAll(
                             mapOf(
                                 "merchantId" to merchantId,
-                                "courierId" to id
+                                "courierId" to id,
+                                "branchId" to branchId
                             )
                         ).body as? List<Order?>
                     )
@@ -427,11 +438,11 @@ object StaffService {
         }
     }
 
-    suspend fun isExist(staffId: Long?, merchantId: Long?): Boolean {
+    suspend fun isExist(staffId: Long?, merchantId: Long?, branchId: Long?): Boolean {
         val query =
-            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $staffId and deleted = false"
-        var result = false;
-        withContext(Dispatchers.IO) {
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and branch_id = $branchId and id = $staffId and deleted = false"
+        var result = false
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -442,14 +453,14 @@ object StaffService {
         return result
     }
 
-    suspend fun getAllWaiters(merchantId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
+    suspend fun getAllWaiters(merchantId: Long?, branchId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
         val query =
-            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and position='waiter' and deleted = false " +
-                    " limit $limit " +
-                    " offset  $offset"
-
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and branch_id = $branchId and position = '${StaffPosition.WAITER.name}' " +
+                    " and deleted = false" +
+                    " limit $limit" +
+                    " offset $offset"
         val countQuery =
-            "select count(*) count from $STAFF_TABLE_NAME where merchant_id = $merchantId and position='waiter' and deleted = false "
+            "select count(*) count from $STAFF_TABLE_NAME where merchant_id = $merchantId and branch_id = $branchId and position = '${StaffPosition.WAITER.name}' and deleted = false "
         val waiters = arrayListOf<StaffDto?>()
         var total: Int? = null
         withContext(Dispatchers.IO) {

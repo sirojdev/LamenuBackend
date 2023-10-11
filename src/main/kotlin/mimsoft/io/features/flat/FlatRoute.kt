@@ -10,7 +10,7 @@ fun Route.routeToFlat(){
     val flatService : FlatRepository = FlatService
     val flatMapper = FlatMapper
     get("flats"){
-        val flats = flatService.getAll().map { FlatMapper.toFlatDto(it) }
+        val flats = flatService.getAll().map { flatMapper.toFlatDto(it) }
         if(flats.isEmpty()){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -23,7 +23,7 @@ fun Route.routeToFlat(){
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val flat = FlatMapper.toFlatDto(flatService.get(id))
+        val flat = flatMapper.toFlatDto(flatService.get(id))
         if(flat == null){
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -33,13 +33,13 @@ fun Route.routeToFlat(){
 
     post ("flat"){
         val flat = call.receive<FlatDto>()
-        flatService.add(FlatMapper.toFlatTable(flat))
+        flatService.add(flatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 
     put ("flat"){
         val flat = call.receive<FlatDto>()
-        flatService.update(FlatMapper.toFlatTable(flat))
+        flatService.update(flatMapper.toFlatTable(flat))
         call.respond(HttpStatusCode.OK)
     }
 

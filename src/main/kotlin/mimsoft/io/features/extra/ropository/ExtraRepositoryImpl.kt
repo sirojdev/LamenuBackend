@@ -1,6 +1,5 @@
 package mimsoft.io.features.extra.ropository
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.extra.EXTRA_TABLE_NAME
 import mimsoft.io.features.extra.ExtraDto
@@ -16,21 +15,25 @@ object ExtraRepositoryImpl : ExtraRepository {
     val repository: BaseRepository = DBManager
     val mapper = ExtraMapper
 
-    override suspend fun getAll(merchantId: Long?): List<ExtraTable?> {
+    override suspend fun getAll(merchantId: Long?, branchId: Long?): List<ExtraTable?> {
         val data = repository.getPageData(
             dataClass = ExtraTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any
+            ),
             tableName = "extra"
         )?.data
 
         return data ?: emptyList()
     }
 
-    override suspend fun get(id: Long?, merchantId: Long?): ExtraTable? {
+    override suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): ExtraTable? {
         val data = repository.getPageData(
             dataClass = ExtraTable::class,
             where = mapOf(
                 "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any,
                 "id" to id as Any
             ),
             tableName = EXTRA_TABLE_NAME
@@ -39,8 +42,9 @@ object ExtraRepositoryImpl : ExtraRepository {
     }
 
     override suspend fun update(dto: ExtraDto): Boolean {
-        var rs = 0
+        var rs: Int
         val merchantId = dto.merchantId
+        val branchId = dto.branchId
         val query = """
             update extra
             set name_uz    = ?,
@@ -51,7 +55,8 @@ object ExtraRepositoryImpl : ExtraRepository {
                 product_id = ${dto.productId},
                 updated    = ?
             where id = ${dto.id}
-              and merchant_id = ${dto.id}
+              and merchant_id = ${merchantId}
+              and branch_id = ${branchId}
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
@@ -72,12 +77,13 @@ object ExtraRepositoryImpl : ExtraRepository {
     override suspend fun add(extraTable: ExtraTable?): Long? =
         DBManager.postData(dataClass = ExtraTable::class, dataObject = extraTable, tableName = EXTRA_TABLE_NAME)
 
-    suspend fun getExtrasByProductId(merchantId: Long?, productId: Long?): List<ExtraDto>? {
+    suspend fun getExtrasByProductId(merchantId: Long?, productId: Long?, branchId: Long? = null): List<ExtraDto>? {
         val data = repository.getPageData(
             dataClass = ExtraTable::class,
             where = mapOf(
-                ("merchant_id" to merchantId as Any),
-                ("product_id" to productId as Any),
+                "merchant_id" to merchantId as Any,
+                "product_id" to productId as Any,
+                "branch_id" to branchId as Any
             ),
             tableName = EXTRA_TABLE_NAME
         )?.data
@@ -85,13 +91,14 @@ object ExtraRepositoryImpl : ExtraRepository {
         return data?.map { mapper.toExtraDto(it)!! }
     }
 
-    override suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        var rs = 0
+    override suspend fun delete(id: Long, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
         val query = """
             update extra
             set deleted = true
             where id = $id
               and merchant_id = $merchantId
+              and branch_id = $branchId
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {

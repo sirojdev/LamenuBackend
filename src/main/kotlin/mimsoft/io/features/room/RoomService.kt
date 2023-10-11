@@ -18,21 +18,25 @@ import java.sql.Timestamp
 object RoomService : RoomRepository {
     val repository: BaseRepository = DBManager
     val mapper = RoomMapper
-    override suspend fun getAll(merchantId: Long?): List<RoomDto?> {
+    override suspend fun getAll(merchantId: Long?, branchId: Long?): List<RoomDto?> {
         val data = repository.getPageData(
             dataClass = RoomTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any
+            ),
             tableName = ROOM_TABLE_NAME
         )?.data
 
         return data?.map { mapper.toRoomDto(it) } ?: emptyList()
     }
 
-    override suspend fun get(id: Long?, merchantId: Long?): RoomDto? {
+    override suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): RoomDto? {
         val data = repository.getPageData(
             dataClass = RoomTable::class,
             where = mapOf(
                 "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any,
                 "id" to id as Any
             ),
             tableName = ROOM_TABLE_NAME
@@ -48,10 +52,10 @@ object RoomService : RoomRepository {
         val query = """
             update room
             set name      = ?,
-                branch_id = ${roomDto?.branchId},
                 updated   = ?
             where id = ${roomDto?.id}
               and merchant_id = ${roomDto?.merchantId}
+              and branch_id = ${roomDto?.branchId}
               and not deleted 
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
@@ -66,14 +70,14 @@ object RoomService : RoomRepository {
         return rs == 1
     }
 
-    override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        var rs = 0
-        val query1 = "update $ROOM_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
+    override suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
         val query = """
             update room
             set deleted = true
             where id = $id
               and merchant_id = $merchantId
+              and branch_id = $branchId
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {

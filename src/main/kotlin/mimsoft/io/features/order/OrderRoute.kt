@@ -16,19 +16,13 @@ import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
 import kotlin.math.min
 
-
 fun Route.routeToOrder() {
-
     val orderService = OrderService
 
     route("orders") {
-        /**
-         * OPERATOR CHANGE ORDER STATUS PERMANENTLY
-         * */
-
         get("status") {
-            val orderId = call.parameters["orderId"]?.toLongOrNull()
             val pr = getPrincipal()
+            val orderId = call.parameters["orderId"]?.toLongOrNull()
             val status = call.parameters["status"]
             if (status == null) {
                 call.respond(ResponseModel(body = "status required", httpStatus = HttpStatusCode.BadRequest))
@@ -77,12 +71,9 @@ fun Route.routeToOrder() {
                 }
             }
             call.respond(order!!)
-
         }
-        /**
-         * OPERATOR ORDER NI QABUL QILADI
-         * */
-        get("/accepted") {
+
+        get("accepted") {
             val principal = getPrincipal()
             val operatorId = principal?.staffId
             val orderId = call.parameters["orderId"]?.toLongOrNull()
@@ -91,7 +82,7 @@ fun Route.routeToOrder() {
             val order = OrderService.get(orderId).body as Order
             if (rs) {
                 FirebaseService.sendNotificationOrderToClient(order)
-                var offsett = 0
+                val offsett = 0
                 OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
                 val offSet = 0
                 OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offSet)
@@ -102,7 +93,7 @@ fun Route.routeToOrder() {
             }
         }
 
-        get("/live") {
+        get("live") {
             val principal = getPrincipal()
             val response = orderService.getAll(
                 params = mapOf(
@@ -133,12 +124,12 @@ fun Route.routeToOrder() {
                     "limit" to limit,
                     "offset" to offset
                 ),
-                "user","merchant", "branch", "order_price", "products", "collector", "courier", "payment_type"
+                "user", "merchant", "branch", "order_price", "products", "collector", "courier", "payment_type"
             )
             call.respond(response.httpStatus, response.body)
         }
 
-        get("/{id}") {
+        get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -150,7 +141,7 @@ fun Route.routeToOrder() {
             }
         }
 
-        post("/create") {
+        post("create") {
             val principal = getPrincipal()
             val order = call.receive<Order>()
             orderService.post(order.copy(merchant = MerchantDto(id = principal?.merchantId))).let {
@@ -158,7 +149,7 @@ fun Route.routeToOrder() {
             }
         }
 
-        delete("/id") {
+        delete("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
