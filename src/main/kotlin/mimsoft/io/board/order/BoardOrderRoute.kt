@@ -12,7 +12,7 @@ import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToBoardOrder() {
     route("order") {
-        get() {
+        get {
             val pr = getPrincipal()
             val branchId = pr?.branchId
             val merchantId = pr?.merchantId

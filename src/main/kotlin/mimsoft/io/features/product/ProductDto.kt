@@ -10,6 +10,7 @@ import mimsoft.io.utils.TextModel
 data class ProductDto(
     val id: Long? = null,
     val merchantId: Long? = null,
+    val branchId: Long? = null,
     val name: TextModel? = null,
     val description: TextModel? = null,
     val image: String? = null,

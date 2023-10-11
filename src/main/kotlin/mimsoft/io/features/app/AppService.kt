@@ -1,20 +1,11 @@
-package mimsoft.io.entities.app
+package mimsoft.io.features.app
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.app.APP_TABLE_NAME
-import mimsoft.io.features.app.AppDto
-import mimsoft.io.features.app.AppMapper
-import mimsoft.io.features.app.AppTable
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-import mimsoft.io.features.sms_gateway.SMS_GATEWAY_TABLE
-import mimsoft.io.features.sms_gateway.SmsGatewayDto
-import mimsoft.io.features.sms_gateway.SmsGatewayService
-import mimsoft.io.features.sms_gateway.SmsGatewayTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.utils.*
-import okhttp3.internal.applyConnectionSpec
+import mimsoft.io.utils.ResponseModel
 import java.sql.Timestamp
 
 object AppService {

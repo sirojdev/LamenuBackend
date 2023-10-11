@@ -1,6 +1,5 @@
 package mimsoft.io.features.label.repository
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.label.LABEL_TABLE_NAME
 import mimsoft.io.features.label.LabelDto
@@ -11,21 +10,19 @@ import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import java.sql.Timestamp
 
-
 object LabelRepositoryImpl : LabelRepository {
     val repository: BaseRepository = DBManager
     val mapper = LabelMapper
-    override suspend fun getAll(merchantId: Long?): List<LabelTable?> {
+    override suspend fun getAll(merchantId: Long?, branchId: Long?): List<LabelTable?> {
         val data = repository.getPageData(
             dataClass = LabelTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
             tableName = LABEL_TABLE_NAME
         )?.data
-
         return data ?: emptyList()
     }
 
-    override suspend fun get(id: Long?, merchantId: Long?): LabelTable? {
+    override suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): LabelTable? {
         val data = repository.getPageData(
             dataClass = LabelTable::class,
             where = mapOf(
@@ -37,14 +34,12 @@ object LabelRepositoryImpl : LabelRepository {
         return data
     }
 
-    override suspend fun add(labelTable: LabelTable?): Long? =
-        DBManager.postData(dataClass = LabelTable::class, dataObject = labelTable, tableName = LABEL_TABLE_NAME)
+    override suspend fun add(model: LabelTable?): Long? =
+        DBManager.postData(dataClass = LabelTable::class, dataObject = model, tableName = LABEL_TABLE_NAME)
 
     override suspend fun update(dto: LabelDto): Boolean {
-        var temp = 0
-        val merchantId = dto.merchantId
-        val query = "UPDATE $LABEL_TABLE_NAME " +
-                "SET" +
+        var temp: Int
+        val query = "UPDATE $LABEL_TABLE_NAME SET" +
                 " name_uz = ?, " +
                 " name_ru = ?," +
                 " name_eng = ?," +
@@ -52,9 +47,12 @@ object LabelRepositoryImpl : LabelRepository {
                 " bg_color = ?," +
                 " icon = ?," +
                 " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
+                " WHERE id = ${dto.id} and " +
+                " merchant_id = ${dto.merchantId}" +
+                " branch_id = ${dto.branchId}" +
+                " and not deleted"
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             StaffService.repository.connection().use {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.name?.uz)
@@ -71,10 +69,11 @@ object LabelRepositoryImpl : LabelRepository {
         return temp == 1
     }
 
-    override suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        var rs = 0
-        val query = "update $LABEL_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
+    override suspend fun delete(id: Long, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
+        val query =
+            "update $LABEL_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId and branch_id = $branchId "
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 rs = it.prepareStatement(query).executeUpdate()
             }

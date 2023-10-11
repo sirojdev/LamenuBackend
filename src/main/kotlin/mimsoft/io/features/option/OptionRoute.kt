@@ -16,7 +16,8 @@ fun Route.routeToOption() {
         get {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
-            val options = optionRepository.getAll(merchantId = merchantId).map { OptionMapper.toOptionDto(it) }
+            val branchId = pr?.branchId
+            val options = optionRepository.getAll(merchantId = merchantId, branchId = branchId).map { OptionMapper.toOptionDto(it) }
             if (options.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -27,12 +28,13 @@ fun Route.routeToOption() {
         get("{id}") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val option = optionRepository.get(id = id, merchantId = merchantId)
+            val option = optionRepository.get(id = id, merchantId = merchantId, branchId = branchId)
             if (option != null) {
                 call.respond(HttpStatusCode.OK, option)
             } else {
@@ -43,24 +45,28 @@ fun Route.routeToOption() {
         post {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.merchantId
             val option = call.receive<OptionDto>()
-            val id = optionRepository.add(OptionMapper.toOptionTable(option.copy(merchantId = merchantId)))
+            val id = optionRepository.add(OptionMapper.toOptionTable(option.copy(merchantId = merchantId, branchId = branchId)))
             call.respond(HttpStatusCode.OK, OptionId(id))
         }
 
         put {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val option = call.receive<OptionDto>()
-            optionRepository.update(option.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK)
+            val response = optionRepository.update(option.copy(merchantId = merchantId, branchId = branchId))
+            call.respond(response)
         }
+
         delete("{id}") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id != null) {
-                val deleted = optionRepository.delete(id = id, merchantId = merchantId)
+                val deleted = optionRepository.delete(id = id, merchantId = merchantId, branchId = branchId)
                 if (deleted) {
                     call.respond(HttpStatusCode.OK)
                 } else {

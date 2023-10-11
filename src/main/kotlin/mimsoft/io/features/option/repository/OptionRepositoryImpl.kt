@@ -52,13 +52,15 @@ object OptionRepositoryImpl : OptionRepository {
         }
     }
 
-    override suspend fun getAll(merchantId: Long?): List<OptionTable?> {
+    override suspend fun getAll(merchantId: Long?, branchId: Long?): List<OptionTable?> {
         val data = repository.getPageData(
             dataClass = OptionTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any
+            ),
             tableName = OPTION_TABLE_NAME
         )?.data
-
         return data ?: emptyList()
     }
 
@@ -75,12 +77,13 @@ object OptionRepositoryImpl : OptionRepository {
         return data?.map { OptionMapper.toOptionDto(it)!! }
     }
 
-    override suspend fun get(id: Long?, merchantId: Long?): OptionDto? {
+    override suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): OptionDto? {
         val where: Map<String, Any>
         if (merchantId != null) {
             where = mapOf(
                 "id" to id as Any,
-                "merchant_id" to merchantId as Any
+                "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any
             )
         } else where = mapOf("id" to id as Any)
         val data = repository.getPageData(
@@ -95,7 +98,7 @@ object OptionRepositoryImpl : OptionRepository {
         DBManager.postData(dataClass = OptionTable::class, dataObject = optionTable, tableName = OPTION_TABLE_NAME)
 
     override suspend fun update(dto: OptionDto): Boolean {
-        var rs = 0
+        var rs: Int
         val merchantId = dto.merchantId
         val query = "UPDATE $OPTION_TABLE_NAME " +
                 "SET" +
@@ -106,9 +109,12 @@ object OptionRepositoryImpl : OptionRepository {
                 " price = ${dto.price}," +
                 " parent_id = ${dto.parentId}," +
                 " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
+                " WHERE id = ${dto.id}" +
+                " and merchant_id = $merchantId" +
+                " and branch_id = ${dto.branchId}" +
+                " and not deleted"
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             rs = StaffService.repository.connection().use {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.name?.uz)
@@ -123,9 +129,9 @@ object OptionRepositoryImpl : OptionRepository {
         return rs == 1
     }
 
-    override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        var rs = 0
-        val query = "update $OPTION_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and deleted = false"
+    override suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
+        val query = "update $OPTION_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and deleted = false"
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 rs = it.prepareStatement(query).executeUpdate()

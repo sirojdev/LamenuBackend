@@ -8,6 +8,7 @@ data class ExtraDto(
     val image: String? = null,
     val price: Long? = null,
     var merchantId: Long? = null,
+    var branchId: Long? = null,
     val name: TextModel? = null,
     val productId: Long? = null
 )

@@ -13,8 +13,9 @@ fun Route.routeToArea() {
         post {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val dto = call.receive<AreaDto>()
-            val response = service.add(dto = dto.copy(merchantId = merchantId))
+            val response = service.add(dto = dto.copy(merchantId = merchantId, branchId = branchId))
             if (!response) {
                 call.respond(HttpStatusCode.NoContent)
                 return@post
@@ -24,8 +25,9 @@ fun Route.routeToArea() {
         put {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val dto = call.receive<AreaDto>()
-            val response = service.update(dto = dto.copy(merchantId = merchantId))
+            val response = service.update(dto = dto.copy(merchantId = merchantId, branchId = branchId))
             if (!response) {
                 call.respond(HttpStatusCode.NoContent)
                 return@put
@@ -36,8 +38,9 @@ fun Route.routeToArea() {
         get("{id}"){
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
-            val response = service.get(id = id, merchantId = merchantId)
+            val response = service.get(id = id, merchantId = merchantId, branchId = branchId)
             if (response == null) {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
@@ -49,7 +52,8 @@ fun Route.routeToArea() {
         get {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
-            val response = service.getAll(merchantId = merchantId)
+            val branchId = pr?.branchId
+            val response = service.getAll(merchantId = merchantId, branchId = branchId)
             if (response.isEmpty()) {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
@@ -60,8 +64,9 @@ fun Route.routeToArea() {
         delete("{id}") {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
-            val response = service.delete(id = id, merchantId = merchantId)
+            val response = service.delete(id = id, merchantId = merchantId, branchId = branchId)
             if (!response) {
                 call.respond(HttpStatusCode.NoContent)
                 return@delete

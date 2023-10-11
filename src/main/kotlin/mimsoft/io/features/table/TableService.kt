@@ -19,21 +19,21 @@ object TableService : TableRepository {
     val repository: BaseRepository = DBManager
     val mapper = TableMapper
 
-    override suspend fun getAll(merchantId: Long?): List<TableTable?> {
+    override suspend fun getAll(merchantId: Long?, branchId: Long?): List<TableTable?> {
         val data = repository.getPageData(
             dataClass = TableTable::class,
             where = mapOf("merchant_id" to merchantId as Any),
             tableName = TABLE_TABLE_NAME
         )?.data
-
         return data ?: emptyList()
     }
 
-    override suspend fun get(id: Long?, merchantId: Long?): TableTable? {
+    override suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): TableTable? {
         val data = repository.getPageData(
             dataClass = TableTable::class,
             where = mapOf(
                 "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any,
                 "id" to id as Any
             ),
             tableName = TABLE_TABLE_NAME
@@ -41,11 +41,12 @@ object TableService : TableRepository {
         return data
     }
 
-    override suspend fun getByRoomId(roomId: Long?, merchantId: Long?): TableTable? {
+    override suspend fun getByRoomId(roomId: Long?, merchantId: Long?, branchId: Long?): TableTable? {
         val data = repository.getPageData(
             dataClass = TableTable::class,
             where = mapOf(
                 "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any,
                 "room_id" to roomId as Any
             ),
             tableName = TABLE_TABLE_NAME
@@ -59,7 +60,7 @@ object TableService : TableRepository {
     }
 
     override suspend fun update(dto: TableDto): Boolean {
-        var rs = 0
+        var rs: Int
         val query = """
             update tables
             set name         = ?,
@@ -72,6 +73,7 @@ object TableService : TableRepository {
                 updated      = ?
             where id = ${dto.id}
               and merchant_id = ${dto.merchantId}
+              and branch_id = ${dto.branch?.id} 
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
@@ -150,13 +152,14 @@ object TableService : TableRepository {
         return list
     }
 
-    override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        var rs = 0
+    override suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
         val query = """
             update tables
             set deleted = true
             where id = $id
               and merchant_id = $merchantId
+              and branch_id = $branchId 
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
