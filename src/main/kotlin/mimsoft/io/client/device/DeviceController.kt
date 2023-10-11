@@ -280,7 +280,7 @@ object DeviceController {
                     this.setString(1, token)
                     this.setTimestamp(2, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-                }.execute()
+                }.executeUpdate()==1
             }
         }
     }

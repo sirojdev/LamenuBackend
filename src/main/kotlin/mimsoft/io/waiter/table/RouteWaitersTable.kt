@@ -23,13 +23,13 @@ import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.table.repository.WaiterTableRepository
 
 fun Route.routeToWaitersTables() {
-    val waterTableRepository = WaiterTableRepository
+    val waiterTableRepository = WaiterTableRepository
     route("table") {
         put("join") {
             val staffPrincipal = call.principal<BasePrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = staffPrincipal?.staffId
-            val rs = waterTableRepository.joinToWaiter(waiterId, tableId, staffPrincipal?.merchantId)
+            val rs = waiterTableRepository.joinToWaiter(waiterId, tableId, staffPrincipal?.merchantId)
             if (rs != null) {
                 call.respond(HttpStatusCode.OK, rs)
             } else {
@@ -41,7 +41,7 @@ fun Route.routeToWaitersTables() {
             val waiterId = staffPrincipal?.staffId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val activeTables = waterTableRepository.getActiveTablesWaiters(waiterId, limit, offset)
+            val activeTables = waiterTableRepository.getActiveTablesWaiters(waiterId, limit, offset)
             if (activeTables.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -52,7 +52,7 @@ fun Route.routeToWaitersTables() {
             val waiterId = staffPrincipal?.staffId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val activeTables = waterTableRepository.getFinishedTablesWaiters(waiterId, limit, offset)
+            val activeTables = waiterTableRepository.getFinishedTablesWaiters(waiterId, limit, offset)
             if (activeTables.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -62,7 +62,7 @@ fun Route.routeToWaitersTables() {
             val staffPrincipal = call.principal<BasePrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = staffPrincipal?.staffId
-            val rs = waterTableRepository.finishTable(waiterId, tableId)
+            val rs = waiterTableRepository.finishTable(waiterId, tableId)
             if (rs) {
                 call.respond(HttpStatusCode.OK)
             } else {

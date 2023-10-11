@@ -12,6 +12,7 @@ fun Application.module() = runBlocking {
     AppConfig.config = environment.config
     configureSecurity()
     configureHTTP()
+    configureExceptions()
     configureSerialization()
     configureRouting()
     configureSocket()
