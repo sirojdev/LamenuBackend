@@ -59,7 +59,8 @@ object PaymentService {
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
-                    setString(1, serviceKey)
+                    this.setString(1, serviceKey)
+                    this.closeOnCompletion()
                 }.executeQuery()
                 if (rs.next()) {
                     return@withContext PaymentMapper.toPaymentDto(
@@ -109,10 +110,10 @@ object PaymentService {
                   click_key              = ?,
                   selected               = ?,
                   updated                = ?,
-                  click_merchant_id      = ?
-where merchant_id = ${paymentDto?.merchantId}
-  and not
-    deleted""".trimIndent()
+                  click_merchant_id      = ? 
+                  where merchant_id = ${paymentDto?.merchantId} 
+                  and not deleted
+    """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 rs = it.prepareStatement(query1).apply {

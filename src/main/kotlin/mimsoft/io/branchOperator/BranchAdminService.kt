@@ -8,7 +8,7 @@ import mimsoft.io.features.staff.StaffTable
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.LOGGER
 
-object BranchOperatorService {
+object BranchAdminService {
     suspend fun auth(dto: StaffDto): ResponseModel {
         LOGGER.info("auth: $dto")
         when {

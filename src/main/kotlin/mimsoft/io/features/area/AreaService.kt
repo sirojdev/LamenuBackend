@@ -37,8 +37,8 @@ object AreaService {
         }
     }
 
-    suspend fun get(id: Long?, merchantId: Long?): AreaDto? {
-        val query = "SELECT * FROM area WHERE id = $id AND merchant_id = $merchantId AND not deleted"
+    suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): AreaDto? {
+        val query = "SELECT * FROM area WHERE id = $id AND merchant_id = $merchantId and branch_id = $branchId AND not deleted"
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -60,8 +60,8 @@ object AreaService {
         }
     }
 
-    suspend fun getAll(merchantId: Long?): List<AreaDto> {
-        val query = "select * from area where id = $merchantId and not deleted"
+    suspend fun getAll(merchantId: Long?, branchId: Long?): List<AreaDto> {
+        val query = "select * from area where id = $merchantId and branch_id = $branchId and not deleted"
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -85,8 +85,8 @@ object AreaService {
         }
     }
 
-    suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update area set deleted = true where id = $id and merchant_id = $merchantId where not deleted"
+    suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        val query = "update area set deleted = true where id = $id and merchant_id = $merchantId and branch_id = $branchId and not deleted"
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeUpdate()

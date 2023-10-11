@@ -29,6 +29,7 @@ fun Route.routeToClientProduct() {
 
     get("product") {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        val branchId = call.parameters["branchId"]?.toLongOrNull()
         val productName = call.parameters["product"]
         val lang = Language.valueOf(call.parameters["lang"] ?: "UZ")
         val search = call.parameters["search"]
@@ -45,7 +46,7 @@ fun Route.routeToClientProduct() {
             call.respond(HttpStatusCode.OK, product!!)
         }
         if (!search.isNullOrBlank()) {
-            val response = productRepository.getAll(merchantId = merchantId, search = search)
+            val response = productRepository.getAll(merchantId = merchantId, search = search, branchId = branchId)
             if (response.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -58,10 +59,11 @@ fun Route.routeToClientProduct() {
     get("product/info") {
         val id = call.parameters["id"]?.toLongOrNull()
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        val branchId = call.parameters["branchId"]?.toLongOrNull()
         if (merchantId == null || id == null) {
             call.respond(HttpStatusCode.BadRequest)
         }
-        val product = productRepository.getProductInfo(merchantId = merchantId, id = id)
+        val product = productRepository.getProductInfo(merchantId = merchantId, id = id, branchId = branchId)
         if (product == null) {
             call.respond(HttpStatusCode.NotFound)
         }

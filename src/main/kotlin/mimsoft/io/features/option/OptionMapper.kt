@@ -7,6 +7,7 @@ object OptionMapper {
         return if (optionDto == null) null else OptionTable(
             id = optionDto.id,
             merchantId = optionDto.merchantId,
+            branchId = optionDto.branchId,
             nameUz = optionDto.name?.uz,
             nameRu = optionDto.name?.ru,
             nameEng = optionDto.name?.eng,
@@ -21,6 +22,7 @@ object OptionMapper {
         else OptionDto(
             id = optionTable.id,
             merchantId = optionTable.merchantId,
+            branchId = optionTable.branchId,
             name = TextModel(
                 uz = optionTable.nameUz,
                 ru = optionTable.nameRu,

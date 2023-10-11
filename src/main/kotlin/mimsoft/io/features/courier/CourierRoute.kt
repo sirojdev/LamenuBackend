@@ -10,6 +10,7 @@ import mimsoft.io.features.courier.courier_location_history.routeToCourierLocati
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
+import kotlin.math.min
 
 
 fun Route.routeToCourier() {
@@ -21,9 +22,10 @@ fun Route.routeToCourier() {
         get("all") {
             val principal = getPrincipal()
             val merchantId = principal?.merchantId
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+            val branchId = principal?.branchId
+            val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val couriers = staffService.getAllCourier(merchantId = merchantId,limit,offset)
+            val couriers = staffService.getAllCourier(merchantId = merchantId, branchId = branchId, limit, offset)
             if (couriers.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -33,12 +35,13 @@ fun Route.routeToCourier() {
         get("/{id}") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
+            val branchId = principal?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val courier = courierService.get(id = id, merchantId = merchantId)
+            val courier = courierService.get(id = id, merchantId = merchantId, branchId = branchId)
             if (courier == null) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -46,20 +49,22 @@ fun Route.routeToCourier() {
             call.respond(courier)
         }
 
-        post(""){
+        post("") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
+            val branchId = principal?.branchId
             val dto = call.receive<CourierDto>()
-            val result = courierService.add(dto.copy(merchantId = merchantId))
+            val result = courierService.add(dto.copy(merchantId = merchantId, branchId = branchId))
             call.respond(HttpStatusCode.OK, CourierId(result))
             return@post
         }
 
-        put(""){
+        put("") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
+            val branchId = principal?.branchId
             val dto = call.receive<CourierDto>()
-            val result = courierService.update(dto.copy(merchantId = merchantId))
+            val result = courierService.update(dto.copy(merchantId = merchantId, branchId = branchId))
             call.respond(result)
             return@put
         }
@@ -67,8 +72,9 @@ fun Route.routeToCourier() {
         delete("{id}") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
+            val branchId = principal?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
-            val result = courierService.delete(id = id, merchantId = merchantId)
+            val result = courierService.delete(id = id, merchantId = merchantId, branchId = branchId)
             call.respond(result)
             return@delete
         }
