@@ -34,7 +34,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
     implementation("com.google.firebase:firebase-admin:9.2.0")
     implementation("org.slf4j:slf4j-log4j12:2.0.5")
-    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.5")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktor_version")
@@ -43,9 +43,9 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-websockets:$ktor_version")
-    implementation("io.ktor:ktor-client-core-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-core-jvm:2.3.5")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-cio-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.5")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-gson-jvm:$ktor_version")
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
@@ -60,7 +60,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.4")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.5")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
@@ -69,15 +69,15 @@ dependencies {
 
     //tgbot
     implementation("org.telegram:telegrambots:6.5.0")
-    implementation("io.ktor:ktor-network-jvm:2.3.4")
+    implementation("io.ktor:ktor-network-jvm:2.3.5")
 
     //security
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
 
-    testImplementation("io.ktor:ktor-server-tests-jvm:2.3.4")
+    testImplementation("io.ktor:ktor-server-tests-jvm:2.3.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junit_version}")
-    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.4")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.5")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
 
 }

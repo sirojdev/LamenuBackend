@@ -19,7 +19,14 @@ object OutcomeService {
     val merchant = MerchantRepositoryImp
 
 
-    suspend fun getAll(merchantId: Long?, limit: Int?, offset: Int?, search: String? = null, filter: String? = null, staffId: Long? = null): DataPage<OutcomeDto> {
+    suspend fun getAll(
+        merchantId: Long?,
+        limit: Int?,
+        offset: Int?,
+        search: String? = null,
+        filter: String? = null,
+        staffId: Long? = null
+    ): DataPage<OutcomeDto> {
         var query =
             "select o.*, s.first_name, s.last_name, ot.name_uz, ot.name_ru, ot.name_eng, ot.bg_color, ot.text_color " +
                     "from $OUTCOME_TABLE_NAME o " +
@@ -27,26 +34,28 @@ object OutcomeService {
                     "left join outcome_type ot on o.outcome_type_id = ot.id " +
                     "where o.merchant_id = $merchantId " +
                     "and not o.deleted "
-        if(search != null){
+        if (search != null) {
             val s = search.lowercase()
             query += " and (lower(o.name) like '%$s%') "
         }
-        if(filter != null){
-            when(filter){
+        if (filter != null) {
+            when (filter) {
                 OutcomeFilterTime.TIME.name -> {
                     query += " order by o.created desc "
                 }
+
                 OutcomeFilterTime.STAFF.name -> {
-                    if(staffId != null){
+                    if (staffId != null) {
                         query += " and o.staff_id = $staffId "
                     }
                 }
+
                 OutcomeFilterTime.PRICE.name -> {
                     query += " order by o.amount desc "
                 }
             }
         }
-        query+=  "limit $limit offset $offset"
+        query += "limit $limit offset $offset"
         val list = arrayListOf<OutcomeDto>()
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
@@ -79,7 +88,10 @@ object OutcomeService {
                 }
             }
         }
-        return DataPage(data = list, total = DBManager.getDataCount(tableName = OUTCOME_TABLE_NAME, merchantId = merchantId))
+        return DataPage(
+            data = list,
+            total = DBManager.getDataCount(tableName = OUTCOME_TABLE_NAME, merchantId = merchantId)
+        )
     }
 
     suspend fun get(id: Long?, merchantId: Long?): OutcomeDto? {

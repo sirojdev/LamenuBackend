@@ -49,6 +49,8 @@ fun Route.routeToSms() {
             return@delete
         }
         val result = smsService.delete(id = id, merchantId = merchantId)
-        call.respond(result)
+        if (result)
+            call.respond(result)
+        call.respond(HttpStatusCode.NoContent)
     }
 }
