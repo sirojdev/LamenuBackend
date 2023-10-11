@@ -17,7 +17,7 @@ object StaffMapper {
             password = staffTable?.password,
             lastName = staffTable?.lastName,
             firstName = staffTable?.firstName,
-            position = StaffPosition.valueOf(staffTable?.position.toString()),
+            position =staffTable?.position?.let { StaffPosition.valueOf(it) },
             merchantId = staffTable?.merchantId,
             birthDay = staffTable?.birthDay.toString(),
             branchId = staffTable?.branchId

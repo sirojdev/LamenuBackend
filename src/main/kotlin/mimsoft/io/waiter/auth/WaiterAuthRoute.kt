@@ -17,8 +17,10 @@ import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.BadRequest
+import mimsoft.io.utils.plugins.ItemNotFoundException
 import mimsoft.io.utils.plugins.getPrincipal
-import mimsoft.io.utils.principal.BasePrincipal
+import mimsoft.io.utils.principal.ResponseData
 import mimsoft.io.waiter.WaiterService
 
 fun Route.routeToWaiterAuth() {
@@ -29,23 +31,22 @@ fun Route.routeToWaiterAuth() {
             post {
                 val device: DeviceModel = call.receive()
                 val appKey = call.parameters["appKey"]?.toLongOrNull()
-
                 if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-                    || device.uuid.isNullOrBlank()
+                    || device.uuid.isNullOrBlank() || appKey == null
                 ) {
-                    call.respond(HttpStatusCode.BadRequest, "error input")
+                    throw BadRequest("error input,brand,model,build,osVersion,uuid,appKey required")
                 } else {
                     val ip = call.request.host()
-                    val appDto = MerchantAppKeyRepository.getByAppId(appKey)
+//                    val appDto = MerchantAppKeyRepository.getByAppId(appKey) ?: throw BadRequest("appKey not found")
                     val result = DeviceController.auth(
                         device.copy(
                             ip = ip,
-                            merchantId = appDto?.merchantId,
+                            merchantId = appKey,
                             appKey = appKey,
                             deviceType = DeviceType.WAITER
                         )
                     )
-                    call.respond(result)
+                    call.respond(ResponseData(data = result))
                 }
             }
         }
@@ -54,35 +55,32 @@ fun Route.routeToWaiterAuth() {
             post("auth") {
                 val device = call.principal<DevicePrincipal>()
                 val waiter = call.receive<StaffDto>()
-                val status = waiterService.auth(waiter.copy(merchantId = device?.merchantId))
-
-                if (status.httpStatus != ResponseModel.OK)
-                    call.respond(status.httpStatus, status)
+                if (waiter.password.isNullOrBlank() || waiter.phone.isNullOrBlank()) {
+                    throw BadRequest("phone or password is null")
+                }
+                val staff = waiterService.auth(waiter.copy(merchantId = device?.merchantId))
+                if (staff==null) throw ItemNotFoundException("phone or password is incorrect")
                 else {
-                    val authStaff = status.body as StaffDto?
-                    if (authStaff?.position != StaffPosition.WAITER) {
-                        call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
-                    }
-                    val uuid = waiterService.generateUuid(authStaff?.id)
+                    val uuid = waiterService.generateUuid(staff.id)
                     sessionRepo.auth(
                         SessionTable(
                             uuid = uuid,
-                            stuffId = authStaff?.id,
-                            merchantId = authStaff?.merchantId,
+                            stuffId = staff.id,
+                            merchantId = staff.merchantId,
                             deviceId = device?.id,
                             role = DeviceType.WAITER?.name
                         )
                     )
 
                     call.respond(
-                        authStaff?.copy(
-                            token = JwtConfig.generateWaiterToken(
-                                staffId = authStaff.id,
-                                merchantId = authStaff.merchantId,
+                        ResponseData(
+                            data = JwtConfig.generateWaiterToken(
+                                staffId = staff.id,
+                                merchantId = staff.merchantId,
                                 uuid = uuid,
-                                branchId = authStaff.branchId
+                                branchId = staff.branchId
                             )
-                        ) ?: HttpStatusCode.NoContent
+                        )
                     )
                 }
             }

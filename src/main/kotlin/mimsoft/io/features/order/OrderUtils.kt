@@ -803,7 +803,7 @@ object OrderUtils {
                 phone = result["s_phone"] as? String?,
                 image = result["s_image"] as? String?,
                 birthDay = result["s_birth_day"].toString(),
-                position = StaffPosition.valueOf((result["s_position"] as? String?).toString()),
+                position = (result["s_position"] as? String?)?.let { StaffPosition.valueOf(it) },
                 gender = result["gender"] as? String?,
                 comment = result["s_comment"] as? String?
             ),

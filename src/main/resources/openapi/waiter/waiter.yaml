@@ -33,17 +33,21 @@ paths:
       tags:
         - Auth
       description: "Get device token"
+      parameters:
+        - name: "appKey"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
       requestBody:
-        description: "A JSON object receive device token"
+        description: "appKey,brand,model,build,osVersion,uuid required"
         required: true
         content:
           application/json:
             schema:
               type: "object"
               properties:
-                appKey:
-                  type: "integer"
-                  format: "long"
                 uuid:
                   type: string
                 brand:
@@ -94,9 +98,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/StaffDto"
+                type: "string"
         "204":
           description: "No Content"
 
@@ -127,7 +129,7 @@ paths:
       description: "Get profile device model"
       parameters:
         - name: "firebaseToken"
-          in: "query"
+          in: "path"
           required: true
           schema:
             type: "string"
@@ -193,7 +195,7 @@ paths:
     put:
       tags:
         - Table
-      description:  if table join other waiter ,tableId not found ,waiter deleted all ==>405
+      description: if table join other waiter ,tableId not found ,waiter deleted all ==>405
       security:
         - bearerAuth: [ ]
       parameters:
