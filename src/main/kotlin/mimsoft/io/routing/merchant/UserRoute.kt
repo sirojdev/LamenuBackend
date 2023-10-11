@@ -18,9 +18,19 @@ fun Route.routeToUserUser() {
     get("users") {
         val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
+        val search = call.parameters["search"]
+        val filters = call.parameters["filters"]
+        val badgeId = call.parameters["badgeId"]?.toLongOrNull()
         val limit = call.parameters["limit"]?.toLongOrNull()
         val offset = call.parameters["offset"]?.toLongOrNull()
-        val users = userRepository.getAll(merchantId = merchantId, limit = limit, offset = offset)
+        val users = userRepository.getAll(
+            merchantId = merchantId,
+            search = search,
+            filters = filters,
+            badgeId = badgeId,
+            limit = limit,
+            offset = offset,
+        )
         call.respond(users)
         return@get
     }
@@ -61,16 +71,10 @@ fun Route.routeToUserUser() {
         val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
         val user = call.receive<UserDto>()
-//        val statusTimestamp = timestampValidator(user.birthDay)
-//
-//        if (statusTimestamp.httpStatus != ResponseModel.OK){
-//            call.respond(statusTimestamp)
-//            return@put
-//        }
-
         val status = userRepository.update(user.copy(merchantId = merchantId))
-
-        call.respond(status.httpStatus, status)
+        if (status.body as Boolean)
+            call.respond(status)
+        call.respond(HttpStatusCode.NoContent)
     }
 
     delete("user/{id}") {
@@ -81,7 +85,9 @@ fun Route.routeToUserUser() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        userRepository.delete(id = id, merchantId = merchantId)
-        call.respond(HttpStatusCode.OK)
+        val response = userRepository.delete(id = id, merchantId = merchantId)
+        if (response)
+            call.respond(response)
+        call.respond(HttpStatusCode.NoContent)
     }
 }

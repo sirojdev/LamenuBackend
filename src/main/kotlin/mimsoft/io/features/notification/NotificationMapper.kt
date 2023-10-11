@@ -3,26 +3,27 @@ package mimsoft.io.features.notification
 import mimsoft.io.utils.TextModel
 
 object NotificationMapper {
-    fun toDto(table: NotificationTable?): NotificationDto {
-        return NotificationDto(
-            id = table?.id,
-            merchantId = table?.merchantId,
-            clientId = table?.clientId,
+    fun toDto(table: NotificationTable?): NotificationDto? {
+        return if(table == null) null
+            else NotificationDto(
+            id = table.id,
+            merchantId = table.merchantId,
+            clientId = table.clientId,
             title = TextModel(
-                uz = table?.titleUz,
-                ru = table?.titleRu,
-                eng = table?.titleEng
+                uz = table.titleUz,
+                ru = table.titleRu,
+                eng = table.titleEng
             ),
             body = TextModel(
-                uz = table?.titleUz,
-                ru = table?.titleRu,
-                eng = table?.titleEng
+                uz = table.titleUz,
+                ru = table.titleRu,
+                eng = table.titleEng
             ),
-            image = table?.image,
-            date = table?.date,
-            isSendAndroid = table?.isSendAndroid,
-            isSendIos = table?.isSendIos,
-            isSendBot = table?.isSendBot
+            image = table.image,
+            date = table.date,
+            isSendAndroid = table.isSendAndroid,
+            isSendIos = table.isSendIos,
+            isSendBot = table.isSendBot
         )
     }
 

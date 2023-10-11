@@ -25,7 +25,7 @@ class StaffServiceTest {
             birthDay = null,
             password = "Passwor2",
             newPassword = null,
-            position = "collector",
+            position = StaffPosition.COLLECTOR,
             merchantId = 1,
             lastName = "Name2",
             firstName = "Name1",
