@@ -14,6 +14,7 @@ data class PaymentTable(
     val uzumApiKey: String? = null,
     val uzumTerminalId: String? = null,
     val uzumSecretSignature: String? = null,
+    val uzumFiscal: String? = null,
     val clickServiceId: Long? = null,
     val clickMerchantId: String? = null,
     val clickKey: String? = null,

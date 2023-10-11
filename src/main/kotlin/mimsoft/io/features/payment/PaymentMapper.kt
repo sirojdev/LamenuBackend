@@ -12,6 +12,8 @@ object PaymentMapper {
             apelsinMerchantToken = paymentDto.apelsinMerchantToken,
             uzumApiKey = paymentDto.uzumApiKey,
             uzumTerminalId = paymentDto.uzumTerminalId,
+            uzumSecretSignature = paymentDto.uzumSecretSignature,
+            uzumFiscal = paymentDto.uzumFiscal,
             clickServiceId = paymentDto.clickServiceId,
             clickMerchantId = paymentDto.clickMerchantId,
             clickKey = paymentDto.clickKey,
