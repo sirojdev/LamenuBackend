@@ -11,7 +11,9 @@ import mimsoft.io.features.notification.repository.NotificationRepositoryImpl
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.MerchantPrincipal
+import okhttp3.internal.notify
 import java.sql.Timestamp
+import kotlin.math.min
 
 fun Route.routeToNotification() {
     val notification: NotificationRepository = NotificationRepositoryImpl
@@ -21,8 +23,9 @@ fun Route.routeToNotification() {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
             val dto = call.receive<NotificationDto>()
-            val response = notification.add(dto.copy(merchantId = merchantId, date = Timestamp(System.currentTimeMillis())))
-            call.respond(HttpStatusCode.OK, CategoryGroupId(response))
+            val response =
+                notification.add(dto.copy(merchantId = merchantId, date = Timestamp(System.currentTimeMillis())))
+            call.respond(CategoryGroupId(response))
         }
 
         put {
@@ -30,7 +33,9 @@ fun Route.routeToNotification() {
             val merchantId = principal?.merchantId
             val dto = call.receive<NotificationDto>()
             val response = notification.update(dto.copy(merchantId = merchantId))
-            call.respond(response)
+            if (response)
+                call.respond(response)
+            call.respond(HttpStatusCode.NoContent)
         }
 
         get("{id}") {
@@ -42,21 +47,18 @@ fun Route.routeToNotification() {
                 return@get
             }
             val response = notification.getById(id = id, merchantId = merchantId)
-            if (response == null) {
-                call.respond(HttpStatusCode.NoContent)
-                return@get
-            }
-            call.respond(response)
+            call.respond(response ?: HttpStatusCode.NoContent)
         }
 
+
         get {
-            val limit = call.parameters["limit"]?.toIntOrNull()
-            val offset = call.parameters["offset"]?.toIntOrNull()
+            val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val search = call.parameters["search"]
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
             val response = notification.getAll(merchantId = merchantId, limit = limit, offset = offset, search = search)
-            call.respond(response?: HttpStatusCode.NoContent)
+            call.respond(response ?: HttpStatusCode.NoContent)
         }
 
         delete("{id}") {
@@ -68,10 +70,11 @@ fun Route.routeToNotification() {
                 return@delete
             }
             val response = notification.delete(id = id, merchantId = merchantId)
-            call.respond(response)
+            if (response)
+                call.respond(response)
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 }
 
 data class CategoryGroupId(val id: Long? = null)
-

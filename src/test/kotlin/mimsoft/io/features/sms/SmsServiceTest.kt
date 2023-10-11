@@ -58,7 +58,6 @@ class SmsServiceTest {
         val status = Status.SENT
         val smsDto = SmsDto(
             clientCount = 32,
-            clientId = 45,
             message = messageDto,
             status = status,
             merchantId = 1
@@ -78,7 +77,6 @@ class SmsServiceTest {
         val smsDto = SmsDto(
             id = 5,
             clientCount = 32,
-            clientId = 45,
             message = messageDto,
             status = status,
             merchantId = 7

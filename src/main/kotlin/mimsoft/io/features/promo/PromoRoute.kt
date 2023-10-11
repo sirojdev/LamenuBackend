@@ -17,13 +17,13 @@ fun Route.routeToPromo() {
             val merchantId = principal?.merchantId
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val promoList = promoService.getAll(merchantId = merchantId,limit,offset)
+            val promoList = promoService.getAll(merchantId = merchantId, limit, offset)
             mimsoft.io.utils.plugins.LOGGER.info("promoList: ${GSON.toJson(promoList)}")
             if (promoList.data?.isEmpty() == true) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }
-            call.respond(HttpStatusCode.OK, promoList)
+            call.respond(promoList)
         }
 
         post {
@@ -31,7 +31,7 @@ fun Route.routeToPromo() {
             val merchantId = principal?.merchantId
             val promoDto = call.receive<PromoDto>()
             val response = promoService.add(promoDto.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK, PromoId(response))
+            call.respond(PromoId(response))
         }
 
         put {
@@ -39,8 +39,9 @@ fun Route.routeToPromo() {
             val merchantId = principal?.merchantId
             val promo = call.receive<PromoDto>()
             val updated = promoService.update(promo.copy(merchantId = merchantId))
-            if (updated) call.respond(HttpStatusCode.OK)
-            else call.respond(HttpStatusCode.InternalServerError)
+            if (updated)
+                call.respond(updated)
+            call.respond(HttpStatusCode.NoContent)
         }
 
         get("{id}") {
@@ -52,26 +53,17 @@ fun Route.routeToPromo() {
                 return@get
             }
             val promo = promoService.get(merchantId = merchantId, id = id)
-            if (promo != null) {
-                call.respond(promo)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
+            call.respond(promo ?: HttpStatusCode.NoContent)
         }
 
         delete("{id}") {
             val principal = call.principal<BasePrincipal>()
             val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
-            if (id != null) {
-                val deleted = promoService.delete(id = id, merchantId = merchantId)
-                if (deleted) {
-                    call.respond(HttpStatusCode.OK, deleted)
-                } else {
-                    call.respond(HttpStatusCode.InternalServerError)
-                }
-            } else
-                call.respond(HttpStatusCode.BadRequest)
+            val deleted = promoService.delete(id = id, merchantId = merchantId)
+            if (deleted)
+                call.respond(deleted)
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 }

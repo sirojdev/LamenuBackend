@@ -123,7 +123,7 @@ object SmsService {
     }
 
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        var rs = 0
+        var rs: Int
         val query = "update $SMS_TABLE set deleted = true where id = $id and merchant_id = $merchantId and not deleted"
         withContext(Dispatchers.IO) {
             repository.connection().use { rs = it.prepareStatement(query).executeUpdate() }
