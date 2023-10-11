@@ -14,21 +14,30 @@ import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentDto
 import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.integrate.uzum.module.*
+import mimsoft.io.ssl.SslSettings
 import mimsoft.io.utils.ResponseModel
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.FileInputStream
 import java.nio.charset.StandardCharsets
 import java.security.*
 import java.util.*
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
 
 
 object UzumService {
     val log: Logger = LoggerFactory.getLogger(UzumService::class.java)
     const val securityToken = "123"
     val client = HttpClient(CIO) {
+        engine {
+            https {
+                trustManager = SslSettings.getTrustManager()
+            }
+        }
         install(ContentNegotiation) {
             gson {
                 setPrettyPrinting()
@@ -36,6 +45,7 @@ object UzumService {
                 setDateFormat("dd.MM.yyyy HH:mm:ss.sss")
             }
         }
+
     }
 
     suspend fun register(orderId: Long): ResponseModel {
@@ -188,6 +198,7 @@ object UzumService {
     }
 
     suspend fun fiscal(orderId: Long?): ResponseModel {
+        System.setProperty("javax.net.debug", "all")
         val uzumOrder = UzumRepository.getTransactionByMerchantOrderId(orderId)
         val order = OrderService.getById(orderId, "products", "user")
         val payment = PaymentService.get(uzumOrder?.merchantId)
@@ -199,48 +210,54 @@ object UzumService {
             )
         }
         val body = createFiscalObj(uzumOrder, order)
-        val response = client.post("https://test-chk-api.ipt-merch.com/api/v1/acquiring/reverse") {
+        log.info("fiscal body ${Gson().toJson(body)}")
+        val response = client.post("https://ofd.ipt-merch.com/api/v1/acquiring/reverse") {
             headers {
-                append("ssl-client-fingerprint", payment?.uzumFiscal.toString())
+                append("ssl_client_fingerprint", payment?.uzumFiscal.toString())
             }
             setBody(Gson().toJson(body))
         }
+        log.info("fiscal response ${response.body<String>()}")
+        log.info("fiscal response ${response.status.value}")
         return ResponseModel(httpStatus = response.status, body = response.body())
     }
 
-    private fun createFiscalObj(uzumOrder: UzumPaymentTable, order: Order?): UzumFiscal? {
+    private fun createFiscalObj(uzumOrder: UzumPaymentTable, order: Order?): UzumFiscal {
         return UzumFiscal(
             paymentId = uzumOrder.uzumOrderId,
             operationId = UUID.randomUUID().toString(),
-            dateTime = uzumOrder.updatedDate?.toLocalDateTime().toString(),
+            dateTime = uzumOrder.createdDate?.toLocalDateTime().toString(),
             receiptType = 0,
             cashAmount = 0,
             cardAmount = uzumOrder.price,
-            phoneNumber = order?.user?.phone,
+            phoneNumber = if (order?.user?.phone?.startsWith("+") == true)order?.user?.phone?.removePrefix("+")else order?.user?.phone,
             items = arrayListOf(
                 UzumFiskalItems(
-                    productName = "test",
+                    productName = "oziq-ovqat",
                     count = 1,
                     price = uzumOrder.price,
                     discount = 0,
-                    spic = "",
-                    units = 1,
-                    packageCode = "",
+                    spic = "10703999001000000",
+                    units = 1495086,
+                    packageCode = "12345",
                     vatPercent = 0,
                     commissionInfo = CommissionInfo(
                         tin = null,
-                        pinfl = null
-                    )
+                        pinfl = "52203015530017"
+                    ),
+                    voucher = 0
                 )
             ),
         )
     }
 
     suspend fun fiscalRefund(orderId: Long?): Any {
+        System.setProperty("javax.net.ssl.keyStore", "/root/pay/ndc_fiscal_test.jks");
+        System.setProperty("javax.net.ssl.keyStorePassword", "mimsofTim");
         val uzumOrder = UzumRepository.getTransactionByMerchantOrderId(orderId)
         val order = OrderService.getById(orderId, "products", "user")
         val payment = PaymentService.get(uzumOrder?.merchantId)
-        if (uzumOrder == null) {
+        if (uzumOrder == null||uzumOrder.operationType!=UzumOperationType.REFUND) {
             log.info("uzumOrder is null")
             return ResponseModel(
                 body = "uzumOrder not found" +
@@ -248,11 +265,12 @@ object UzumService {
             )
         }
         val body = createFiscalObj(uzumOrder, order)
-        val response = client.post("https://www.inplat-tech.ru/fiscal_receipt_refund") {
+        val response = client.post("https://ofd.ipt-merch.com/fiscal_receipt_refund") {
             headers {
                 append("ssl-client-fingerprint", payment?.uzumFiscal.toString())
             }
-            setBody(Gson().toJson(body))
+            setBody(Gson().toJson(body
+            ))
         }
         return ResponseModel(httpStatus = response.status, body = response.body())
     }

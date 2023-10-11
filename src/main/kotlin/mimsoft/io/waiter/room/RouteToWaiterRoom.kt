@@ -32,7 +32,7 @@ fun Route.routeToWaiterRoom() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = roomService.get(id = id, merchantId = merchantId)
+        val room = roomService.get(id = id, merchantId = merchantId,branchId = pr?.branchId)
         if (room == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get
