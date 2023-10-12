@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.news.repository.NewsRepository
 import mimsoft.io.features.news.repository.NewsRepositoryImpl
 import mimsoft.io.utils.plugins.getPrincipal
+import kotlin.math.min
 
 fun Route.routeToNews() {
     val news: NewsRepository = NewsRepositoryImpl
@@ -46,7 +47,7 @@ fun Route.routeToNews() {
 
         get {
             val pr = getPrincipal()
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 15
+            val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 20, 50)
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val merchantId = pr?.merchantId
             val response = news.getAll(merchantId = merchantId, limit = limit, offset = offset)

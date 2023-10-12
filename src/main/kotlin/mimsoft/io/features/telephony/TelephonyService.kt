@@ -1,6 +1,5 @@
 package mimsoft.io.features.telephony
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.repository.BaseRepository
@@ -19,8 +18,8 @@ object TelephonyService {
     }
 
     suspend fun get(merchantId: Long?): TelephonyDto? {
-        val query = "select * from $TELEPHONY_TABLE_NAME where merchant_id = $merchantId and deleted = false"
-        return withContext(Dispatchers.IO) {
+        val query = "select * from $TELEPHONY_TABLE_NAME where merchant_id = $merchantId and not deleted"
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -58,7 +57,7 @@ object TelephonyService {
 
 
     fun update(telephonyDto: TelephonyDto?): Boolean {
-        var rs = 0
+        var rs: Int
         val query = """
             update telephony
             set online_pbx_token = ?,
@@ -79,7 +78,7 @@ object TelephonyService {
     }
 
     fun delete(merchantId: Long?): Boolean {
-        var rs = 0
+        var rs: Int
         val query = """
             update telephony
             set deleted = true

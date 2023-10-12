@@ -39,17 +39,17 @@ object CategoryGroupService {
         )
 
     suspend fun update(dto: CategoryGroupDto): Boolean {
-        val query = "UPDATE $CATEGORY_GROUP_TABLE " +
+        val query = "UPDATE $CATEGORY_GROUP_TABLE c " +
                 "SET" +
-                " title_uz = ?, " +
-                " title_ru = ?," +
-                " title_eng = ?," +
-                " bg_color = ?," +
+                " coalesce(?, c.title_uz), " +
+                " coalesce(?, c.title_ru), " +
+                " coalesce(?, c.title_eng), " +
+                " coalesce(?, c.bg_color), " +
                 " updated = ?, " +
                 " priority = ${dto.priority}" +
                 " WHERE id = ${dto.id} and merchant_id = ${dto.merchantId} and not deleted"
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             StaffService.repository.connection().use {
                 it.prepareStatement(query).use { ti ->
                     ti.setString(1, dto.title?.uz)
@@ -66,18 +66,16 @@ object CategoryGroupService {
 
     suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $CATEGORY_GROUP_TABLE set deleted = true where id = $id and merchant_id = $merchantId"
-        withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).execute()
+                return@withContext it.prepareStatement(query).execute()
             }
         }
-        return true
     }
-
     suspend fun getById(merchantId: Long?, id: Long?): CategoryGroupDto? {
         val query =
             "select * from $CATEGORY_GROUP_TABLE where merchant_id = $merchantId and id = $id and deleted = false order by priority, created"
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {

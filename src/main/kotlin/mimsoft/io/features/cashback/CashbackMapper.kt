@@ -6,6 +6,7 @@ object CashbackMapper {
     fun toDto(table: CashbackTable): CashbackDto {
         return CashbackDto(
             merchantId = table.merchantId,
+            branchId = table.branchId,
             id = table.id,
             name = TextModel(
                 uz = table.nameUz,
@@ -21,6 +22,7 @@ object CashbackMapper {
         return CashbackTable(
             id = dto.id,
             merchantId = dto.merchantId,
+            branchId = dto.branchId,
             maxCost = dto.maxCost,
             minCost = dto.minCost,
             nameUz = dto.name?.uz,

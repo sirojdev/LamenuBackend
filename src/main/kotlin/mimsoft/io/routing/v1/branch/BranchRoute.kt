@@ -61,40 +61,25 @@ fun Route.routeToBranchAdmin(){
             routeToPantry()
             routeToKitchen()
             routeToMerchantBook()
-            routeToMerchantOrder()
-            routeToMerchantProfile()
             routeToStory()
             routeToStoryInfo()
-            routeToCategoryGroup()
-            routeToNews()
             routeToCourierTransaction()
-            routeToClientPromo()
-            routeToOnlinePbx()
-            routToMerchantWaiters()
 
             route("settings") {
-                routeToArea()//
-                routeToRoom()//
-                routeToFlat()//
-                routeToStaff()//
-                routeToExtra()//
-                routeToLabel()//
-                routeToOrder()//
-                routeToTable()//
-                routeToOption()//
-                routeToCourier()//
-                routeToCollector()//
-                routeToProduct()//
+                routeToArea()
+                routeToRoom()
+                routeToFlat()
+                routeToStaff()
+                routeToExtra()
+                routeToLabel()
+                routeToOrder()
+                routeToTable()
+                routeToOption()
+                routeToCourier()
+                routeToCollector()
+                routeToProduct()
                 routeToCashback()
-                routeToDelivery()
                 routeToCategory()
-                routeToTelephony()
-                routeToOutcomeType()
-                routeToSmsGateways()
-                routeToProductLabel()
-                routeToProductExtra()
-                routeToProductOption()
-                routeToOperatorEntity()
             }
 
             route("crm") {

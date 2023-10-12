@@ -8,6 +8,7 @@ import mimsoft.io.features.badge.BadgeService
 import mimsoft.io.features.badge.BadgeTable
 import mimsoft.io.features.branch.BRANCH_TABLE_NAME
 import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.branch.BranchId
 import mimsoft.io.features.branch.BranchTable
 import mimsoft.io.features.branch.repository.BranchServiceImpl
 import mimsoft.io.features.delivery.*
@@ -24,10 +25,13 @@ import java.sql.Timestamp
 object CashbackService {
     val repository: BaseRepository = DBManager
     val mapper = CashbackMapper
-    suspend fun getAll(merchantId: Long?): List<CashbackDto> {
+    suspend fun getAll(merchantId: Long?, branchId: Long?): List<CashbackDto> {
         val data = repository.getPageData(
             dataClass = CashbackTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
+            where = mapOf(
+                "merchant_id" to merchantId as Any,
+                "branch_id" to branchId as Any
+            ),
             tableName = CASHBACK_TABLE_NAME
         )?.data
 
@@ -42,16 +46,19 @@ object CashbackService {
         )
 
     suspend fun update(dto: CashbackDto): Boolean {
-        val merchantId = dto.merchantId
-        val query = "UPDATE $CASHBACK_TABLE_NAME " +
-                "SET" +
-                " name_uz = ?, " +
-                " name_ru = ?," +
-                " name_eng = ?," +
-                " min_cost = ${dto.minCost} ," +
-                " max_cost = ${dto.maxCost} ," +
-                " updated = ?" +
-                " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
+        val query = """
+            UPDATE cashback c
+            SET name_uz  = coalesce(?, c.name_uz),
+                name_ru  = coalesce(?, c.name_ru),
+                name_eng = coalesce(?, c.name_eng),
+                min_cost = coalesce(${dto.minCost}, c.min_cost),
+                max_cost = coalesce(${dto.maxCost}, c.max_cost),
+                updated  = ?
+            WHERE id = ${dto.id}
+              and merchant_id = ${dto.merchantId}
+              and branch_id = ${dto.branchId}
+              and not deleted
+        """.trimIndent()
 
         withContext(Dispatchers.IO) {
             StaffService.repository.connection().use {
@@ -68,19 +75,19 @@ object CashbackService {
     }
 
 
-    suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $CASHBACK_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId"
-        withContext(Dispatchers.IO) {
+    suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        val query = "update $CASHBACK_TABLE_NAME set deleted = true where id = $id and merchant_id = $merchantId and branch_id = $branchId"
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).apply {
+                return@withContext it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.execute()
             }
         }
-        return true
     }
-    suspend fun get(merchantId: Long?, id: Long?): CashbackDto? {
-        val query = "select * from $CASHBACK_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
+
+    suspend fun get(merchantId: Long?, id: Long?, branchId: Long?): CashbackDto? {
+        val query = "select * from $CASHBACK_TABLE_NAME where merchant_id = $merchantId and branch_id = $branchId and id = $id and not deleted"
         return withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()

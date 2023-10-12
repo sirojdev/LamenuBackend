@@ -1,6 +1,9 @@
 package mimsoft.io.features.news.repository
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.news.NewsDto
 import mimsoft.io.features.news.NewsMapper
@@ -8,7 +11,7 @@ import mimsoft.io.features.news.NewsTable
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.services.firebase.FirebaseService
-import mimsoft.io.utils.toJson
+import javax.inject.Scope
 
 object NewsRepositoryImpl : NewsRepository {
     val repository: BaseRepository = DBManager
@@ -66,7 +69,7 @@ object NewsRepositoryImpl : NewsRepository {
     }
 
     override suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        var rs = 0
+        var rs: Int
         val query = "update news set deleted = true where merchant_id = $merchantId and id = $id"
         withContext(Dispatchers.IO) {
             repository.connection().use {

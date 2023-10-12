@@ -30,14 +30,5 @@ fun Route.routeToMerchantOrder() {
             }
             val order = orderService.get(id)
         }
-
-        post("order") {
-
-        }
-
-        delete("order/{id}") {
-
-        }
-
     }
 }

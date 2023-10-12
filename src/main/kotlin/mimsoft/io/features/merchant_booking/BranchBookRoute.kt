@@ -19,8 +19,9 @@ fun Route.routeToMerchantBook() {
         put("accepted") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val bookId = call.parameters["bookId"]?.toLongOrNull()
-            call.respond(bookRepository.toAccepted(merchantId = merchantId, bookId = bookId))
+            call.respond(bookRepository.toAccepted(merchantId = merchantId, bookId = bookId, branchId = branchId))
         }
 
         get("{id}") {

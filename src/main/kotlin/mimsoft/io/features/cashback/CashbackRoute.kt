@@ -14,7 +14,8 @@ fun Route.routeToCashback() {
         get("") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
-            val cashbackList = cashbackService.getAll(merchantId = merchantId)
+            val branchId = pr?.branchId
+            val cashbackList = cashbackService.getAll(merchantId = merchantId, branchId = branchId)
             if (cashbackList.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -25,16 +26,18 @@ fun Route.routeToCashback() {
         post {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val cashbackDto = call.receive<CashbackDto>()
-            val response = cashbackService.add(cashbackDto.copy(merchantId = merchantId))
+            val response = cashbackService.add(cashbackDto.copy(merchantId = merchantId, branchId = branchId))
             call.respond(HttpStatusCode.OK, CashbackId(response))
         }
 
         put {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val cashback = call.receive<CashbackDto>()
-            val updated = cashbackService.update((cashback.copy(merchantId = merchantId)))
+            val updated = cashbackService.update((cashback.copy(merchantId = merchantId, branchId = branchId)))
             if (updated) call.respond(HttpStatusCode.OK)
             else call.respond(HttpStatusCode.InternalServerError)
         }
@@ -42,12 +45,13 @@ fun Route.routeToCashback() {
         get("{id}") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val product = cashbackService.get(merchantId = merchantId, id = id)
+            val product = cashbackService.get(merchantId = merchantId, id = id, branchId = branchId)
             if (product != null) {
                 call.respond(product)
             } else {
@@ -58,16 +62,15 @@ fun Route.routeToCashback() {
         delete("{id}") {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
-            if (id != null) {
-                val deleted = cashbackService.delete(id = id, merchantId = merchantId)
-                if (deleted) {
-                    call.respond(HttpStatusCode.OK, deleted)
-                } else {
-                    call.respond(HttpStatusCode.InternalServerError)
-                }
-            } else
+            if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
+                return@delete
+            } else{
+                val response = cashbackService.delete(id = id, merchantId = merchantId, branchId = branchId)
+                call.respond(response)
+            }
         }
     }
 }

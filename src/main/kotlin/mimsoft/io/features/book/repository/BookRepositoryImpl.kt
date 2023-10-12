@@ -432,10 +432,10 @@ object BookRepositoryImpl : BookRepository {
         return true
     }
 
-    override suspend fun toAccepted(merchantId: Long?, bookId: Long?): ResponseModel {
-        val query = "update $BOOK_TABLE_NAME set status = ? where merchant_id = $merchantId and id = $bookId"
+    override suspend fun toAccepted(merchantId: Long?, bookId: Long?, branchId: Long?): ResponseModel {
+        val query = "update $BOOK_TABLE_NAME set status = ? where merchant_id = $merchantId and id = $bookId and branch_id = $branchId"
         val response: ResponseModel
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             ProductRepositoryImpl.repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     setString(1, BookStatus.ACCEPTED.name)

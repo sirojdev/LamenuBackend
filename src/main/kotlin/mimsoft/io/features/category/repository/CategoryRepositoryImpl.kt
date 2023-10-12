@@ -11,7 +11,6 @@ import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductInfoDto
 import mimsoft.io.features.product.product_label.ProductLabelService
-import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.repository.BaseRepository
@@ -24,7 +23,7 @@ object CategoryRepositoryImpl : CategoryRepository {
     val repository: BaseRepository = DBManager
     val mapper = CategoryMapper
 
-    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?>{
+    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?> {
         val query = """
             SELECT c.id c_id,
                 c.name_uz,
@@ -225,7 +224,9 @@ object CategoryRepositoryImpl : CategoryRepository {
     override suspend fun getAll(merchantId: Long?): List<CategoryDto?> {
         val data = repository.getPageData(
             dataClass = CategoryTable::class,
-            where = mapOf("merchant_id" to merchantId as Any),
+            where = mapOf(
+                "merchant_id" to merchantId as Any
+            ),
             tableName = CATEGORY_TABLE_NAME
         )?.data
 
@@ -244,29 +245,31 @@ object CategoryRepositoryImpl : CategoryRepository {
         return mapper.toCategoryDto(data)
     }
 
-    override suspend fun add(categoryDto: CategoryDto?): Long? =
-        DBManager.postData(
+    override suspend fun add(categoryDto: CategoryDto?): Long? {
+        val response = DBManager.postData(
             dataClass = CategoryTable::class,
             dataObject = mapper.toCategoryTable(categoryDto),
             tableName = CATEGORY_TABLE_NAME
         )
+        return response
+    }
 
     override suspend fun update(dto: CategoryDto): Boolean {
         val merchantId = dto.merchantId
-        val query = "UPDATE $CATEGORY_TABLE_NAME " +
+        val query = "UPDATE $CATEGORY_TABLE_NAME c" +
                 "SET" +
-                " name_uz = ?, " +
-                " name_ru = ?," +
-                " name_eng = ?," +
-                " image = ?, " +
-                " priority = ${dto.priority}," +
-                " group_id = ${dto.groupId}," +
+                " coalesce(?, c.name_uz), " +
+                " coalesce(?, c.name_ru)," +
+                " coalesce(?, c.name_eng)," +
+                " coalesce(?, c.image)," +
+                " priority = coalesce(${dto.priority}, c.priority)," +
+                " group_id = coalesce(${dto.groupId}, c.group_id)," +
                 " updated = ? \n" +
                 " WHERE id = ${dto.id} and merchant_id = $merchantId and not deleted"
 
-        withContext(Dispatchers.IO) {
-            StaffService.repository.connection().use { c ->
-                c.prepareStatement(query).apply {
+        return withContext(DBManager.databaseDispatcher) {
+            StaffService.repository.connection().use {
+                return@withContext it.prepareStatement(query).apply {
                     this.setString(1, dto.name?.uz)
                     this.setString(2, dto.name?.ru)
                     this.setString(3, dto.name?.eng)
@@ -276,18 +279,15 @@ object CategoryRepositoryImpl : CategoryRepository {
                 }.execute()
             }
         }
-        return true
     }
-
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
         val query = "update $CATEGORY_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { it ->
-                it.prepareStatement(query).execute()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                return@withContext it.prepareStatement(query).execute()
             }
         }
-        return true
     }
 
     override suspend fun getCategoryByName(merchantId: Long?, lang: Language, text: String?): CategoryDto? {
