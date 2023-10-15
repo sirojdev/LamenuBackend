@@ -3,6 +3,7 @@ package mimsoft.io
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.runBlocking
+import mimsoft.io.ssl.sslConfiguration
 import mimsoft.io.utils.plugins.*
 
 
@@ -17,4 +18,5 @@ fun Application.module() = runBlocking {
     configureRouting()
     configureSocket()
     configureFirebase()
+    sslConfiguration()
 }

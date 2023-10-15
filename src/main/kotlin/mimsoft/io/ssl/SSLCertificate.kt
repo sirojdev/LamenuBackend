@@ -9,12 +9,14 @@ import javax.net.ssl.X509TrustManager
 
 object SslSettings {
     fun getKeyStore(): KeyStore {
-//        val keyStoreFile = FileInputStream("/root/pay/keystore_last.jks")
-        val keyStoreFile = FileInputStream("D:\\LaMenu\\backend\\keystore_last.jks")
-        val keyStorePassword = "m1msofTim".toCharArray()
+//        val keyStoreFile = FileInputStream("/root/pay/keystore_12.jks")
+        val keyStoreFile = FileInputStream("D:\\LaMenu\\backend\\uzum.jks")
+        val keyStorePassword = "m1msoftUzum".toCharArray()
         val keyStore: KeyStore = KeyStore.getInstance(KeyStore.getDefaultType())
         keyStore.load(keyStoreFile, keyStorePassword)
         return keyStore
+
+
     }
 
 
@@ -23,7 +25,11 @@ object SslSettings {
         trustManagerFactory.init(getKeyStore())
         return trustManagerFactory
     }
-
+    fun getSslContext(): SSLContext? {
+        val sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(null, getTrustManagerFactory()?.trustManagers, null)
+        return sslContext
+    }
 
 
     fun getTrustManager(): X509TrustManager {

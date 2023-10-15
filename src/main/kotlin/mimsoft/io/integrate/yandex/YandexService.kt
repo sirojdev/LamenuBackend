@@ -20,6 +20,7 @@ import mimsoft.io.integrate.yandex.repository.YandexRepository
 import mimsoft.io.utils.ResponseModel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.Random
 import java.util.UUID
 
 object YandexService {
@@ -101,7 +102,7 @@ object YandexService {
         if (yandexOrder.items == null) yandexOrder.items = arrayListOf(
             YandexOrderItem(
                 costCurrency = "UZS",
-                costValue = "0",
+                costValue = order?.totalPrice.toString(),
                 droppofPoint = 2,
                 pickupPoint = 1,
                 quantity = 1,
@@ -186,7 +187,7 @@ object YandexService {
         yandexOrder.items = arrayListOf(
             YandexOrderItem(
                 costCurrency = "UZS",
-                costValue = "0",
+                costValue = order?.totalPrice.toString(),
                 droppofPoint = 2,
                 pickupPoint = 1,
                 quantity = 1,
@@ -214,12 +215,13 @@ object YandexService {
                 externalOrderCost = ExternalOrderCost(
                     currency = "UZS",
                     currencySign = "₽",
-                    value = "0"
+                    value = order.totalPrice.toString()
                 ),
                 externalOrderId = "${order.id}",
                 type = "source",
                 pointId = 1,
-                visitOrder = 1
+                visitOrder = 1,
+                pickupCode = generateCode().toString()
             ),
             YandexOrderRoutePoint(
                 address = Address(
@@ -238,7 +240,7 @@ object YandexService {
                 externalOrderCost = ExternalOrderCost(
                     currency = "UZS",
                     currencySign = "₽",
-                    value = "0"
+                    value = order.totalPrice.toString()
                 ),
                 externalOrderId = "${order.id}",
                 type = "destination",
@@ -247,6 +249,10 @@ object YandexService {
             )
         ).also { yandexOrder.routePoints = it }
         return yandexOrder
+    }
+
+    private fun generateCode(): Int? {
+        return Random().nextInt(900000) + 100000
     }
 
     suspend fun tariff(branchId: Long?, merchantId: Long?): ResponseModel {
@@ -294,15 +300,15 @@ object YandexService {
         val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
 
-        val body = YandexConfirm(version = 1)
+        val body = YandexConfirm(version = yOrder.version)
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yOrder.claimId}"
         val response = createPostRequest(url, body, yOrder.yandexKey.toString())
         log.info("response $response")
         log.info("body ${response.body<String>()}")
         return when (response.status.value) {
             200 -> {
-                val confirmDto = Gson().fromJson(response.body<String>(), YandexConfirm::class.java)
-//                YandexRepository.update()
+                val confirmDto = Gson().fromJson(response.body<String>(), AcceptResponse::class.java)
+                confirmDto.version?.let { YandexRepository.update(yOrder.orderId, it, confirmDto.status) }
                 ResponseModel(body = response.body<String>(), response.status)
             }
 
@@ -390,9 +396,15 @@ object YandexService {
     suspend fun cancel(orderId: Long?, merchantId: Long?, state: String?): Any {
         val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
             ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-        val body = YandexCancel(cancelState = state, version = 1)
+        val body = YandexCancel(cancelState = state, version = yOrder.version)
         val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel?claim_id=${yOrder.claimId}"
         val response = createPostRequest(url, body, yOrder.yandexKey.toString())
+        val cancelResponse = Gson().fromJson(response.body<String>(), YandexCancelResponse::class.java)
+        YandexRepository.update(
+            yOrder.orderId,
+            cancelResponse.version ?: (yOrder.version ?: 1 + 1),
+            cancelResponse.status
+        )
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -446,12 +458,13 @@ object YandexService {
         return when (response.status.value) {
             200 -> {
                 val responseDto = Gson().fromJson(response.body<String>(), YandexOrderResponse::class.java)
-                YandexRepository.update(
-                    yandexOrder?.orderId, (yandexOrder?.version ?: 1) + 1
-                )
+                (responseDto.version ?: yandexOrder?.version?.plus(1))?.let {
+                    YandexRepository.update(
+                        yandexOrder?.orderId, it, responseDto.status?:"new"
+                    )
+                }
                 return ResponseModel(httpStatus = response.status, body = response.body<String>())
             }
-
             else -> {
                 ResponseModel(httpStatus = response.status, body = response.body<String>())
             }
