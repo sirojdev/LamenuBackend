@@ -17,6 +17,7 @@ import mimsoft.io.services.socket.SocketData
 import mimsoft.io.services.socket.SocketType
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.waiter.WaiterService
+import mimsoft.io.waiter.table.repository.WaiterTableRepository
 import java.sql.Timestamp
 
 
@@ -30,6 +31,7 @@ fun Route.toWaiterSocket() {
                 val principal = call.principal<BasePrincipal>()
                 val staffId = principal?.staffId
                 val merchantId = principal?.merchantId
+                val branchId = principal?.branchId
                 val uuid = principal?.uuid
                 try {
                     WaiterSocketService.setConnection(staffId, merchantId, uuid, this)
@@ -40,7 +42,7 @@ fun Route.toWaiterSocket() {
                         val data: SocketData? = Gson().fromJson(receivedText, SocketData::class.java)
                         when (data?.type) {
                             SocketType.CONNECT -> connectMethod(data, staffId)
-                            SocketType.NEW_ORDER -> newOrder(data, conn, staffId, merchantId)
+                            SocketType.ACCEPT -> acceptOrder(data, conn, staffId,branchId = branchId)
                             else -> {}
                         }
                     }
@@ -62,12 +64,43 @@ fun Route.toWaiterSocket() {
     }
 }
 
-suspend fun newOrder(data: SocketData, conn: WaiterSocketConnection, staffId: Long?, merchantId: Long?) {
+
+suspend fun acceptOrder(data: SocketData, conn: WaiterSocketConnection, staffId: Long?, branchId: Long?) {
     val newOrder = Gson().fromJson(data.data.toString(), WaiterNewOrderDto::class.java)
     if (newOrder.roomId == null || newOrder.tableId == null) {
-
+        conn.session?.send(
+            Gson().toJson(
+                SocketData(
+                    type = SocketType.RESPONSE_ACCEPT,
+                    data = Gson().toJson(newOrder.copy(status = false))
+                )
+            )
+        )
     } else {
-//        WaiterService.jo
+        val rs = WaiterTableRepository.joinToWaiter(
+            waiterId = staffId,
+            branchId = branchId,
+            newOrder
+        )
+        if (rs) {
+            conn.session?.send(
+                Gson().toJson(
+                    SocketData(
+                        type = SocketType.RESPONSE_ACCEPT,
+                        data = Gson().toJson(newOrder.copy(status = true))
+                    )
+                )
+            )
+        } else {
+            conn.session?.send(
+                Gson().toJson(
+                    SocketData(
+                        type = SocketType.RESPONSE_ACCEPT,
+                        data = Gson().toJson(newOrder.copy(status = false))
+                    )
+                )
+            )
+        }
     }
 }
 

@@ -18,7 +18,7 @@ fun Route.routeToMerchantWaitersTable() {
             val waiterId = call.parameters["waiterId"]?.toLong()
             val merchantId = merchantPrincipal?.merchantId
             val rs = waterTableRepository.joinToWaiter(waiterId, tableId, merchantId)
-            if (rs != null) {
+            if (rs) {
                 call.respond(HttpStatusCode.OK, rs)
             } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)
@@ -32,13 +32,13 @@ fun Route.routeToMerchantWaitersTable() {
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val isExist = StaffService.isExist(waiterId, merchantId, branchId)
-            if(isExist){
+            if (isExist) {
                 val activeTables = waterTableRepository.getActiveTablesWaiters(waiterId, limit, offset)
                 if (activeTables.data?.isEmpty() == true) {
                     call.respond(HttpStatusCode.NoContent)
                 }
                 call.respond(HttpStatusCode.OK, activeTables)
-            }else{
+            } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }
 
@@ -51,13 +51,13 @@ fun Route.routeToMerchantWaitersTable() {
             val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
             val isExist = StaffService.isExist(waiterId, merchantId, branchId)
-            if(isExist){
+            if (isExist) {
                 val activeTables = waterTableRepository.getFinishedTablesWaiters(waiterId, limit, offset)
                 if (activeTables.data?.isEmpty() == true) {
                     call.respond(HttpStatusCode.NoContent)
                 }
                 call.respond(HttpStatusCode.OK, activeTables)
-            }else{
+            } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }
         }
