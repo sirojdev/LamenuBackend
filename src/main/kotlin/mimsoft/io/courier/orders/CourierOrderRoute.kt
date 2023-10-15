@@ -1,11 +1,17 @@
 package mimsoft.io.courier.orders
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.websocket.*
+import mimsoft.io.courier.CourierSocketService
+import mimsoft.io.features.operator.socket.OrderCourierDto
 import mimsoft.io.features.order.OrderService
+import mimsoft.io.services.socket.SocketData
+import mimsoft.io.services.socket.SocketType
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
@@ -14,6 +20,8 @@ fun Route.routeToCourierOrders() {
 
     val courierOrderService = CourierOrderService
     route("order") {
+
+
         get("") {
             val principal = call.principal<BasePrincipal>()
             val status = call.parameters["status"]
@@ -81,8 +89,8 @@ fun Route.routeToCourierOrders() {
             val lat = call.parameters["lat"]
             val principal = call.principal<BasePrincipal>()
             val courierId = principal?.staffId
-            if (orderId==null||long==null||lat==null){
-                call.respond(HttpStatusCode.BadRequest,"orderId or latitude or longitude is null")
+            if (orderId == null || long == null || lat == null) {
+                call.respond(HttpStatusCode.BadRequest, "orderId or latitude or longitude is null")
             }
             call.respond(
                 courierOrderService.toDelivered(

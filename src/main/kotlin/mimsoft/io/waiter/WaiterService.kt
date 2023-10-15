@@ -2,6 +2,7 @@ package mimsoft.io.waiter
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.courier.COURIER_TABLE_NAME
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
@@ -12,6 +13,7 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.waiter.info.WaiterInfoDto
+import mimsoft.io.waiter.table.WAITER_TABLE_NAME
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
@@ -118,6 +120,17 @@ object WaiterService {
             }
         }
         return rs == 1
+    }
+
+    suspend fun updateIsActive(staffId: Long?, isActive: Boolean) {
+        val query = """ update waiter set is_active = ? where staff_id = $staffId""".trimIndent()
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setBoolean(1, isActive)
+                }.executeUpdate()
+            }
+        }
     }
 
     suspend fun logout(uuid: String?): Boolean {
