@@ -74,7 +74,7 @@ object StaffService {
                         merchantId = staffDto.merchantId,
                         phone = staffDto.phone,
                         stuffId = staffDto.id,
-                        role = "operator",
+                        role = "OPERATOR",
                         isExpired = false
                     )
                 )

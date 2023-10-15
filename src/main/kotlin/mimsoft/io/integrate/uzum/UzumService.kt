@@ -1,5 +1,4 @@
 package mimsoft.io.integrate.uzum
-
 import com.google.gson.Gson
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -91,7 +90,7 @@ object UzumService {
                 append("Content-Type", "application/json")
                 append("X-Operation-Id", UUID.randomUUID().toString())
                 append("Content-Language", "uz-UZ")
-                append("X-Signature", generateSignature(securityToken, generateKeys()))
+                append("X-Signature", generateSignature(payment?.uzumSecretSignature.toString(), generateKeys()))
                 append("X-API-Key", payment?.uzumApiKey.toString())
                 append("X-Terminal-Id", payment?.uzumTerminalId ?: "")
             }
@@ -221,6 +220,7 @@ object UzumService {
                 }
                 setBody(Gson().toJson(body))
             }
+            return ResponseModel(httpStatus = response.status, body = response.body<String>())
         } catch (e: Exception) {
             e.printStackTrace()
             try {
@@ -232,39 +232,11 @@ object UzumService {
                     }
                     setBody(Gson().toJson(body))
                 }
+                return ResponseModel(httpStatus = response.status, body = response.body<String>())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-
-//sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
-//        val json = Gson().toJson(body)
-//        val stringEntity = StringEntity(json, ContentType.APPLICATION_JSON)
-//        val entity = stringEntity
-//
-//        val httpClient = createAcceptSelfSignedCertificateClient()
-//        val httpPost = HttpPost("https://ofd.ipt-merch.com/fiscal_receipt_generation")
-//        httpPost.addHeader("ssl_client_fingerprint", payment?.uzumFiscal.toString())
-//        httpPost.entity = entity
-//        httpPost.setHeader("Accept", "application/json")
-//        httpPost.setHeader("Content-type", "application/json")
-//
-//        val response = httpClient?.execute(httpPost)
-//
-//        try {
-//            val responseText = EntityUtils.toString(response?.entity)
-//            log.info("fiscal response $responseText")
-//
-//            return ResponseModel(
-//                body = responseText
-//            )
-//        } finally {
-//            response?.close()
-//        }
-
-//        log.info("fiscal response ${response.body<String>()}")
-//        log.info("fiscal response ${response.status.value}")
-//        return ResponseModel(httpStatus = response.status, body = response.body())
         return ResponseModel(httpStatus = HttpStatusCode.OK, body = "OK")
     }
 
