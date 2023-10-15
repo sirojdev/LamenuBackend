@@ -17,7 +17,7 @@ data class YandexOrderResponse(
     @SerializedName("eta") var eta: Int? = null,
     @SerializedName("id") var id: String? = null,
     @SerializedName("items") var items: ArrayList<Items>? = null,
-    @SerializedName("matched_cars") var matchedCars: ArrayList<MatchedCars> ?= null,
+    @SerializedName("matched_cars") var matchedCars: ArrayList<MatchedCars>? = null,
     @SerializedName("optional_return") var optionalReturn: Boolean? = null,
     @SerializedName("performer_info") var performerInfo: PerformerInfo? = null,
     @SerializedName("pricing") var pricing: Pricing? = null,
@@ -31,7 +31,9 @@ data class YandexOrderResponse(
     @SerializedName("status") var status: String? = null,
     @SerializedName("taxi_offer") var taxiOffer: TaxiOffer? = null,
     @SerializedName("updated_ts") var updatedTs: String? = null,
-    @SerializedName("warnings") var warnings: ArrayList<Warning>? = null
+    var version: Int? = null,
+    @SerializedName("warnings")
+    var warnings: ArrayList<Warning>? = null
 )
 
 data class CarrierInfo(

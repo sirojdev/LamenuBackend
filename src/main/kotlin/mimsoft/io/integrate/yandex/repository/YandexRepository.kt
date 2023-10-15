@@ -100,13 +100,14 @@ object YandexRepository {
         )
     }
 
-    suspend fun update(orderId: Long?, version: Int): Boolean {
-        val query = """update yandex set version = $version where order_id = $orderId"""
+    suspend fun update(orderId: Long?, version: Int,status:String?): Boolean {
+        val query = """update yandex set version = $version ,order_status = ? where order_id = $orderId"""
         log.info("update version order = $orderId to $version")
         var result=false
         withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
                 val rs = connection.prepareStatement(query).apply {
+                    setString(1,status?:"new")
                     this.closeOnCompletion()
                 }.executeUpdate()
                 if (rs==1){

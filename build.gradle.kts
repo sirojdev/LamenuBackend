@@ -30,6 +30,10 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
+    implementation ("org.apache.httpcomponents:httpclient:4.5.12")
+    implementation("io.ktor:ktor-client-apache5:$ktor_version")
     implementation("io.ktor:ktor-network-tls-certificates:$ktor_version")
     implementation("org.hibernate:hibernate-validator:8.0.1.Final")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
