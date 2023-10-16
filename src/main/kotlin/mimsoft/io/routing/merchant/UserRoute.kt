@@ -10,6 +10,7 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.utils.principal.BasePrincipal
+import kotlin.math.min
 
 fun Route.routeToUserUser() {
 
@@ -20,35 +21,20 @@ fun Route.routeToUserUser() {
         val merchantId = principal?.merchantId
         val search = call.parameters["search"]
         val filters = call.parameters["filters"]
-        val badgeId = call.parameters["badgeId"]?.toLongOrNull()
-        val limit = call.parameters["limit"]?.toLongOrNull()
-        val offset = call.parameters["offset"]?.toLongOrNull()
+        val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
+        val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
         val users = userRepository.getAll(
             merchantId = merchantId,
             search = search,
             filters = filters,
-            badgeId = badgeId,
             limit = limit,
             offset = offset,
         )
-        call.respond(users)
-        return@get
-    }
-
-    get("user/{id}") {
-        val principal = call.principal<BasePrincipal>()
-        val merchantId = principal?.merchantId
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
+        if (users.data?.isNotEmpty() == true) {
+            call.respond(users)
             return@get
         }
-        val user = userRepository.get(id = id, merchantId = merchantId)
-        if (user == null) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        }
-        call.respond(user)
+        call.respond(HttpStatusCode.NotFound)
     }
 
     post("user") {
@@ -89,5 +75,21 @@ fun Route.routeToUserUser() {
         if (response)
             call.respond(response)
         call.respond(HttpStatusCode.NoContent)
+    }
+
+    get("user/{id}") {
+        val principal = call.principal<BasePrincipal>()
+        val merchantId = principal?.merchantId
+        val id = call.parameters["id"]?.toLongOrNull()
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        val user = userRepository.get(id = id, merchantId = merchantId)
+        if (user == null) {
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        }
+        call.respond(user)
     }
 }

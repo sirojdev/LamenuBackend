@@ -28,7 +28,7 @@ object ClientPromoService {
                         PromoDto(
                             id = rs.getLong("id"),
                             merchantId = rs.getLong("merchant_id"),
-                            amount = rs.getLong("amount"),
+                            amount = rs.getDouble("amount"),
                             name = rs.getString("name"),
                             discountType = rs.getString("discount_type"),
                             deliveryDiscount = rs.getDouble("delivery_discount"),
@@ -80,7 +80,7 @@ object ClientPromoService {
                             promo = PromoDto(
                                 id = rs.getLong("p_id"),
                                 name = rs.getString("p_name"),
-                                amount = rs.getLong("amount"),
+                                amount = rs.getDouble("amount"),
                             )
                         )
                     )
