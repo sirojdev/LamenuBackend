@@ -21,18 +21,22 @@ object WaiterBookService {
         val query =
             """insert into book (merchant_id,client_id,table_id,time,created,
                 comment,status,visitor_count,branch_id) 
-                values (${principal?.merchantId},$clientId,${book.tableId},${book.time},now(),
+                values (${principal?.merchantId},$clientId,${book.tableId},?,now(),
                 ?,?,${book.visitorCount},${principal?.branchId})""".trimMargin()
 
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 return@withContext it.prepareStatement(query).apply {
-                    setString(1, book.comment)
-                    setString(2, BookStatus.NOT_ACCEPTED.name)
+                    setTimestamp(1, book.time)
+                    setString(2, book.comment)
+                    setString(3, BookStatus.NOT_ACCEPTED.name)
                 }.executeUpdate() == 1
             }
         }
-        return if (user == null) book.copy(client = user) else book.copy(client = book.client?.copy(id = clientId))
+        /**
+         * Operatorga notification ketishi kerak shu yerda
+         * */
+        return if (user != null) book.copy(client = user) else book.copy(client = book.client?.copy(id = clientId))
     }
 
 }
