@@ -170,6 +170,35 @@ object UserRepositoryImpl : UserRepository {
         )?.data?.firstOrNull()?.let { mapper.toUserDto(it) }
     }
 
+    suspend fun getUserWithBadge(phone: String?, merchantId: Long?): UserDto? {
+        val query =
+            """select * from users u left join badge b on b.id=u.badge_id where u.phone = ?,merchant_id = $merchantId """
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, phone)
+                }.executeQuery()
+                if (rs.next()) return@withContext UserDto(
+                    firstName = rs.getString("first_name"),
+                    lastName = rs.getString("last_name"),
+                    phone = rs.getString("phone"),
+                    image = rs.getString("image"),
+                    badge = BadgeDto(
+                        name = TextModel(
+                            uz = rs.getString("name_uz"),
+                            ru = rs.getString("name_ru"),
+                            eng = rs.getString("name_eng"),
+                        ),
+                        textColor = rs.getString("text_color"),
+                        icon = rs.getString("icon"),
+                        bgColor = rs.getString("bg_color")
+                    )
+                )
+            }
+        }
+        return null
+    }
+
     override suspend fun add(userDto: UserDto?): ResponseModel {
         if (userDto?.birthDay != null) {
             val statusTimestamp = timestampValidator(userDto.birthDay.toString())
@@ -253,6 +282,21 @@ object UserRepositoryImpl : UserRepository {
         return ResponseModel(
             body = rs == 1
         )
+    }
+
+    suspend fun addNewClientFromWaiter(phone: String): Long? {
+        var query = """
+            insert into users (phone,created)
+            values(?,now())  
+                      returning id
+        """.trimIndent()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) return@withContext rs.getLong("id")
+            }
+        }
+        return null
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
