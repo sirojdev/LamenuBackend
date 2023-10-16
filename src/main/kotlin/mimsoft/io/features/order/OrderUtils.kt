@@ -662,6 +662,7 @@ object OrderUtils {
                     b.name_eng b_name_eng , 
                     b.longitude b_longitude,
                     b.latitude b_latitude ,
+                    b.address b_address,
                     b.jowi_id b_jowi_id """ else "") +
                 (if (columnsSet.contains("payment_type"))
                     """,
@@ -820,6 +821,7 @@ object OrderUtils {
                     ru = result["b_name_ru"] as String?,
                     eng = result["b_name_eng"] as String?
                 ),
+                address = result["b_address"] as String?,
                 jowiId = result["b_jowi_id"] as String?,
                 longitude = result["b_longitude"] as Double?,
                 latitude = result["b_latitude"] as Double?,

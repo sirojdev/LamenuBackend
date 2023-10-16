@@ -79,15 +79,15 @@ fun Route.routeToOrder() {
             val orderId = call.parameters["orderId"]?.toLongOrNull()
             val merchantId = principal?.merchantId
             val rs = orderService.accepted(merchantId, orderId)
-            val order = OrderService.get(orderId).body as Order
             if (rs) {
-                FirebaseService.sendNotificationOrderToClient(order)
-                val offsett = 0
-                OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
-                val offSet = 0
-                OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offSet)
-                BoardSocketService.sendOrderToBoard(order, BoardOrderStatus.IN_PROGRESS, Action.ADD)
                 call.respond(rs)
+//                FirebaseService.sendNotificationOrderToClient(order)
+                val offsett = 0
+                val order = OrderService.getById(orderId, "user", "branch", "address")
+                if (order!=null){
+                    OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
+                    BoardSocketService.sendOrderToBoard(order, BoardOrderStatus.IN_PROGRESS, Action.ADD)
+                }
             } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)
             }

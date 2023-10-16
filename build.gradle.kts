@@ -30,6 +30,12 @@ repositories {
 }
 
 dependencies {
+    implementation("org.glassfish.web:javax.el:2.2.5")
+    implementation("javax.el:javax.el-api:3.0.0")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
+    implementation ("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("io.ktor:ktor-client-apache5:$ktor_version")
+    implementation("io.ktor:ktor-network-tls-certificates:$ktor_version")
     implementation("org.hibernate:hibernate-validator:8.0.1.Final")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
     implementation("com.google.firebase:firebase-admin:9.2.0")

@@ -5,5 +5,6 @@ enum class StaffPosition {
     COLLECTOR,
     COURIER,
     ADMIN,
-    BRANCH
+    BRANCH,
+    OPERATOR,
 }

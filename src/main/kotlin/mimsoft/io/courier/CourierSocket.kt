@@ -32,7 +32,6 @@ fun Route.toCourierSocket() {
                 val uuid = principal?.uuid
                 try {
                     println(principal?.staffId)
-//                    CourierService.updateIsActive(staffId, true)
                     CourierSocketService.setConnection(
                         CourierConnection(
                             staffId = staffId,
