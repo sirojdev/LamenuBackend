@@ -2,48 +2,71 @@ package mimsoft.io.features.promo
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.sms.SmsFilters
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.plugins.LOGGER
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
+import javax.management.Query.div
 
 object PromoService {
+
     val repository: BaseRepository = DBManager
     val mapper = PromoMapper
-    suspend fun getAll(merchantId: Long?, limit: Int, offset: Int): DataPage<PromoDto> {
-        val query =
-            "select * ,count(*) over() as total from $PROMO_TABLE_NAME where merchant_id = $merchantId and deleted = false  limit $limit offset $offset"
-        LOGGER.info("getAll query: $query")
-        var totalCount = 0
+    val log: Logger = LoggerFactory.getLogger(PromoService::class.java)
 
-        return withContext(Dispatchers.IO) {
-            val promos = arrayListOf<PromoDto>()
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                while (rs.next()) {
-                    if (totalCount == 0) {
-                        totalCount = rs.getInt("total")
-                    }
-                    val promo = PromoDto(
-                        id = rs.getLong("id"),
-                        discountType = (rs.getString("discount_type")),
-                        deliveryDiscount = rs.getDouble("delivery_discount"),
-                        productDiscount = rs.getDouble("product_discount"),
-                        isPublic = rs.getBoolean("is_public"),
-                        minAmount = rs.getDouble("min_amount"),
-                        startDate = rs.getTimestamp("start_date"),
-                        endDate = rs.getTimestamp("end_date"),
-                        amount = rs.getLong("amount"),
-                        name = rs.getString("name")
-                    )
-                    promos.add(promo)
-                }
-
-                return@withContext DataPage(promos, totalCount)
-            }
+    suspend fun getAll(
+        merchantId: Long?,
+        limit: Int,
+        offset: Int
+    ): DataPage<PromoDto> {
+        val query = StringBuilder()
+        query.append(
+            """
+                select id,
+                       name,
+                       discount_type,
+                       product_discount,
+                       delivery_discount,
+                       is_public,
+                       min_amount,
+                       start_date,
+                       end_date,
+                       amount
+                from promo
+                where not deleted
+                  and merchant_id = $merchantId
+                order by created desc
+                limit $limit offset $offset
+            """.trimIndent()
+        )
+        log.info("query: $query")
+        val mutableList = mutableListOf<PromoDto>()
+        repository.selectList(query.toString()).forEach {
+            val productDiscount = (it["product_discount"] as? Long)?.div(100)
+            val deliveryDiscount = (it["delivery_discount"] as? Long)?.div(100)
+            val minAmount = (it["min_amount"] as? Long)?.div(100)
+            val amount = (it["amount"] as? Long)?.div(100)
+            mutableList.add(
+                PromoDto(
+                    id = it["id"] as? Long,
+                    name = it["name"] as? String,
+                    discountType = it["discount_type"] as? String,
+                    productDiscount = productDiscount?.toDouble(),
+                    deliveryDiscount = deliveryDiscount?.toDouble(),
+                    isPublic = it["is_public"] as? Boolean,
+                    minAmount = minAmount?.toDouble(),
+                    startDate = it["start_date"] as? Timestamp,
+                    endDate = it["end_date"] as? Timestamp,
+                    amount = amount?.toDouble()
+                )
+            )
         }
+        return DataPage(data = mutableList, total = mutableList.size)
     }
 
     suspend fun add(dto: PromoDto): Long? =
@@ -54,11 +77,13 @@ object PromoService {
         )
 
     suspend fun update(dto: PromoDto): Boolean {
-        var rs = 0
-        val query = """
+        var rs: Int
+        val query = StringBuilder()
+        query.append(
+            """
             update promo p
-            set discount_type     = COALESCE(?, p.discount_type),
-                name              = COALESCE(?, p.name),
+            set discount_type     = coalesce(?, p.discount_type),
+                name              = coalesce(?, p.name),
                 delivery_discount = coalesce(${dto.deliveryDiscount}, p.delivery_discount),
                 amount            = coalesce(${dto.amount}, p.amount),
                 product_discount  = coalesce(${dto.productDiscount}, p.product_discount),
@@ -67,13 +92,15 @@ object PromoService {
                 start_date        = coalesce(?, p.start_date),
                 end_date          = coalesce(?, p.end_date),
                 updated           = ?
-            where id = ${dto.id}
+            where not deleted
+              and id = ${dto.id}
               and merchant_id = ${dto.merchantId}
-              and not deleted
         """.trimIndent()
+        )
+        log.info("query: $query")
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                rs = it.prepareStatement(query).use { ti ->
+                rs = it.prepareStatement(query.toString()).use { ti ->
                     ti.setString(1, dto.discountType)
                     ti.setString(2, dto.name)
                     ti.setTimestamp(3, dto.startDate)
@@ -86,19 +113,22 @@ object PromoService {
         return rs == 1
     }
 
-
     suspend fun delete(id: Long?, merchantId: Long?): Boolean {
-        var rs = 0
-        val query = """
+        var rs: Int
+        val query = StringBuilder()
+        query.append(
+            """
             update promo
             set deleted = true
             where id = $id
               and merchant_id = $merchantId
               and not deleted
         """.trimIndent()
-        withContext(Dispatchers.IO) {
+        )
+        log.info("query: $query")
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                rs = it.prepareStatement(query).apply {
+                rs = it.prepareStatement(query.toString()).apply {
                     this.closeOnCompletion()
                 }.executeUpdate()
             }
@@ -121,14 +151,13 @@ object PromoService {
                         minAmount = rs.getDouble("min_amount"),
                         startDate = rs.getTimestamp("start_date"),
                         endDate = rs.getTimestamp("end_date"),
-                        amount = rs.getLong("amount"),
+                        amount = rs.getDouble("amount"),
                         name = rs.getString("name")
                     )
                 } else return@withContext null
             }
         }
     }
-
 
     suspend fun getPromoByCode(name: String?): PromoDto? {
         val query = """
@@ -144,7 +173,7 @@ object PromoService {
                     return@withContext PromoDto(
                         id = rs.getLong("id"),
                         name = rs.getString("name"),
-                        amount = rs.getLong("amount"),
+                        amount = rs.getDouble("amount"),
                         discountType = (rs.getString("discount_type")),
                         deliveryDiscount = rs.getDouble("delivery_discount"),
                         productDiscount = rs.getDouble("product_discount"),

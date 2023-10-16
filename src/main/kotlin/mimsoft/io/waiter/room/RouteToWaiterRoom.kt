@@ -19,7 +19,7 @@ fun Route.routeToWaiterRoom() {
         val pr = call.principal<BasePrincipal>()
         val roomId = call.parameters["roomId"]?.toLongOrNull()
         val branchId = pr?.branchId
-        val tables = roomService.getWithTableForWaiter(roomId=roomId, branchId = branchId)
+        val tables = roomService.getWithTableForWaiter(roomId = roomId, branchId = branchId)
         val response = ResponseData(data = RoomWithTableDto(roomId = roomId, tables = tables))
         call.respond(response)
     }
