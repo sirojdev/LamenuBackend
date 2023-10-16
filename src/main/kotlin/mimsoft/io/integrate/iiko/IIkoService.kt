@@ -83,6 +83,7 @@ object IIkoService {
 //            getBranches(merchantId)
 //        }
 //        return GSON.fromJson(response.body<String>(), IIkoOrganization::class.java).organizations
+        return Organization()
     }
 
 
