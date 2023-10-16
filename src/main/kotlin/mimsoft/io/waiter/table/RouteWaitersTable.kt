@@ -29,8 +29,8 @@ fun Route.routeToWaitersTables() {
             val staffPrincipal = call.principal<BasePrincipal>()
             val tableId = call.parameters["tableId"]?.toLong()
             val waiterId = staffPrincipal?.staffId
-            val rs = waiterTableRepository.joinToWaiter(waiterId, tableId, staffPrincipal?.merchantId)
-            if (rs != null) {
+            val rs = waiterTableRepository.joinToWaiter(waiterId, tableId, staffPrincipal?.branchId)
+            if (rs) {
                 call.respond(HttpStatusCode.OK, rs)
             } else {
                 call.respond(HttpStatusCode.MethodNotAllowed)

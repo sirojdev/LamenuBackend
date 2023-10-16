@@ -1,8 +1,8 @@
 package mimsoft.io.waiter.socket
 
 data class WaiterNewOrderDto(
-    val clientFirstName: String? = null,
-    val clientLastName: String? = null,
+    val visitId: Long? = null,
     val roomId: Long? = null,
-    val tableId: Long? = null
+    val tableId: Long? = null,
+    val status: Boolean? = null
 )
