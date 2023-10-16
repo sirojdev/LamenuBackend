@@ -39,7 +39,8 @@ object MerchantIntegrateRepository {
                 if (rs.next()) {
                     result = MerchantIntegrateDto(
                         merchantId = rs.getLong("merchant_id"),
-                        yandexDeliveryKey = rs.getString("yandex_delivery_key")
+                        yandexDeliveryKey = rs.getString("yandex_delivery_key"),
+                        iikoApiLogin = rs.getString("iiko_api_login")
                     )
                 }
             }
