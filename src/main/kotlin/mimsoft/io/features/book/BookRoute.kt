@@ -2,17 +2,14 @@ package mimsoft.io.features.book
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.book.repository.BookRepository
 import mimsoft.io.features.book.repository.BookRepositoryImpl
-import mimsoft.io.features.category.ClientCategoryDto
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.utils.plugins.getPrincipal
-import mimsoft.io.utils.principal.BasePrincipal
-import okhttp3.internal.userAgent
 
 fun Route.routeToBook() {
 
@@ -48,10 +45,11 @@ fun Route.routeToBook() {
         val pr = getPrincipal()
         val userId = pr?.userId
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val book = call.receive<BookDto>()
         println(book)
         book.status = BookStatus.NOT_ACCEPTED
-        val response = bookRepository.add(book.copy(merchantId = merchantId, client = UserDto(id = userId)))
+        val response = bookRepository.add(book.copy(merchantId = merchantId, branch = BranchDto(id = branchId), client = UserDto(id = userId)))
         call.respond(response.httpStatus, response.body)
     }
 

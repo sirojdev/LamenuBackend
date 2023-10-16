@@ -114,7 +114,7 @@ object OrderUtils {
         return query + joins + conditions
     }
 
-    fun joinQuery(id: Long?): String {
+    fun joinQuery(id: Long?, merchantId: Long?): String {
         var query = """
             SELECT 
             o.id o_id,
@@ -148,7 +148,7 @@ object OrderUtils {
             LEFT JOIN order_price op on o.id = op.order_id 
         """.trimIndent()
         val conditions = """
-            WHERE o.deleted = false and o.id = $id
+            WHERE o.deleted = false and o.id = $id and o.merchant_id = $merchantId
         """.trimIndent()
 
         query += """

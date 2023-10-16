@@ -19,5 +19,6 @@ data class VisitDto(
     val isActive:Boolean? = null,
     val payment: PaymentTypeDto? = null,
     val price: Double? = null,
-    val clientCount: Int? = null
+    val clientCount: Int? = null,
+    val branchId: Long? = null
 )

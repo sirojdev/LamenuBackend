@@ -7,7 +7,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 
 fun Route.routeToCollector() {

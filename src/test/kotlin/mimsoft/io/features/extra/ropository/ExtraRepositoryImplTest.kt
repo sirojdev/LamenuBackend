@@ -14,7 +14,7 @@ class ExtraRepositoryImplTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 11212
-        val response = extraRepositoryImpl.getAll(merchantId)
+        val response = extraRepositoryImpl.getAll(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -23,7 +23,7 @@ class ExtraRepositoryImplTest {
     fun get() = testApplication {
         val merchantId: Long = 1
         val id: Long = 15555
-        val response = extraRepositoryImpl.get(id, merchantId)
+        val response = extraRepositoryImpl.get(id, merchantId, 31)
         if (response != null)
             assertNotNull(response)
     }
@@ -79,7 +79,7 @@ class ExtraRepositoryImplTest {
     fun delete() = testApplication {
         val id: Long = 16
         val merchantId: Long = 1
-        val response = extraRepositoryImpl.delete(id, merchantId)
+        val response = extraRepositoryImpl.delete(id, merchantId, 31)
         if (response)
             assertNotNull(response)
     }

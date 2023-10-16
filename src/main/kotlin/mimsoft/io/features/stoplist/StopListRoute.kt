@@ -26,8 +26,8 @@ fun Route.routeToStopList() {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val stopList = call.receive<StopListDto>()
-            StopListService.add(stopList.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK)
+            val response = StopListService.add(stopList.copy(merchantId = merchantId))
+            call.respond(response)
         }
 
 
@@ -35,8 +35,8 @@ fun Route.routeToStopList() {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val stopList = call.receive<StopListDto>()
-            StopListService.update(stopList.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK)
+            val response = StopListService.update(stopList.copy(merchantId = merchantId))
+            call.respond(response)
         }
 
     }

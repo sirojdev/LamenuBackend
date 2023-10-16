@@ -40,17 +40,17 @@ object OutcomeService {
         }
         if (filter != null) {
             when (filter) {
-                OutcomeFilterTime.TIME.name -> {
+                Filter.TIME.name -> {
                     query += " order by o.created desc "
                 }
 
-                OutcomeFilterTime.STAFF.name -> {
+                Filter.STAFF.name -> {
                     if (staffId != null) {
                         query += " and o.staff_id = $staffId "
                     }
                 }
 
-                OutcomeFilterTime.PRICE.name -> {
+                Filter.PRICE.name -> {
                     query += " order by o.amount desc "
                 }
             }

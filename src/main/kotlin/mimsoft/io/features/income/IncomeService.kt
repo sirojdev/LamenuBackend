@@ -3,7 +3,7 @@ package mimsoft.io.features.income
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.favourite.repository
-import mimsoft.io.features.outcome.OutcomeFilterTime
+import mimsoft.io.features.outcome.Filter
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -23,10 +23,10 @@ object IncomeService {
         }
         if(filter != null){
             when(filter){
-                OutcomeFilterTime.TIME.name -> {
+                Filter.TIME.name -> {
                     query += " order by o.created_at desc "
                 }
-                OutcomeFilterTime.PRICE.name -> {
+                Filter.PRICE.name -> {
                     query += " order by o.total_price desc "
                 }
             }

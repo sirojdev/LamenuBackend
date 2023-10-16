@@ -21,14 +21,15 @@ fun Route.routeToMerchantOrder() {
         }
 
         get("orders/{id}") {
-            call.attributes
             val principal = call.principal<BasePrincipal>()
+            val merchantId = principal?.merchantId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id==null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val order = orderService.get(id)
+            val order = orderService.get(id = id, merchantId = merchantId)
+            call.respond(order)
         }
     }
 }

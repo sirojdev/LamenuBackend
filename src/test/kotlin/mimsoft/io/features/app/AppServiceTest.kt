@@ -2,7 +2,6 @@ package mimsoft.io.features.app
 
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import mimsoft.io.entities.app.AppService
 import kotlin.test.assertNotNull
 
 import kotlin.test.Test

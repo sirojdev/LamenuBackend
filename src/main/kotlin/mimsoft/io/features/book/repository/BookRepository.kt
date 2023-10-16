@@ -10,11 +10,11 @@ interface BookRepository {
     suspend fun add(bookDto: BookDto?): ResponseModel
     suspend fun update(bookDto: BookDto): Boolean
     suspend fun delete(id: Long?, userId: Long?): Boolean
-    suspend fun getAllMerchantBook(merchantId: Long?): List<MerchantBookResponseDto?>
-    suspend fun getMerchantBook(id: Long?, merchantId: Long?): MerchantBookResponseDto?
+    suspend fun getAllBranchBook(merchantId: Long?, branchId: Long?): List<MerchantBookResponseDto?>
+    suspend fun getMerchantBook(id: Long?, merchantId: Long?, branchId: Long?): MerchantBookResponseDto?
     suspend fun addMerchantBook(bookDto: BookDto?): Long?
-    suspend fun updateMerchantBook(bookDto: BookDto): Boolean
-    suspend fun deleteMerchantBook(id: Long?, merchantId: Long?): Boolean
+    suspend fun updateBranchBook(bookDto: BookDto): Boolean
+    suspend fun deleteBranchBook(id: Long?, merchantId: Long?, branchId: Long?): Boolean
     suspend fun toAccepted(merchantId: Long?, bookId: Long?, branchId: Long?): Any
     suspend fun getAllClient(merchantId: Long?, clientId: Long?): List<BookDto?>
 }

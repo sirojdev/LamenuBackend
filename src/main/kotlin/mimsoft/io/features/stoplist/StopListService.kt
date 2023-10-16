@@ -13,13 +13,13 @@ object StopListService {
     val repository: BaseRepository = DBManager
 
     suspend fun decrementCount(id: Long?, merchantId: Long?): Boolean {
-        var rs = 0
+        var rs: Int
         val query = """
             update stoplist
             set count = case when count > 0 then count - 1 else count end
             where id = $id
               and merchant_id = $merchantId
-              and not deleted;
+              and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
             rs = repository.connection().use {
@@ -69,35 +69,19 @@ object StopListService {
     }
 
     private suspend fun updateCount(stopListDto: StopListDto): Boolean {
-        withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
             val query =
                 "update $STOP_LIST_TABLE_NAME set count = count + ${stopListDto.count} where merchant_id = ${stopListDto.merchantId}"
-            repository.connection().use { val rs = it.prepareStatement(query).execute() }
+            repository.connection().use { return@withContext it.prepareStatement(query).execute() }
         }
-        return true
     }
 
-    /*
-        suspend fun update(stopListDto: StopListDto): Boolean {
-            withContext(Dispatchers.IO) {
-                val query = "update $STOP_LIST_TABLE_NAME set " +
-                            " branch_id = ${stopListDto.branchId}, " +
-                            " product_id = ${stopListDto.productId}, " +
-                            " count = ${stopListDto.count}, " +
-                            " updated = ${Timestamp(System.currentTimeMillis())}" +
-                            " where merchant_id = ${stopListDto.merchantId} and id = ${stopListDto.id}"
-                repository.connection().use { val rs = it.prepareStatement(query).executeQuery() }
-            }
-            return true
-        }*/
-
-
     suspend fun update(stopListDto: StopListDto): Boolean {
-        var rs = 0
+        var rs: Int
         val query = """
-            update stoplist
-            set product_id = ${stopListDto.productId},
-                count      = ${stopListDto.count},
+            update stoplist s
+            set product_id = coalesce(${stopListDto.productId}, s.product_id),
+                count      = coalesce(${stopListDto.count}, s.count),
                 updated    = ?
             where merchant_id = ${stopListDto.merchantId}
               and id = ${stopListDto.id}
@@ -117,7 +101,7 @@ object StopListService {
 
     suspend fun getByProduct(productId: Long?): StopListDto? {
         val query = "select * from $STOP_LIST_TABLE_NAME where product_id = $productId and deleted = false"
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {

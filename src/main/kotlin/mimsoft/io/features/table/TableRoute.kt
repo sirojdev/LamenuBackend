@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToTable() {
@@ -23,6 +24,24 @@ fun Route.routeToTable() {
             call.respond(HttpStatusCode.NoContent)
             return@get
         } else call.respond(tables)
+    }
+
+    get("tableByRoom") {
+        val pr = getPrincipal()
+        val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
+        val roomId = call.parameters["roomId"]?.toLongOrNull()
+        if(roomId == null){
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        val response = tableService.getTablesWaiter(roomId = roomId, merchantId = merchantId, branchId = branchId)
+        if (response.isEmpty()){
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        }
+        else
+            call.respond(response)
     }
 
     get("table/{id}") {
@@ -74,7 +93,7 @@ fun Route.routeToTable() {
             call.respond(HttpStatusCode.BadRequest)
             return@delete
         }
-        tableService.delete(id = id, merchantId = merchantId, branchId = branchId)
-        call.respond(HttpStatusCode.OK)
+        val response = tableService.delete(id = id, merchantId = merchantId, branchId = branchId)
+        call.respond(response)
     }
 }

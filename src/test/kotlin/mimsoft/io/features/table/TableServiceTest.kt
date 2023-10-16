@@ -16,7 +16,7 @@ class TableServiceTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 111
-        val response = tableService.getAll(merchantId)
+        val response = tableService.getAll(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -25,16 +25,26 @@ class TableServiceTest {
     fun get() = testApplication {
         val merchantId: Long = 1
         val id: Long = 17
-        val response = tableService.get(id, merchantId)
+        val response = tableService.get(id, merchantId, 31)
         if (response != null)
             assertNotNull(response)
+    }
+
+
+    @Test
+    fun getTablesWaiter() = testApplication {
+        val merchantId: Long = 1
+        val roomId: Long = 30
+        val branchId: Long = 31
+        val response = tableService.getTablesWaiter(roomId = roomId, branchId = branchId, merchantId = merchantId)
+        println("$response = response")
     }
 
     @Test
     fun getByRoomId() = testApplication {
         val roomId: Long = 17
         val merchantId: Long = 111
-        val response = tableService.getByRoomId(roomId, merchantId)
+        val response = tableService.getByRoomId(roomId, merchantId, 31)
         if (response != null)
             assertNotNull(response)
     }
@@ -94,7 +104,7 @@ class TableServiceTest {
     fun delete() = testApplication {
         val id: Long = 23
         val merchantId: Long = 1
-        val response = tableService.delete(id, merchantId)
+        val response = tableService.delete(id, merchantId, 31)
         if (response)
             assertTrue(response)
     }

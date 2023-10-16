@@ -1,16 +1,16 @@
 package mimsoft.io.waiter
 
-import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.utils.ResponseModel
 import mimsoft.io.waiter.info.WaiterInfoDto
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
@@ -18,7 +18,6 @@ import java.util.*
 
 object WaiterService {
     val repository: BaseRepository = DBManager
-
 
     suspend fun auth(authDto: StaffDto?): StaffDto? {
         val query = """
@@ -50,7 +49,7 @@ object WaiterService {
                  inner join waiter w on w.staff_id = s.id
                  where s.id = $staffId and not s.deleted and not w.deleted
         """.trimIndent()
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 if (rs.next()) {
@@ -88,7 +87,6 @@ object WaiterService {
         }
     }
 
-
     suspend fun updateWaiterProfile(dto: StaffDto): Boolean {
         var query = """
              update $STAFF_TABLE_NAME  s
@@ -106,7 +104,7 @@ object WaiterService {
             dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
         }
         var rs: Int?
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             CourierService.repository.connection().use {
                 rs = it.prepareStatement(query).apply {
                     setString(1, dto.firstName)
@@ -125,4 +123,45 @@ object WaiterService {
     suspend fun logout(uuid: String?): Boolean {
         return SessionRepository.expire(uuid)
     }
+
+    suspend fun getAll(
+        merchantId: Long?,
+        branchId: Long?,
+        offset: Int,
+        limit: Int,
+        filter: String?,
+        search: String?
+    ): DataPage<StaffDto> {
+        var query = """
+            select first_name, last_name, phone, status, image 
+            from staff s 
+            where merchant_id = $merchantId 
+              and branch_id = $branchId and not deleted
+        """.trimIndent()
+        if (search != null) {
+            val s = search.lowercase()
+            query += " and (lower(first_name) like '%$s%') "
+        }
+
+        if (filter != null) {
+            query += "order by status"
+        }
+        query += " limit $limit offset $offset"
+        val mutableList = mutableListOf<StaffDto>()
+        repository.selectList(query).forEach {
+            mutableList.add(
+                StaffDto(
+                    id = it["id"] as? Long,
+                    status = it["status"] as? Boolean,
+                    firstName = it["first_name"] as? String,
+                    lastName = it["last_name"] as? String,
+                    image = it["image"] as? String,
+                    phone = it["phone"] as? String
+                )
+            )
+        }
+        return DataPage(data = mutableList, total = mutableList.size)
+    }
+
+
 }

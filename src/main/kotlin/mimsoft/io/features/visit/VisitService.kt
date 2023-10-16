@@ -16,15 +16,15 @@ import java.sql.Timestamp
 
 object VisitService {
     private val repository: BaseRepository = DBManager
-    suspend fun getAll(merchantId: Long?, userId: Long? = null): List<VisitDto> {
+    suspend fun getAll(merchantId: Long?, userId: Long? = null, branchId: Long?): List<VisitDto> {
         var query = """
-            select * from visit where merchant_id = $merchantId and deleted = false
+            select * from visit where merchant_id = $merchantId and branch_id = $branchId and deleted = false
         """.trimIndent()
         if (userId != null) {
             query += (" and user_id = $userId")
         }
         val gson = Gson()
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 val visitList = arrayListOf<VisitDto>()
@@ -58,9 +58,9 @@ object VisitService {
             val query = """
             insert into visit 
             (merchant_id, user_id, waiter_id, table_id, payment_type_id, time, status, price, 
-            created, user_data, waiter_data, table_data, payment_type_data) 
+            created, user_data, waiter_data, table_data, payment_type_data, branch_id) 
             values 
-            (${dto.merchantId}, ${dto.user?.id}, ${dto.waiter?.id}, ${dto.table?.id}, ${dto.payment?.id}, ?, ?, ${dto.price}, ?, ?, ?, ?, ?) returning id """
+            (${dto.merchantId}, ${dto.user?.id}, ${dto.waiter?.id}, ${dto.table?.id}, ${dto.payment?.id}, ?, ?, ${dto.price}, ?, ?, ?, ?, ?, ${dto.branchId}) returning id """
                 .trimIndent()
             withContext(DBManager.databaseDispatcher) {
                 repository.connection().use {
@@ -147,26 +147,26 @@ object VisitService {
         }
     }
 
-
     suspend fun update(dto: VisitDto): Boolean {
-        var rs = 0
+        var rs: Int
         val query = """
-            update visit
-            set user_id           = ${dto.user?.id},
-                waiter_id         = ${dto.waiter?.id},
-                table_id          = ${dto.table?.id},
-                payment_type_id   = ${dto.payment?.id},
-                price             = ${dto.price},
-                orders            = ?,
-                time              = ?,
-                status            = ?,
+            update visit v
+            set user_id           = coalesce(${dto.user?.id}, v.user_id),
+                waiter_id         = coalesce(${dto.waiter?.id}, v.waiter_id),
+                table_id          = coalesce(${dto.table?.id}, v.table_id),
+                payment_type_id   = coalesce(${dto.payment?.id}, v.payment_type_id),
+                price             = coalesce(${dto.price}, v.price),
+                orders            = coalesce(?, v.orders),
+                time              = coalesce(?, v.time),
+                status            = coalesce(?, v.status),
                 updated           = ?,
-                user_data         = ?,
-                waiter_data       = ?,
-                table_data        = ?,
-                payment_type_data = ?
+                user_data         = coalesce(?, v.user_data),
+                waiter_data       = coalesce(?, v.waiter_data),
+                table_data        = coalesce(?, v.table_data),
+                payment_type_data = coalesce(?, v.payment_type_data)
             where id = ${dto.id}
               and merchant_id = ${dto.merchantId}
+              and branch_id = ${dto.branchId}
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
@@ -186,13 +186,14 @@ object VisitService {
         return rs == 1
     }
 
-    suspend fun delete(id: Long, merchantId: Long?): Boolean {
-        var rs = 0
+    suspend fun delete(id: Long, merchantId: Long?, branchId: Long?): Boolean {
+        var rs: Int
         val query = """
             update visit
             set deleted = true
             where id = $id
               and merchant_id = $merchantId
+              and branch_id = $branchId
               and not deleted
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {

@@ -18,7 +18,7 @@ class VisitServiceTest {
     fun getAll() = testApplication {
         val merchantId: Long = 111
         val userId: Long = 21
-        val response = visitService.getAll(merchantId, userId)
+        val response = visitService.getAll(merchantId, userId, 31)
         assert(response.isEmpty())
     }
 
@@ -96,7 +96,7 @@ class VisitServiceTest {
     fun delete() = testApplication {
         val id: Long = 29
         val merchantId: Long = 1
-        val response = visitService.delete(id, merchantId)
+        val response = visitService.delete(id, merchantId, 31)
         println("rs: $response")
         if (response)
             assertTrue(response)

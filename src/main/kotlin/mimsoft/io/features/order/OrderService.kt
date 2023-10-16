@@ -5,6 +5,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.cart.CartItem
+import mimsoft.io.features.favourite.merchant
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.generateQuery
 import mimsoft.io.features.order.OrderUtils.getQuery
@@ -101,8 +102,8 @@ object OrderService {
         )
     }
 
-    suspend fun get(id: Long?, vararg joinColumns: String): ResponseModel {
-        repository.selectOne(joinQuery(id)).let {
+    suspend fun get(id: Long?, vararg joinColumns: String, merchantId: Long? = null): ResponseModel {
+        repository.selectOne(joinQuery(id = id, merchantId = merchantId)).let {
             if (it == null) return ResponseModel(httpStatus = ORDER_NOT_FOUND)
             return ResponseModel(body = parseGetAll(it, joinColumns.toSet()))
         }

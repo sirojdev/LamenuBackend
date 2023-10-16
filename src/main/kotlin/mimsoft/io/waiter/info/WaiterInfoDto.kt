@@ -1,6 +1,6 @@
 package mimsoft.io.waiter.info
 
-import org.apache.commons.codec.language.ColognePhonetic
+import mimsoft.io.features.table.TableDto
 import java.sql.Timestamp
 
 data class WaiterInfoDto (
@@ -13,5 +13,6 @@ data class WaiterInfoDto (
     val gender: String? = null,
     val status: Boolean? = null,
     val balance: Double? = null,
-    val grade: Double? = null
+    val grade: Double? = null,
+    val tables: List<TableDto>? = null
 )

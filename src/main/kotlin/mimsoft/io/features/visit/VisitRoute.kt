@@ -13,7 +13,8 @@ fun Route.routeToVisits() {
         get {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
-            val visits = visitService.getAll(merchantId = merchantId)
+            val branchId = pr?.branchId
+            val visits = visitService.getAll(merchantId = merchantId, branchId = branchId)
             if (visits.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
@@ -23,8 +24,9 @@ fun Route.routeToVisits() {
         post {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val visit = call.receive<VisitDto>()
-            val id = visitService.add(visit.copy(merchantId = merchantId))
+            val id = visitService.add(visit.copy(merchantId = merchantId, branchId = branchId))
             if (id == null) {
                 call.respond(HttpStatusCode.Conflict)
                 return@post
@@ -50,21 +52,23 @@ fun Route.routeToVisits() {
         put {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val visit = call.receive<VisitDto>()
-            val response = visitService.update(visit.copy(merchantId = merchantId))
-            call.respond(HttpStatusCode.OK, response)
+            val response = visitService.update(visit.copy(merchantId = merchantId, branchId = branchId))
+            call.respond(response)
         }
 
         delete("{id}") {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@delete
             }
-            val response = visitService.delete(id = id, merchantId = merchantId)
-            call.respond(HttpStatusCode.OK, response)
+            val response = visitService.delete(id = id, merchantId = merchantId, branchId = branchId)
+            call.respond(response)
         }
     }
 }
