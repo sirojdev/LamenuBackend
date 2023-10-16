@@ -11,6 +11,15 @@ fun Application.configureExceptions() {
     install(StatusPages) {
         exception<Throwable> { call, throwable ->
             when (throwable) {
+                is BadRequestException -> {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ResponseData(
+                            isSuccess = false,
+                            error = ExceptionResponse("${throwable.errors}", HttpStatusCode.BadRequest.value)
+                        )
+                    )
+                }
                 is BadRequest -> {
                     call.respond(
                         HttpStatusCode.BadRequest,
@@ -64,6 +73,7 @@ fun Application.configureExceptions() {
 class ValidationException(override val message: String) : Throwable()
 class ItemNotFoundException(override val message: String) : Throwable()
 class BadRequest(override val message: String) : Throwable()
+class BadRequestException( val errors:List<String>):Throwable()
 class ParsingException(override val message: String) : Throwable()
 
 @Serializable
