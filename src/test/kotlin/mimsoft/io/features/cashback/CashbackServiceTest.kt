@@ -12,7 +12,7 @@ class CashbackServiceTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 6
-        val response = cashbackService.getAll(merchantId)
+        val response = cashbackService.getAll(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -58,7 +58,7 @@ class CashbackServiceTest {
     fun delete() = testApplication {
         val merchantId: Long = 1
         val id: Long = 16
-        val response = cashbackService.delete(id, merchantId)
+        val response = cashbackService.delete(id, merchantId, 31)
         if (response)
             assertTrue(response)
     }
@@ -67,7 +67,7 @@ class CashbackServiceTest {
     fun get() = testApplication {
         val merchantId: Long = 1
         val id: Long = 16
-        val response = cashbackService.get(merchantId, id)
+        val response = cashbackService.get(merchantId, id, 31)
         if (response != null)
             assertNotNull(response)
     }

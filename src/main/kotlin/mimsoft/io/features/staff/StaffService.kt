@@ -141,8 +141,8 @@ object StaffService {
 
     suspend fun get(id: Long?, merchantId: Long?, branchId: Long? = null): StaffDto? {
         var query =
-            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and deleted = false"
-        if (branchId != null) query += "and branch_id = $branchId"
+            "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and not deleted "
+        if (branchId != null) query += " and branch_id = $branchId"
         var staffDto: StaffDto? = null
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {

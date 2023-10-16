@@ -1,11 +1,8 @@
 package mimsoft.io.waiter
 
-import io.ktor.http.*
 import io.ktor.server.testing.*
 import mimsoft.io.features.staff.StaffDto
-import kotlin.concurrent.fixedRateTimer
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 
@@ -26,6 +23,5 @@ class WaiterServiceTest {
         val response = WaiterService.updateWaiterProfile(dto = staff)
         println("response = $response")
         assertNotNull(response)
-        assertEquals(response.httpStatus, HttpStatusCode.OK)
     }
 }

@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCourierTransaction() {
@@ -14,18 +15,21 @@ fun Route.routeToCourierTransaction() {
         post {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val dto = call.receive<CourierTransactionDto>()
-            val result = courierTransactionService.add(dto.copy(merchantId = merchantId))
+            val result = courierTransactionService.add(dto.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
             call.respond(CourierTransactionId(result))
             return@post
         }
 
         get("getByCourier") {
             val merchantId = call.parameters["appKey"]
+            val branchId = call.parameters["branchId"]
             val courierId = call.parameters["courierId"]
             val result = courierTransactionService.getByCourierId(
                 courierId = courierId?.toLongOrNull(),
-                merchantId = merchantId?.toLongOrNull()
+                merchantId = merchantId?.toLongOrNull(),
+                branchId = branchId?.toLongOrNull()
             )
             if (result.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)

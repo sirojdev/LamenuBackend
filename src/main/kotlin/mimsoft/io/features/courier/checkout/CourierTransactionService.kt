@@ -23,7 +23,7 @@ object CourierTransactionService {
         )
     }
 
-    suspend fun getByCourierId(courierId: Long?, merchantId: Long?): List<CourierTransactionDto> {
+    suspend fun getByCourierId(courierId: Long?, merchantId: Long?, branchId: Long?): List<CourierTransactionDto> {
         val query = """
             select ct.id     ct_id,
                 ct.time      ct_time,
@@ -45,12 +45,12 @@ object CourierTransactionService {
             from courier_transaction ct
             left join branch b on b.id = ct.branch_id
             left join courier c on ct.courier_id = c.id
-            where ct.merchant_id = $merchantId and ct.courier_id = $courierId and 
+            where ct.merchant_id = $merchantId and ct.courier_id = $courierId and and ct.branch_id = $branchId 
              not ct.deleted
                 and not b.deleted
                 and not c.deleted
         """.trimIndent()
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()

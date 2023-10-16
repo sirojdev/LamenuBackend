@@ -25,7 +25,7 @@ class OptionRepositoryImplTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 1
-        val response = optionalRepositoryImpl.getAll(merchantId)
+        val response = optionalRepositoryImpl.getAll(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -91,7 +91,7 @@ class OptionRepositoryImplTest {
     fun delete() = testApplication {
         val id: Long = 39
         val merchantId: Long = 2
-        val response = optionalRepositoryImpl.delete(id, merchantId)
+        val response = optionalRepositoryImpl.delete(id, merchantId, 31)
         if (response)
             assertTrue(response)
     }

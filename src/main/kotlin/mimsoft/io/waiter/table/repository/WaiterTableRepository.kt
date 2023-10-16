@@ -4,12 +4,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.room.RoomDto
+import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.table.TableDto
+import mimsoft.io.features.table.TableService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.waiter.info.WaiterInfoDto
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 object WaiterTableRepository {
     val repository: BaseRepository = DBManager
@@ -24,7 +27,7 @@ object WaiterTableRepository {
         val list = ArrayList<WaiterTableDto>()
         var total: Int? = null
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                 }.executeQuery()
@@ -83,7 +86,6 @@ object WaiterTableRepository {
         return DataPage(list, total)
     }
 
-
     suspend fun isOpenTable(tableId: Long?): Boolean {
         val query = "select * from $WAITER_TABLE_NAME " +
                 " where table_id =$tableId and deleted = false and  finish_time is null "
@@ -100,7 +102,7 @@ object WaiterTableRepository {
         return isOpen
     }
 
-    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?, merchantId: Long?): WaiterTableDto? {
+    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?, merchantId: Long? = null): WaiterTableDto? {
         val query = "INSERT INTO waiter_table (waiter_id, table_id, join_time)\n" +
                 "SELECT $waiterId,$tableId, now()\n" +
                 "WHERE\n" +
@@ -126,15 +128,15 @@ object WaiterTableRepository {
                   """
 
         var dto: WaiterTableDto? = null
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                 }.executeUpdate()
                 if (rs == 1) {
-                    val tableRs = it.prepareStatement(getTableQuery).apply {
+                    val rs = it.prepareStatement(getTableQuery).apply {
                     }.executeQuery()
-                    if (tableRs.next()) {
-                        dto = getTables(tableRs)
+                    if (rs.next()) {
+                        dto = getTables(rs)
                     }
                 }
             }
@@ -191,5 +193,21 @@ object WaiterTableRepository {
             }
             return@withContext response == 1
         }
+    }
+
+    suspend fun getWaiter(id: Long?, merchantId: Long?, branchId: Long?): WaiterInfoDto {
+        val waiter = StaffService.get(id = id, merchantId = merchantId, branchId = branchId)
+        val tables = TableService.getTables(staffId = id, merchantId = merchantId, branchId = branchId)
+        return WaiterInfoDto(
+            id = waiter?.id,
+            firstName = waiter?.firstName,
+            lastName = waiter?.lastName,
+            phone = waiter?.phone,
+            birthDay = Timestamp.valueOf(waiter?.birthDay),
+            image = waiter?.image,
+            gender = waiter?.gender,
+            status = waiter?.status,
+            tables = tables
+        )
     }
 }

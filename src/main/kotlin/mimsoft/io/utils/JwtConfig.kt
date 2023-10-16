@@ -179,7 +179,7 @@ object JwtConfig {
         .withClaim("branchAdmin", branchAdmin)
         .withClaim("uuid", uuid)
         .withClaim("branchId", branchId)
-        .withExpiresAt(getExpiration(validityLogin))
+        .withExpiresAt(getExpiration(validityRefresh))
         .sign(algorithmBranch)
 
     fun generateWaiterToken(merchantId: Long?, staffId: Long?, uuid: String?, branchId: Long?): String = JWT.create()

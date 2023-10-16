@@ -29,7 +29,7 @@ object TableService : TableRepository {
     }
 
     override suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): TableTable? {
-        val data = repository.getPageData(
+        return repository.getPageData(
             dataClass = TableTable::class,
             where = mapOf(
                 "merchant_id" to merchantId as Any,
@@ -38,7 +38,6 @@ object TableService : TableRepository {
             ),
             tableName = TABLE_TABLE_NAME
         )?.data?.firstOrNull()
-        return data
     }
 
     override suspend fun getByRoomId(roomId: Long?, merchantId: Long?, branchId: Long?): TableTable? {
@@ -68,7 +67,7 @@ object TableService : TableRepository {
                 type         = ${dto.type},
                 room_id      = ${dto.room?.id},
                 status       = ?,
-                booking_time = ${dto.bookingTime},
+                booking_time = ${dto.bookingDuration},
                 branch_id    = ${dto.branch?.id},
                 updated      = ?
             where id = ${dto.id}
@@ -130,20 +129,29 @@ object TableService : TableRepository {
     }
 
     override suspend fun getTablesWaiter(roomId: Long?, branchId: Long?, merchantId: Long?): List<TableDto?> {
-        val query =
-            "select * from tables where room_id = $roomId and branch_id = $branchId and merchant_id = $merchantId and not deleted"
+        val query = "select * from tables where room_id = $roomId and branch_id = $branchId and merchant_id = $merchantId and not deleted"
         val list = mutableListOf<TableDto>()
+        var bookingTime: Timestamp? = null
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     this.closeOnCompletion()
                 }.executeQuery()
                 while (rs.next()) {
+                    if(rs.getString("status") == TableStatus.BOOKING.name){
+                        val query2 = "select * from book where table_id = ${rs.getString("id")}"
+                        val resultSet = it.prepareStatement(query2).executeQuery()
+                        if(resultSet.next()){
+                            bookingTime = resultSet.getTimestamp("time")
+                        }
+                    }
                     val dto = TableDto(
                         id = rs.getLong("id"),
                         name = rs.getString("name"),
                         status = TableStatus.valueOf(rs.getString("status")),
-                        type = rs.getInt("type")
+                        type = rs.getInt("type"),
+                        bookingDuration = rs.getInt("booking_time"),
+                        bookingTime = bookingTime
                     )
                     list.add(dto)
                 }
@@ -230,7 +238,7 @@ object TableService : TableRepository {
                             type = rs.getInt("type"),
                             name = rs.getString("t_name"),
                             status = TableStatus.valueOf(rs.getString("t_status")),
-                            bookingTime = rs.getInt("t_booking_time"),
+                            bookingDuration = rs.getInt("t_booking_time"),
                             room = RoomDto(
                                 id = rs.getLong("r_id"),
                                 name = rs.getString("r_name"),
@@ -280,6 +288,40 @@ object TableService : TableRepository {
                     }
                     return@withContext dto
                 } else return@withContext null
+            }
+        }
+    }
+
+    suspend fun getTables(staffId: Long?, merchantId: Long?, branchId: Long?): List<TableDto> {
+        val query = """
+            select t.* , r.name r_name
+            from waiter_table wt 
+                     left join tables t on t.id = wt.table_id 
+                     left join waiter w on wt.waiter_id = w.id 
+                     left join staff s on s.id = w.staff_id 
+                     left join room r on t.room_id = r.id 
+            where s.id = $staffId and s.merchant_id = $merchantId and  
+            s.branch_id = $branchId and not s.deleted and not t.deleted
+        """.trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val list = mutableListOf<TableDto>()
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    list.add(
+                        TableDto(
+                            id = rs.getLong("id"),
+                            status = TableStatus.valueOf(rs.getString("status")),
+                            name = rs.getString("name"),
+                            room = RoomDto(
+                                name = rs.getString("r_name")
+                            )
+                        )
+                    )
+                }
+                return@withContext list
             }
         }
     }

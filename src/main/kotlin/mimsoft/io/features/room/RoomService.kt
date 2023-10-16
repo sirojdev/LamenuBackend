@@ -94,23 +94,23 @@ object RoomService : RoomRepository {
 
     override suspend fun getWithTable(branchId: Long?, merchantId: Long?): List<RoomTableDto?> {
         val query = """
-             SELECT r.id,
-                   r.name,
-                   r.branch_id,
-                   (SELECT json_agg(json_build_object(
-                           'id', t.id,
-                           'name', t.name,
-                           'type', t.type,
-                           'qr', t.qr
-                       ))
-                    FROM tables t
-                    WHERE t.room_id = r.id
-                      AND t.merchant_id = $merchantId
-                      and not t.deleted) AS tables
+            SELECT r.id,
+                r.name,
+                r.branch_id,
+                (SELECT json_agg(json_build_object(
+                        'id', t.id,
+                        'name', t.name,
+                        'type', t.type,
+                        'qr', t.qr
+                    ))
+                FROM tables t
+                WHERE t.room_id = r.id
+                    AND t.merchant_id = $merchantId
+                    and not t.deleted) AS tables
             FROM room r
             WHERE r.merchant_id = $merchantId
-              and r.branch_id = $branchId
-              and r.deleted = false
+            and r.branch_id = $branchId
+            and r.deleted = false
             order by created
         """.trimIndent()
         return withContext(DBManager.databaseDispatcher) {

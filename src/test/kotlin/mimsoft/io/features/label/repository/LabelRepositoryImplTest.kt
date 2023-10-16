@@ -15,7 +15,7 @@ class LabelRepositoryImplTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 1
-        val response = labelRepositoryImpl.getAll(merchantId)
+        val response = labelRepositoryImpl.getAll(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -24,7 +24,7 @@ class LabelRepositoryImplTest {
     fun get() = testApplication {
         val id: Long = 1422
         val merchantId: Long = 6
-        val response = labelRepositoryImpl.get(id, merchantId)
+        val response = labelRepositoryImpl.get(id, merchantId, 31)
         if (response != null)
             assertNotNull(response)
     }
@@ -69,7 +69,7 @@ class LabelRepositoryImplTest {
     fun delete() = testApplication {
         val id: Long = 14
         val merchantId: Long = 6
-        val response = labelRepositoryImpl.delete(id, merchantId)
+        val response = labelRepositoryImpl.delete(id, merchantId, 31)
         if (response)
             assertTrue(response)
     }

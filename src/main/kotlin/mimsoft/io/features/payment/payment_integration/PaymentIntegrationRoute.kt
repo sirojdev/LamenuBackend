@@ -2,11 +2,9 @@ package mimsoft.io.features.payment.payment_integration
 
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.BasePrincipal
-import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToPaymentIntegration(){
     val service = IntegrationService

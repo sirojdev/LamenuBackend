@@ -46,7 +46,7 @@ fun Route.routeToCategoryGroup() {
             val pr = call.principal<BasePrincipal>()
             val merchantId = pr?.merchantId
             val response = categoryGroupService.getAll(merchantId = merchantId)
-            if (response == null) {
+            if (response.isEmpty()) {
                 call.respond(HttpStatusCode.NoContent)
                 return@get
             }

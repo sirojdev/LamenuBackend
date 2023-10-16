@@ -15,12 +15,10 @@ import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.delivery.routeToDelivery
 import mimsoft.io.features.extra.routeToExtra
 import mimsoft.io.features.flat.routeToFlat
-import mimsoft.io.features.income.routeToIncome
 import mimsoft.io.features.kitchen.routeToKitchen
 import mimsoft.io.features.label.routeToLabel
 import mimsoft.io.features.merchant.merchantAuthRoute
 import mimsoft.io.features.merchant.order.routeToMerchantOrder
-import mimsoft.io.features.merchant_booking.routeToMerchantBook
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.news.routeToNews
 import mimsoft.io.features.notification.routeToNotification
@@ -28,7 +26,6 @@ import mimsoft.io.features.online_pbx.routeToOnlinePbx
 import mimsoft.io.features.operator.routeToOperatorEntity
 import mimsoft.io.features.option.routeToOption
 import mimsoft.io.features.order.routeToOrder
-import mimsoft.io.features.outcome.routeToOutcome
 import mimsoft.io.features.outcome_type.routeToOutcomeType
 import mimsoft.io.features.pantry.routeToPantry
 import mimsoft.io.features.payment.payment_integration.routeToPaymentIntegration
@@ -49,8 +46,7 @@ import mimsoft.io.features.story_info.routeToStoryInfo
 import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.telegram_bot.routeToBot
 import mimsoft.io.features.telephony.routeToTelephony
-import mimsoft.io.features.visit.routeToVisits
-import mimsoft.io.features.waiters.routToMerchantWaiters
+import mimsoft.io.features.waiters.table.routToWaiters
 import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
 import mimsoft.io.routing.merchant.routeToUserUser
@@ -64,10 +60,8 @@ fun Route.routeToMerchantAdmin() {
 
         authenticate("merchant") {
             routeToPaymentIntegration()
-            routeToVisits()
             routeToPantry()
             routeToKitchen()
-            routeToMerchantBook()
             routeToMerchantOrder()
             routeToMerchantProfile()
             routeToStory()
@@ -77,7 +71,7 @@ fun Route.routeToMerchantAdmin() {
             routeToCourierTransaction()
             routeToClientPromo()
             routeToOnlinePbx()
-            routToMerchantWaiters()
+            routToWaiters()
 
             route("settings") {
                 routeToApp()
@@ -116,12 +110,6 @@ fun Route.routeToMerchantAdmin() {
                 routeToPromo()
                 routeToUserUser()
                 routeToNotification()
-            }
-        }
-        authenticate("branch") {
-            route("finance") {
-                routeToOutcome()
-                routeToIncome()
             }
         }
     }

@@ -11,7 +11,7 @@ object TableMapper {
             name = tableDto.name,
             type = tableDto.type,
             qr = tableDto.qr,
-            bookingTime = tableDto.bookingTime,
+            bookingTime = tableDto.bookingDuration,
             status = tableDto.status?.name,
             roomId = tableDto.room?.id,
             branchId = tableDto.branch?.id,
@@ -28,7 +28,7 @@ object TableMapper {
             room = RoomDto(
                 id = tableTable.roomId
             ),
-            bookingTime = tableTable.bookingTime,
+            bookingDuration = tableTable.bookingTime,
             status = TableStatus.valueOf(tableTable.status.toString()),
             qr = tableTable.qr,
             branch = BranchDto(tableTable.branchId),

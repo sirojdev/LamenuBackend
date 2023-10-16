@@ -27,12 +27,13 @@ fun Route.routeToWaiterRoom() {
     get("room/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val room = roomService.get(id = id, merchantId = merchantId)
+        val room = roomService.get(id = id, merchantId = merchantId, branchId = branchId)
         if (room == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get

@@ -46,7 +46,7 @@ class StaffServiceTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 1
-        val response = staffService.getAll(merchantId)
+        val response = staffService.getAll(merchantId, branchId = 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -121,7 +121,7 @@ class StaffServiceTest {
     fun delete() = testApplication {
         val id: Long = 42
         val merchantId: Long = 1
-        val response = staffService.delete(id, merchantId)
+        val response = staffService.delete(id, merchantId, branchId = 31)
         println("rs: $response")
     }
 
@@ -137,7 +137,7 @@ class StaffServiceTest {
         val merchantId: Long = 1111
         val limit = 10
         val offset = 5
-        val response = staffService.getAllCourier(merchantId, limit, offset)
+        val response = staffService.getAllCourier(merchantId = merchantId, limit = limit, offset = offset, branchId = 31)
         if (response.data?.isEmpty() == true)
             assertNotNull(response.data)
     }
@@ -147,7 +147,7 @@ class StaffServiceTest {
         val merchantId: Long = 1111
         val limit = 10
         val offset = 5
-        val response = staffService.getAllCollector(merchantId, limit, offset)
+        val response = staffService.getAllCollector(merchantId, 31, limit, offset )
         if (response.data?.isEmpty() == true)
             assertNotNull(response.data)
     }
@@ -156,7 +156,7 @@ class StaffServiceTest {
     fun getCollector() = testApplication { // TODO: there is an error...
         val id: Long = 42
         val merchantId: Long = 1
-        val response = staffService.getCollector(id, merchantId)
+        val response = staffService.getCollector(id, merchantId, branchId = 31)
         println("rs: $response")
     }
 
@@ -164,7 +164,7 @@ class StaffServiceTest {
     fun isExist() = testApplication {
         val staffId: Long = 42
         val merchantId: Long = 111
-        val response = staffService.isExist(staffId, merchantId)
+        val response = staffService.isExist(staffId, merchantId, branchId = 31)
         if (response)
             assertTrue(response)
     }
@@ -174,7 +174,7 @@ class StaffServiceTest {
         val merchantId: Long = 111
         val limit = 10
         val offset = 5
-        val response = staffService.getAllWaiters(merchantId, limit, offset)
+        val response = staffService.getAllWaiters(merchantId, 31, limit, offset)
         if (response.data?.isEmpty() == true)
             assertNotNull(response.data)
     }

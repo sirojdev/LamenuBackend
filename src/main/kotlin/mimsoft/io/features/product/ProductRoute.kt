@@ -19,8 +19,7 @@ fun Route.routeToProduct() {
     get("/products") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val branchId = pr?.branchId
-        val products = productRepository.getAllProductInfo(merchantId = merchantId, branchId = branchId)
+        val products = productRepository.getAllProductInfo(merchantId = merchantId)
         if (products.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get
@@ -31,13 +30,12 @@ fun Route.routeToProduct() {
     get("product/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val product = productRepository.getProductInfo(merchantId = merchantId, id = id, branchId = branchId)
+        val product = productRepository.getProductInfo(merchantId = merchantId, id = id)
         if (product != null) {
             call.respond(product)
         } else {
@@ -48,14 +46,13 @@ fun Route.routeToProduct() {
     post("/product") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val branchId = pr?.branchId
         val productInfo = call.receive<ProductInfoDto>()
         val categoryId = productInfo.product?.category?.id
         val product = productInfo.product
         val id = productRepository.add(
             mapper.toProductTable(
                 product?.copy(
-                    merchantId = merchantId, branchId = branchId, category = CategoryDto(
+                    merchantId = merchantId, category = CategoryDto(
                         id = categoryId,
                     )
                 )
@@ -67,10 +64,9 @@ fun Route.routeToProduct() {
     put("/product") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val branchId = pr?.branchId
         val productInfo = call.receive<ProductInfoDto>()
         val product = productInfo.product
-        val updated = productRepository.update(product?.copy(merchantId = merchantId, branchId = branchId))
+        val updated = productRepository.update(product?.copy(merchantId = merchantId))
         if (updated) call.respond(HttpStatusCode.OK)
         else call.respond(HttpStatusCode.InternalServerError)
     }
@@ -83,7 +79,7 @@ fun Route.routeToProduct() {
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
         } else {
-            val deleted = productRepository.delete(id = id, merchantId = merchantId, branchId = branchId)
+            val deleted = productRepository.delete(id = id, merchantId = merchantId)
             call.respond(deleted)
         }
     }
@@ -91,13 +87,12 @@ fun Route.routeToProduct() {
     get("product/info/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId
-        val branchId = pr?.branchId
         val id = call.parameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
-        val response = productRepository.getProductInfo(merchantId = merchantId, id = id, branchId = branchId)
+        val response = productRepository.getProductInfo(merchantId = merchantId, id = id)
         if (response == null) {
             call.respond(HttpStatusCode.NoContent)
             return@get

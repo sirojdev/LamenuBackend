@@ -15,7 +15,6 @@ import mimsoft.io.features.table.TableDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.ResponseModel
-import mimsoft.io.utils.toJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
@@ -192,8 +191,8 @@ object BookRepositoryImpl : BookRepository {
         var bookId: Long? = null
 
         val queryInsert = """
-            insert into book(merchant_id, client_id, table_id, time, created, comment, status, visitor_count) 
-            values(${bookDto?.merchantId}, ${bookDto?.client?.id}, ${bookDto?.table?.id}, ?, ?, ?, ?, ${bookDto?.visitorCount}) returning id
+            insert into book(merchant_id, client_id, table_id, time, created, comment, status, visitor_count, branch_id) 
+            values(${bookDto?.merchantId}, ${bookDto?.client?.id}, ${bookDto?.table?.id}, ?, ?, ?, ?, ${bookDto?.visitorCount}, ${bookDto?.branch?.id}) returning id
          """.trimIndent()
         log.info("insert query {}", queryInsert)
         withContext(DBManager.databaseDispatcher) {
@@ -313,7 +312,7 @@ object BookRepositoryImpl : BookRepository {
 
 
     //----------------------------------------------------------------------------------------------
-    override suspend fun getAllMerchantBook(merchantId: Long?): List<MerchantBookResponseDto?> {
+    override suspend fun getAllBranchBook(merchantId: Long?, branchId: Long?): List<MerchantBookResponseDto?> {
         val query = """
             select 
             b.id,
@@ -328,10 +327,11 @@ object BookRepositoryImpl : BookRepository {
             from book b
                      left join tables t on b.table_id = t.id
             where b.merchant_id = $merchantId
+            and b.branch_id = $branchId
               and b .deleted = false 
         """.trimIndent()
 
-        return withContext(Dispatchers.IO) {
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
                 val list = arrayListOf<MerchantBookResponseDto>()
@@ -355,8 +355,8 @@ object BookRepositoryImpl : BookRepository {
         }
     }
 
-    override suspend fun getMerchantBook(id: Long?, merchantId: Long?): MerchantBookResponseDto? {
-        val query = """
+    override suspend fun getMerchantBook(id: Long?, merchantId: Long?, branchId: Long?): MerchantBookResponseDto? {
+        var query = """
             select 
             b.id,
             b.time,
@@ -373,7 +373,9 @@ object BookRepositoryImpl : BookRepository {
               and b.merchant_id = $merchantId
               and b .deleted = false 
         """.trimIndent()
-
+        if(branchId != null){
+            query += " and b.branch_id = $branchId "
+        }
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
@@ -402,40 +404,37 @@ object BookRepositoryImpl : BookRepository {
             tableName = BOOK_TABLE_NAME
         )
 
-    override suspend fun updateMerchantBook(bookDto: BookDto): Boolean {
-        val query = "update $BOOK_TABLE_NAME " +
-                "SET" +
-                " table_id = ${bookDto.table?.id}," +
-                " time = ?," +
-                " comment = ?," +
+    override suspend fun updateBranchBook(bookDto: BookDto): Boolean {
+        val query = "update $BOOK_TABLE_NAME b SET" +
+                " coalesce (table_id = ${bookDto.table?.id}, b.table_id)," +
+                " time = coalesce(?, b.time)," +
+                " comment = coalesce(?, b.comment)," +
                 " updated = ?" +
-                " WHERE id = ${bookDto.id} and merchant_id = ${bookDto.merchantId} and not deleted"
-
-        withContext(Dispatchers.IO) {
+                " WHERE id = ${bookDto.id} and merchant_id = ${bookDto.merchantId} and branch_id = ${bookDto.branch?.id} and not deleted"
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                it.prepareStatement(query).use { ti ->
+                val rs = it.prepareStatement(query).use { ti ->
                     ti.setTimestamp(1, bookDto.time)
                     ti.setString(2, bookDto.comment)
                     ti.setTimestamp(3, Timestamp(System.currentTimeMillis()))
                     ti.executeUpdate()
                 }
+                return@withContext rs > 0
             }
         }
-        return true
     }
 
-    override suspend fun deleteMerchantBook(id: Long?, merchantId: Long?): Boolean {
-        val query = "update $BOOK_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id"
-        withContext(Dispatchers.IO) {
-            ProductRepositoryImpl.repository.connection().use { it.prepareStatement(query).execute() }
+    override suspend fun deleteBranchBook(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+        val query = "update $BOOK_TABLE_NAME set deleted = true where merchant_id = $merchantId and branch_id = $branchId and id = $id"
+        return withContext(DBManager.databaseDispatcher) {
+            ProductRepositoryImpl.repository.connection().use { return@withContext it.prepareStatement(query).execute() }
         }
-        return true
     }
 
-    override suspend fun toAccepted(merchantId: Long?, bookId: Long?): ResponseModel {
-        val query = "update $BOOK_TABLE_NAME set status = ? where merchant_id = $merchantId and id = $bookId"
+    override suspend fun toAccepted(merchantId: Long?, bookId: Long?, branchId: Long?): ResponseModel {
+        val query = "update $BOOK_TABLE_NAME set status = ? where merchant_id = $merchantId and id = $bookId and branch_id = $branchId"
         val response: ResponseModel
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             ProductRepositoryImpl.repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                     setString(1, BookStatus.ACCEPTED.name)

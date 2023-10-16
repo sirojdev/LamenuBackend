@@ -13,7 +13,7 @@ class RoomServiceTest {
     @Test
     fun getAll() = testApplication {
         val merchantId: Long = 111
-        val response = roomService.getAll(merchantId)
+        val response = roomService.getAll(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -22,7 +22,7 @@ class RoomServiceTest {
     fun get() = testApplication {
         val id: Long = 3011
         val merchantId: Long = 1
-        val response = roomService.get(id, merchantId)
+        val response = roomService.get(id, merchantId, 31)
         if (response != null)
             assertNotNull(response)
     }
@@ -62,7 +62,7 @@ class RoomServiceTest {
     fun delete() = testApplication {
         val id: Long = 34
         val merchantId: Long = 1
-        val response = roomService.delete(id, merchantId)
+        val response = roomService.delete(id, merchantId, 31)
         if (response)
             assertTrue(response)
     }

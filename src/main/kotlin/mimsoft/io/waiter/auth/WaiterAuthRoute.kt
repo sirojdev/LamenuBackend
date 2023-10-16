@@ -1,6 +1,5 @@
 package mimsoft.io.waiter.auth
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -10,13 +9,10 @@ import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
 import mimsoft.io.client.device.DevicePrincipal
 import mimsoft.io.client.device.DeviceType
-import mimsoft.io.features.appKey.MerchantAppKeyRepository
 import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.features.staff.StaffPosition
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
-import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.plugins.ItemNotFoundException
 import mimsoft.io.utils.plugins.getPrincipal
@@ -37,7 +33,6 @@ fun Route.routeToWaiterAuth() {
                     throw BadRequest("error input,brand,model,build,osVersion,uuid,appKey required")
                 } else {
                     val ip = call.request.host()
-//                    val appDto = MerchantAppKeyRepository.getByAppId(appKey) ?: throw BadRequest("appKey not found")
                     val result = DeviceController.auth(
                         device.copy(
                             ip = ip,

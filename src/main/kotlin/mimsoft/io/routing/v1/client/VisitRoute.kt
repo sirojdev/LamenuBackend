@@ -28,19 +28,9 @@ fun Route.routeToClientVisit() {
     get("visits") {
         val pr = getPrincipal()
         val merchantId = pr?.merchantId
+        val branchId = call.parameters["branchId"]?.toLongOrNull()
         val userId = pr?.userId
-        val visits = VisitService.getAll(merchantId = merchantId, userId = userId)
-        if (visits.isEmpty()) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        } else call.respond(visits)
-    }
-
-    get("visits") {
-        val pr = getPrincipal()
-        val merchantId = pr?.merchantId
-        val userId = pr?.userId
-        val visits = VisitService.getAll(merchantId = merchantId, userId = userId)
+        val visits = VisitService.getAll(merchantId = merchantId, userId = userId, branchId = branchId)
         if (visits.isEmpty()) {
             call.respond(HttpStatusCode.NoContent)
             return@get

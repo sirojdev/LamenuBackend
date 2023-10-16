@@ -92,7 +92,7 @@ class BookRepositoryImplTest {
     @Test
     fun getAllMerchantBook() = testApplication {
         val merchantId: Long = 1
-        val response = bookRepositoryImpl.getAllMerchantBook(merchantId)
+        val response = bookRepositoryImpl.getAllBranchBook(merchantId, 31)
         if (response.isEmpty())
             assertNotNull(response)
     }
@@ -101,7 +101,7 @@ class BookRepositoryImplTest {
     fun getMerchantBook() = testApplication {
         val id: Long = 34
         val merchantId: Long = 6
-        val response = bookRepositoryImpl.getMerchantBook(id, merchantId)
+        val response = bookRepositoryImpl.getMerchantBook(id, merchantId, 31)
         if (response != null)
             assertNotNull(response)
     }
@@ -138,7 +138,7 @@ class BookRepositoryImplTest {
             time = null,
             comment = "This is comment"
         )
-        val response = bookRepositoryImpl.updateMerchantBook(bookDto)
+        val response = bookRepositoryImpl.updateBranchBook(bookDto)
         if (response)
             assertTrue(response)
     }
@@ -147,7 +147,7 @@ class BookRepositoryImplTest {
     fun deleteMerchantBook() = testApplication {
         val id: Long = 37
         val merchantId: Long = 6
-        val response = bookRepositoryImpl.deleteMerchantBook(id, merchantId)
+        val response = bookRepositoryImpl.deleteBranchBook(id, merchantId, 31)
         if (response)
             assertTrue(response)
     }
@@ -156,7 +156,7 @@ class BookRepositoryImplTest {
     fun toAccepted() = testApplication {
         val merchantId: Long = 6
         val bookId: Long = 37
-        val response = bookRepositoryImpl.toAccepted(merchantId, bookId)
+        val response = bookRepositoryImpl.toAccepted(merchantId, bookId, 31)
         assertEquals(HttpStatusCode.OK, response.httpStatus)
     }
 }

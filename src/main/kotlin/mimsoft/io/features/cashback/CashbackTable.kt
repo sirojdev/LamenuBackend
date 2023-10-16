@@ -5,6 +5,7 @@ const val CASHBACK_TABLE_NAME = "cashback"
 data class CashbackTable(
     val id: Long? = null,
     val merchantId: Long? = null,
+    val branchId: Long? = null,
     val nameUz: String? = null,
     val nameRu: String? = null,
     val nameEng: String? = null,

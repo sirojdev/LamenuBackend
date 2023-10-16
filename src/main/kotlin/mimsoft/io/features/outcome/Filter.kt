@@ -1,5 +1,5 @@
 package mimsoft.io.features.outcome
 
-enum class OutcomeFilterTime {
+enum class Filter {
     TIME, STAFF, PRICE
 }
