@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-network-tls-certificates:$ktor_version")
     implementation("org.hibernate:hibernate-validator:8.0.1.Final")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
     implementation("com.google.firebase:firebase-admin:9.2.0")
