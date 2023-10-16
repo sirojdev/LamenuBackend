@@ -7,6 +7,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.BasePrincipal
+import okhttp3.internal.notify
+import kotlin.math.min
 
 fun Route.routeToSms() {
     val smsService = SmsService
@@ -14,22 +16,22 @@ fun Route.routeToSms() {
     get("sms") {
         val principal = call.principal<BasePrincipal>()
         val merchantId = principal?.merchantId
-        val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+        val search = call.parameters["search"]
+        val filters = call.parameters["filters"]
+        val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
         val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-        val sms = smsService.getAll2(merchantId = merchantId, limit = limit, offset = offset)
-        call.respond(sms)
-    }
-
-    get("sms/{id}") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id == null) {
-            call.respond(HttpStatusCode.BadRequest)
+        val response = smsService.getAll(
+            merchantId = merchantId,
+            search = search,
+            filters = filters,
+            limit = limit,
+            offset = offset,
+        )
+        if (response.data?.isNotEmpty() == true) {
+            call.respond(response)
             return@get
         }
-        val sms = smsService.get(id = id, merchantId = merchantId)
-        call.respond(sms ?: HttpStatusCode.NoContent)
+        call.respond(HttpStatusCode.NoContent)
     }
 
     post("sms") {
@@ -52,5 +54,17 @@ fun Route.routeToSms() {
         if (result)
             call.respond(result)
         call.respond(HttpStatusCode.NoContent)
+    }
+
+    get("sms/{id}") {
+        val pr = call.principal<BasePrincipal>()
+        val merchantId = pr?.merchantId
+        val id = call.parameters["id"]?.toLongOrNull()
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        val sms = smsService.get(id = id, merchantId = merchantId)
+        call.respond(sms ?: HttpStatusCode.NoContent)
     }
 }

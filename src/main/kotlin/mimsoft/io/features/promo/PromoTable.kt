@@ -1,11 +1,13 @@
 package mimsoft.io.features.promo
 
 import java.sql.Timestamp
+
 const val PROMO_TABLE_NAME = "promo"
+
 data class PromoTable(
     val id: Long? = null,
     val name: String? = null,
-    val amount: Long? = null,
+    val amount: Double? = null,
     val deleted: Boolean? = null,
     val merchantId: Long? = null,
     val isPublic: Boolean? = null,

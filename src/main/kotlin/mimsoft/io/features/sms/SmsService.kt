@@ -7,107 +7,68 @@ import mimsoft.io.features.message.MessageDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
-import okhttp3.internal.notify
 import java.sql.Timestamp
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
 
 object SmsService {
+
     val repository: BaseRepository = DBManager
     val mapper: SmsMapper = SmsMapper
 
-
     suspend fun getAll(
         merchantId: Long?,
-        limit: Int? = null,
-        offset: Int? = null
-    ): DataPage<SmsTable>? {
-
-        return repository.getPageData(
-            dataClass = SmsTable::class,
-            tableName = "sms",
-            limit = limit,
-            offset = offset,
-            where = mapOf("merchant_id" to merchantId as Any)
-        )
-    }
-
-
-    suspend fun getAll2(
-        merchantId: Long?,
+        search: String? = null,
+        filters: String? = null,
         limit: Int? = null,
         offset: Int? = null
     ): DataPage<SmsDto> {
-
-
-        val query =
+        val filter = filters?.uppercase()
+        val query = StringBuilder()
+        query.append(
             """
-                select s.id                s_id,
-                       s.time              s_time,
-                       status,
-                       m.id                m_id,
-                       content,
-                       client_count,
-                       u.first_name        u_first_name,
-                       u.last_name         u_last_name,
-                       count(*) over () as total
+                select s.id           s_id,
+                       s.time         s_time,
+                       s.status       s_status,
+                       s.client_count s_client_count,
+                       m.id           m_id,
+                       m.content      m_content,
+                       u.first_name   u_first_name,
+                       u.last_name    u_last_name
                 from sms s
-                         left join message m on s.message_id = m.id
-                         left join users u on s.client_id = u.id
-                where s.merchant_id = $merchantId
-                  and not s.deleted
-                  and not m.deleted
-                limit $limit offset $offset
-            """
-        var total = -1
-        return withContext(DBManager.databaseDispatcher) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                val list = arrayListOf<SmsDto>()
-                while (rs.next()) {
-                    if (total == -1) {
-                        total = rs.getInt("total")
-                    }
-                    val dto = SmsDto(
-                        id = rs.getLong("s_id"),
-                        time = rs.getString("s_time"),
-                        status = Status.valueOf(rs.getString("status")),
-                        message = MessageDto(
-                            id = rs.getLong("m_id"),
-                            content = rs.getString("content"),
-                        ),
-                        clientCount = rs.getLong("client_count"),
-                        client = UserDto(
-                            firstName = rs.getString("u_first_name"),
-                            lastName = rs.getString("u_last_name")
-                        )
+                         left join message m on
+                        not m.deleted
+                        and s.merchant_id = m.merchant_id
+                        and s.message_id = m.id
+                         left join users u on
+                        not u.deleted
+                        and s.client_id = u.id
+                where not s.deleted
+                  and s.merchant_id = :merchantId
+            """.trimIndent()
+        )
+        if (filter == null) query.append(" order by s.created desc")
+        if (filter != null && SmsFilters.TIME.name == filter) query.append(" order by s.time desc")
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
+        val mutableList = mutableListOf<SmsDto>()
+        repository.selectList(query.toString()).forEach {
+            mutableList.add(
+                SmsDto(
+                    id = it["s_id"] as? Long,
+                    time = it["s_time"] as? Timestamp,
+                    status = it["s_status"] as? Status,
+                    clientCount = it["s_client_count"] as? Long,
+                    message = MessageDto(
+                        id = it["m_id"] as? Long,
+                        content = it["m_content"] as? String,
+                    ),
+                    client = UserDto(
+                        firstName = it["u_first_name"] as? String,
+                        lastName = it["u_last_name"] as? String,
                     )
-                    list.add(dto)
-                }
-                return@withContext DataPage(list, total)
-            }
-        }
-    }
-
-    suspend fun getByMessageId(messageId: Long): List<SmsDto?> {
-        return repository.getPageData(
-            SmsTable::class,
-            tableName = SMS_TABLE,
-            where = mapOf(
-                "message_id" to messageId as Any
+                )
             )
-        )?.data?.map { SmsMapper.toDto(it) } ?: emptyList()
-    }
-
-    suspend fun get(id: Long, merchantId: Long?): SmsDto? {
-        return repository.getPageData(
-            SmsTable::class,
-            where = mapOf(
-                ("id" to id as Any),
-                ("merchant_id" to merchantId as Any)
-            ),
-            tableName = SMS_TABLE
-        )?.data?.map { SmsMapper.toDto(it) }?.firstOrNull()
+        }
+        return DataPage(data = mutableList, total = mutableList.size)
     }
 
     suspend fun post(smsDto: SmsDto?): Long? {
@@ -124,30 +85,43 @@ object SmsService {
 
     suspend fun delete(id: Long, merchantId: Long?): Boolean {
         var rs: Int
-        val query = "update $SMS_TABLE set deleted = true where id = $id and merchant_id = $merchantId and not deleted"
-        withContext(Dispatchers.IO) {
-            repository.connection().use { rs = it.prepareStatement(query).executeUpdate() }
+        val query = StringBuilder()
+        query.append(
+            """
+            update sms
+            set deleted = true
+            where id = $id
+              and merchant_id = $merchantId
+              and not deleted
+        """.trimIndent()
+        )
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                rs = it.prepareStatement(query.toString()).executeUpdate()
+            }
         }
         return rs == 1
     }
 
-    suspend fun deleteByMessageId(messageId: Long): Boolean {
-        return repository.deleteData(SMS_TABLE, where = "message_id", whereValue = messageId)
+    suspend fun get(id: Long, merchantId: Long?): SmsDto? {
+        return repository.getPageData(
+            SmsTable::class,
+            where = mapOf(
+                ("id" to id as Any),
+                ("merchant_id" to merchantId as Any)
+            ),
+            tableName = SMS_TABLE
+        )?.data?.map { SmsMapper.toDto(it) }?.firstOrNull()
     }
 
-
-    suspend fun checkSmsTime(phone: String): Int {
-        val query = "UPDATE sms_check\n" +
-                "SET time = NOW()\n" +
-                "WHERE phone_number = ? and EXTRACT(EPOCH FROM NOW() - time) >= 30"
-        return withContext(DBManager.databaseDispatcher) {
-            mimsoft.io.features.favourite.repository.connection().use {
-                it.prepareStatement(query).apply {
-                    this.setString(1, phone)
-                    this.closeOnCompletion()
-                }.executeUpdate()
-            }
-        }
+    suspend fun getByMessageId(messageId: Long): List<SmsDto?> {
+        return repository.getPageData(
+            SmsTable::class,
+            tableName = SMS_TABLE,
+            where = mapOf(
+                "message_id" to messageId as Any
+            )
+        )?.data?.map { SmsMapper.toDto(it) } ?: emptyList()
     }
 
     suspend fun getPhoneCheckSmsTime(phone: String): String? {
@@ -164,6 +138,20 @@ object SmsService {
                 if (rs.next()) {
                     return@withContext rs.getString("phone")
                 } else return@withContext null
+            }
+        }
+    }
+
+    suspend fun checkSmsTime(phone: String): Int {
+        val query = "UPDATE sms_check\n" +
+                "SET time = NOW()\n" +
+                "WHERE phone_number = ? and EXTRACT(EPOCH FROM NOW() - time) >= 30"
+        return withContext(DBManager.databaseDispatcher) {
+            mimsoft.io.features.favourite.repository.connection().use {
+                it.prepareStatement(query).apply {
+                    this.setString(1, phone)
+                    this.closeOnCompletion()
+                }.executeUpdate()
             }
         }
     }
@@ -209,4 +197,65 @@ object SmsService {
             }
         }
     }
+
+    suspend fun deleteByMessageId(messageId: Long): Boolean {
+        return repository.deleteData(SMS_TABLE, where = "message_id", whereValue = messageId)
+    }
+
+//    suspend fun getAll2(
+//        merchantId: Long?,
+//        limit: Int? = null,
+//        offset: Int? = null
+//    ): DataPage<SmsDto> {
+//
+//
+//        val query =
+//            """
+//                select s.id                s_id,
+//                       s.time              s_time,
+//                       status,
+//                       m.id                m_id,
+//                       content,
+//                       client_count,
+//                       u.first_name        u_first_name,
+//                       u.last_name         u_last_name,
+//                       count(*) over () as total
+//                from sms s
+//                         left join message m on s.message_id = m.id
+//                         left join users u on s.client_id = u.id
+//                where s.merchant_id = $merchantId
+//                  and not s.deleted
+//                  and not m.deleted
+//                limit $limit offset $offset
+//            """
+//        var total = -1
+//        return withContext(DBManager.databaseDispatcher) {
+//            repository.connection().use {
+//                val rs = it.prepareStatement(query).executeQuery()
+//                val list = arrayListOf<SmsDto>()
+//                while (rs.next()) {
+//                    if (total == -1) {
+//                        total = rs.getInt("total")
+//                    }
+//                    val dto = SmsDto(
+//                        id = rs.getLong("s_id"),
+//                        time = rs.getString("s_time"),
+//                        status = Status.valueOf(rs.getString("status")),
+//                        message = MessageDto(
+//                            id = rs.getLong("m_id"),
+//                            content = rs.getString("content"),
+//                        ),
+//                        clientCount = rs.getLong("client_count"),
+//                        client = UserDto(
+//                            firstName = rs.getString("u_first_name"),
+//                            lastName = rs.getString("u_last_name")
+//                        )
+//                    )
+//                    list.add(dto)
+//                }
+//                return@withContext DataPage(list, total)
+//            }
+//        }
+//    }
+
 }

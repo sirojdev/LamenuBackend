@@ -12,7 +12,7 @@ object SmsMapper {
             merchantId = smsTable.merchantId,
             clientCount = smsTable.clientCount,
             message = MessageDto(id = smsTable.messageId),
-            time = smsTable.time.toString(),
+            time = smsTable.time,
             client = UserDto(id = smsTable.clientId),
             status = Status.valueOf(smsTable.status ?: "NOT_SENT")
         )
@@ -26,7 +26,7 @@ object SmsMapper {
             clientCount = smsDto.clientCount,
             messageId = smsDto.message?.id,
             clientId = smsDto.client?.id,
-            time = smsDto.time?.let { Timestamp.valueOf(it) },
+            time = smsDto.time,
             status = smsDto.status?.name
         )
     }

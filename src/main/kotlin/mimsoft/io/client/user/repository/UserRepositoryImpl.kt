@@ -4,18 +4,16 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.*
 import mimsoft.io.config.timestampValidator
 import mimsoft.io.features.badge.BadgeDto
-import mimsoft.io.features.order.OrderService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
-import kotlin.math.log
 
 object UserRepositoryImpl : UserRepository {
-
 
     private val repository: BaseRepository = DBManager
     private val mapper = UserMapper
@@ -23,12 +21,11 @@ object UserRepositoryImpl : UserRepository {
 
     override suspend fun getAll(
         merchantId: Long?,
-        limit: Long?,
-        offset: Long?,
         search: String?,
         filters: String?,
-        badgeId: Long?
-    ): List<UserDto> {
+        limit: Int?,
+        offset: Int?
+    ): DataPage<UserDto> {
         var totalCount: Int? = null
         val tName = USER_TABLE_NAME
         val query = StringBuilder()
@@ -81,93 +78,33 @@ object UserRepositoryImpl : UserRepository {
         if (filter == null) query.append(" order by u.created desc")
         if (limit != null) query.append(" limit $limit")
         if (offset != null) query.append(" offset $offset")
-        val list = mutableListOf<UserDto>()
-        return withContext(DBManager.databaseDispatcher) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query.toString()).apply { this.closeOnCompletion() }.executeQuery()
-                while (rs.next()) {
-                    val dto = UserDto(
-                        id = rs.getLong("id"),
-                        phone = rs.getString("phone"),
-                        firstName = rs.getString("first_name"),
-                        lastName = rs.getString("last_name"),
-                        image = rs.getString("image"),
-                        birthDay = rs.getTimestamp("birth_day"),
-                        cashbackBalance = rs.getDouble("balance"),
-                        visitCount = rs.getInt("visit_count"),
-                        badge = BadgeDto(
-                            name = TextModel(
-                                uz = rs.getString("b_name_uz"),
-                                ru = rs.getString("b_name_ru"),
-                                eng = rs.getString("b_name_eng"),
-                            ),
-                            textColor = rs.getString("bt_color"),
-                            bgColor = rs.getString("bg_color"),
-                            icon = rs.getString("b_icon")
-                        )
-                    )
-                    list.add(dto)
-                }
-                totalCount = tName.let { DBManager.getDataCount(it) }
-            }
-            return@withContext list
-        }
-    }
-
-    override suspend fun get(id: Long?, merchantId: Long?): UserDto? {
-        val query = """
-            select u.*,
-                   b.name_uz    b_name_uz,
-                   b.name_ru    b_name_ru,
-                   b.name_eng   b_name_eng,
-                   b.text_color bt_color,
-                   b.bg_color   bg_color,
-                   b.icon       b_icon
-            from users u
-                     left join badge b on b.id = u.badge_id
-            where u.id = :id
-              and not u.deleted
-        """.trimIndent()
         log.info("query: $query")
-        return withContext(DBManager.databaseDispatcher) {
-            DBManager.connection().use { it ->
-                val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    UserDto(
-                        id = rs.getLong("id"),
-                        badge = BadgeDto(
-                            id = rs.getLong("badge_id"),
-                            name = TextModel(
-                                uz = rs.getString("b_name_uz"),
-                                ru = rs.getString("b_name_ru"),
-                                eng = rs.getString("b_name_eng"),
-                            ),
-                            textColor = rs.getString("bt_color"),
-                            bgColor = rs.getString("bg_color"),
-                            icon = rs.getString("b_icon"),
+        val mutableList = mutableListOf<UserDto>()
+        repository.selectList(query.toString()).forEach {
+            mutableList.add(
+                UserDto(
+                    id = it["id"] as? Long,
+                    phone = it["phone"] as? String,
+                    firstName = it["first_name"] as? String,
+                    lastName = it["last_name"] as? String,
+                    image = it["image"] as? String,
+                    birthDay = it["birth_day"] as? Timestamp,
+                    cashbackBalance = it["cash_balance"] as? Double,
+                    visitCount = it["visit_count"] as? Int,
+                    badge = BadgeDto(
+                        name = TextModel(
+                            uz = it["b_name_uz"] as? String,
+                            ru = it["b_name_ru"] as? String,
+                            eng = it["b_name_eng"] as? String
                         ),
-                        cashbackBalance = rs.getDouble("balance"),
-                        firstName = rs.getString("first_name"),
-                        phone = rs.getString("phone"),
-                        lastName = rs.getString("last_name"),
-                        image = rs.getString("image"),
-                        birthDay = rs.getTimestamp("birth_day"),
-                        merchantId = rs.getLong("merchant_id")
+                        textColor = it["text_color"] as? String,
+                        bgColor = it["bg_color"] as? String,
+                        icon = it["b_icon"] as? String
                     )
-                } else null
-            }
-        }
-    }
-
-    override suspend fun get(phone: String?, merchantId: Long?): UserDto? {
-        return DBManager.getPageData(
-            dataClass = UserTable::class,
-            tableName = USER_TABLE_NAME,
-            where = mapOf(
-                "phone" to phone as Any,
-                "merchant_id" to merchantId as Any
+                )
             )
-        )?.data?.firstOrNull()?.let { mapper.toUserDto(it) }
+        }
+        return DataPage(data = mutableList, total = mutableList.size)
     }
 
     override suspend fun add(userDto: UserDto?): ResponseModel {
@@ -235,7 +172,7 @@ object UserRepositoryImpl : UserRepository {
         if (userDto.merchantId != null) {
             query += " and merchant_id = ${userDto.merchantId}"
         }
-        log.info("result: $query")
+        log.info("query: $query")
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 var x = 0
@@ -268,5 +205,61 @@ object UserRepositoryImpl : UserRepository {
             }
             return@withContext rs == 1
         }
+    }
+
+    override suspend fun get(id: Long?, merchantId: Long?): UserDto? {
+        val query = """
+            select u.*,
+                   b.name_uz    b_name_uz,
+                   b.name_ru    b_name_ru,
+                   b.name_eng   b_name_eng,
+                   b.text_color bt_color,
+                   b.bg_color   bg_color,
+                   b.icon       b_icon
+            from users u
+                     left join badge b on b.id = u.badge_id
+            where u.id = $id
+              and not u.deleted
+        """.trimIndent()
+        log.info("query: $query")
+        return withContext(DBManager.databaseDispatcher) {
+            DBManager.connection().use { it ->
+                val rs = it.prepareStatement(query).executeQuery()
+                if (rs.next()) {
+                    UserDto(
+                        id = rs.getLong("id"),
+                        badge = BadgeDto(
+                            id = rs.getLong("badge_id"),
+                            name = TextModel(
+                                uz = rs.getString("b_name_uz"),
+                                ru = rs.getString("b_name_ru"),
+                                eng = rs.getString("b_name_eng"),
+                            ),
+                            textColor = rs.getString("bt_color"),
+                            bgColor = rs.getString("bg_color"),
+                            icon = rs.getString("b_icon"),
+                        ),
+                        cashbackBalance = rs.getDouble("balance"),
+                        firstName = rs.getString("first_name"),
+                        phone = rs.getString("phone"),
+                        lastName = rs.getString("last_name"),
+                        image = rs.getString("image"),
+                        birthDay = rs.getTimestamp("birth_day"),
+                        merchantId = rs.getLong("merchant_id")
+                    )
+                } else null
+            }
+        }
+    }
+
+    override suspend fun get(phone: String?, merchantId: Long?): UserDto? {
+        return DBManager.getPageData(
+            dataClass = UserTable::class,
+            tableName = USER_TABLE_NAME,
+            where = mapOf(
+                "phone" to phone as Any,
+                "merchant_id" to merchantId as Any
+            )
+        )?.data?.firstOrNull()?.let { mapper.toUserDto(it) }
     }
 }

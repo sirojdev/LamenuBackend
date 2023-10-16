@@ -23,7 +23,7 @@ object NewsRepositoryImpl : NewsRepository {
             val users = UserRepositoryImpl.getAll(merchantId = dto?.merchantId)
             println("users $users")
             GlobalScope.launch {
-                FirebaseService.sendNewsAllClient(users = users, data = dto)
+                FirebaseService.sendNewsAllClient(users = users.data, data = dto)
             }
         }
         return response

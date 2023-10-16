@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.MerchantPrincipal
 
 fun Route.routeToMessage() {
+
     val messageService = MessageService
 
     get("messages") {
