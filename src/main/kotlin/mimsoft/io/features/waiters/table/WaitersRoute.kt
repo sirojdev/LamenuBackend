@@ -49,7 +49,7 @@ fun Route.routToWaiters() {
                 val tableId = call.parameters["tableId"]?.toLongOrNull()
                 val waiterId = call.parameters["waiterId"]?.toLongOrNull()
                 val merchantId = pr?.merchantId
-                val rs = waiterTableRepository.joinToWaiter(waiterId, tableId)
+                val rs = waiterTableRepository.joinToWaiter(waiterId, tableId, merchantId)
                 if (rs != null) {
                     call.respond(HttpStatusCode.OK, rs)
                 } else {

@@ -4,13 +4,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.room.RoomDto
+import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.table.TableDto
+import mimsoft.io.features.table.TableService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.waiter.info.WaiterInfoDto
 import mimsoft.io.waiter.socket.WaiterNewOrderDto
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 object WaiterTableRepository {
     val repository: BaseRepository = DBManager
@@ -25,7 +28,7 @@ object WaiterTableRepository {
         val list = ArrayList<WaiterTableDto>()
         var total: Int? = null
 
-        withContext(Dispatchers.IO) {
+        withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
                 }.executeQuery()
@@ -84,7 +87,6 @@ object WaiterTableRepository {
         return DataPage(list, total)
     }
 
-
     suspend fun isOpenTable(tableId: Long?): Boolean {
         val query = "select * from $WAITER_TABLE_NAME " +
                 " where table_id =$tableId and deleted = false and  finish_time is null "
@@ -101,7 +103,33 @@ object WaiterTableRepository {
         return isOpen
     }
 
-    suspend fun joinToWaiter(waiterId: Long?, tableId: Long?, branchId: Long?): Boolean {
+    suspend fun joinToWaiter(waiterId: Long?, branchId: Long?, order: WaiterNewOrderDto): Boolean {
+        val query = """
+            INSERT INTO waiter_table (waiter_id, table_id, join_time, visit_id)
+            SELECT $waiterId, ${order.tableId}, now(), ${order.visitId}
+            WHERE
+              EXISTS (SELECT 1 FROM room WHERE id = ${order.roomId} and not deleted and branch_id = ${branchId})
+              AND EXISTS (SELECT 1 FROM waiter WHERE staff_id = $waiterId and not deleted and is_active = true)
+              AND EXISTS (SELECT 1 FROM staff WHERE id = $waiterId and not deleted and branch_id = $branchId)
+              AND EXISTS (SELECT 1 FROM tables WHERE id = ${order.tableId} and room_id = ${order.roomId} and not deleted and branch_id = $branchId)
+              AND NOT EXISTS (
+                SELECT 1 FROM waiter_table
+                WHERE table_id = ${order.tableId} AND finish_time is null
+              )
+            ON CONFLICT DO NOTHING;
+        """.trimIndent()
+        var result = false
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                }.executeUpdate()
+                result = rs == 1
+            }
+        }
+        return result
+    }
+
+        suspend fun joinToWaiter(waiterId: Long?, tableId: Long?, branchId: Long?): Boolean {
         val query = "INSERT INTO waiter_table (waiter_id, table_id, join_time)\n" +
                 "SELECT $waiterId,$tableId, now()\n" +
                 "WHERE\n" +
@@ -143,31 +171,10 @@ object WaiterTableRepository {
         return false
     }
 
-    suspend fun joinToWaiter(waiterId: Long?, branchId: Long?, order: WaiterNewOrderDto): Boolean {
-        val query = """
-            INSERT INTO waiter_table (waiter_id, table_id, join_time, visit_id)
-            SELECT $waiterId, ${order.tableId}, now(), ${order.visitId}
-            WHERE
-              EXISTS (SELECT 1 FROM room WHERE id = ${order.roomId} and not deleted and branch_id = ${branchId})
-              AND EXISTS (SELECT 1 FROM waiter WHERE staff_id = $waiterId and not deleted and is_active = true)
-              AND EXISTS (SELECT 1 FROM staff WHERE id = $waiterId and not deleted and branch_id = $branchId)
-              AND EXISTS (SELECT 1 FROM tables WHERE id = ${order.tableId} and room_id = ${order.roomId} and not deleted and branch_id = $branchId)
-              AND NOT EXISTS (
-                SELECT 1 FROM waiter_table
-                WHERE table_id = ${order.tableId} AND finish_time is null
-              )
-            ON CONFLICT DO NOTHING;
-        """.trimIndent()
-        var result = false
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                }.executeUpdate()
-                result = rs == 1
-            }
-        }
-        return result
-    }
+
+
+
+
 
     suspend fun finishTable(waiterId: Long?, tableId: Long?): Boolean {
         val query = "update  $WAITER_TABLE_NAME " +
@@ -218,5 +225,21 @@ object WaiterTableRepository {
             }
             return@withContext response == 1
         }
+    }
+
+    suspend fun getWaiter(id: Long?, merchantId: Long?, branchId: Long?): WaiterInfoDto {
+        val waiter = StaffService.get(id = id, merchantId = merchantId, branchId = branchId)
+        val tables = TableService.getTables(staffId = id, merchantId = merchantId, branchId = branchId)
+        return WaiterInfoDto(
+            id = waiter?.id,
+            firstName = waiter?.firstName,
+            lastName = waiter?.lastName,
+            phone = waiter?.phone,
+            birthDay = Timestamp.valueOf(waiter?.birthDay),
+            image = waiter?.image,
+            gender = waiter?.gender,
+            status = waiter?.status,
+            tables = tables
+        )
     }
 }
