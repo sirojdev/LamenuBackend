@@ -224,6 +224,7 @@ object UzumService {
         } catch (e: Exception) {
             e.printStackTrace()
             try {
+
                 val body = createFiscalObj(uzumOrder, order)
                 log.info("fiscal body ${Gson().toJson(body)}")
                 val response = apacheClient.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {

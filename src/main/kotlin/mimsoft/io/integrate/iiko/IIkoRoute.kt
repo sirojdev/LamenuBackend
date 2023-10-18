@@ -5,25 +5,47 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.utils.principal.BasePrincipal
+import mimsoft.io.utils.plugins.BadRequest
+import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToIIko() {
     route("/iiko") {
-        get("/products") {
-            val principal = call.principal<BasePrincipal>()!!
-            val organizationId = call.parameters["organizationId"]
-            call.respond(IIkoService.getProducts(organizationId, principal.merchantId) ?: HttpStatusCode.NoContent)
-        }
-        get("/orders") {
-            call.respond(IIkoService.getOrders())
-        }
-        get("/branches") {
-            val merchantId = call.parameters["merchantId"]?.toLongOrNull()
-            call.respond(IIkoService.getBranches(merchantId) ?: HttpStatusCode.NoContent)
-        }
-        get("/branch") {
-            val merchantId = call.parameters["branchId"]?.toLongOrNull()
-            call.respond(IIkoService.getBranches(merchantId) ?: HttpStatusCode.NoContent)
+        authenticate("branch") {
+            get("/products") {
+                val principal = getPrincipal()
+                val groupId = call.parameters["group_id"]?:throw BadRequest("group id required")
+                val categoryId = call.parameters["category_id"]?:throw BadRequest("category id  required")
+                call.respond(IIkoService.getProducts(principal,groupId,categoryId))
+            }
+            get("/branches") {
+                val merchantId = getPrincipal()?.merchantId?:throw BadRequest("merchant id required in principal")
+                call.respond(IIkoService.getBranches(merchantId) ?: HttpStatusCode.NoContent)
+            }
+            get("/branch") {
+                val merchantId = getPrincipal()?.merchantId
+                val branchId = call.parameters["branchId"] ?: throw BadRequest("branchId required")
+                call.respond(
+                    IIkoService.getBranch(iikoBranchId = branchId, merchantId = 1)
+                )
+            }
+            get("groups") {
+                val principal = getPrincipal()
+                val branchId = principal?.branchId
+                val merchantId = principal?.merchantId
+                call.respond(IIkoService.getGroups(branchId, merchantId) ?: HttpStatusCode.NoContent)
+            }
+            get("category") {
+                val principal = getPrincipal()
+                val branchId = principal?.branchId
+                val merchantId = principal?.merchantId
+                call.respond(IIkoService.getCategory(branchId, merchantId) ?: HttpStatusCode.NoContent)
+            }
+            get("terminal-group") {
+                val principal = getPrincipal()
+                val branchId = principal?.branchId
+                val merchantId = principal?.merchantId
+                call.respond(IIkoService.getCategory(branchId, merchantId) ?: HttpStatusCode.NoContent)
+            }
         }
     }
 }

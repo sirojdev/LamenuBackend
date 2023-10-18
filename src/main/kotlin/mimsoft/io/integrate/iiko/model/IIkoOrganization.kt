@@ -10,11 +10,17 @@ data class Organization(
     val id: String? = null,
     val name: String? = null,
     val code: String? = null,
+    val externalData:List<ExternalData>?=null
 )
 
 data class IIkoOrganizationsRequest(
     val organizationIds: List<String>? = null,
     val returnAdditionalInfo: Boolean? = true,
-    val includeDisabled: Boolean? = null,
-    val returnExternalData:List<String>?=null
+    val includeDisabled: Boolean? = true,
+    val returnExternalData: List<String>? = null
+)
+
+data class ExternalData(
+    val key:String?=null,
+    val value:String?=null
 )
