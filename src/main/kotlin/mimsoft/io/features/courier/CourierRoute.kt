@@ -23,30 +23,68 @@ fun Route.routeToCourier() {
             val principal = getPrincipal()
             val merchantId = principal?.merchantId
             val branchId = principal?.branchId
+            val search = call.parameters["search"]
+            val filters = call.parameters["filters"]
             val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
             val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val couriers = staffService.getAllCourier(merchantId = merchantId, branchId = branchId, limit, offset)
-            if (couriers.data?.isEmpty() == true) {
-                call.respond(HttpStatusCode.NoContent)
+            val couriers = staffService.getAllCourier(
+                merchantId = merchantId,
+                branchId = branchId,
+                search = search,
+                filters = filters,
+                limit = limit,
+                offset = offset
+            )
+            if (couriers.data?.isNotEmpty() == true) {
+                call.respond(couriers)
                 return@get
-            } else call.respond(couriers)
+            }
+            call.respond(HttpStatusCode.NoContent)
         }
 
         get("/{id}") {
             val principal = call.principal<BasePrincipal>()
-            val merchantId = principal?.merchantId
-            val branchId = principal?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
+            val merchantId = principal?.merchantId
             if (id == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
-            val courier = courierService.get(id = id, merchantId = merchantId, branchId = branchId)
-            if (courier == null) {
-                call.respond(HttpStatusCode.NoContent)
+            val courier = courierService.get(
+                id = id,
+                merchantId = merchantId,
+            )
+            if (courier.isNotEmpty()) {
+                call.respond(courier)
                 return@get
             }
-            call.respond(courier)
+            call.respond(HttpStatusCode.NoContent)
+        }
+
+        get("orders/{courierId}") {
+            val principal = call.principal<BasePrincipal>()
+            val courierId = call.parameters["courierId"]?.toLongOrNull()
+            val merchantId = principal?.merchantId
+            val search = call.parameters["search"]
+            val filters = call.parameters["filters"]
+            val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            if (courierId == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
+            val courier = courierService.getCourierAllOrders(
+                courierId = courierId,
+                merchantId = merchantId,
+                filters = filters,
+                limit = limit,
+                offset = offset,
+            )
+            if (courier.isNotEmpty()) {
+                call.respond(courier)
+                return@get
+            }
+            call.respond(HttpStatusCode.NoContent)
         }
 
         post("") {
