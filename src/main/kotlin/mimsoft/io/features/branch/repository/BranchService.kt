@@ -10,5 +10,5 @@ interface BranchService {
     suspend fun delete(id: Long?): Boolean
     suspend fun getByName(branchName: String, merchantId: Long):BranchDto?
     suspend fun nearestBranch(latitude: Double?, longitude: Double?, merchantId: Long?): BranchDto?
-    suspend fun getBranchWithPostresId(branchId: Long?):BranchDto?
+    suspend fun getBranchWithPostersId(branchId: Long?):BranchDto?
 }

@@ -152,7 +152,7 @@ object BranchServiceImpl : BranchService {
         return branch
     }
 
-    override suspend fun getBranchWithPostresId(branchId: Long?): BranchDto? {
+    override suspend fun getBranchWithPostersId(branchId: Long?): BranchDto? {
         val query = "select  * from $BRANCH_TABLE_NAME  where id = $branchId and  deleted = false"
         var branch: BranchDto? = null
 

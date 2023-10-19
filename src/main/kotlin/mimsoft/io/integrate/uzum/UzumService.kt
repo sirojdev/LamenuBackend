@@ -214,9 +214,9 @@ object UzumService {
         try {
             val body = createFiscalObj(uzumOrder, order)
             log.info("fiscal body ${Gson().toJson(body)}")
-            val response = client.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {
+            val response = apacheClient.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {
                 headers {
-                    append("ssl_client_fingerprint", payment?.uzumFiscal.toString())
+                    append("ssl_client_fingerprint", payment?.uzumFiscal ?: "")
                 }
                 setBody(Gson().toJson(body))
             }
@@ -224,7 +224,6 @@ object UzumService {
         } catch (e: Exception) {
             e.printStackTrace()
             try {
-
                 val body = createFiscalObj(uzumOrder, order)
                 log.info("fiscal body ${Gson().toJson(body)}")
                 val response = apacheClient.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {
@@ -249,7 +248,7 @@ object UzumService {
             receiptType = 0,
             cashAmount = 0,
             cardAmount = uzumOrder.price,
-            phoneNumber = if (order?.user?.phone?.startsWith("+") == true) order?.user?.phone?.removePrefix("+") else order?.user?.phone,
+            phoneNumber = if (order?.user?.phone?.startsWith("+") == true) order.user?.phone?.removePrefix("+") else order?.user?.phone,
             items = arrayListOf(
                 UzumFiskalItems(
                     productName = "oziq-ovqat",
