@@ -8,7 +8,8 @@ data class PaymentTypeDto(
     val icon: String? = null,
     val isPrePaid: Boolean? = null,
     val isPaid: Boolean? = null,
-    val title: TextModel? = null
+    val title: TextModel? = null,
+    val iikoId: String? = null,
 ){
     companion object{
         val PAYME = PaymentTypeDto(3, "Payme", "payme", true)

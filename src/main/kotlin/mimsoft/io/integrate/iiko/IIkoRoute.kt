@@ -46,6 +46,16 @@ fun Route.routeToIIko() {
                 val merchantId = principal?.merchantId
                 call.respond(IIkoService.getTerminalGroup(branchId, merchantId))
             }
+            get("modifiers") {
+                val principal = getPrincipal()
+                val branchId = principal?.branchId
+                val productId = call.parameters["id"]
+                val merchantId = principal?.merchantId
+                call.respond(IIkoService.getModifiersByProduct(branchId, merchantId,productId))
+            }
+            post("order") {
+                call.respond(IIkoService.createOrder(1))
+            }
             get("payment") {
                 val principal = getPrincipal()
                 call.respond(IIkoService.getPayment(principal))

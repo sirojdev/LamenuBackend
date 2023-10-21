@@ -4,29 +4,39 @@ import com.google.gson.annotations.SerializedName
 
 data class IIkoMenuResponse(
     @SerializedName("correlationId") var correlationId: String? = null,
-    @SerializedName("groups") var groups: ArrayList<Groups> = arrayListOf(),
-    @SerializedName("productCategories") var productCategories: ArrayList<ProductCategories> = arrayListOf(),
-    @SerializedName("products") var products: ArrayList<Products> = arrayListOf(),
-    @SerializedName("sizes") var sizes: ArrayList<Sizes> = arrayListOf(),
+    @SerializedName("groups") var groups: ArrayList<Groups>? = null,
+    @SerializedName("productCategories") var productCategories: ArrayList<ProductCategories>? = null,
+    @SerializedName("products") var products: ArrayList<Products>? = null,
+    @SerializedName("sizes") var sizes: ArrayList<Sizes>? = null,
     @SerializedName("revision") var revision: Int? = null
 )
+
 data class IIkoProductsResponse(
     @SerializedName("correlationId") var correlationId: String? = null,
-    @SerializedName("products") var products: ArrayList<Products> = arrayListOf(),
+    @SerializedName("products") var products: ArrayList<Products>? = null,
     @SerializedName("revision") var revision: Long? = null
 )
+
+data class IIkoProductsModifiersResponse(
+    @SerializedName("correlationId") var correlationId: String? = null,
+    @SerializedName("products") var products: ArrayList<Products>? = null,
+    @SerializedName("revision") var revision: Long? = null
+)
+
 data class IIkoCategoryResponse(
-    @SerializedName("productCategories") var productCategories: ArrayList<ProductCategories> = arrayListOf(),
+    @SerializedName("productCategories") var productCategories: ArrayList<ProductCategories>? = null,
     @SerializedName("revision") var revision: Long? = null
 )
+
 data class IIkoGroupResponse(
     @SerializedName("correlationId") var correlationId: String? = null,
-    @SerializedName("groups") var groups: ArrayList<Groups> = arrayListOf(),
+    @SerializedName("groups") var groups: ArrayList<Groups>? = null,
     @SerializedName("revision") var revision: Long? = null
 )
 
 data class Groups(
-    @SerializedName("imageLinks") var imageLinks: ArrayList<String> = arrayListOf(),
+    @SerializedName("productCategories") var productCategories: ArrayList<ProductCategories>? = null,
+    @SerializedName("imageLinks") var imageLinks: ArrayList<String>? = null,
     @SerializedName("parentGroup") var parentGroup: String? = null,
     @SerializedName("order") var order: Int? = null,
     @SerializedName("isIncludedInMenu") var isIncludedInMenu: Boolean? = null,
@@ -36,7 +46,7 @@ data class Groups(
     @SerializedName("name") var name: String? = null,
     @SerializedName("description") var description: String? = null,
     @SerializedName("additionalInfo") var additionalInfo: String? = null,
-    @SerializedName("tags") var tags: ArrayList<String> = arrayListOf(),
+    @SerializedName("tags") var tags: ArrayList<String>? = null,
     @SerializedName("isDeleted") var isDeleted: Boolean? = null,
     @SerializedName("seoDescription") var seoDescription: String? = null,
     @SerializedName("seoText") var seoText: String? = null,
@@ -65,14 +75,24 @@ data class SizePrices(
 )
 
 data class Modifiers(
-    @SerializedName("id") var id: String? = null,
-    @SerializedName("defaultAmount") var defaultAmount: Int? = null,
-    @SerializedName("minAmount") var minAmount: Int? = null,
-    @SerializedName("maxAmount") var maxAmount: Int? = null,
-    @SerializedName("required") var required: Boolean? = null,
-    @SerializedName("hideIfDefaultAmount") var hideIfDefaultAmount: Boolean? = null,
-    @SerializedName("splittable") var splittable: Boolean? = null,
-    @SerializedName("freeOfChargeAmount") var freeOfChargeAmount: Int? = null
+    val productId: String? = null,
+    val amount: Double? = null,
+    @SerializedName("id")
+    var id: String? = null,
+    @SerializedName("defaultAmount")
+    var defaultAmount: Int? = null,
+    @SerializedName("minAmount")
+    var minAmount: Int? = null,
+    @SerializedName("maxAmount")
+    var maxAmount: Int? = null,
+    @SerializedName("required")
+    var required: Boolean? = null,
+    @SerializedName("hideIfDefaultAmount")
+    var hideIfDefaultAmount: Boolean? = null,
+    @SerializedName("splittable")
+    var splittable: Boolean? = null,
+    @SerializedName("freeOfChargeAmount")
+    var freeOfChargeAmount: Int? = null
 )
 
 data class ChildModifiers(
@@ -92,7 +112,7 @@ data class GroupModifiers(
     @SerializedName("maxAmount") var maxAmount: Int? = null,
     @SerializedName("required") var required: Boolean? = null,
     @SerializedName("childModifiersHaveMinMaxRestrictions") var childModifiersHaveMinMaxRestrictions: Boolean? = null,
-    @SerializedName("childModifiers") var childModifiers: ArrayList<ChildModifiers> = arrayListOf(),
+    @SerializedName("childModifiers") var childModifiers: ArrayList<ChildModifiers>? = null,
     @SerializedName("hideIfDefaultAmount") var hideIfDefaultAmount: Boolean? = null,
     @SerializedName("defaultAmount") var defaultAmount: Int? = null,
     @SerializedName("splittable") var splittable: Boolean? = null,
@@ -124,10 +144,10 @@ data class Products(
     @SerializedName("modifierSchemaName") var modifierSchemaName: String? = null,
     @SerializedName("splittable") var splittable: Boolean? = null,
     @SerializedName("measureUnit") var measureUnit: String? = null,
-    @SerializedName("sizePrices") var sizePrices: ArrayList<SizePrices> = arrayListOf(),
-    @SerializedName("modifiers") var modifiers: ArrayList<Modifiers> = arrayListOf(),
-    @SerializedName("groupModifiers") var groupModifiers: ArrayList<GroupModifiers> = arrayListOf(),
-    @SerializedName("imageLinks") var imageLinks: ArrayList<String> = arrayListOf(),
+    @SerializedName("sizePrices") var sizePrices: ArrayList<SizePrices>? = null,
+    @SerializedName("modifiers") var modifiers: ArrayList<Modifiers>? = null,
+    @SerializedName("groupModifiers") var groupModifiers: ArrayList<GroupModifiers>? = null,
+    @SerializedName("imageLinks") var imageLinks: ArrayList<String>? = null,
     @SerializedName("doNotPrintInCheque") var doNotPrintInCheque: Boolean? = null,
     @SerializedName("parentGroup") var parentGroup: String? = null,
     @SerializedName("order") var order: Int? = null,
@@ -140,7 +160,7 @@ data class Products(
     @SerializedName("name") var name: String? = null,
     @SerializedName("description") var description: String? = null,
     @SerializedName("additionalInfo") var additionalInfo: String? = null,
-    @SerializedName("tags") var tags: ArrayList<String> = arrayListOf(),
+    @SerializedName("tags") var tags: ArrayList<String>? = null,
     @SerializedName("isDeleted") var isDeleted: Boolean? = null,
     @SerializedName("seoDescription") var seoDescription: String? = null,
     @SerializedName("seoText") var seoText: String? = null,

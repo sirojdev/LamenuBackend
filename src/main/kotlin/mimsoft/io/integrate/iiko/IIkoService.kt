@@ -9,15 +9,22 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import mimsoft.io.features.branch.repository.BranchServiceImpl
+import mimsoft.io.features.extra.ExtraDto
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
+import mimsoft.io.features.payment_type.repository.PaymentTypeRepositoryImpl
 import mimsoft.io.integrate.iiko.model.*
 import mimsoft.io.integrate.integrate.MerchantIntegrateRepository
 import mimsoft.io.integrate.jowi.JowiService
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.plugins.GSON
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.ResponseData
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.ArrayList
 
 object IIkoService {
     private val authTokenMap: MutableMap<Long, String> = mutableMapOf()
@@ -140,7 +147,8 @@ object IIkoService {
         groupId: String,
         products: IIkoProductsResponse
     ): List<Products> {
-        return products.products.filter { p ->
+        if (products.products == null) return emptyList()
+        return products.products!!.filter { p ->
             p.productCategoryId == categoryId && p.groupId == groupId
         }
     }
@@ -182,4 +190,120 @@ object IIkoService {
             ResponseData(data = response.body<String>())
         }
     }
+
+    suspend fun createOrder(merchantId: Long?): ResponseModel {
+        val obj = createOrderObj(orderId = 200)
+        val response = client.post("https://api-ru.iiko.services/api/1/deliveries/create") {
+            setBody(Gson().toJson(obj))
+            contentType(ContentType.Application.Json)
+            bearerAuth(authTokenMap[merchantId] ?: auth(merchantId ?: -1))
+        }
+        val dto = Gson().fromJson(response.body<String>(), IIkoOrderInfo::class.java)
+        IIkoOrderService.saveOrder(dto.orderInfo, orderId = 200)
+        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+    }
+
+    private suspend fun createOrderObj(orderId: Long): IIkoOrder {
+        val order = OrderService.getById(200, "user", "products", "payment_type", "address")
+        val merchantIntegrateDto = MerchantIntegrateRepository.get(order?.merchant?.id)
+        val branch = BranchServiceImpl.getBranchWithPostersId(31)
+        return IIkoOrder(
+            organizationId = merchantIntegrateDto?.iikoOrganizationId,
+            terminalGroupId = branch?.iikoId,
+            createOrderSettings = CreateOrderSettings(
+                transportToFrontTimeout = 30,
+                checkStopList = true
+            ),
+            order = IIkoOrderItem(
+                externalNumber = order?.id.toString(),
+//                completeBefore = LocalDateTime.now().toString(),
+                phone = order?.user?.phone,
+                orderServiceType = if (order?.serviceType == "DELIVERY") "DeliveryByCourier" else "DeliveryByClient",
+                deliveryPoint = DeliveryPoint(
+                    coordinates = Coordinates(
+                        latitude = order?.address?.latitude,
+                        longitude = order?.address?.longitude
+                    ),
+                    address = Address(
+                        street = Street(
+                            classifierId = null,
+                            id = null,
+                            name = null,
+                            city = null
+                        ),
+                        house = order?.address?.description
+                    ),
+                    comment = order?.comment
+                ),
+                items = getProducts(order),
+                payments = arrayListOf(
+                    Payments(
+                        paymentTypeKind = "Card",
+                        sum = order?.totalPrice?.toInt(),
+                        paymentTypeId = PaymentTypeRepositoryImpl.getForIIko(order?.paymentMethod?.id).iikoId,
+                        isProcessedExternally = true,
+                    )
+                )
+            )
+        )
+
+    }
+
+    private fun getProducts(order: Order?): ArrayList<Items>? {
+        if (order == null) return null
+        val list = arrayListOf<Items>()
+        for (x in order.products!!) {
+            list.add(
+                Items(
+                    productId = x.option?.iikoId.toString(),
+                    price = x.product?.costPrice?.toDouble(),
+                    type = "Product",
+                    amount = x.count?.toDouble(),
+                    modifiers = if (x.extras != null) (getModifiers(x.extras!!, x.option?.iikoId)) else null
+
+                )
+            )
+
+        }
+        return list
+    }
+
+    private fun getModifiers(extras: List<ExtraDto>, productId: String?): MutableList<Modifiers> {
+        val list = mutableListOf<Modifiers>()
+        for (x in extras) {
+            list.add(
+                Modifiers(
+                    productId = productId,
+                    amount = 1.0
+                )
+            )
+        }
+        return list
+    }
+
+    suspend fun getModifiersByProduct(branchId: Long?, merchantId: Long?, productId: String?): Any {
+        val organization = MerchantIntegrateRepository.get(merchantId)
+        if (organization?.iikoOrganizationId == null) throw BadRequest("in this branch didn't integration with iiko system")
+        val response = client.post("https://api-ru.iiko.services/api/1/nomenclature") {
+            contentType(ContentType.Application.Json)
+            bearerAuth(authTokenMap[merchantId] ?: auth(merchantId ?: -1))
+            setBody(
+                Gson().toJson(IIkoMenuRequest(organizationId = organization.iikoOrganizationId))
+            )
+        }
+        if (response.status.value == 401) {
+            authTokenMap[merchantId!!] = auth(merchantId)
+            return getCategory(branchId, merchantId)
+        }
+        val rs = Gson().fromJson(response.body<String>(), IIkoProductsResponse::class.java)
+        if (rs.products == null) return ResponseData(data = emptyList<IIkoProductsResponse>())
+        for (p in rs.products!!) {
+            if (p.id == productId) {
+                return ResponseData(data = p.modifiers)
+            }
+        }
+        return ResponseData(data = emptyList<IIkoProductsResponse>())
+    }
+
+
 }

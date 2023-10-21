@@ -101,6 +101,11 @@ object WaiterTableRepository {
         return isOpen
     }
 
+    /*
+    1. Table not found
+    2. Table taken
+    3. OK
+     */
     suspend fun joinToWaiter(waiterId: Long?, tableId: Long?, branchId: Long?): Boolean {
         val query = "INSERT INTO waiter_table (waiter_id, table_id, join_time)\n" +
                 "SELECT $waiterId,$tableId, now()\n" +
