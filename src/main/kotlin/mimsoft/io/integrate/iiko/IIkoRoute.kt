@@ -1,15 +1,35 @@
 package mimsoft.io.integrate.iiko
 
+import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.integrate.iiko.model.Webhook
+import mimsoft.io.integrate.uzum.UzumService
 import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.plugins.getPrincipal
+import mimsoft.io.utils.toJson
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 fun Route.routeToIIko() {
+    val log: Logger = LoggerFactory.getLogger(IIkoService::class.java)
     route("/iiko") {
+        post("webhook") {
+            try {
+                println(call.receiveText())
+                println(call.toJson())
+                val body = call.receive<Webhook>()
+                log.info(Gson().toJson(body))
+                println("sdjkabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+                call.respond(HttpStatusCode.OK)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         authenticate("branch") {
             get("/products") {
                 val principal = getPrincipal()
@@ -51,7 +71,7 @@ fun Route.routeToIIko() {
                 val branchId = principal?.branchId
                 val productId = call.parameters["id"]
                 val merchantId = principal?.merchantId
-                call.respond(IIkoService.getModifiersByProduct(branchId, merchantId,productId))
+                call.respond(IIkoService.getModifiersByProduct(branchId, merchantId, productId))
             }
             post("order") {
                 call.respond(IIkoService.createOrder(1))
@@ -60,12 +80,7 @@ fun Route.routeToIIko() {
                 val principal = getPrincipal()
                 call.respond(IIkoService.getPayment(principal))
             }
-            post("webhook") {
-                val params = call.parameters
-                for (x in params.entries()) {
-                    println(x)
-                }
-            }
+
         }
     }
 }
