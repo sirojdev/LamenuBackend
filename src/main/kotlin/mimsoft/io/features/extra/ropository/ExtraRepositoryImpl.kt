@@ -83,7 +83,6 @@ object ExtraRepositoryImpl : ExtraRepository {
             where = mapOf(
                 "merchant_id" to merchantId as Any,
                 "product_id" to productId as Any,
-                "branch_id" to branchId as Any
             ),
             tableName = EXTRA_TABLE_NAME
         )?.data

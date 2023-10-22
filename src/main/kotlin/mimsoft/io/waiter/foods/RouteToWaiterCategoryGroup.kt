@@ -27,7 +27,6 @@ fun Route.routeToWaiterCategoryByGroup() {
             val categoryList =
                 CategoryGroupService.getCategoryGroupByIdInBranch(branchId = principal?.branchId, groupId = id)
             call.respond(ResponseData(data = categoryList))
-            return@get
         }
     }
 }

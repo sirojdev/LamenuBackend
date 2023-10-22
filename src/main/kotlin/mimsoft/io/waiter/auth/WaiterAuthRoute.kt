@@ -37,10 +37,6 @@ fun Route.routeToWaiterAuth() {
                     throw BadRequest("error input,brand,model,build,osVersion,uuid,appKey required")
                 } else {
                     val ip = call.request.host()
-//                    val appDto = MerchantAppKeyRe
-//
-//
-//                    pository.getByAppId(appKey) ?: throw BadRequest("appKey not found")
                     val result = DeviceController.auth(
                         device.copy(
                             ip = ip,

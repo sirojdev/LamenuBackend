@@ -284,15 +284,17 @@ object UserRepositoryImpl : UserRepository {
         )
     }
 
-    suspend fun addNewClientFromWaiter(phone: String): Long? {
+    suspend fun addNewClientFromWaiter(phone: String,mId:Long): Long? {
         var query = """
-            insert into users (phone,created)
-            values(?,now())  
+            insert into users (phone,created,merchant_id)
+            values(?,now(),$mId)  
                       returning id
         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, phone)
+                }.executeQuery()
                 if (rs.next()) return@withContext rs.getLong("id")
             }
         }

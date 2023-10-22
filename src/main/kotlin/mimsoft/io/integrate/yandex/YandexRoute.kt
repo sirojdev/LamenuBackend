@@ -8,16 +8,21 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.integrate.yandex.module.YandexCheckPrice
 import mimsoft.io.integrate.yandex.module.YandexOrder
+import mimsoft.io.integrate.yandex.repository.YandexRepository
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.toJson
 import org.glassfish.grizzly.http.util.HttpStatus
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import kotlin.math.log
 
 fun Route.routeToYandex() {
+    val log: Logger = LoggerFactory.getLogger(YandexService::class.java)
     route("yandex") {
         get("/tariff") {
             val branchId = call.parameters["branchId"]?.toLongOrNull()
-//            val principal = call.principal<BasePrincipal>()
+            val principal = call.principal<BasePrincipal>()
 //            val merchantId = principal?.merchantId
             val merchantId = 1L
             call.respond(YandexService.tariff(branchId = branchId, merchantId = merchantId))
@@ -101,9 +106,10 @@ fun Route.routeToYandex() {
             val claimId = call.parameters["claim_id"]
             val updatedTs = call.parameters["updated_ts"]
             println(call.parameters.toJson())
-            println("my order id  = $myOrderId")
-            println("my claim id  = $claimId")
-            println("my updates ts id  = $claimId")
+            YandexRepository.updateCallBack(myOrderId, claimId, updatedTs)
+            log.info("my order id  = $myOrderId")
+            log.info("my claim id  = $claimId")
+            log.info("my updates ts id  = $updatedTs")
             call.respond(HttpStatusCode.OK)
         }
     }

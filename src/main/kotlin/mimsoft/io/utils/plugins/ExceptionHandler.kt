@@ -43,6 +43,16 @@ fun Application.configureExceptions() {
                         )
                     )
                 }
+                is InternalServerException -> {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        ResponseData(
+                            isSuccess = false,
+                            statusCode = HttpStatusCode.InternalServerError,
+                            error = ExceptionResponse("${throwable.message}", HttpStatusCode.InternalServerError.value)
+                        )
+                    )
+                }
             }
         }
         status(
@@ -73,7 +83,7 @@ fun Application.configureExceptions() {
         }
     }
 }
-
+class InternalServerException(override val message: String) : Throwable()
 class ValidationException(override val message: String) : Throwable()
 class ItemNotFoundException(override val message: String) : Throwable()
 class BadRequest(override val message: String) : Throwable()

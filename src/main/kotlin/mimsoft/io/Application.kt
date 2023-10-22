@@ -6,7 +6,7 @@ import io.ktor.server.request.*
 import jakarta.validation.Validation
 import jakarta.validation.Validator
 import kotlinx.coroutines.runBlocking
-import mimsoft.io.ssl.sslConfiguration
+//import mimsoft.io.ssl.sslConfiguration
 import mimsoft.io.utils.plugins.*
 
 
@@ -21,5 +21,5 @@ fun Application.module() = runBlocking {
     configureRouting()
     configureSocket()
     configureFirebase()
-    sslConfiguration()
+//    sslConfiguration()
 }

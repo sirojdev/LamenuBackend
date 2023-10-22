@@ -3,7 +3,6 @@ package mimsoft.io.waiter
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mimsoft.io.features.courier.COURIER_TABLE_NAME
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.STAFF_TABLE_NAME
 import mimsoft.io.features.staff.StaffDto
@@ -11,9 +10,9 @@ import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.session.SessionRepository
-import mimsoft.io.utils.ResponseModel
 import mimsoft.io.waiter.info.WaiterInfoDto
-import mimsoft.io.waiter.table.WAITER_TABLE_NAME
+import mimsoft.io.waiter.info.WaiterUpdatePasswordRequest
+import mimsoft.io.waiter.info.WaiterUpdateRequest
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
@@ -91,32 +90,63 @@ object WaiterService {
     }
 
 
-    suspend fun updateWaiterProfile(dto: StaffDto): Boolean {
-        var query = """
+    suspend fun updateWaiterProfile(dto: WaiterUpdateRequest): Boolean {
+        val query = """
              update $STAFF_TABLE_NAME  s
              set
              first_name = COALESCE(?,s.first_name),
              last_name = COALESCE(?,s.last_name),
              birth_day = COALESCE(?,s.birth_day),
-             image = COALESCE(?,s.image),
-             updated = ? ,
-             password = COALESCE(?,s.password)
+             updated = now()
+             where s.id = ${dto.id} and s.deleted = false 
               """
-        query += "   where s.id = ${dto.id} and s.deleted = false "
-        if (dto.birthDay != null) {
-            val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
-            dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
-        }
         var rs: Int?
         withContext(Dispatchers.IO) {
             CourierService.repository.connection().use {
                 rs = it.prepareStatement(query).apply {
                     setString(1, dto.firstName)
                     setString(2, dto.lastName)
-                    setTimestamp(3, dto.birthDay?.let { Timestamp.valueOf(it) })
-                    setString(4, dto.image)
-                    setTimestamp(5, Timestamp(System.currentTimeMillis()))
-                    setString(6, dto.newPassword)
+                    setTimestamp(3, dto.birthDay)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+        return rs == 1
+    }
+    suspend fun updateWaiterPassword(dto: WaiterUpdatePasswordRequest): Boolean {
+        val query = """
+             update $STAFF_TABLE_NAME  s
+             set
+             password = COALESCE(?,s.password),
+             updated = now()
+             where s.id = ${dto.id} and s.deleted = false and password = ?
+              """
+        var rs: Int?
+        withContext(Dispatchers.IO) {
+            CourierService.repository.connection().use {
+                rs = it.prepareStatement(query).apply {
+                    setString(1, dto.newPassword)
+                    setString(2, dto.oldPassword)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+            }
+        }
+        return rs == 1
+    }
+
+    suspend fun updateWaiterImageProfile(image:String,staffId:Long): Boolean {
+        val query = """
+             update $STAFF_TABLE_NAME  s
+             set
+             image = ?,
+             updated = now()
+             where s.id = $staffId and s.deleted = false 
+              """
+        var rs: Int?
+        withContext(Dispatchers.IO) {
+            CourierService.repository.connection().use {
+                rs = it.prepareStatement(query).apply {
+                    setString(1, image)
                     this.closeOnCompletion()
                 }.executeUpdate()
             }
