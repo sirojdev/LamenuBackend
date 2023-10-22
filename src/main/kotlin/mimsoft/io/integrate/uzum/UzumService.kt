@@ -253,16 +253,15 @@ object UzumService {
             items = arrayListOf(
                 UzumFiskalItems(
                     productName = "Oziq-ovqat",
-                    count = 1,
+                    count = order?.total?.toInt(),
                     price = uzumOrder.price,
                     discount = 0,
-                    spic = "10703999001000000",
+                    spic = "10318001001000000",
                     units = 1495086,
                     packageCode = "12345",
                     vatPercent = 0,
                     commissionInfo = CommissionInfo(
-                        tin = null,
-                        pinfl = "52203015530017"
+                        tin = "З10490580",
                     ),
                     voucher = 0
                 )

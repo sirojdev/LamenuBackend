@@ -21,8 +21,10 @@ import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.plugins.GSON
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.ResponseData
+import org.bouncycastle.util.Times
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.ArrayList
 
@@ -204,19 +206,19 @@ object IIkoService {
     }
 
     private suspend fun createOrderObj(orderId: Long): IIkoOrder {
-        val order = OrderService.getById(200, "user", "products", "payment_type", "address")
+        val order = OrderService.getById(orderId, "user", "products", "payment_type", "address", "branch")
         val merchantIntegrateDto = MerchantIntegrateRepository.get(order?.merchant?.id)
         val branch = BranchServiceImpl.getBranchWithPostersId(31)
         return IIkoOrder(
             organizationId = merchantIntegrateDto?.iikoOrganizationId,
             terminalGroupId = branch?.iikoId,
             createOrderSettings = CreateOrderSettings(
-                transportToFrontTimeout = 30,
+                transportToFrontTimeout = 8,
                 checkStopList = true
             ),
             order = IIkoOrderItem(
                 externalNumber = order?.id.toString(),
-//                completeBefore = LocalDateTime.now().toString(),
+                completeBefore = Timestamp(System.currentTimeMillis() + 60 * 30_000L).toString(),
                 phone = order?.user?.phone,
                 orderServiceType = if (order?.serviceType == "DELIVERY") "DeliveryByCourier" else "DeliveryByClient",
                 deliveryPoint = DeliveryPoint(
@@ -228,17 +230,17 @@ object IIkoService {
                         street = Street(
                             classifierId = null,
                             id = null,
-                            name = null,
+                            name = order?.address?.description,
                             city = null
                         ),
-                        house = order?.address?.description
+                        house = "10"
                     ),
-                    comment = order?.comment
+//                    comment = order?.comment
                 ),
                 items = getProducts(order),
                 payments = arrayListOf(
                     Payments(
-                        paymentTypeKind = "Card",
+                        paymentTypeKind = "Cash",
                         sum = order?.totalPrice?.toInt(),
                         paymentTypeId = PaymentTypeRepositoryImpl.getForIIko(order?.paymentMethod?.id).iikoId,
                         isProcessedExternally = true,
@@ -273,7 +275,7 @@ object IIkoService {
         for (x in extras) {
             list.add(
                 Modifiers(
-                    productId = productId,
+                    productId = x.iikoModifierId,
                     amount = 1.0
                 )
             )
