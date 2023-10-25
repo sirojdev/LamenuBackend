@@ -23,7 +23,7 @@ data class Street(
     @SerializedName("classifierId") var classifierId: String? = null,
     @SerializedName("id") var id: String? = null,
     @SerializedName("name") var name: String? = null,
-    @SerializedName("city") var city: String? = null
+    @SerializedName("city") var city: City? = null
 )
 
 data class Address(
@@ -46,7 +46,8 @@ data class DeliveryPoint(
 )
 
 data class Customer(
-    @SerializedName("type") var type: String? = null
+    @SerializedName("type") var type: String? = null,
+    @SerializedName("name") var name: String? = null
 )
 
 
@@ -96,7 +97,6 @@ data class Payments(
     @SerializedName("isFiscalizedExternally") var isFiscalizedExternally: Boolean? = null,
     @SerializedName("isPrepay") var isPrepay: Boolean? = null
 )
-
 
 
 data class Tips(
@@ -158,7 +158,7 @@ data class IIkoOrderItem(
     @SerializedName("operatorId") var operatorId: String? = null,
     @SerializedName("items") var items: ArrayList<Items>? = null,
     @SerializedName("combos") var combos: ArrayList<Combos>? = null,
-    @SerializedName("payments") var payments: ArrayList<Payments> ? = null,
+    @SerializedName("payments") var payments: ArrayList<Payments>? = null,
     @SerializedName("tips") var tips: ArrayList<Tips>? = null,
     @SerializedName("sourceKey") var sourceKey: String? = null,
     @SerializedName("discountsInfo") var discountsInfo: DiscountsInfo? = null,

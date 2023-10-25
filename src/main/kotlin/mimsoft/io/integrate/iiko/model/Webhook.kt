@@ -70,7 +70,7 @@ data class EventInfo(
     @SerializedName("posId") var posId: String? = null,
     @SerializedName("externalNumber") var externalNumber: String? = null,
     @SerializedName("organizationId") var organizationId: String? = null,
-    @SerializedName("timestamp") var timestamp: Int? = null,
+    @SerializedName("timestamp") var timestamp: Long? = null,
     @SerializedName("creationStatus") var creationStatus: String? = null,
     @SerializedName("errorInfo") var errorInfo: ErrorInfo? = null,
     @SerializedName("order") var order: Order? = null

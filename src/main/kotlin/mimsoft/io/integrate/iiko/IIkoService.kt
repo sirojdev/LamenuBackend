@@ -21,11 +21,12 @@ import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.plugins.GSON
 import mimsoft.io.utils.principal.BasePrincipal
 import mimsoft.io.utils.principal.ResponseData
-import org.bouncycastle.util.Times
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
+import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.ArrayList
 
 object IIkoService {
@@ -151,7 +152,7 @@ object IIkoService {
     ): List<Products> {
         if (products.products == null) return emptyList()
         return products.products!!.filter { p ->
-            p.productCategoryId == categoryId && p.groupId == groupId
+            p.productCategoryId == categoryId && p.groupId == groupId && p.sizePrices?.get(0)?.price?.isIncludedInMenu == true
         }
     }
 
@@ -193,15 +194,16 @@ object IIkoService {
         }
     }
 
-    suspend fun createOrder(merchantId: Long?): ResponseModel {
-        val obj = createOrderObj(orderId = 200)
+    suspend fun createOrder(merchantId: Long?, orderId: Long): ResponseModel {
+        val obj = createOrderObj(orderId = orderId)
+        log.info("obj order-> ${Gson().toJson(obj)}")
         val response = client.post("https://api-ru.iiko.services/api/1/deliveries/create") {
             setBody(Gson().toJson(obj))
             contentType(ContentType.Application.Json)
             bearerAuth(authTokenMap[merchantId] ?: auth(merchantId ?: -1))
         }
         val dto = Gson().fromJson(response.body<String>(), IIkoOrderInfo::class.java)
-        IIkoOrderService.saveOrder(dto.orderInfo, orderId = 200)
+        IIkoOrderService.saveOrder(dto.orderInfo, orderId = orderId)
         return ResponseModel(body = response.body<String>(), httpStatus = response.status)
     }
 
@@ -218,7 +220,10 @@ object IIkoService {
             ),
             order = IIkoOrderItem(
                 externalNumber = order?.id.toString(),
-                completeBefore = Timestamp(System.currentTimeMillis() + 60 * 30_000L).toString(),
+                completeBefore = Timestamp(
+                    LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plus(Duration.ofMinutes(30))
+                        .atZone(ZoneId.of("Asia/Tashkent")).toInstant().toEpochMilli()
+                ).toString(),
                 phone = order?.user?.phone,
                 orderServiceType = if (order?.serviceType == "DELIVERY") "DeliveryByCourier" else "DeliveryByClient",
                 deliveryPoint = DeliveryPoint(
@@ -233,11 +238,24 @@ object IIkoService {
                             name = order?.address?.description,
                             city = null
                         ),
-                        house = "10"
-                    ),
+                        house = "10",
+                        building = order?.address?.details?.building,
+                        entrance = order?.address?.details?.entrance,
+                        flat = order?.address?.details?.floor.toString(),
+                        doorphone = order?.address?.details?.code,
+
+                        ),
 //                    comment = order?.comment
                 ),
                 items = getProducts(order),
+                guests = Guests(
+                    splitBetweenPersons = true,
+                    count = 1
+                ),
+                customer = Customer(
+                    name = order?.user?.firstName + "  " + order?.user?.lastName,
+                    type = "one-time"
+                ),
                 payments = arrayListOf(
                     Payments(
                         paymentTypeKind = "Cash",
@@ -254,29 +272,29 @@ object IIkoService {
     private fun getProducts(order: Order?): ArrayList<Items>? {
         if (order == null) return null
         val list = arrayListOf<Items>()
-        for (x in order.products!!) {
+        for (p in order.products!!) {
             list.add(
                 Items(
-                    productId = x.option?.iikoId.toString(),
-                    price = x.product?.costPrice?.toDouble(),
+                    productId = p.option?.iikoId.toString(),
+                    price = (p.product?.costPrice?.toDouble() ?: 0.0) + (p.option?.price?.toDouble() ?: 0.0),
                     type = "Product",
-                    amount = x.count?.toDouble(),
-                    modifiers = if (x.extras != null) (getModifiers(x.extras!!, x.option?.iikoId)) else null
-
+                    amount = p.count?.toDouble(),
                 )
             )
-
+            p.extras?.let { getModifiers(it, p.count?.toDouble()) }?.let { list.addAll(it) }
         }
         return list
     }
 
-    private fun getModifiers(extras: List<ExtraDto>, productId: String?): MutableList<Modifiers> {
-        val list = mutableListOf<Modifiers>()
-        for (x in extras) {
+    private fun getModifiers(extras: List<ExtraDto>, count: Double?): Collection<Items> {
+        val list = mutableListOf<Items>()
+        for (e in extras) {
             list.add(
-                Modifiers(
-                    productId = x.iikoModifierId,
-                    amount = 1.0
+                Items(
+                    price = e.price?.toDouble(),
+                    type = "Product",
+                    productId = e.iikoModifierId,
+                    amount = count
                 )
             )
         }
