@@ -7,6 +7,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.integrate.iiko.model.IIkoErrorService
 import mimsoft.io.integrate.iiko.model.Webhook
 import mimsoft.io.integrate.uzum.UzumService
 import mimsoft.io.utils.plugins.BadRequest
@@ -20,11 +21,13 @@ fun Route.routeToIIko() {
     route("/iiko") {
         post("webhook") {
             try {
-                println(call.receiveText())
-                println(call.toJson())
-                val body = call.receive<Webhook>()
+                val body = call.receive<List<Webhook>>()
                 log.info(Gson().toJson(body))
-                println("sdjkabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+                for (w in body) {
+                    if (w.eventInfo?.errorInfo != null) {
+                        IIkoErrorService.saveError(webhook = w)
+                    }
+                }
                 call.respond(HttpStatusCode.OK)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -74,7 +77,7 @@ fun Route.routeToIIko() {
                 call.respond(IIkoService.getModifiersByProduct(branchId, merchantId, productId))
             }
             post("order") {
-                call.respond(IIkoService.createOrder(1))
+                call.respond(IIkoService.createOrder(1, 200))
             }
             get("payment") {
                 val principal = getPrincipal()

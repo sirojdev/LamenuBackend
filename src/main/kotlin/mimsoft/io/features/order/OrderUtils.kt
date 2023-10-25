@@ -6,6 +6,8 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressRepositoryImpl
+import mimsoft.io.features.address.AddressType
+import mimsoft.io.features.address.Details
 import mimsoft.io.features.badge.BadgeDto
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.branch.repository.BranchServiceImpl
@@ -672,6 +674,16 @@ object OrderUtils {
                     pt.title_ru pt_title_ru,
                     pt.title_eng pt_title_eng,
                     pt.name pt_name """ else "") +
+                (if (columnsSet.contains("address"))
+                    """,
+                    a.id a_id,
+                    a.type a_type,
+                    a.name a_name,
+                    a.details a_details,
+                    a.description a_description,
+                    a.longitude a_longitude ,
+                    a.client_id a_client_id,
+                    a.latitude a_latitude """ else "") +
                 (if (columnsSet.contains("courier"))
                     """ ,
                     s2.id s2_id,
@@ -688,6 +700,7 @@ object OrderUtils {
                 (if (columnsSet.contains("merchant")) "LEFT JOIN merchant m ON o.merchant_id = m.id \n" else "") +
                 (if (columnsSet.contains("collector")) "LEFT JOIN staff s ON o.collector_id = s.id \n" else "") +
                 (if (columnsSet.contains("courier")) "LEFT JOIN staff s2 ON o.courier_id = s2.id \n" else "") +
+                (if (columnsSet.contains("address")) "LEFT JOIN address a ON o.address_id = a.id \n" else "") +
                 (if (columnsSet.contains("branch")) "LEFT JOIN branch b ON o.branch_id = b.id \n" else "") +
                 (if (columnsSet.contains("payment_type")) "LEFT JOIN payment_type pt  ON o.payment_type = pt.id \n" else "")
         println(query + joins + conditions)
@@ -810,6 +823,10 @@ object OrderUtils {
             ),
             courier = StaffDto(id = result["o_courier_id"] as? Long),
             address = AddressDto(
+                id = result["a_id"] as? Long?,
+                name = result["a_name"] as? String?,
+                type = (result["a_type"] as? String?)?.let { AddressType.valueOf(it) },
+                details = Gson().fromJson(result["a_details"] as? String?,Details::class.java),
                 latitude = result["o_add_lat"] as? Double?,
                 longitude = result["o_add_long"] as? Double?,
                 description = result["o_add_desc"] as? String
@@ -847,6 +864,7 @@ object OrderUtils {
             deliveredAt = result["o_delivered_at"] as? Timestamp?,
         )
     }
+
     suspend fun parseGetAll3(result: Map<String, *>): Order {
         val products = result["orders_products"] as? String
         log.info("products {}", products)
