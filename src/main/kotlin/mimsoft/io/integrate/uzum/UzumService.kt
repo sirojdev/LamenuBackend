@@ -15,9 +15,11 @@ import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentDto
 import mimsoft.io.features.payment.PaymentService
+import mimsoft.io.integrate.uzum.fiscal.FiscalService
 import mimsoft.io.integrate.uzum.module.*
 import mimsoft.io.ssl.SslSettings
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.BadRequest
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
@@ -241,7 +243,8 @@ object UzumService {
         return ResponseModel(httpStatus = HttpStatusCode.OK, body = "OK")
     }
 
-    private fun createFiscalObj(uzumOrder: UzumPaymentTable, order: Order?): UzumFiscal {
+    private suspend fun createFiscalObj(uzumOrder: UzumPaymentTable, order: Order?): UzumFiscal {
+        val fiscalInfo = FiscalService.fiscalGet(order?.merchant?.id?:-1)?:throw BadRequest(" this merchant must be add fiscal info")
         return UzumFiscal(
             paymentId = uzumOrder.uzumOrderId,
             operationId = UUID.randomUUID().toString(),
@@ -256,12 +259,12 @@ object UzumService {
                     count = order?.total?.toInt(),
                     price = uzumOrder.price,
                     discount = 0,
-                    spic = "10318001001000000",
-                    units = 1495086,
-                    packageCode = "12345",
-                    vatPercent = 0,
+                    spic = fiscalInfo.mxikCode,
+                    units = fiscalInfo.unit,
+                    packageCode =fiscalInfo.packageCode,
+                    vatPercent = fiscalInfo.percent,
                     commissionInfo = CommissionInfo(
-                        tin = "З10490580",
+                        tin = fiscalInfo.inn,
                     ),
                     voucher = 0
                 )

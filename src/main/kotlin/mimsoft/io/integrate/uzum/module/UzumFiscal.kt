@@ -20,7 +20,7 @@ data class UzumFiskalItems(
     @SerializedName("discount") var discount: Int? = null,
     @SerializedName("count") var count: Int? = null,
     @SerializedName("spic") var spic: String? = null,
-    @SerializedName("units") var units: Int? = null,
+    @SerializedName("units") var units: Long? = null,
     @SerializedName("package_code") var packageCode: String? = null,
     @SerializedName("vat_percent") var vatPercent: Int? = null,
     @SerializedName("commission_info") var commissionInfo: CommissionInfo? = null,
