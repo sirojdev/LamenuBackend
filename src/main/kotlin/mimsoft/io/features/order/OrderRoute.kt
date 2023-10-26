@@ -10,7 +10,6 @@ import mimsoft.io.board.socket.BoardOrderStatus
 import mimsoft.io.board.socket.BoardSocketService
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.operator.socket.OperatorSocketService
-import mimsoft.io.services.firebase.FirebaseService
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
@@ -20,6 +19,61 @@ fun Route.routeToOrder() {
     val orderService = OrderService
 
     route("orders") {
+
+        route("admin") {
+            get {
+                val pr = getPrincipal()
+                val merchantId = pr?.merchantId
+                val branchId = pr?.branchId
+                val search = call.parameters["search"]
+                val filter = call.parameters["filter"]
+                val limit = min(call.parameters["limit"]?.toInt() ?: 10, 50)
+                val offset = call.parameters["offset"]?.toInt() ?: 0
+                val orders = OrderService.getForAdmin(
+                    merchantId = merchantId,
+                    branchId = branchId,
+                    search = search,
+                    filter = filter,
+                    limit = limit,
+                    offset = offset,
+                    statuses = """
+                        (${OrderStatus.CANCELED.name})
+                        (${OrderStatus.CLOSED.name})
+                """)
+                if (orders.data?.isEmpty() == true) {
+                    call.respond(HttpStatusCode.NoContent)
+                    return@get
+                }
+                call.respond(orders)
+            }
+
+            get("/{id}") {
+                val pr = getPrincipal()
+                val id = call.parameters["id"]?.toLongOrNull()
+                val merchantId = pr?.merchantId
+                val response = OrderService.get(
+                    id = id,
+                    merchantId = merchantId,
+                    "user",
+                    "products",
+                    "courier",
+                    "branch",
+                    "payment_type"
+                )
+                call.respond(response)
+            }
+
+            get("count"){
+                val pr = getPrincipal()
+                val response = OrderService.getOrderCountStatus(merchant = pr?.merchantId, branchId = pr?.branchId)
+                if(response.isEmpty()){
+                    call.respond(HttpStatusCode.NoContent)
+                    return@get
+                }
+                call.respond(response)
+            }
+        }
+
         get("status") {
             val pr = getPrincipal()
             val orderId = call.parameters["orderId"]?.toLongOrNull()
@@ -35,7 +89,7 @@ fun Route.routeToOrder() {
             val st = OrderStatus.valueOf(status!!)
             if (order != null) {
                 when (st) {
-                    OrderStatus.READY -> {
+                    OrderStatus.DONE -> {
                         BoardSocketService.sendOrderToBoard(
                             order = order,
                             type = BoardOrderStatus.READY,
@@ -84,7 +138,7 @@ fun Route.routeToOrder() {
 //                FirebaseService.sendNotificationOrderToClient(order)
                 val offsett = 0
                 val order = OrderService.getById(orderId, "user", "branch", "address")
-                if (order!=null){
+                if (order != null) {
                     OperatorSocketService.findNearCourierAndSendOrderToCourier(order, offsett)
                     BoardSocketService.sendOrderToBoard(order, BoardOrderStatus.IN_PROGRESS, Action.ADD)
                 }
@@ -95,15 +149,27 @@ fun Route.routeToOrder() {
 
         get("live") {
             val principal = getPrincipal()
-            val response = orderService.getAll(
-                params = mapOf(
-                    "merchantId" to principal?.merchantId as Any,
-                    "limit" to (call.parameters["limit"]?.toIntOrNull() ?: 10) as Any,
-                    "offset" to (call.parameters["offset"]?.toIntOrNull() ?: 0) as Any,
-                    "type" to call.parameters["type"] as Any
-                )
+            val merchantId = principal?.merchantId
+            val branchId = principal?.branchId
+            val search = call.parameters["search"]
+            val filter = call.parameters["filter"]
+            val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
+            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+            val response = orderService.getForAdmin(
+                merchantId = merchantId,
+                branchId = branchId,
+                search = search,
+                filter = filter,
+                limit = limit,
+                offset = offset,
+                statuses = """
+                    '${OrderStatus.ACCEPTED.name}',
+                    '${OrderStatus.COOKING.name}',
+                    '${OrderStatus.DONE.name}',
+                    '${OrderStatus.ONWAVE.name}'
+                """.trimIndent()
             )
-            call.respond(response.httpStatus, response.body)
+            call.respond(response)
         }
 
         get {
@@ -128,6 +194,7 @@ fun Route.routeToOrder() {
             )
             call.respond(response.httpStatus, response.body)
         }
+
 
         get("{id}") {
             val id = call.parameters["id"]?.toLongOrNull()

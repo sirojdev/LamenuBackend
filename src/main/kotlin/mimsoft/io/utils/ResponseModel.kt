@@ -29,6 +29,7 @@ data class ResponseModel(
         val WRONG_ADDRESS_INFO = HttpStatusCode(20, "wrong address info")
         val ORDER_NOT_FOUND = HttpStatusCode(21, "order not found")
         val PRODUCT_NOT_FOUND = HttpStatusCode(22, "product not found")
+        val ID_NOT_FOUND = HttpStatusCode(23, "id not found")
         val STAFF_NOT_FOUND = HttpStatusCode(1, "staff must be added before adding operator")
 
         val PBX_CODE_ALREADY_EXISTS = HttpStatusCode(23, "pbx code already exists")

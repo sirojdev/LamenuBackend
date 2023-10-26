@@ -1,10 +1,10 @@
 package mimsoft.io.integrate.join_poster
 
 import mimsoft.io.features.order.Order
-import mimsoft.io.features.order.Order.Companion.DELIVERY
 import mimsoft.io.integrate.join_poster.model.ClientAddress
 import mimsoft.io.integrate.join_poster.model.PosterFoodModel
 import mimsoft.io.integrate.join_poster.model.PosterOrderModel
+import mimsoft.io.repository.BaseEnums
 
 object JoinPosterMapper {
 
@@ -16,7 +16,7 @@ object JoinPosterMapper {
             spotId = order.branch?.joinPosterId,
             name = "${order.user?.firstName} ${order.user?.lastName}",
             phone = order.user?.phone,
-            serviceMode = if (order.serviceType == DELIVERY) 3 else 2,
+            serviceMode = if (order.serviceType == BaseEnums.DELIVERY) 3 else 2,
             paymentMethodId = if(order.paymentMethod?.id == 1L) 1 else 2,
             comment = order.comment,
             address = ClientAddress(address1 = order.address?.description)

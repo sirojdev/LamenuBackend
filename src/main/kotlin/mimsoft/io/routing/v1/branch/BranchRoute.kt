@@ -4,6 +4,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 import mimsoft.io.branchOperator.routeToBranchAdminAuth
 import mimsoft.io.features.area.routeToArea
+import mimsoft.io.features.book.routeToBook
 import mimsoft.io.features.cashback.routeToCashback
 import mimsoft.io.features.category.routeToCategory
 import mimsoft.io.features.courier.checkout.routeToCourierTransaction
@@ -26,8 +27,7 @@ import mimsoft.io.features.story.routeToStory
 import mimsoft.io.features.story_info.routeToStoryInfo
 import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.visit.routeToVisits
-import mimsoft.io.features.waiters.table.routToWaiters
-import mimsoft.io.waiter.routeToWaiter
+import mimsoft.io.features.waiters.table.routeToWaiters
 
 fun Route.routeToBranchAdmin(){
     route("branch"){
@@ -41,8 +41,10 @@ fun Route.routeToBranchAdmin(){
             routeToStory()
             routeToStoryInfo()
             routeToCourierTransaction()
-            routToWaiters()
+            routeToWaiters()
             routeToTable()
+            routeToOrder()
+            routeToBook()
 
             route("settings") {
                 routeToArea()
@@ -51,7 +53,6 @@ fun Route.routeToBranchAdmin(){
                 routeToStaff()
                 routeToExtra()
                 routeToLabel()
-                routeToOrder()
                 routeToTable()
                 routeToOption()
                 routeToCourier()

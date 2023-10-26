@@ -130,7 +130,7 @@ object BookRepositoryImpl : BookRepository {
             )?.data?.firstOrNull()
         )
     }*/
-    override suspend fun get(id: Long?, merchantId: Long?, userId: Long?): BookDto? {
+    override suspend fun get(id: Long?, merchantId: Long?, userId: Long?, tableId: Long?): BookDto? {
         return withContext(Dispatchers.IO) {
             var query = """
             select b.id,
@@ -148,11 +148,12 @@ object BookRepositoryImpl : BookRepository {
                         from book b
                                  left join users u on b.client_id = u.id
                                  left join tables t on b.table_id = t.id
-                        where b.id = $id 
-                          and b.deleted = false
+                        where b.deleted = false
         """.trimIndent()
-            if (merchantId != null) query += " and b.merchant_id = $merchantId"
+            if (id != null) query += " and b.id = $id"
+            if (merchantId != null) query += " and b.merchant_id = $merchantId "
             if (userId != null) query += " and client_id = $userId"
+            if (tableId != null) query += " and b.table_id = $tableId"
 
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()

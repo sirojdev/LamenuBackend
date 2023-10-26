@@ -318,18 +318,18 @@ fun Application.configureSecurity() {
             validate { cr ->
                 val merchantId = cr.payload.getClaim("merchantId").asLong()
                 val branchId = cr.payload.getClaim("branchId").asLong()
+                val staffId = cr.payload.getClaim("branchAdmin").asLong()
                 val uuid = cr.payload.getClaim("uuid").asString()
                 if (merchantId != null && uuid != null && branchId != null) {
                     val session = SessionRepository.getMerchantByUUID(uuid)
-
                     if (session != null && session.merchantId == merchantId && session.isExpired != true) {
                         BasePrincipal(
                             merchantId = session.merchantId,
                             branchId = session.branchId,
-                            uuid = uuid
+                            uuid = uuid,
+                            staffId = staffId
                         )
                     } else null
-
                 } else null
             }
         }

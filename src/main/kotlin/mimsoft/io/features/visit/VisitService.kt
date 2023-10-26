@@ -203,4 +203,23 @@ object VisitService {
         }
         return rs == 1
     }
+
+/*
+    suspend fun getByTable(tableId: Long?): VisitDto? {
+        val query = "select * from visit where table_id = $tableId and is_active = true"
+        var dto = VisitDto()
+        withContext(DBManager.databaseDispatcher){
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                if(rs.next()){
+                    dto = VisitDto(
+                        id = rs.getLong("id")
+
+                    )
+                }
+            }
+        }
+        TODO("Not yet implemented")
+    }
+*/
 }

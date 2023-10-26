@@ -62,8 +62,7 @@ object StaffService {
                     birthDay = it["birth_day"].toString(),
                     image = it["image"] as? String,
                     comment = it["comment"] as? String,
-                    status = it["status"] as? Boolean,
-                    branchId = it["branch_id"] as? Long
+                    status = it["status"] as? Boolean
                 )
 
                 log.info("staffDto: $staffDto")

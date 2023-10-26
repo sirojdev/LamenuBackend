@@ -27,7 +27,7 @@ fun Route.routeToCourierTransaction() {
             val dto = call.receive<CourierTransactionDto>()
             if (dto.branch == null) {
                 val order = OrderService.get(id = dto.order?.id).body as? Order
-                if (order==null||order?.id != dto.order?.id || order?.status != OrderStatus.DELIVERED.name || order.courier?.id != courierId) {
+                if (order==null||order.id != dto.order?.id || order.status != OrderStatus.DELIVERED || order.courier?.id != courierId) {
                     call.respond(HttpStatusCode.MethodNotAllowed)
                 }
             }

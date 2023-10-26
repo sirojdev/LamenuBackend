@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.notification.routeToNotification
@@ -19,6 +20,7 @@ import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.staff.routeToCollector
 import mimsoft.io.routing.merchant.routeToUserUser
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -52,8 +54,13 @@ fun Route.routeToOperator() {
                         else call.respond(it.httpStatus, it.body)
                     }
                 }
-            }
 
+                post("logout") {
+                    val pr = getPrincipal()
+                    val response = OperatorService.logout(pr?.uuid)
+                    call.respond(response)
+                }
+            }
             routeToSms()
             routeToMessage()
             routeToPromo()

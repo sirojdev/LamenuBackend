@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.notification.*
+import mimsoft.io.repository.BaseEnums
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -51,7 +52,7 @@ object NotificationRepositoryImpl : NotificationRepository {
         """.trimIndent()
         )
         if (filters == null) query.append(" order by created desc")
-        if (filters != null && NotificationFilters.TIME.name == filters) query.append(" order by date desc")
+        if (filters != null && BaseEnums.TIME.name == filters) query.append(" order by date desc")
         if (limit != null) query.append(" limit $limit")
         if (offset != null) query.append(" offset $offset")
         log.info("query: $query")

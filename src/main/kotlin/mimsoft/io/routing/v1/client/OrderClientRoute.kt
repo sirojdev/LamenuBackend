@@ -37,7 +37,7 @@ fun Route.routeToClientOrder() {
                 "userId" to pr?.userId,
                 "merchantId" to pr?.merchantId,
                 "search" to search,
-                "statuses" to statuses,
+                "statuses" to list,
                 "limit" to limit,
                 "offset" to offset
             ),

@@ -6,7 +6,7 @@ import mimsoft.io.utils.ResponseModel
 
 interface BookRepository {
     suspend fun getAll(merchantId: Long?): List<BookDto?>
-    suspend fun get(id: Long?, merchantId: Long? = null, userId: Long? = null): BookDto?
+    suspend fun get(id: Long? = null, merchantId: Long? = null, userId: Long? = null, tableId: Long? = null): BookDto?
     suspend fun add(bookDto: BookDto?): ResponseModel
     suspend fun update(bookDto: BookDto): Boolean
     suspend fun delete(id: Long?, userId: Long?): Boolean

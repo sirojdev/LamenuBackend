@@ -4,10 +4,9 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.cart.CartItem
-import mimsoft.io.features.favourite.merchant
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
-import mimsoft.io.features.order.OrderUtils.generateQuery
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
 import mimsoft.io.features.order.OrderUtils.parse
@@ -16,9 +15,12 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
 import mimsoft.io.features.payment.PAYME
+import mimsoft.io.features.payment_type.PaymentTypeDto
+import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.integrate.join_poster.JoinPosterService
 import mimsoft.io.integrate.jowi.JowiService
 import mimsoft.io.integrate.payme.PaymeService
+import mimsoft.io.repository.BaseEnums
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
@@ -53,9 +55,9 @@ object OrderService {
         val columns2 = columns.toSet()
         val result: List<Map<String, *>>
         val search = getQuery(params = params, *columns, orderId = null)
-        log.info("query: ${search.query}")
+        log.info("query: ${search.query}\n\n\n")
         result = repository.selectList(query = search.query, args = search.queryParams)
-        log.info("result: $result")
+        log.info("result: $result\n\n\n")
         if (result.isNotEmpty()) {
             val order = parseGetAll2(result[0])
             return ResponseModel(
@@ -102,7 +104,7 @@ object OrderService {
         )
     }
 
-    suspend fun get(id: Long?, vararg joinColumns: String, merchantId: Long? = null): ResponseModel {
+    suspend fun get(id: Long?, merchantId: Long? = null, vararg joinColumns: String): ResponseModel {
         repository.selectOne(joinQuery(id = id, merchantId = merchantId)).let {
             if (it == null) return ResponseModel(httpStatus = ORDER_NOT_FOUND)
             return ResponseModel(body = parseGetAll(it, joinColumns.toSet()))
@@ -179,7 +181,7 @@ object OrderService {
 
     suspend fun delete(id: Long?): ResponseModel {
         val order = get(id).body as Order
-        if (order.status != OrderStatus.OPEN.name)
+        if (order.status != OrderStatus.OPEN)
             return ResponseModel(httpStatus = HttpStatusCode.Forbidden)
         val query = "update orders set status = ? where id = $id"
         val rs: Int
@@ -521,6 +523,105 @@ object OrderService {
                 }.executeUpdate()
             }
             ResponseModel(body = response)
+        }
+    }
+
+    suspend fun getForAdmin(
+        merchantId: Long?,
+        branchId: Long?,
+        search: String?,
+        filter: String?,
+        limit: Int?,
+        offset: Int?,
+        statuses: String?
+    ): DataPage<Order> {
+        val query = StringBuilder()
+        query.append(
+            """
+            select 
+            count(*) over () as count,
+                   o.id,
+                   o.service_type,
+                   u.phone,
+                   u.first_name u_first_name,
+                   u.last_name u_last_name,
+                   o.total_price,
+                   pt.name,
+                   pt.icon,
+                   o.product_count,
+                   s.first_name s_first_name,
+                   s.last_name s_last_name,
+                   o.status
+            from orders o
+                     left join users u on o.user_id = u.id
+                     left join payment_type pt on o.payment_type = pt.id
+                     left join courier c on o.courier_id = c.id
+                     left join staff s on c.staff_id = s.id
+            where o.merchant_id = $merchantId
+              and o.service_type != '${BaseEnums.DINE_IN}'
+              and o.status in ($statuses) 
+              and not o.deleted
+        """.trimIndent()
+        )
+
+        if (branchId == null) query.append(" and o.branch_id = $branchId")
+        if (filter == null) query.append(" order by o.created_at desc")
+        if (filter != null && filter == BaseEnums.TOTAL_PRICE.name) query.append(" order by o.total_price desc")
+        if (search != null) {
+            val s = search.lowercase()
+            query.append(" and lower(concat(u.first_name, u.last_name, u.phone)) like '%$s%'")
+        }
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
+        log.info("\n query: $query \n")
+        var count: Int? = null
+        val list = mutableListOf<Order>()
+        withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query.toString()).executeQuery()
+                while (rs.next()) {
+                    count = rs.getInt("count")
+                    list.add(
+                        Order(
+                            id = rs.getLong("id"),
+                            serviceType = BaseEnums.valueOf(rs.getString("service_type")),
+                            status = OrderStatus.valueOf(rs.getString("status")),
+                            user = UserDto(
+                                phone = rs.getString("phone"),
+                                firstName = rs.getString("u_first_name"),
+                                lastName = rs.getString("u_last_name"),
+                            ),
+                            totalPrice = rs.getLong("total_price"),
+                            productCount = rs.getInt("product_count"),
+                            paymentMethod = PaymentTypeDto(
+                                name = rs.getString("name"),
+                                icon = rs.getString("icon")
+                            ),
+                            courier = StaffDto(
+                                firstName = rs.getString("s_first_name"),
+                                lastName = rs.getString("s_last_name")
+                            )
+                        )
+                    )
+                }
+            }
+        }
+        return DataPage(data = list, total = count)
+    }
+
+    suspend fun getOrderCountStatus(merchant: Long?, branchId: Long? = null): Map<String, Int> {
+        var query =
+            "select count(id), status from orders where merchant_id = $merchant and not deleted group by status"
+        if(branchId != null) query += " and branch_id = $branchId"
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val map = mutableMapOf<String, Int>()
+                while (rs.next()) {
+                    map.put(key = rs.getString("status"), value = rs.getInt("count"))
+                }
+                return@withContext map
+            }
         }
     }
 }

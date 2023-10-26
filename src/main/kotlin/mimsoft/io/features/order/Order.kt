@@ -5,15 +5,18 @@ import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.merchant.MerchantDto
+import mimsoft.io.features.order.log.OrderLogModel
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
+import mimsoft.io.repository.BaseEnums
+import mimsoft.io.utils.OrderStatus
 import java.sql.Timestamp
 
 data class Order(
     val id: Long? = null,
     val posterId: Long? = null,
-    val serviceType: String? = null,
-    val status: String? = null,
+    val serviceType: BaseEnums? = null,
+    val status: OrderStatus? = null,
     var user: UserDto? = null,
     val collector: StaffDto? = null,
     var merchant: MerchantDto? = null,
@@ -34,8 +37,9 @@ data class Order(
     val updatedAt: Timestamp? = null,
     val deleted: Boolean? = null,
     val total: Long? = null,
-    val deliveredAt:Timestamp?=null,
-    var checkoutLink: String? = null
+    val deliveredAt: Timestamp? = null,
+    var checkoutLink: String? = null,
+    val logs: List<OrderLogModel?>? = null,
 ) {
     companion object {
         const val DELIVERY = "DELIVERY"

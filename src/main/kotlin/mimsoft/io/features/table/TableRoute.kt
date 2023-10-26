@@ -44,6 +44,19 @@ fun Route.routeToTable() {
             call.respond(response)
     }
 
+    get("getTable"){
+        val pr = getPrincipal()
+        val merchantId = pr?.merchantId
+        val branchId = pr?.branchId
+        val tableId = call.parameters["tableId"]?.toLongOrNull()
+        val response = TableService.getTableWithWaiter(id = tableId, branchId = branchId, merchantId = merchantId)
+        if(response == null){
+            call.respond(HttpStatusCode.NoContent)
+            return@get
+        }
+        call.respond(response)
+    }
+
     get("table/{id}") {
         val pr = call.principal<BasePrincipal>()
         val merchantId = pr?.merchantId

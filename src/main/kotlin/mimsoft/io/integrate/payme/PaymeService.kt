@@ -289,8 +289,8 @@ object PaymeService {
                     ),
                     id = transactionId
                 )
-            } else if (transaction?.state == STATE_DONE) {
-                if (order.status == OrderStatus.DONE.name) {
+            } else if (transaction.state == STATE_DONE) {
+                if (order.status == OrderStatus.DONE) {
                     return@withContext ErrorResult(
                         error = Error(
                             code = -31008,
