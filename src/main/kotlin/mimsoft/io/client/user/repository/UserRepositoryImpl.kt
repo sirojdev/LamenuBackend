@@ -137,7 +137,7 @@ object UserRepositoryImpl : UserRepository {
         return null
     }
 
-    suspend fun getUserWithBadge(phone: String?, merchantId: Long?): UserDto? {
+    /*suspend fun getUserWithBadge(phone: String?, merchantId: Long?): UserDto? {
         val query =
             """select * from users u left join badge b on b.id=u.badge_id where u.phone = ?,merchant_id = $merchantId """
         withContext(DBManager.databaseDispatcher) {
@@ -164,7 +164,7 @@ object UserRepositoryImpl : UserRepository {
             }
         }
         return null
-    }
+    }*/
 
     override suspend fun add(userDto: UserDto?): ResponseModel {
         if (userDto?.birthDay != null) {

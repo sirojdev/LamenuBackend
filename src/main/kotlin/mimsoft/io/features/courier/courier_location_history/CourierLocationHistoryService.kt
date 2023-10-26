@@ -19,13 +19,49 @@ object CourierLocationHistoryService {
             ) != null), OK
         )
     }
+//    suspend fun getByStaffId(staffId: Long?): CourierLocationHistoryDto? {
+//        val query =
+//            "select * from $COURIER_LOCATION_HISTORY_SERVICE where staff_id = $staffId order by time desc limit 1"
+//        return withContext(Dispatchers.IO) {
+//            repository.connection().use {
+//                val rs = it.prepareStatement(query).executeQuery()
+//                if (rs.next()) {
+//                    return@withContext mapper.toDto(
+//                        CourierLocationHistoryTable(
+//                            id = rs.getLong("id"),
+//                            merchantId = rs.getLong("merchant_id"),
+//                            longitude = rs.getDouble("longitude"),
+//                            latitude = rs.getDouble("latitude"),
+//                            time = rs.getTimestamp("time"),
+//                            staffId = rs.getLong("staff_id"),
+//                            name = rs.getString("name")
+//                        )
+//                    )
+//                } else return@withContext null
+//            }
+//        }
+//    }
 
     suspend fun getByStaffId(staffId: Long?): CourierLocationHistoryDto? {
-        val query =
-            "select * from $COURIER_LOCATION_HISTORY_SERVICE where staff_id = $staffId order by time desc limit 1"
-        return withContext(Dispatchers.IO) {
+        val query = StringBuilder()
+        query.append(
+            """
+                select id,
+                       merchant_id,
+                       longitude,
+                       latitude,
+                       time,
+                       staff_id,
+                       name
+                from courier_location_history
+                where staff_id = $staffId
+                order by time desc
+                limit 1
+            """.trimIndent()
+        )
+        return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
+                val rs = it.prepareStatement(query.toString()).executeQuery()
                 if (rs.next()) {
                     return@withContext mapper.toDto(
                         CourierLocationHistoryTable(
