@@ -297,7 +297,6 @@ object StaffService {
             """
             select s.id,
                    s.phone,
-                   s.password,
                    s.first_name,
                    s.last_name,
                    s.birth_day,
@@ -368,7 +367,6 @@ object StaffService {
                 StaffDto(
                     id = staffId,
                     phone = it["phone"] as? String,
-                    password = it["password"] as? String,
                     firstName = it["first_name"] as? String,
                     lastName = it["last_name"] as? String,
                     birthDay = it["birth_day"] as? String,
