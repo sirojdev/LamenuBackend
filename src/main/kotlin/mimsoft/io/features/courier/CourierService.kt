@@ -3,15 +3,21 @@ package mimsoft.io.features.courier
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.courier.info.CourierInfoDto
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
+import mimsoft.io.features.operator.socket.OrderCourierDto
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
+import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.TextModel
 import mimsoft.io.utils.plugins.LOGGER
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
@@ -130,9 +136,9 @@ FROM
         if (dto.newPassword != null) {
             query += " and password = ? "
         }
-        if(dto.birthDay!=null){
+        if (dto.birthDay != null) {
             val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
-            dto.birthDay=Timestamp(inputFormat.parse(dto.birthDay).time).toString()
+            dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
         }
 
         var rs: Int? = null
@@ -145,7 +151,7 @@ FROM
                     setString(4, dto.image)
                     setString(5, dto.comment)
                     setString(6, dto.gender)
-                    if(dto.newPassword!=null){
+                    if (dto.newPassword != null) {
                         setString(7, dto.newPassword)
                         setString(8, dto.password)
                     }
@@ -161,53 +167,181 @@ FROM
 
     }
 
-    suspend fun update(dto: CourierDto): Boolean {
-        val query = "update courier c set " +
-                " balance = coalesce(?, c.balance), " +
-                " staff_id = coalesce(${dto.staffId}, c.staff_id), " +
-                " type = coalesce(?, c.type), updated = ? where " +
-                " merchant_id = ${dto.merchantId} and branch_id = ${dto.branchId} and id = ${dto.id} and not deleted "
-        return withContext(DBManager.databaseDispatcher){
-            repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.setDouble(1, dto.balance!!)
-                    this.setString(2, dto.type!!)
-                    this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
-                    this.closeOnCompletion()
-                }.executeUpdate()
-                return@withContext rs < 0
-            }
-        }
-    }
+    suspend fun update(dto: CourierDto): Boolean =
+        repository.updateData(
+            dataClass = CourierTable::class,
+            dataObject = mapper.toTable(dto),
+            tableName = COURIER_TABLE_NAME
+        )
 
 
     suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
-        val query = "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and not deleted"
+        val query =
+            "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and"
         return withContext(DBManager.databaseDispatcher) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeUpdate()
-                return@withContext rs > 0
-            }
+            ProductRepositoryImpl.repository.connection()
+                .use { return@withContext it.prepareStatement(query).execute() }
         }
     }
 
-    suspend fun get(id: Long?, merchantId: Long?, branchId: Long?): CourierDto? {
-        val query = "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and id = $id and branch_id = $branchId and deleted = false"
-        return withContext(DBManager.databaseDispatcher) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    return@withContext CourierDto(
-                        id = rs.getLong("id"),
-                        merchantId = rs.getLong("merchant_id"),
-                        staffId = rs.getLong("staff_id"),
-                        balance = rs.getDouble("balance"),
-                        type = rs.getString("type"),
-                        lastLocation = CourierLocationHistoryService.getByStaffId(staffId = id),
-                    )
-                } else return@withContext null
+    suspend fun get(
+        id: Long? = null,
+        merchantId: Long? = null
+    ): MutableList<StaffDto> {
+        val query = StringBuilder()
+        query.append(
+            """
+            select s.id,
+                   s.image,
+                   s.first_name,
+                   s.last_name,
+                   c.is_active,
+                   o2.all_orders,
+                   o1.today_orders,
+                   o3.active_orders,
+                   s.phone,
+                   s.gender,
+                   s.birth_day,
+                   s.comment
+            from staff s
+                     left join courier c
+                               on not c.deleted
+                                   and c.staff_id = s.id
+                     left join (select courier_id, count(id) today_orders
+                                from orders
+                                where date(created_at) = current_date
+                                  and not deleted
+                                group by courier_id) as o1 on o1.courier_id = s.id
+                     left join (select courier_id, count(id) all_orders
+                                from orders
+                                where not deleted
+                                group by courier_id) as o2 on o2.courier_id = s.id
+                     left join (select courier_id, count(id) active_orders
+                                from orders
+                                where not deleted
+                                  and status = '${OrderStatus.OPEN.name}'
+                                group by courier_id) as o3 on o3.courier_id = s.id
+            where not s.deleted
+              and s.id = $id
+              and s.merchant_id = $merchantId
+        """.trimIndent()
+        )
+        val mutableList = mutableListOf<StaffDto>()
+        repository.selectList(query.toString()).forEach {
+            mutableList.add(
+                StaffDto(
+                    id = it["id"] as? Long,
+                    image = it["image"] as? String,
+                    firstName = it["first_name"] as? String,
+                    lastName = it["last_name"] as? String,
+                    isActive = it["is_active"] as? Boolean,
+                    allOrderCount = it["all_order_count"] as? Long,
+                    todayOrderCount = it["today_order_count"] as? Long,
+                    activeOrderCount = it["active_order_count"] as? Long,
+                    phone = it["phone"] as? String,
+                    gender = it["gender"] as? String,
+                    birthDay = it["birth_day"] as? String,
+                    comment = it["comment"] as? String
+                )
+            )
+        }
+        return mutableList
+    }
+
+    suspend fun getCourierAllOrders(
+        merchantId: Long? = null,
+        courierId: Long? = null,
+        filters: String? = null,
+        limit: Int? = null,
+        offset: Int? = null
+    ): MutableList<Order> {
+        val f = filters?.uppercase()
+        val query = StringBuilder()
+        query.append(
+            """
+            select o.id,
+                   u.phone,
+                   u.first_name,
+                   u.last_name,
+                   o.total_price,
+                   pt.name,
+                   pt.icon,
+                   pt.title_uz,
+                   pt.title_ru,
+                   pt.title_eng,
+                   o.product_count,
+                   o.grade,
+                   o.status
+            from orders o
+                     left join users u on
+                    not o.deleted
+                    and o.user_id = u.id
+                     left join payment_type pt on
+                    not o.deleted
+                    and o.payment_type = pt.id
+            where not o.deleted
+              and o.courier_id = $courierId
+              and o.merchant_id = $merchantId
+        """.trimIndent()
+        )
+        if (f == null) query.append(" order by o.created_at desc")
+        if (f != null) {
+            when (f) {
+                CourierFilters.NAME.name -> {
+                    query.append(" order by concat(u.first_name, u.last_name)")
+                }
+
+                CourierFilters.TOTAL_PRICE.name -> {
+                    query.append(" order by o.total_price desc")
+                }
+
+                CourierFilters.PAYMENT_TYPE.name -> {
+                    query.append(" order by pt.name desc")
+                }
+
+                CourierFilters.PRODUCT_COUNT.name -> {
+                    query.append(" order by o.product_count desc")
+                }
+
+                CourierFilters.COURIER_GRADE.name -> {
+                    query.append(" order by o.grade desc")
+                }
+
+                CourierFilters.COURIER_STATUS.name -> {
+                    query.append(" order by o.status")
+                }
             }
         }
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
+        val mutableList = mutableListOf<Order>()
+        repository.selectList(query.toString()).forEach {
+            mutableList.add(
+                Order(
+                    id = it["id"] as? Long,
+                    totalPrice = it["totalPrice"] as? Long,
+                    productCount = it["productCount"] as? Int,
+                    grade = it["grade"] as? Int,
+                    status = it["status"] as? String,
+                    user = UserDto(
+                        phone = it["phone"] as? String,
+                        firstName = it["firstName"] as? String,
+                        lastName = it["lastName"] as? String
+                    ),
+                    paymentMethod = PaymentTypeDto(
+                        name = it["name"] as? String,
+                        icon = it["icon"] as? String,
+                        title = TextModel(
+                            uz = it["title_uz"] as? String,
+                            ru = it["title_ru"] as? String,
+                            eng = it["title_eng"] as? String
+                        )
+                    )
+                )
+            )
+        }
+
+        return mutableList
     }
 
     suspend fun getByStaffId(staffId: Long?, merchantId: Long?): CourierDto? {
@@ -247,7 +381,6 @@ FROM
                         balance = rs.getDouble("c_balance"),
                         type = rs.getString("type"),
                         phone = rs.getString("phone")
-
                     )
                 } else return@withContext null
             }

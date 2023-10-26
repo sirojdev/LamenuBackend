@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.config.TIMESTAMP_FORMAT
 import mimsoft.io.config.toTimeStamp
+import mimsoft.io.features.courier.CourierFilters
 import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
@@ -281,70 +282,119 @@ object StaffService {
 
     fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
 
-    suspend fun getAllCourier(merchantId: Long?, branchId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
-        val query = """select s.*, 
-                c.balance c_balance,
-                c.is_active c_is_active,
-                A.count today_orders, 
-                B.count all_orders,  
-                status.count active_orders, 
-                count(*) over() as total
-                from staff s 
-                left join courier c on c.staff_id = s.id
-        left join(select courier_id, count(*) 
-                    from orders 
-                    where date(created_at) = current_date 
-                    group by courier_id) as A on A.courier_id = s.id 
-        left join (select courier_id, count(*) 
-                    from orders 
-                    group by courier_id) as B on B.courier_id=s.id 
-        left join (select courier_id, count(*) 
-                    from orders 
-                    where status = '${OrderStatus.OPEN.name}'
-                    group by courier_id) as status on status.courier_id=s.id 
-        where s.merchant_id = $merchantId and s.branch_id = $branchId and s.position = '${StaffPosition.COURIER.name}'
-        limit $limit offset $offset
-        """.trimMargin()
-        var totalCount = 0
-
-        return withContext(Dispatchers.IO) {
-            val staffs = arrayListOf<StaffDto?>()
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                while (rs.next()) {
-                    if (totalCount == 0) {
-                        totalCount = rs.getInt("total")
-                    }
-                    val staff = StaffDto(
-                        id = rs.getLong("id"),
-                        balance = rs.getLong("c_balance"),
-                        isActive = rs.getBoolean("c_is_active"),
-                        merchantId = rs.getLong("merchant_id"),
-                        position = StaffPosition.valueOf(rs.getString("position")),
-                        phone = rs.getString("phone"),
-                        password = rs.getString("password"),
-                        firstName = rs.getString("first_name"),
-                        lastName = rs.getString("last_name"),
-                        birthDay = rs.getTimestamp("birth_day").toString(),
-                        image = rs.getString("image"),
-                        comment = rs.getString("comment"),
-                        gender = rs.getString("gender"),
-                        allOrderCount = rs.getLong("all_orders"),
-                        todayOrderCount = rs.getLong("today_orders"),
-                        activeOrderCount = rs.getLong("active_orders"),
-                        status = rs.getBoolean("status"),
-                        branchId = rs.getLong("branch_id")
-                    )
-                    staff.lastLocation = CourierLocationHistoryService.getByStaffId(staff.id)
-                    staffs.add(staff)
+    suspend fun getAllCourier(
+        merchantId: Long? = null,
+        search: String? = null,
+        filters: String? = null,
+        branchId: Long? = null,
+        limit: Int? = null,
+        offset: Int? = null
+    ): DataPage<StaffDto> {
+        val f = filters?.uppercase()
+        val s = search?.lowercase()
+        val query = StringBuilder()
+        query.append(
+            """
+            select s.id,
+                   s.phone,
+                   s.first_name,
+                   s.last_name,
+                   s.birth_day,
+                   s.image,
+                   s.comment,
+                   s.merchant_id,
+                   s.position,
+                   s.gender,
+                   s.status,
+                   s.branch_id,
+                   c.balance,
+                   c.is_active,
+                   o1.today_orders,
+                   o2.all_orders,
+                   o3.active_orders
+            from staff s
+                     left join courier c
+                               on not c.deleted
+                                   and c.staff_id = s.id
+                     left join (select courier_id, count(id) today_orders
+                                from orders
+                                where date(created_at) = current_date
+                                  and not deleted
+                                group by courier_id) as o1 on o1.courier_id = s.id
+                     left join (select courier_id, count(id) all_orders
+                                from orders
+                                where not deleted
+                                group by courier_id) as o2 on o2.courier_id = s.id
+                     left join (select courier_id, count(id) active_orders
+                                from orders
+                                where not deleted
+                                  and status = '${OrderStatus.OPEN.name}'
+                                group by courier_id) as o3 on o3.courier_id = s.id
+            where not s.deleted
+              and s.merchant_id = $merchantId
+              and s.branch_id = $branchId
+              and s.position = '${StaffPosition.COURIER.name}'
+        """.trimIndent()
+        )
+        if (f == null) query.append(" order by s.created desc")
+        if (s != null) query.append(" and lower(concat(s.first_name, s.last_name)) like '%$s%'")
+        if (f != null) {
+            when (f) {
+                CourierFilters.NAME.name -> {
+                    query.append(" order by concat(s.first_name, s.last_name)")
                 }
-                return@withContext DataPage(staffs, totalCount)
+
+                CourierFilters.TODAY_ORDERS.name -> {
+                    query.append(" order by o1.today_orders desc")
+                }
+
+                CourierFilters.ALL_ORDERS.name -> {
+                    query.append(" order by o2.all_orders desc")
+                }
+
+                CourierFilters.ACTIVE_ORDERS.name -> {
+                    query.append(" order by o3.active_orders desc")
+                }
             }
         }
+        if (limit != null) query.append(" limit $limit")
+        if (offset != null) query.append(" offset $offset")
+        val mutableList = mutableListOf<StaffDto>()
+        repository.selectList(query.toString()).forEach {
+            val staffId = it["id"] as? Long
+            val lastLocation = CourierLocationHistoryService.getByStaffId(staffId)
+            mutableList.add(
+                StaffDto(
+                    id = staffId,
+                    phone = it["phone"] as? String,
+                    firstName = it["first_name"] as? String,
+                    lastName = it["last_name"] as? String,
+                    birthDay = it["birth_day"] as? String,
+                    image = it["image"] as? String,
+                    comment = it["comment"] as? String,
+                    merchantId = it["merchant_id"] as? Long,
+                    position = it["position"] as? StaffPosition,
+                    gender = it["gender"] as? String,
+                    status = it["status"] as? Boolean,
+                    branchId = it["branch_id"] as? Long,
+                    balance = it["balance"] as? Long,
+                    isActive = it["is_active"] as? Boolean,
+                    todayOrderCount = it["today_order_count"] as? Long,
+                    allOrderCount = it["all_order_count"] as? Long,
+                    activeOrderCount = it["active_order_count"] as? Long,
+                    lastLocation = lastLocation
+                )
+            )
+        }
+        return DataPage(data = mutableList, total = mutableList.size)
     }
 
-
-    suspend fun getAllCollector(merchantId: Long?, branchId: Long?, limit: Int, offset: Int): DataPage<StaffDto> {
+    suspend fun getAllCollector(
+        merchantId: Long?,
+        branchId: Long?,
+        limit: Int,
+        offset: Int
+    ): DataPage<StaffDto> {
         val query = """select s.*, 
                 A.count today_orders, 
                 B.count all_orders,  
