@@ -2,6 +2,7 @@ package mimsoft.io.integrate.jowi
 
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.order.Order
+import mimsoft.io.repository.BaseEnums
 
 object JowiMapper {
     suspend fun toJowiDto(order: Order): CreateJowiOrder {
@@ -15,7 +16,7 @@ object JowiMapper {
             phone = order.user?.phone,
             contact = order.user?.firstName,
             description = order.comment,
-            order_type = if (order.serviceType == "DELIVERY") {
+            order_type = if (order.serviceType == BaseEnums.DELIVERY) {
                 0
             } else {
                 1

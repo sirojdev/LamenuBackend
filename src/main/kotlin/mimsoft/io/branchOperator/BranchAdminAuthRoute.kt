@@ -14,6 +14,7 @@ import mimsoft.io.features.appKey.MerchantAppKeyRepository
 import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffPosition
+import mimsoft.io.features.staff.StaffService
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
@@ -91,6 +92,20 @@ fun Route.routeToBranchAdminAuth() {
             val merchant = call.principal<BasePrincipal>()
             CourierService.logout(merchant?.uuid)
             call.respond(HttpStatusCode.OK)
+        }
+
+
+        get("profile") {
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
+            val staffId = pr?.staffId
+            val profile = StaffService.get(id = staffId, merchantId = merchantId, branchId = branchId)
+            if (profile != null) {
+                call.respond(HttpStatusCode.OK, profile)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
     }
 }

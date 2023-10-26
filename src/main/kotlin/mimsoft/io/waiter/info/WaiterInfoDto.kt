@@ -14,5 +14,6 @@ data class WaiterInfoDto (
     val status: Boolean? = null,
     val balance: Double? = null,
     val grade: Double? = null,
+    val comment: String? = null,
     val tables: List<TableDto>? = null
 )

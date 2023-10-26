@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.courier.courier_location_history.routeToCourierLocation
 import mimsoft.io.features.staff.StaffService
+import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 import kotlin.math.min
@@ -60,9 +61,10 @@ fun Route.routeToCourier() {
         }
 
         put("") {
-            val principal = call.principal<BasePrincipal>()
-            val merchantId = principal?.merchantId
-            val branchId = principal?.branchId
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
+            println( "branchId = $branchId")
             val dto = call.receive<CourierDto>()
             val result = courierService.update(dto.copy(merchantId = merchantId, branchId = branchId))
             call.respond(result)
@@ -70,13 +72,16 @@ fun Route.routeToCourier() {
         }
 
         delete("{id}") {
-            val principal = call.principal<BasePrincipal>()
-            val merchantId = principal?.merchantId
-            val branchId = principal?.branchId
+            val pr = call.principal<BasePrincipal>()
+            val merchantId = pr?.merchantId
+            val branchId = pr?.branchId
             val id = call.parameters["id"]?.toLongOrNull()
             val result = courierService.delete(id = id, merchantId = merchantId, branchId = branchId)
+            if(!result){
+                call.respond(ResponseModel.ID_NOT_FOUND, result)
+                return@delete
+            }
             call.respond(result)
-            return@delete
         }
     }
 }

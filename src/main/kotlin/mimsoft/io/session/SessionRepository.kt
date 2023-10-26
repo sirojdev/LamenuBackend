@@ -98,12 +98,11 @@ object SessionRepository {
 
         return withContext(Dispatchers.IO) {
             DBManager.connection().use {
-                it.prepareStatement(query).apply {
+                val rs = it.prepareStatement(query).apply {
                     this.setTimestamp(1, Timestamp(System.currentTimeMillis()))
                     this.closeOnCompletion()
-
                 }.execute()
-                return@withContext true
+                return@withContext rs
             }
         }
     }
@@ -126,7 +125,6 @@ object SessionRepository {
                     this.setString(1, uuid)
                     this.closeOnCompletion()
                 }.executeQuery()
-
                 return@withContext if (rs.next()) {
                     SessionTable(
                         id = rs.getLong("id"),
@@ -174,7 +172,7 @@ object SessionRepository {
 
     suspend fun expire(uuid: String?): Boolean = withContext(DBManager.databaseDispatcher) {
         println("uuid -> $uuid")
-        val query = "update session set is_expired=true, updated=? where uuid=?"
+        val query = "update session set is_expired = true, updated=? where uuid=?"
         DBManager.connection().use {
             return@withContext it.prepareStatement(query).apply {
                 this.setTimestamp(1, Timestamp(System.currentTimeMillis()))

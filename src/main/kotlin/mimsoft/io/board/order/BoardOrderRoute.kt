@@ -40,7 +40,7 @@ fun Route.routeToBoardOrder() {
                     "branchId" to branchId,
                     "statuses" to (
                             listOf(
-                                OrderStatus.READY.name
+                                OrderStatus.DONE.name
                             )
                             ),
                     "limit" to limit,

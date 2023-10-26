@@ -12,9 +12,10 @@ import mimsoft.io.waiter.WaiterService
 import mimsoft.io.waiter.table.repository.WaiterTableRepository
 import java.lang.Integer.min
 
-fun Route.routToWaiters() {
+fun Route.routeToWaiters() {
     val waiterTableRepository = WaiterTableRepository
     route("waiter") {
+
         get {
             val pr = getPrincipal()
             val merchantId = pr?.merchantId

@@ -8,9 +8,9 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
+import mimsoft.io.repository.BaseEnums
 import mimsoft.io.services.firebase.FirebaseService
 import mimsoft.io.utils.OrderStatus
-import mimsoft.io.waiter.table.repository.WaiterTableRepository
 
 fun Route.routeToClientDineIn() {
     post("call/waiter") {
@@ -29,8 +29,8 @@ fun Route.routeToClientDineIn() {
         val merchantId = call.parameters["appKey"]?.toLongOrNull()
         val response = OrderService.post(
             order = order.copy(
-                status = OrderStatus.OPEN.name,
-                serviceType = "DINE_IN",
+                status = OrderStatus.OPEN,
+                serviceType = BaseEnums.DINE_IN,
                 merchant = MerchantDto(id = merchantId)
             )
         )

@@ -6,6 +6,7 @@ import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.ResponseModel.Companion.OK
 import mimsoft.io.utils.ResponseModel.Companion.PBX_CODE_ALREADY_EXISTS
@@ -285,5 +286,9 @@ object OperatorService {
                 return@withContext ResponseModel()
             }
         }
+    }
+
+    suspend fun logout(uuid: String?): Boolean {
+        return SessionRepository.expire(uuid)
     }
 }

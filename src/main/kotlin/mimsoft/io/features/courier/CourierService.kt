@@ -161,18 +161,33 @@ FROM
 
     }
 
-    suspend fun update(dto: CourierDto): Boolean =
-        repository.updateData(
-            dataClass = CourierTable::class,
-            dataObject = mapper.toTable(dto),
-            tableName = COURIER_TABLE_NAME
-        )
+    suspend fun update(dto: CourierDto): Boolean {
+        val query = "update courier c set " +
+                " balance = coalesce(?, c.balance), " +
+                " staff_id = coalesce(${dto.staffId}, c.staff_id), " +
+                " type = coalesce(?, c.type), updated = ? where " +
+                " merchant_id = ${dto.merchantId} and branch_id = ${dto.branchId} and id = ${dto.id} and not deleted "
+        return withContext(DBManager.databaseDispatcher){
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.setDouble(1, dto.balance!!)
+                    this.setString(2, dto.type!!)
+                    this.setTimestamp(3, Timestamp(System.currentTimeMillis()))
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                return@withContext rs < 0
+            }
+        }
+    }
 
 
     suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
-        val query = "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and"
+        val query = "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and not deleted"
         return withContext(DBManager.databaseDispatcher) {
-            ProductRepositoryImpl.repository.connection().use { return@withContext it.prepareStatement(query).execute() }
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeUpdate()
+                return@withContext rs > 0
+            }
         }
     }
 

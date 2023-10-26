@@ -58,7 +58,7 @@ fun Route.routeToBoardSocket() {
                         "branchId" to branchId,
                         "statuses" to (
                                 listOf(
-                                    OrderStatus.READY.name,
+                                    OrderStatus.DONE.name,
                                 )
                                 ),
                         "limit" to limit,

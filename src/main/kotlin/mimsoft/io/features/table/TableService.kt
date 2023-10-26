@@ -4,7 +4,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mimsoft.io.features.book.repository.BookRepositoryImpl
 import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.category_group.CategoryGroupService
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.room.RoomDto
 import mimsoft.io.features.staff.StaffService
@@ -12,7 +14,7 @@ import mimsoft.io.features.visit.VisitDto
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.TextModel
-import mimsoft.io.utils.plugins.GSON
+import mimsoft.io.waiter.table.repository.WaiterTableRepository
 import java.sql.Timestamp
 
 object TableService : TableRepository {
@@ -54,27 +56,26 @@ object TableService : TableRepository {
     }
 
     override suspend fun add(tableTable: TableTable?): Long? {
-        println("\nTable ${GSON.toJson(tableTable)}}")
         return DBManager.postData(dataClass = TableTable::class, dataObject = tableTable, tableName = TABLE_TABLE_NAME)
     }
 
     override suspend fun update(dto: TableDto): Boolean {
         var rs: Int
         val query = """
-            update tables
-            set name         = ?,
-                qr           = ?,
-                type         = ${dto.type},
-                room_id      = ${dto.room?.id},
-                status       = ?,
-                booking_time = ${dto.bookingDuration},
-                branch_id    = ${dto.branch?.id},
+            update tables t
+            set name         = coalesce(?, t.name),
+                qr           = coalesce(?, t.qr),
+                type         = coalesce(${dto.type}, t.type),
+                room_id      = coalesce(${dto.room?.id}, t.room_id),
+                status       = coalesce(?, t.status),
+                booking_time = coalesce(${dto.bookingDuration}, t.booking_time),
+                branch_id    = coalesce(${dto.branch?.id}, t.branch_id),
                 updated      = ?
             where id = ${dto.id}
               and merchant_id = ${dto.merchantId}
-              and branch_id = ${dto.branch?.id} 
+              and branch_id = ${dto.branch?.id}
               and not deleted
-        """.trimIndent()
+         """.trimIndent()
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 rs = it.prepareStatement(query).apply {
@@ -158,6 +159,38 @@ object TableService : TableRepository {
             }
         }
         return list
+    }
+
+    suspend fun getTableWithWaiter(id: Long?, branchId: Long?, merchantId: Long?): Any? {
+        val query = "select * from tables where id = $id and branch_id = $branchId and merchant_id = $merchantId and not deleted"
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    if(rs.getString("status") == TableStatus.BOOKING.name){
+                        val book = BookRepositoryImpl.get(tableId = id)
+                        if(book == null){
+                            return@withContext null
+                        }
+                        else{
+                            val waiter = WaiterTableRepository.getWaiterByTableId(tableId = id)
+                            return@withContext TableBookDto(
+                                book = book,
+                                waiter = waiter
+                            )
+                        }
+                    }
+                    else if(rs.getString("status") == TableStatus.VISIT.name){
+                        val response = CategoryGroupService.getClient(merchantId = merchantId)
+                        return@withContext response
+                    }
+                    else return@withContext null
+                }
+                else null
+            }
+        }
     }
 
     override suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {

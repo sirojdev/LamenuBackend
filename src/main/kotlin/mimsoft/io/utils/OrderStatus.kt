@@ -5,11 +5,9 @@ enum class OrderStatus {
     ACCEPTED,
     CANCELED,
     ONWAVE,
-    READY,
     COOKING,
-    JOIN,
     ONWAY,
     DELIVERED,
     CLOSED,
-    DONE,
+    DONE
 }

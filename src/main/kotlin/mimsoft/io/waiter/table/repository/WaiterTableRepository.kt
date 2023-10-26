@@ -12,6 +12,7 @@ import mimsoft.io.repository.DBManager
 import mimsoft.io.repository.DataPage
 import mimsoft.io.waiter.info.WaiterInfoDto
 import mimsoft.io.waiter.socket.WaiterNewOrderDto
+import okhttp3.internal.wait
 import java.sql.ResultSet
 import java.sql.Timestamp
 
@@ -195,7 +196,7 @@ object WaiterTableRepository {
     }
 
     suspend fun getWaiterByTableId(tableId: Long?): WaiterInfoDto? {
-        val query = "select s.phone " +
+        val query = "select s.phone, s.first_name, s.last_name " +
                 "from waiter_table wt " +
                 "         left join waiter w on wt.waiter_id = w.id " +
                 "         left join staff s on w.staff_id = s.id " +
@@ -210,7 +211,9 @@ object WaiterTableRepository {
                 }.executeQuery()
                 if (rs.next()) {
                     return@withContext WaiterInfoDto(
-                        phone = rs.getString("phone")
+                        phone = rs.getString("phone"),
+                        firstName = rs.getString("first_name"),
+                        lastName = rs.getString("last_name")
                     )
                 } else return@withContext null
             }
@@ -239,6 +242,7 @@ object WaiterTableRepository {
             image = waiter?.image,
             gender = waiter?.gender,
             status = waiter?.status,
+            comment = waiter?.comment,
             tables = tables
         )
     }

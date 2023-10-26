@@ -88,7 +88,7 @@ object CourierOrderService {
             repository.connection().use {
                 it.prepareStatement(query).apply {
                     setString(1, OrderStatus.ONWAY.name)
-                    setString(2, OrderStatus.READY.name)
+                    setString(2, OrderStatus.DONE.name)
                 }.executeUpdate()
             }
         }

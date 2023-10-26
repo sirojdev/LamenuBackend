@@ -18,6 +18,7 @@ import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffPosition
+import mimsoft.io.repository.BaseEnums
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.*
 import org.slf4j.Logger
@@ -555,9 +556,8 @@ object OrderUtils {
         if (orderId != null) {
             conditions += " and o.id = $orderId"
         }
-        val queryParams: MutableMap<Int, Any> = mutableMapOf(
-        )
-        var index = 0;
+        val queryParams: MutableMap<Int, Any> = mutableMapOf()
+        var index = 0
         params?.let {
             if (params["type"] != null) {
                 conditions += " AND o.service_type = ? "
@@ -703,8 +703,8 @@ object OrderUtils {
         return Order(
             id = result.getOrDefault("o_id", null) as? Long?,
             posterId = result.getOrDefault("o_post_id", null) as? Long?,
-            serviceType = result.getOrDefault("o_service_type", null) as? String?,
-            status = result.getOrDefault("o_status", null) as? String?,
+            serviceType = result.getOrDefault("o_service_type", null) as? BaseEnums?,
+            status = result.getOrDefault("o_status", null) as? OrderStatus?,
             user = UserDto( //if (columns.contains("user"))
                 id = result.getOrDefault("o_user_id", null) as? Long?,
                 firstName = result.getOrDefault("u_first_name", null) as? String?,
@@ -773,8 +773,8 @@ object OrderUtils {
         return Order(
             id = result["o_id"] as? Long?,
             posterId = result["o_post_id"] as? Long?,
-            serviceType = result["o_service_type"] as? String?,
-            status = result["o_status"] as? String?,
+            serviceType = result["o_service_type"] as? BaseEnums?,
+            status = result["o_status"] as? OrderStatus?,
             total = result["count"] as? Long?,
             user = UserDto(
                 id = result["o_user_id"] as? Long?,
@@ -853,8 +853,8 @@ object OrderUtils {
         return Order(
             id = result["orders_id"] as? Long?,
             posterId = result["orders_post_id"] as? Long?,
-            serviceType = result["orders_service_type"] as? String?,
-            status = result["orders_status"] as? String?,
+            serviceType = result["orders_service_type"] as? BaseEnums?,
+            status = result["orders_status"] as? OrderStatus?,
             total = result["count"] as? Long?,
             user = UserDto(
                 id = result["orders_user_id"] as? Long?,
@@ -937,8 +937,8 @@ object OrderUtils {
         return Order(
             id = result.getOrDefault("id", null) as? Long?,
             posterId = result.getOrDefault("post_id", null) as? Long?,
-            serviceType = result.getOrDefault("service_type", null) as? String?,
-            status = result.getOrDefault("status", null) as? String?,
+            serviceType = result.getOrDefault("service_type", null) as? BaseEnums?,
+            status = result.getOrDefault("status", null) as? OrderStatus?,
             user = UserDto(id = result.getOrDefault("user_id", null) as? Long?),
             merchant = MerchantDto(id = result.getOrDefault("merchant_id", null) as? Long?),
             collector = StaffDto(id = result.getOrDefault("collector_id", null) as? Long?),
@@ -984,7 +984,7 @@ object OrderUtils {
             )
         }
 
-        if (order.serviceType == "DELIVERY") {
+        if (order.serviceType == BaseEnums.DELIVERY) {
             validateAddress(order.address).let {
                 if (!it.isOk()) return it
                 order.address = it.body as? AddressDto
@@ -1023,7 +1023,7 @@ object OrderUtils {
 
         validateProduct(order).let {
             if (!it.isOk()) return it
-            return ResponseModel(body = order.copy(status = OrderStatus.OPEN.name))
+            return ResponseModel(body = order.copy(status = OrderStatus.OPEN))
         }
     }
 
