@@ -150,6 +150,43 @@ object CategoryGroupService {
             }
         }
     }
+    suspend fun getCategoryGroupForTGBot(merchantId: Long?): List<CategoryGroupDto> {
+        val query = """
+            SELECT cg.id,
+                   cg.title_uz,
+                   cg.title_ru,
+                   cg.title_eng,
+                   cg.merchant_id,
+                   cg.priority
+            FROM category_group cg
+            WHERE cg.merchant_id = $merchantId
+              and cg.deleted = false
+            order by priority, created
+        """.trimIndent()
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).executeQuery()
+                val gson = Gson()
+                val data = arrayListOf<CategoryGroupDto>()
+                while (rs.next()) {
+                    val categories = rs?.getString("categories")
+                    val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
+                    val list = gson.fromJson<List<CategoryTable>?>(categories, typeToken) ?: emptyList()
+                    val a = CategoryGroupDto(
+                        id = rs.getLong("id"),
+                        title = TextModel(
+                            uz = rs.getString("title_uz"),
+                            ru = rs.getString("title_ru"),
+                            eng = rs.getString("title_eng")
+                        ),
+                        priority = rs.getInt("priority")
+                    )
+                    data.add(a)
+                }
+                return@withContext data
+            }
+        }
+    }
 
     suspend fun getCategoryGroupWithBranchId(merchantId: Long?, branchId: Long?): List<CategoryGroupDto> {
         val query = """
