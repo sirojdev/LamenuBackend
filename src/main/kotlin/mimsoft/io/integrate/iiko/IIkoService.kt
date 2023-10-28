@@ -16,6 +16,7 @@ import mimsoft.io.features.payment_type.repository.PaymentTypeRepositoryImpl
 import mimsoft.io.integrate.iiko.model.*
 import mimsoft.io.integrate.integrate.MerchantIntegrateRepository
 import mimsoft.io.integrate.jowi.JowiService
+import mimsoft.io.repository.BaseEnums
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.plugins.GSON
@@ -225,7 +226,7 @@ object IIkoService {
                         .atZone(ZoneId.of("Asia/Tashkent")).toInstant().toEpochMilli()
                 ).toString(),
                 phone = order?.user?.phone,
-                orderServiceType = if (order?.serviceType == "DELIVERY") "DeliveryByCourier" else "DeliveryByClient",
+                orderServiceType = if (order?.serviceType == BaseEnums.DELIVERY) "DeliveryByCourier" else "DeliveryByClient",
                 deliveryPoint = DeliveryPoint(
                     coordinates = Coordinates(
                         latitude = order?.address?.latitude,

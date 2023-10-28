@@ -9,6 +9,7 @@ import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.waiter.info.WaiterInfoDto
 import mimsoft.io.waiter.info.WaiterUpdatePasswordRequest
@@ -89,7 +90,6 @@ object WaiterService {
         }
     }
 
-
     suspend fun updateWaiterProfile(dto: WaiterUpdateRequest): Boolean {
         val query = """
              update $STAFF_TABLE_NAME  s
@@ -113,6 +113,7 @@ object WaiterService {
         }
         return rs == 1
     }
+
     suspend fun updateWaiterPassword(dto: WaiterUpdatePasswordRequest): Boolean {
         val query = """
              update $STAFF_TABLE_NAME  s
@@ -164,6 +165,47 @@ object WaiterService {
             }
         }
     }
+
+    suspend fun getAll(
+        merchantId: Long?,
+        branchId: Long?,
+        offset: Int,
+        limit: Int,
+        filter: String?,
+        search: String?
+    ): DataPage<StaffDto> {
+        var query = """
+            select first_name, last_name, phone, status, image 
+            from staff s 
+            where merchant_id = $merchantId 
+              and branch_id = $branchId and not deleted
+        """.trimIndent()
+        if (search != null) {
+            val s = search.lowercase()
+            query += " and (lower(first_name) like '%$s%') "
+        }
+
+        if (filter != null) {
+            query += "order by status"
+        }
+        query += " limit $limit offset $offset"
+        val mutableList = mutableListOf<StaffDto>()
+        repository.selectList(query).forEach {
+            mutableList.add(
+                StaffDto(
+                    id = it["id"] as? Long,
+                    status = it["status"] as? Boolean,
+                    firstName = it["first_name"] as? String,
+                    lastName = it["last_name"] as? String,
+                    image = it["image"] as? String,
+                    phone = it["phone"] as? String
+                )
+            )
+        }
+        return DataPage(data = mutableList, total = mutableList.size)
+    }
+
+
 
     suspend fun logout(uuid: String?): Boolean {
         return SessionRepository.expire(uuid)
