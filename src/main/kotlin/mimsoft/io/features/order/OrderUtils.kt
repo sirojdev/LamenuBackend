@@ -1283,7 +1283,8 @@ object OrderUtils {
                                 ),
                                 image = optionRs.getString("image"),
                                 price = optionRs.getLong("price"),
-                                jowiId = optionRs.getString("jowi_id")
+                                jowiId = optionRs.getString("jowi_id"),
+                                iikoId = optionRs.getString("iiko_id")
                             )
                         )
                     }
@@ -1304,7 +1305,8 @@ object OrderUtils {
                                     eng = extraRs.getString("name_eng")
                                 ),
                                 productId = extraRs.getLong("product_id"),
-                                jowiId = extraRs.getString("jowi_id")
+                                jowiId = extraRs.getString("jowi_id"),
+                                iikoModifierId = extraRs.getString("iiko_modifier_id")
                             )
                         )
                     }
