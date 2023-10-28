@@ -168,15 +168,15 @@ object YandexService {
     private fun createOrderObject(order: Order?, yandexOrder: YandexOrder, merchant: MerchantDto?): YandexOrder {
         if (yandexOrder.callbackProperties == null) {
             yandexOrder.callbackProperties = CallbackProperties(
-                callbackUrl = "https://api.lamenu.uz/v1/integrate/yandex/callback"
+                callbackUrl = "https://api.lamenu.uz/v1/integration/yandex/callback"
             )
         } else {
-            yandexOrder.callbackProperties?.callbackUrl = "https://api.lamenu.uz/v1/integrate/yandex/callback"
+            yandexOrder.callbackProperties?.callbackUrl = "https://api.lamenu.uz/v1/integration/yandex/callback"
         }
         yandexOrder.autoAccept = false
         yandexOrder.clientRequirements = Requirement(
-            cargoOptions = arrayListOf("thermobag"),
-            proCourier = true,
+//            cargoOptions = arrayListOf("thermobag"),
+            proCourier = false,
             taxiClass = "courier"
         )
         yandexOrder.comment = order?.comment

@@ -106,8 +106,8 @@ fun Route.toCourierSocket() {
                             val response = Gson().fromJson(data.data.toString(), AcceptedDto::class.java)
                             if (response != null) {
                                 if (response.status == "ACCEPTED") {
-                                    val order = OperatorSocketService.acceptedOrder(response, staffId)
-                                    if (order) {
+//                                    val order = OperatorSocketService.acceptedOrder(response, staffId)
+                                    if (true) {
                                         conn.session?.send(
                                             Gson().toJson(
                                                 SocketData(

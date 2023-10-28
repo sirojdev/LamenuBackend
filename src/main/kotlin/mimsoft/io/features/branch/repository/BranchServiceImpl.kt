@@ -151,4 +151,26 @@ object BranchServiceImpl : BranchService {
         }
         return branch
     }
+
+    override suspend fun getBranchWithPostresId(branchId: Long?): BranchDto? {
+        val query = "select  * from $BRANCH_TABLE_NAME  where id = $branchId and  deleted = false"
+        var branch: BranchDto? = null
+
+        withContext(Dispatchers.IO) {
+            StaffService.repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    this.closeOnCompletion()
+                }.executeQuery()
+                if (rs.next()) {
+                    branch = BranchDto(
+                        id = rs.getLong("id"),
+                        iikoId = rs.getString("iiko_id"),
+                        jowiId = rs.getString("jowi_id"),
+                        joinPosterId = rs.getLong("join_poster_id")
+                    )
+                }
+            }
+        }
+        return branch
+    }
 }

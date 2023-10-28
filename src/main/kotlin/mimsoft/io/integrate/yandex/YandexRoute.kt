@@ -10,6 +10,7 @@ import mimsoft.io.integrate.yandex.module.YandexCheckPrice
 import mimsoft.io.integrate.yandex.module.YandexOrder
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
+import mimsoft.io.utils.toJson
 import org.glassfish.grizzly.http.util.HttpStatus
 
 fun Route.routeToYandex() {
@@ -98,8 +99,12 @@ fun Route.routeToYandex() {
         post("callback") {
             val myOrderId = call.parameters["my_order_id"]
             val claimId = call.parameters["claim_id"]
+            val updatedTs = call.parameters["updated_ts"]
+            println(call.parameters.toJson())
             println("my order id  = $myOrderId")
             println("my claim id  = $claimId")
+            println("my updates ts id  = $claimId")
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
