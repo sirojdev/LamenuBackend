@@ -12,6 +12,7 @@ plugins {
     kotlin("plugin.noarg") version "1.6.10"
     id("io.ktor.plugin") version "2.3.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.21"
+    id("com.diffplug.spotless") version "6.22.0"
 }
 
 group = "mimsoft.io"
@@ -87,6 +88,13 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
 
 }
+spotless {
+    kotlin {
+        ktfmt("0.46").googleStyle()
+    }
+}
+
+defaultTasks("spotlessApply", "buildFatJar")
 
 //ktor{
 //    fatJar {
