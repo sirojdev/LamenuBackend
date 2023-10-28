@@ -100,18 +100,18 @@ object YandexRepository {
         )
     }
 
-    suspend fun update(orderId: Long?, version: Int,status:String?): Boolean {
+    suspend fun update(orderId: Long?, version: Int, status: String?): Boolean {
         val query = """update yandex set version = $version ,order_status = ? where order_id = $orderId"""
         log.info("update version order = $orderId to $version")
-        var result=false
+        var result = false
         withContext(Dispatchers.IO) {
             repository.connection().use { connection ->
                 val rs = connection.prepareStatement(query).apply {
-                    setString(1,status?:"new")
+                    setString(1, status ?: "new")
                     this.closeOnCompletion()
                 }.executeUpdate()
-                if (rs==1){
-                    result=true
+                if (rs == 1) {
+                    result = true
                 }
             }
         }
@@ -140,5 +140,23 @@ object YandexRepository {
             claimId = rs.getString("claim_id"),
             orderId = rs.getLong("order_id"),
         )
+    }
+
+    suspend fun updateCallBack(myOrderId: String?, claimId: String?, updatedTs: String?):Boolean {
+        val query = """update yandex set updated_date = now()  where order_id = $myOrderId and claim_id = ?"""
+        log.info("update date order = $myOrderId to $claimId in time $updatedTs")
+        var result = false
+        withContext(Dispatchers.IO) {
+            repository.connection().use { connection ->
+                val rs = connection.prepareStatement(query).apply {
+                    setString(1, claimId)
+                    this.closeOnCompletion()
+                }.executeUpdate()
+                if (rs == 1) {
+                    result = true
+                }
+            }
+        }
+        return result
     }
 }

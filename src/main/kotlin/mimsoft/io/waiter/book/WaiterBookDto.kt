@@ -11,7 +11,7 @@ data class WaiterBookDto(
     val client: UserDto? = null,
     @field:Positive
     val visitorCount: Int? = null,
-//    @field:NotNull
+    @field:NotNull
     val time: Timestamp? = null,
     @field:Positive
     val tableId: Long? = null,
