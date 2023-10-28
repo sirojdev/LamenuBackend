@@ -1,21 +1,25 @@
 package mimsoft.io.integrate.uzum
+
 import com.google.gson.Gson
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.apache5.*
+import io.ktor.client.engine.apache.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
+import io.ktor.server.application.*
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.features.payment.PaymentDto
 import mimsoft.io.features.payment.PaymentService
+import mimsoft.io.integrate.uzum.fiscal.FiscalService
 import mimsoft.io.integrate.uzum.module.*
 import mimsoft.io.ssl.SslSettings
 import mimsoft.io.utils.ResponseModel
+import mimsoft.io.utils.plugins.BadRequest
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
@@ -29,11 +33,11 @@ object UzumService {
     val log: Logger = LoggerFactory.getLogger(UzumService::class.java)
     const val securityToken = "123"
     val client = HttpClient(CIO) {
-        engine {
-            https {
-                trustManager = SslSettings.getTrustManager()
-            }
-        }
+//        engine {
+//            https {
+//                trustManager = SslSettings.getTrustManager()
+//            }
+//        }
         install(ContentNegotiation) {
             gson {
                 setPrettyPrinting()
@@ -42,8 +46,19 @@ object UzumService {
             }
         }
     }
-    val apacheClient = HttpClient(Apache5) {
+    val apacheClient = HttpClient(Apache) {
         engine {
+            followRedirects = true
+            socketTimeout = 10_000
+            connectTimeout = 10_000
+            connectionRequestTimeout = 20_000
+            customizeClient {
+                setMaxConnTotal(1000)
+                setMaxConnPerRoute(100)
+            }
+//            customizeRequest {
+//                // TODO: request transformations
+//            }
             sslContext = SslSettings.getSslContext()
         }
     }
@@ -214,33 +229,22 @@ object UzumService {
         try {
             val body = createFiscalObj(uzumOrder, order)
             log.info("fiscal body ${Gson().toJson(body)}")
-            val response = client.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {
+            val response = apacheClient.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {
                 headers {
-                    append("ssl_client_fingerprint", payment?.uzumFiscal.toString())
+                    append("Content-Type", "application/json")
+                    append("ssl_client_fingerprint", payment?.uzumFiscal ?: "")
                 }
                 setBody(Gson().toJson(body))
             }
             return ResponseModel(httpStatus = response.status, body = response.body<String>())
         } catch (e: Exception) {
             e.printStackTrace()
-            try {
-                val body = createFiscalObj(uzumOrder, order)
-                log.info("fiscal body ${Gson().toJson(body)}")
-                val response = apacheClient.post("https://ofd.ipt-merch.com/fiscal_receipt_generation") {
-                    headers {
-                        append("ssl_client_fingerprint", payment?.uzumFiscal.toString())
-                    }
-                    setBody(Gson().toJson(body))
-                }
-                return ResponseModel(httpStatus = response.status, body = response.body<String>())
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
         }
         return ResponseModel(httpStatus = HttpStatusCode.OK, body = "OK")
     }
 
-    private fun createFiscalObj(uzumOrder: UzumPaymentTable, order: Order?): UzumFiscal {
+    private suspend fun createFiscalObj(uzumOrder: UzumPaymentTable, order: Order?): UzumFiscal {
+        val fiscalInfo = FiscalService.fiscalGet(order?.merchant?.id?:-1)?:throw BadRequest(" this merchant must be add fiscal info")
         return UzumFiscal(
             paymentId = uzumOrder.uzumOrderId,
             operationId = UUID.randomUUID().toString(),
@@ -248,20 +252,19 @@ object UzumService {
             receiptType = 0,
             cashAmount = 0,
             cardAmount = uzumOrder.price,
-            phoneNumber = if (order?.user?.phone?.startsWith("+") == true) order?.user?.phone?.removePrefix("+") else order?.user?.phone,
+            phoneNumber = if (order?.user?.phone?.startsWith("+") == true) order.user?.phone?.removePrefix("+") else order?.user?.phone,
             items = arrayListOf(
                 UzumFiskalItems(
-                    productName = "oziq-ovqat",
-                    count = 1,
+                    productName = "Oziq-ovqat",
+                    count = order?.total?.toInt(),
                     price = uzumOrder.price,
                     discount = 0,
-                    spic = "10703999001000000",
-                    units = 1495086,
-                    packageCode = "12345",
-                    vatPercent = 0,
+                    spic = fiscalInfo.mxikCode,
+                    units = fiscalInfo.unit,
+                    packageCode =fiscalInfo.packageCode,
+                    vatPercent = fiscalInfo.percent,
                     commissionInfo = CommissionInfo(
-                        tin = null,
-                        pinfl = "52203015530017"
+                        tin = fiscalInfo.inn,
                     ),
                     voucher = 0
                 )
@@ -270,8 +273,6 @@ object UzumService {
     }
 
     suspend fun fiscalRefund(orderId: Long?): Any {
-        System.setProperty("javax.net.ssl.keyStore", "/root/pay/ndc_fiscal_test.jks");
-        System.setProperty("javax.net.ssl.keyStorePassword", "mimsofTim");
         val uzumOrder = UzumRepository.getTransactionByMerchantOrderId(orderId)
         val order = OrderService.getById(orderId, "products", "user")
         val payment = PaymentService.get(uzumOrder?.merchantId)
@@ -283,9 +284,10 @@ object UzumService {
             )
         }
         val body = createFiscalObj(uzumOrder, order)
-        val response = client.post("https://ofd.ipt-merch.com/fiscal_receipt_refund") {
+        val response = apacheClient.post("https://ofd.ipt-merch.com/fiscal_receipt_refund") {
             headers {
-                append("ssl-client-fingerprint", payment?.uzumFiscal.toString())
+                append("Content-Type", "application/json")
+                append("ssl_client_fingerprint", payment?.uzumFiscal.toString())
             }
             setBody(
                 Gson().toJson(
@@ -293,56 +295,6 @@ object UzumService {
                 )
             )
         }
-        return ResponseModel(httpStatus = response.status, body = response.body())
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
-
-//    @Throws(KeyManagementException::class, NoSuchAlgorithmException::class, KeyStoreException::class)
-//    private fun createAcceptSelfSignedCertificateClient(): CloseableHttpClient? {
-
-//        val keyStorePath = "D:\\LaMenu\\backend\\ndc_new.jks" // replace with your .jks file path
-//        val keyStorePassword = "m1msofTim" // replace with your keystore password
-//
-//        val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-//        keyStore.load(FileInputStream(File(keyStorePath)), keyStorePassword.toCharArray())
-//
-//        // use the TrustSelfSignedStrategy to allow Self Signed Certificates
-//        val sslContext: SSLContext = SSLContextBuilder
-//            .create()
-//            .loadTrustMaterial(keyStore, TrustSelfSignedStrategy())
-//            .build()
-//
-//        // we can optionally disable hostname verification.
-//        // if you don't want to further weaken the security, you don't have to include this.
-//        val allowAllHosts: HostnameVerifier = NoopHostnameVerifier()
-//
-//        // create an SSL Socket Factory to use the SSLContext with the trust self signed certificate strategy
-//        // and allow all hosts verifier.
-//        val connectionFactory = SSLConnectionSocketFactory(sslContext, allowAllHosts)
-//
-//        // finally create the HttpClient using HttpClient factory methods and assign the ssl socket factory
-//        return HttpClients
-//            .custom()
-//            .setSSLSocketFactory(connectionFactory)
-//            .build()
-//       return HttpClient(Apache5) {
-//            engine {
-//                customizeClient {
-//                    val keystorePath = "KEYSTORE_FILE_PATH" // Replace with your .jks file path
-//                    val keystorePassword = "KEYSTORE_PASSWORD" // Replace with your keystore password
-//                    val keyPassword = "KEY_PASSWORD" // Replace with your Key password
-//
-//                    val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-//                    keyStore.load(FileInputStream(keystorePath), keystorePassword.toCharArray())
-//
-//                    // Create an SSLContext with the keystore
-//                    val sslcontext = SSLContexts.custom()
-//                        .loadKeyMaterial(keyStore, keyPassword.toCharArray())
-//                        .build()
-//
-//                    this.setSSLContext(sslcontext)
-//                }
-//            }
-//        }
-//    }
-
 }

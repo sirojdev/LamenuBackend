@@ -1,5 +1,7 @@
 package mimsoft.io.ssl
 
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy
+import org.apache.http.ssl.SSLContextBuilder
 import java.io.FileInputStream
 import java.security.KeyStore
 import javax.net.ssl.SSLContext
@@ -10,7 +12,7 @@ import javax.net.ssl.X509TrustManager
 object SslSettings {
     fun getKeyStore(): KeyStore {
 //        val keyStoreFile = FileInputStream("/root/pay/keystore_12.jks")
-        val keyStoreFile = FileInputStream("D:\\LaMenu\\backend\\uzum.jks")
+        val keyStoreFile = FileInputStream("uzum.jks")
         val keyStorePassword = "m1msoftUzum".toCharArray()
         val keyStore: KeyStore = KeyStore.getInstance(KeyStore.getDefaultType())
         keyStore.load(keyStoreFile, keyStorePassword)
@@ -26,8 +28,11 @@ object SslSettings {
         return trustManagerFactory
     }
     fun getSslContext(): SSLContext? {
-        val sslContext = SSLContext.getInstance("TLS")
-        sslContext.init(null, getTrustManagerFactory()?.trustManagers, null)
+        val sslContext: SSLContext = SSLContextBuilder.create()
+            .loadKeyMaterial(getKeyStore(), "m1msoftUzum".toCharArray())
+            .loadTrustMaterial(null, TrustSelfSignedStrategy()).build()
+//        val sslContext = SSLContext.getInstance("TLSv1.2")
+//        sslContext.init(null, getTrustManagerFactory()?.trustManagers, null)
         return sslContext
     }
 

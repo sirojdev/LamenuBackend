@@ -9,7 +9,7 @@ object FilesService {
 
 
     private const val PATH = "/var/www/html/files"
-    private const val template = "yyyy-MM-dd-HH-mm-ss-SSS"
+    private const val template = "yyyy-MM-dd-HH-mm-ss-SSSSSSSSS"
 
     const val IMAGE = "images"
     const val VIDEO = "videos"

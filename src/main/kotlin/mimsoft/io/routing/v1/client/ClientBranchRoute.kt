@@ -31,8 +31,10 @@ fun Route.routeToClientBranches() {
             val branch = branchService.getByName(branchName, merchantId)
             if (branch != null) {
                 call.respond(branch)
+                return@get
             } else {
                 call.respond(HttpStatusCode.NoContent)
+                return@get
             }
         }
         if (merchantId == null || id == null) {
@@ -45,6 +47,20 @@ fun Route.routeToClientBranches() {
             return@get
         }
         call.respond(branch)
+    }
+    get("branch/byName") {
+        val merchantId = call.parameters["appKey"]?.toLongOrNull()
+        val branchName = call.parameters["branch-name"]
+        if (branchName != null && merchantId != null) {
+            val branch = branchService.getByName(branchName, merchantId)
+            if (branch != null) {
+                call.respond(branch)
+                return@get
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+                return@get
+            }
+        }
     }
     get("branch/nearest") {
         val appKey = call.parameters["appKey"]?.toLongOrNull()

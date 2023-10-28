@@ -36,6 +36,23 @@ object PaymentTypeRepositoryImpl : PaymentTypeRepository {
         }
     }
 
+    suspend fun getForIIko(id: Long?): PaymentTypeDto {
+        val query = "select * from payment_type where not deleted and deleted =false and id =$id "
+        return withContext(DBManager.databaseDispatcher) {
+            repository.connection().use {
+                var dto = PaymentTypeDto()
+                val rs = it.prepareStatement(query).executeQuery()
+                while (rs.next()) {
+                    dto = PaymentTypeDto(
+                        id = rs.getLong("id"),
+                        iikoId = rs.getString("iiko_payment_id")
+                    )
+                }
+                return@withContext dto
+            }
+        }
+    }
+
     override suspend fun get(id: Long?): PaymentTypeDto? {
         val data = repository.getPageData(
             dataClass = PaymentTypeTable::class,

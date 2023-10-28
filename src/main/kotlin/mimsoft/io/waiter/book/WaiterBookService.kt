@@ -5,9 +5,11 @@ import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.book.BookStatus
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.plugins.BadRequest
 import mimsoft.io.utils.principal.BasePrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.sql.Timestamp
 
 object WaiterBookService {
     private val log: Logger = LoggerFactory.getLogger(UserRepositoryImpl::class.java)
@@ -15,8 +17,14 @@ object WaiterBookService {
 
 
     suspend fun add(book: WaiterBookDto, principal: BasePrincipal?): WaiterBookDto {
+        if (book.time!! < Timestamp(System.currentTimeMillis())) throw BadRequest("time must be greater than current time")
         val user = UserRepositoryImpl.get(book.client?.phone, principal?.merchantId)
-        val clientId = if (user == null) book.client?.phone?.let { UserRepositoryImpl.addNewClientFromWaiter(it) }
+        val clientId = if (user == null) book.client?.phone?.let {
+            UserRepositoryImpl.addNewClientFromWaiter(
+                it,
+                principal?.merchantId ?: -1
+            )
+        }
         else user.id
         val query =
             """insert into book (merchant_id,client_id,table_id,time,created,
@@ -26,11 +34,11 @@ object WaiterBookService {
 
         withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
-                return@withContext it.prepareStatement(query).apply {
+                it.prepareStatement(query).apply {
                     setTimestamp(1, book.time)
                     setString(2, book.comment)
                     setString(3, BookStatus.NOT_ACCEPTED.name)
-                }.executeUpdate() == 1
+                }.executeUpdate()
             }
         }
         /**
