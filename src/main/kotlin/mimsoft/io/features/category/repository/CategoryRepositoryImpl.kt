@@ -8,6 +8,7 @@ import mimsoft.io.features.category.*
 import mimsoft.io.features.category_group.CategoryGroupDto
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
+import mimsoft.io.features.product.PRODUCT_TABLE_NAME
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.product.ProductInfoDto
 import mimsoft.io.features.product.product_label.ProductLabelService
@@ -24,7 +25,7 @@ object CategoryRepositoryImpl : CategoryRepository {
     val repository: BaseRepository = DBManager
     val mapper = CategoryMapper
 
-    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?>{
+    override suspend fun getAllByClient(merchantId: Long?): List<ClientCategoryDto?> {
         val query = """
             SELECT c.id c_id,
                 c.name_uz,
@@ -222,6 +223,45 @@ object CategoryRepositoryImpl : CategoryRepository {
         }
     }
 
+    override suspend fun getCategoryByCategoryGroupName(
+        merchantId: Long?,
+        categoryGroupName: String?,
+        lang: Language
+    ): List<CategoryDto>? {
+        val name: String = when (lang) {
+            Language.EN -> "title_eng"
+            Language.RU -> "title_ru"
+            else -> "title_uz"
+        }
+
+        val query =
+            "select * from $CATEGORY_TABLE_NAME c inner join category_group cg on cg.id = c.group_id  where c.merchant_id = $merchantId and c.deleted = false and cg.$name = ? and cg.deleted = false order by c.priority, c.created"
+        val list = ArrayList<CategoryDto>()
+        withContext(Dispatchers.IO) {
+            repository.connection().use {
+                val rs = it.prepareStatement(query).apply {
+                    setString(1, categoryGroupName)
+                    this.closeOnCompletion()
+                }.executeQuery()
+                while (rs.next()) {
+                    list.add(
+                        CategoryDto(
+                            id = rs.getLong("id"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng"),
+                            ),
+                            merchantId = rs.getLong("merchant_id"),
+                            groupId = rs.getLong("group_id")
+                        )
+                    )
+                }
+            }
+        }
+        return list
+    }
+
     override suspend fun getAll(merchantId: Long?): List<CategoryDto?> {
         val data = repository.getPageData(
             dataClass = CategoryTable::class,
@@ -290,10 +330,7 @@ object CategoryRepositoryImpl : CategoryRepository {
         return true
     }
 
-    override suspend fun getCategoryByName(merchantId: Long?, lang: Language, text: String?): CategoryDto? {
-        if (merchantId == null) {
-            return null
-        }
+    override suspend fun getProductsByCategoryName(merchantId: Long?, lang: Language, text: String?): ArrayList<ProductDto> {
         val name: String = when (lang) {
             Language.UZ -> "name_uz"
             Language.RU -> "name_ru"
@@ -301,29 +338,33 @@ object CategoryRepositoryImpl : CategoryRepository {
         }
 
         val query =
-            "select * from $CATEGORY_TABLE_NAME where merchant_id = ? and deleted = false and $name = ? order by priority, created"
-        var dto: CategoryDto? = null
+            """
+                select * from $PRODUCT_TABLE_NAME p inner join category c on c.id = p.category_id 
+                where p.merchant_id = $merchantId and p.deleted = false and c.deleted = false and c.$name = ? order by  p.created
+            """.trimIndent()
+        val list = ArrayList<ProductDto>()
         withContext(Dispatchers.IO) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).apply {
-                    setLong(1, merchantId)
-                    setString(2, text)
+                    setString(1, text)
                     this.closeOnCompletion()
                 }.executeQuery()
-                if (rs.next()) {
-                    dto = mapper.toCategoryDto(
-                        CategoryTable(
+                while (rs.next()) {
+                    list.add(
+                        ProductDto(
                             id = rs.getLong("id"),
-                            nameUz = rs.getString("name_uz"),
-                            nameRu = rs.getString("name_ru"),
-                            nameEng = rs.getString("name_eng"),
+                            name = TextModel(
+                                uz = rs.getString("name_uz"),
+                                ru = rs.getString("name_ru"),
+                                eng = rs.getString("name_eng")
+                            ),
                             merchantId = rs.getLong("merchant_id"),
-                            groupId = rs.getLong("group_id")
                         )
                     )
-                } else null
+
+                }
             }
         }
-        return dto
+        return list
     }
 }

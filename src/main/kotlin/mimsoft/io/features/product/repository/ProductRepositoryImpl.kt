@@ -1,9 +1,12 @@
 package mimsoft.io.features.product.repository
 
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.extra.ropository.ExtraRepositoryImpl
+import mimsoft.io.features.option.OptionDto
+import mimsoft.io.features.option.OptionTable
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.product.*
 import mimsoft.io.features.product.product_integration.ProductIntegrationDto
@@ -12,6 +15,7 @@ import mimsoft.io.features.telegram_bot.Language
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
 import mimsoft.io.utils.TextModel
+import mimsoft.io.utils.plugins.GSON
 import java.sql.Timestamp
 
 
@@ -446,14 +450,46 @@ object ProductRepositoryImpl : ProductRepository {
         return listProduct
     }
 
-    suspend fun getByName(text: String, lang: Language, merchantId: Long): ProductDto? {
+    suspend fun getProductWithOptions(text: String, lang: Language, merchantId: Long): ProductDto? {
         val name: String = when (lang) {
             Language.UZ -> "name_uz"
             Language.RU -> "name_ru"
             else -> "name_eng"
         }
         val sql =
-            "select * from $PRODUCT_TABLE_NAME where merchant_id = ${merchantId}  and   $name = ? and deleted = false and active = true"
+            """ 
+       SELECT
+    p.id,
+    p.name_uz,
+    p.name_ru,
+    p.name_eng,
+    p.description_eng,
+    p.description_ru,
+    p.description_uz,
+    p.image,
+    p.cost_price,
+    json_agg(
+            json_build_object(
+                    'id',o.id,
+                    'price', o.price,
+                    'name', json_build_object(
+                            'uz', o.name_uz,
+                            'ru', o.name_ru,
+                            'eng', o.name_eng
+                    )
+                )
+        ) AS options
+          FROM
+              product p
+                  INNER JOIN
+              options o ON p.id = o.product_id
+          WHERE
+                  p.merchant_id =$merchantId
+            AND p.$name = ?
+          GROUP BY
+              p.id, p.name_uz, p.name_ru, p.name_eng, p.description_eng, p.description_ru, p.description_uz, p.image, p.cost_price;
+;
+            """.trimIndent()
         var product: ProductDto? = null
         withContext(Dispatchers.IO) {
             repository.connection().use {
@@ -469,6 +505,7 @@ object ProductRepositoryImpl : ProductRepository {
                             ru = rs.getString("name_ru"),
                             eng = rs.getString("name_eng")
                         )),
+                        costPrice = rs.getLong("cost_price"),
                         description = (
                                 TextModel(
                                     uz = rs.getString("description_uz"),
@@ -477,8 +514,7 @@ object ProductRepositoryImpl : ProductRepository {
                                 )
                                 ),
                         image = rs.getString("image"),
-                        costPrice = rs.getLong("cost_price"),
-                        discount = rs.getLong("discount")
+                        options = GSON.fromJson(rs.getString("options"), object:TypeToken<List<OptionDto>>(){}.type),
                     )
                 }
             }

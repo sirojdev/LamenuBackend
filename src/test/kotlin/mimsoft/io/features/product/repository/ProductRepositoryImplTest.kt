@@ -1,6 +1,5 @@
 package mimsoft.io.features.product.repository
 
-import io.ktor.server.http.content.*
 import io.ktor.server.testing.*
 import mimsoft.io.features.category.CategoryDto
 import mimsoft.io.features.extra.ExtraDto
@@ -150,7 +149,7 @@ class ProductRepositoryImplTest {
         val text = "Uzz"
         val lang = Language.UZ
         val merchantId: Long = 1
-        val response = productRepositoryImpl.getByName(text, lang, merchantId)
+        val response = productRepositoryImpl.getProductWithOptions(text, lang, merchantId)
         assert(response != null)
         assertNotNull(response)
     }

@@ -166,12 +166,8 @@ object CategoryGroupService {
         return withContext(DBManager.databaseDispatcher) {
             repository.connection().use {
                 val rs = it.prepareStatement(query).executeQuery()
-                val gson = Gson()
                 val data = arrayListOf<CategoryGroupDto>()
                 while (rs.next()) {
-                    val categories = rs?.getString("categories")
-                    val typeToken = object : TypeToken<List<CategoryTable>>() {}.type
-                    val list = gson.fromJson<List<CategoryTable>?>(categories, typeToken) ?: emptyList()
                     val a = CategoryGroupDto(
                         id = rs.getLong("id"),
                         title = TextModel(
@@ -187,6 +183,7 @@ object CategoryGroupService {
             }
         }
     }
+
 
     suspend fun getCategoryGroupWithBranchId(merchantId: Long?, branchId: Long?): List<CategoryGroupDto> {
         val query = """

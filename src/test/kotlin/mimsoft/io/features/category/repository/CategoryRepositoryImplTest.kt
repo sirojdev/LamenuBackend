@@ -99,7 +99,7 @@ class CategoryRepositoryImplTest {
         val merchantId: Long = 6
         val language = Language.UZ
         val text = "Fastfud"
-        val response = categoryRepositoryImpl.getCategoryByName(merchantId, language, text)
+        val response = categoryRepositoryImpl.getProductsByCategoryName(merchantId, language, text)
         if (response != null)
             assertNotNull(response)
     }
