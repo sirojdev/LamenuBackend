@@ -15,16 +15,19 @@ fun Application.configureExceptions() {
                     call.respond(
                         HttpStatusCode.BadRequest,
                         ResponseData(
+                            statusCode = HttpStatusCode.BadRequest,
                             isSuccess = false,
                             error = ExceptionResponse("${throwable.errors}", HttpStatusCode.BadRequest.value)
                         )
                     )
                 }
+
                 is BadRequest -> {
                     call.respond(
                         HttpStatusCode.BadRequest,
                         ResponseData(
                             isSuccess = false,
+                            statusCode = HttpStatusCode.BadRequest,
                             error = ExceptionResponse("${throwable.message}", HttpStatusCode.BadRequest.value)
                         )
                     )
@@ -35,7 +38,8 @@ fun Application.configureExceptions() {
                         HttpStatusCode.NotFound,
                         ResponseData(
                             isSuccess = false,
-                            error = ExceptionResponse("${throwable.message}", HttpStatusCode.NotFound.value)
+                            statusCode = HttpStatusCode.BadRequest,
+                                error = ExceptionResponse("${throwable.message}", HttpStatusCode.NotFound.value)
                         )
                     )
                 }
@@ -73,7 +77,7 @@ fun Application.configureExceptions() {
 class ValidationException(override val message: String) : Throwable()
 class ItemNotFoundException(override val message: String) : Throwable()
 class BadRequest(override val message: String) : Throwable()
-class BadRequestException( val errors:List<String>):Throwable()
+class BadRequestException(val errors: List<String>) : Throwable()
 class ParsingException(override val message: String) : Throwable()
 
 @Serializable
