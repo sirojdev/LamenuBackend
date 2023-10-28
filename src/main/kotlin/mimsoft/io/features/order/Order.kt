@@ -37,6 +37,7 @@ data class Order(
     val updatedAt: Timestamp? = null,
     val deleted: Boolean? = null,
     val total: Long? = null,
+    val grade: Int? = null,
     val deliveredAt: Timestamp? = null,
     var checkoutLink: String? = null,
     val logs: List<OrderLogModel?>? = null,

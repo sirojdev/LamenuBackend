@@ -322,7 +322,7 @@ FROM
                     totalPrice = it["totalPrice"] as? Long,
                     productCount = it["productCount"] as? Int,
                     grade = it["grade"] as? Int,
-                    status = it["status"] as? String,
+                    status = it["status"] as? OrderStatus,
                     user = UserDto(
                         phone = it["phone"] as? String,
                         firstName = it["firstName"] as? String,
