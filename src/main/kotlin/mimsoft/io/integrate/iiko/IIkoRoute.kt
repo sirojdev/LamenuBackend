@@ -21,5 +21,9 @@ fun Route.routeToIIko() {
             val merchantId = call.parameters["merchantId"]?.toLongOrNull()
             call.respond(IIkoService.getBranches(merchantId) ?: HttpStatusCode.NoContent)
         }
+        get("/branch") {
+            val merchantId = call.parameters["branchId"]?.toLongOrNull()
+            call.respond(IIkoService.getBranches(merchantId) ?: HttpStatusCode.NoContent)
+        }
     }
 }
