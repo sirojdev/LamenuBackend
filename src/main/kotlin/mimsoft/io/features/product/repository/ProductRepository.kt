@@ -5,11 +5,11 @@ import mimsoft.io.features.product.ProductInfoDto
 import mimsoft.io.features.product.ProductTable
 
 interface ProductRepository {
-  suspend fun getAllProductInfo(merchantId: Long?): List<ProductInfoDto?>
+  suspend fun getAllProductInfo(merchantId: Long?, branchId: Long? = null): List<ProductInfoDto?>
 
   suspend fun getProductInfo(merchantId: Long?, id: Long?): ProductInfoDto?
 
-  suspend fun getAll(merchantId: Long?, search: String? = null): List<ProductDto?>
+  suspend fun getAll(merchantId: Long?, search: String? = null, branchId: Long?): List<ProductDto?>
 
   suspend fun get(id: Long?, merchantId: Long? = null): ProductTable?
 
@@ -17,6 +17,7 @@ interface ProductRepository {
 
   suspend fun update(dto: ProductDto?): Boolean
 
-  suspend fun delete(id: Long?, merchantId: Long?): Boolean
-  //    suspend fun getProductInfo(id: Long, merchantId: Long?): ProductInfoDto?
+  suspend fun delete(id: Long?, merchantId: Long?, branchId: Long? = null): Boolean
+
+  suspend fun getProductInfo(id: Long?, merchantId: Long?, branchId: Long?): ProductInfoDto?
 }

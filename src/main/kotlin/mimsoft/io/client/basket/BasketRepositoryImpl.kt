@@ -31,7 +31,7 @@ object BasketRepositoryImpl : BasketRepository {
           it
             .prepareStatement(query)
             .apply {
-              setLong(1, telegramId!!)
+              setLong(1, telegramId)
               setLong(2, merchantId!!)
               this.closeOnCompletion()
             }
@@ -103,22 +103,22 @@ object BasketRepositoryImpl : BasketRepository {
     TODO("Not yet implemented")
   }
 
-  override suspend fun add(basketDto: BasketDto): Long? {
+  override suspend fun add(dto: BasketDto): Long? {
     return DBManager.postData(
       dataClass = BasketTable::class,
-      dataObject = mapper.toBasketTable(basketDto),
+      dataObject = mapper.toBasketTable(dto),
       tableName = BASKET_TABLE_NAME
     )
   }
 
-  override suspend fun update(basketDto: BasketDto): Boolean {
+  override suspend fun update(dto: BasketDto): Boolean {
     val query =
       "update  $BASKET_TABLE_NAME " +
-        " set product_count = ${basketDto.productCount}" +
+        " set product_count = ${dto.productCount}" +
         " where" +
-        " telegram_id = ${basketDto.telegramId}  " +
-        " and merchant_id = ${basketDto.merchantId} " +
-        " and product_id = ${basketDto.productId} "
+        " telegram_id = ${dto.telegramId}  " +
+        " and merchant_id = ${dto.merchantId} " +
+        " and product_id = ${dto.productId} "
     withContext(Dispatchers.IO) {
       repository.connection().use {
         val rs = it.prepareStatement(query).apply { this.closeOnCompletion() }.executeUpdate()

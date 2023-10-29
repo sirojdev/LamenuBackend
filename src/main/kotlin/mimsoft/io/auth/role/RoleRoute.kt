@@ -4,7 +4,7 @@ import io.ktor.server.routing.*
 
 fun Route.routeToRole() {
 
-  val roleService = RoleService
+  // val roleService = RoleService
 
   /*authorize(Role.MANAGER_STAFFS){
       post("role") {
