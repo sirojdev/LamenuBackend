@@ -51,66 +51,65 @@ import mimsoft.io.routing.merchant.routeToMerchantInfo
 import mimsoft.io.routing.merchant.routeToMerchantProfile
 import mimsoft.io.routing.merchant.routeToUserUser
 
-
 fun Route.routeToMerchantAdmin() {
 
-    route("merchant") {
-        merchantAuthRoute()
-        routeToMerchantInfo()
+  route("merchant") {
+    merchantAuthRoute()
+    routeToMerchantInfo()
 
-        authenticate("merchant") {
-            routeToPaymentIntegration()
-            routeToPantry()
-            routeToKitchen()
-            routeToMerchantOrder()
-            routeToMerchantProfile()
-            routeToStory()
-            routeToStoryInfo()
-            routeToCategoryGroup()
-            routeToNews()
-            routeToCourierTransaction()
-            routeToClientPromo()
-            routeToOnlinePbx()
-            routeToWaiters()
+    authenticate("merchant") {
+      routeToPaymentIntegration()
+      routeToPantry()
+      routeToKitchen()
+      routeToMerchantOrder()
+      routeToMerchantProfile()
+      routeToStory()
+      routeToStoryInfo()
+      routeToCategoryGroup()
+      routeToNews()
+      routeToCourierTransaction()
+      routeToClientPromo()
+      routeToOnlinePbx()
+      routeToWaiters()
 
-            route("settings") {
-                routeToApp()
-                routeToBot()
-                routeToArea()
-                routeToRoom()
-                routeToFlat()
-                routeToBadge()
-                routeToStaff()
-                routeToExtra()
-                routeToLabel()
-                routeToOrder()
-                routeToTable()
-                routeToOption()
-                routeToBranch()
-                routeToPoster()
-                routeToCourier()
-                routeToCollector()
-                routeToPayment()
-                routeToProduct()
-                routeToCashback()
-                routeToDelivery()
-                routeToCategory()
-                routeToTelephony()
-                routeToOutcomeType()
-                routeToSmsGateways()
-                routeToProductLabel()
-                routeToProductExtra()
-                routeToProductOption()
-                routeToOperatorEntity()
-            }
+      route("settings") {
+        routeToApp()
+        routeToBot()
+        routeToArea()
+        routeToRoom()
+        routeToFlat()
+        routeToBadge()
+        routeToStaff()
+        routeToExtra()
+        routeToLabel()
+        routeToOrder()
+        routeToTable()
+        routeToOption()
+        routeToBranch()
+        routeToPoster()
+        routeToCourier()
+        routeToCollector()
+        routeToPayment()
+        routeToProduct()
+        routeToCashback()
+        routeToDelivery()
+        routeToCategory()
+        routeToTelephony()
+        routeToOutcomeType()
+        routeToSmsGateways()
+        routeToProductLabel()
+        routeToProductExtra()
+        routeToProductOption()
+        routeToOperatorEntity()
+      }
 
-            route("crm") {
-                routeToSms()
-                routeToMessage()
-                routeToPromo()
-                routeToUserUser()
-                routeToNotification()
-            }
-        }
+      route("crm") {
+        routeToSms()
+        routeToMessage()
+        routeToPromo()
+        routeToUserUser()
+        routeToNotification()
+      }
     }
+  }
 }

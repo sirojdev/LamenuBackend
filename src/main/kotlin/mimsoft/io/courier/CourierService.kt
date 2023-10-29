@@ -1,5 +1,3 @@
 package mimsoft.io.courier
 
-object CourierService {
-
-}
+object CourierService {}

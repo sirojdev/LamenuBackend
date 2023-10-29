@@ -11,37 +11,35 @@ import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToSmsGateways() {
 
-    val smsSenderService = SmsSenderService
+  val smsSenderService = SmsSenderService
 
-    get("sms-gateway") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val sms = SmsGatewayService.get(merchantId = merchantId) ?: SmsGatewayDto()
-        call.respond(sms)
+  get("sms-gateway") {
+    val pr = call.principal<BasePrincipal>()
+    val merchantId = pr?.merchantId
+    val sms = SmsGatewayService.get(merchantId = merchantId) ?: SmsGatewayDto()
+    call.respond(sms)
+  }
+
+  put("sms-gateway") {
+    val pr = call.principal<BasePrincipal>()
+    val merchantId = pr?.merchantId
+    val table = call.receive<SmsGatewayDto>()
+    SmsGatewayService.add(table.copy(merchantId = merchantId))
+    call.respond(HttpStatusCode.OK)
+  }
+
+  post("sms-gateway-test") {
+    val pr = call.principal<BasePrincipal>()
+    val merchantId = pr?.merchantId
+    val phone = call.receive<Phone01>()
+    val status =
+      smsSenderService.send(merchantId = merchantId, phone = phone.phone.toString(), "test message")
+    if (status == "DONE") {
+      call.respond(HttpStatusCode.OK)
+      return@post
     }
-
-    put("sms-gateway") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val table = call.receive<SmsGatewayDto>()
-        SmsGatewayService.add(table.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK)
-    }
-
-    post("sms-gateway-test") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val phone = call.receive<Phone01>()
-        val status = smsSenderService.send(merchantId = merchantId, phone = phone.phone.toString(), "test message")
-        if (status == "DONE") {
-            call.respond(HttpStatusCode.OK)
-            return@post
-        }
-        call.respond(HttpStatusCode.Unauthorized)
-    }
-
+    call.respond(HttpStatusCode.Unauthorized)
+  }
 }
 
-data class Phone01(
-    val phone: String? = null
-)
+data class Phone01(val phone: String? = null)

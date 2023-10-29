@@ -1,9 +1,9 @@
-//package mimsoft.io.ssl
+// package mimsoft.io.ssl
 //
-//import io.ktor.network.tls.certificates.*
-//import java.io.File
+// import io.ktor.network.tls.certificates.*
+// import java.io.File
 //
-//fun sslConfiguration() {
+// fun sslConfiguration() {
 //    val keyStoreFile = File("uzum.jks")
 //    val keyStore = buildKeyStore {
 //        certificate("myAlias") {
@@ -12,4 +12,4 @@
 //        }
 //    }
 //    keyStore.saveToFile(keyStoreFile, "m1msoftUzum")
-//}
+// }

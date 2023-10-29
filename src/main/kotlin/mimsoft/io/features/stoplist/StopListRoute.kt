@@ -9,36 +9,33 @@ import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToStopList() {
-    route("stoplist") {
-        get("increment/{id}") {
-            val pr = call.principal<BasePrincipal>()
-            val merchantId = pr?.merchantId
-            val id = call.parameters["id"]?.toLongOrNull()
-            if (id == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
-            }
-            val stopList = StopListService.decrementCount(id = id, merchantId = merchantId)
-            call.respond(stopList)
-        }
-
-        post {
-            val pr = call.principal<BasePrincipal>()
-            val merchantId = pr?.merchantId
-            val stopList = call.receive<StopListDto>()
-            val response = StopListService.add(stopList.copy(merchantId = merchantId))
-            call.respond(response)
-        }
-
-
-        put {
-            val pr = call.principal<BasePrincipal>()
-            val merchantId = pr?.merchantId
-            val stopList = call.receive<StopListDto>()
-            val response = StopListService.update(stopList.copy(merchantId = merchantId))
-            call.respond(response)
-        }
-
+  route("stoplist") {
+    get("increment/{id}") {
+      val pr = call.principal<BasePrincipal>()
+      val merchantId = pr?.merchantId
+      val id = call.parameters["id"]?.toLongOrNull()
+      if (id == null) {
+        call.respond(HttpStatusCode.BadRequest)
+        return@get
+      }
+      val stopList = StopListService.decrementCount(id = id, merchantId = merchantId)
+      call.respond(stopList)
     }
-}
 
+    post {
+      val pr = call.principal<BasePrincipal>()
+      val merchantId = pr?.merchantId
+      val stopList = call.receive<StopListDto>()
+      val response = StopListService.add(stopList.copy(merchantId = merchantId))
+      call.respond(response)
+    }
+
+    put {
+      val pr = call.principal<BasePrincipal>()
+      val merchantId = pr?.merchantId
+      val stopList = call.receive<StopListDto>()
+      val response = StopListService.update(stopList.copy(merchantId = merchantId))
+      call.respond(response)
+    }
+  }
+}

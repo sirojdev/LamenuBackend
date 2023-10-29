@@ -10,18 +10,23 @@ import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
 
 fun Route.routeToDevice() {
-    post("device") {
-        val device: DeviceModel = call.receive()
-        println(Gson().toJson(device))
-        if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-            || device.uuid.isNullOrBlank() || device.merchantId == null) {
+  post("device") {
+    val device: DeviceModel = call.receive()
+    println(Gson().toJson(device))
+    if (
+      device.brand == null ||
+        device.model == null ||
+        device.build == null ||
+        device.osVersion == null ||
+        device.uuid.isNullOrBlank() ||
+        device.merchantId == null
+    ) {
 
-            call.respond(HttpStatusCode.BadRequest, "error input")
-        } else {
-            val ip = call.request.host()
-            val result = DeviceController.auth(device.copy(ip = ip))
-            call.respond(result)
-        }
+      call.respond(HttpStatusCode.BadRequest, "error input")
+    } else {
+      val ip = call.request.host()
+      val result = DeviceController.auth(device.copy(ip = ip))
+      call.respond(result)
     }
-
+  }
 }

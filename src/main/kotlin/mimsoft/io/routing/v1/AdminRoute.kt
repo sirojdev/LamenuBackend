@@ -8,15 +8,14 @@ import mimsoft.io.features.manager_sys.routeToManagers
 import mimsoft.io.features.payment_type.routeToPaymentType
 import mimsoft.io.routing.v1.sys_admin.routeToAdminMerchant
 
-fun Route.routeToSysAdmin()  {
-    route("admin"){
-        adminSysRoute()
-        authenticate("admin"){
-            routeToManagers()
-            routeToAdminMerchant()
-            routeToPaymentType()
-        }
-        routeToMerchantApp()
-
+fun Route.routeToSysAdmin() {
+  route("admin") {
+    adminSysRoute()
+    authenticate("admin") {
+      routeToManagers()
+      routeToAdminMerchant()
+      routeToPaymentType()
     }
+    routeToMerchantApp()
+  }
 }

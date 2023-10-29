@@ -1,13 +1,13 @@
-//package mimsoft.io.features.seles.repository
+// package mimsoft.io.features.seles.repository
 //
-//import io.ktor.server.testing.*
-//import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
-//import mimsoft.io.features.seles.SalesMerchantTable
-//import kotlin.test.Test
-//import kotlin.test.assertNotNull
-//import kotlin.test.assertTrue
+// import io.ktor.server.testing.*
+// import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
+// import mimsoft.io.features.seles.SalesMerchantTable
+// import kotlin.test.Test
+// import kotlin.test.assertNotNull
+// import kotlin.test.assertTrue
 //
-//class MerchantRepositoryImpTest { // TODO: there is an error...
+// class MerchantRepositoryImpTest { // TODO: there is an error...
 //
 //    private val merchantRepositoryImp = MerchantRepositoryImp
 //
@@ -71,4 +71,4 @@
 //        if (response)
 //            assertTrue(response)
 //    }
-//}
+// }

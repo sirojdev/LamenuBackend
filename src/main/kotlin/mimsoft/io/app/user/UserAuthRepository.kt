@@ -1,4 +1,3 @@
 package mimsoft.io.app.user
 
-class UserAuthRepository {
-}
+class UserAuthRepository {}

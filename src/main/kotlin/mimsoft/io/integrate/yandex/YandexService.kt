@@ -9,6 +9,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
+import java.util.Random
+import java.util.UUID
 import mimsoft.io.features.branch.repository.BranchServiceImpl
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
@@ -20,454 +22,495 @@ import mimsoft.io.integrate.yandex.repository.YandexRepository
 import mimsoft.io.utils.ResponseModel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.Random
-import java.util.UUID
 
 object YandexService {
-    private val log: Logger = LoggerFactory.getLogger(YandexService::class.java)
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            gson {
-                setPrettyPrinting()
-                serializeNulls()
-                setDateFormat("dd.MM.yyyy HH:mm:ss.sss")
-            }
+  private val log: Logger = LoggerFactory.getLogger(YandexService::class.java)
+  val client =
+    HttpClient(CIO) {
+      install(ContentNegotiation) {
+        gson {
+          setPrettyPrinting()
+          serializeNulls()
+          setDateFormat("dd.MM.yyyy HH:mm:ss.sss")
         }
+      }
     }
 
-    suspend fun createOrder(dto: YandexOrder, orderId: Long?, merchantId: Long?): ResponseModel {
-        val merchantIntegrateDto = MerchantIntegrateRepository.get(1) ?: return ResponseModel(
-            body = "merchant id = $merchantId not found any integration",
-            httpStatus = HttpStatusCode.NotFound
+  suspend fun createOrder(dto: YandexOrder, orderId: Long?, merchantId: Long?): ResponseModel {
+    val merchantIntegrateDto =
+      MerchantIntegrateRepository.get(1)
+        ?: return ResponseModel(
+          body = "merchant id = $merchantId not found any integration",
+          httpStatus = HttpStatusCode.NotFound
         )
-        val merchant = MerchantRepositoryImp.get(1) ?: return ResponseModel(
-            body = "merchant id = $merchantId not found",
-            httpStatus = HttpStatusCode.NotFound
+    val merchant =
+      MerchantRepositoryImp.get(1)
+        ?: return ResponseModel(
+          body = "merchant id = $merchantId not found",
+          httpStatus = HttpStatusCode.NotFound
         )
-        val order =
-            OrderService.getById(orderId, "branch", "user") ?: return ResponseModel(
-                body = "Order id = $orderId not found",
-                httpStatus = HttpStatusCode.NotFound
-            )
-        val body = (createOrderObject(order, dto, merchant))
-        log.info("GSON $body")
-        val yandexOrder = YandexRepository.getYandexOrder(orderId)
-        val requestId = if (yandexOrder == null) UUID.randomUUID().toString() else yandexOrder.operationId
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=$requestId"
-        val response = createPostRequest(url, body, merchantIntegrateDto.yandexDeliveryKey.toString())
-        log.info("response :${response.status.value}")
-        log.info("body :${response.body<String>()}")
-        return when (response.status.value) {
-            200 -> {
-                val responseDto = Gson().fromJson(response.body<String>(), YandexOrderResponse::class.java)
-                YandexRepository.saveYandexOrder(
-                    YandexOrderDto(
-                        operationId = requestId,
-                        claimId = responseDto.id,
-                        orderId = order.id,
-                        orderStatus = "new",
-                        merchantId = order.merchant?.id,
-                        branchId = order.branch?.id,
-                        version = 1
-                    )
-                )
-                return ResponseModel(httpStatus = response.status, body = response.body<String>())
-            }
-
-            else -> ResponseModel(httpStatus = response.status, body = response.body<String>())
-        }
+    val order =
+      OrderService.getById(orderId, "branch", "user")
+        ?: return ResponseModel(
+          body = "Order id = $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val body = (createOrderObject(order, dto, merchant))
+    log.info("GSON $body")
+    val yandexOrder = YandexRepository.getYandexOrder(orderId)
+    val requestId =
+      if (yandexOrder == null) UUID.randomUUID().toString() else yandexOrder.operationId
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=$requestId"
+    val response = createPostRequest(url, body, merchantIntegrateDto.yandexDeliveryKey.toString())
+    log.info("response :${response.status.value}")
+    log.info("body :${response.body<String>()}")
+    return when (response.status.value) {
+      200 -> {
+        val responseDto = Gson().fromJson(response.body<String>(), YandexOrderResponse::class.java)
+        YandexRepository.saveYandexOrder(
+          YandexOrderDto(
+            operationId = requestId,
+            claimId = responseDto.id,
+            orderId = order.id,
+            orderStatus = "new",
+            merchantId = order.merchant?.id,
+            branchId = order.branch?.id,
+            version = 1
+          )
+        )
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+      }
+      else -> ResponseModel(httpStatus = response.status, body = response.body<String>())
     }
+  }
 
-    private fun editOrderObject(order: Order?, yandexOrder: YandexOrder, merchant: MerchantDto?): YandexOrder {
-        if (yandexOrder.callbackProperties == null) {
-            yandexOrder.callbackProperties = CallbackProperties(
-                callbackUrl = "https://api.lamenu.uz/v1/integrate/yandex/callback"
-            )
-        } else {
-            yandexOrder.callbackProperties?.callbackUrl = "https://api.lamenu.uz/v1/integrate/yandex/callback"
-        }
-        yandexOrder.autoAccept = false
-        if (yandexOrder.clientRequirements == null) {
-            yandexOrder.clientRequirements = Requirement(
-                cargoOptions = arrayListOf("thermobag"),
-                proCourier = true,
-                taxiClass = "courier"
-            )
-        }
-        if (yandexOrder.comment == null) yandexOrder.comment = order?.comment
-        if (yandexOrder.emergencyContact == null) yandexOrder.emergencyContact = EmergencyContact(
-            name = order?.user?.firstName,
-            phone = order?.user?.phone
+  private fun editOrderObject(
+    order: Order?,
+    yandexOrder: YandexOrder,
+    merchant: MerchantDto?
+  ): YandexOrder {
+    if (yandexOrder.callbackProperties == null) {
+      yandexOrder.callbackProperties =
+        CallbackProperties(callbackUrl = "https://api.lamenu.uz/v1/integrate/yandex/callback")
+    } else {
+      yandexOrder.callbackProperties?.callbackUrl =
+        "https://api.lamenu.uz/v1/integrate/yandex/callback"
+    }
+    yandexOrder.autoAccept = false
+    if (yandexOrder.clientRequirements == null) {
+      yandexOrder.clientRequirements =
+        Requirement(
+          cargoOptions = arrayListOf("thermobag"),
+          proCourier = true,
+          taxiClass = "courier"
         )
-        if (yandexOrder.items == null) yandexOrder.items = arrayListOf(
-            YandexOrderItem(
-                costCurrency = "UZS",
-                costValue = order?.totalPrice.toString(),
-                droppofPoint = 2,
-                pickupPoint = 1,
-                quantity = 1,
-                size = Size(height = 0.20, length = 0.15, width = 0.2),
-                title = "Foods",
-                weight = 2.105,
-            )
+    }
+    if (yandexOrder.comment == null) yandexOrder.comment = order?.comment
+    if (yandexOrder.emergencyContact == null)
+      yandexOrder.emergencyContact =
+        EmergencyContact(name = order?.user?.firstName, phone = order?.user?.phone)
+    if (yandexOrder.items == null)
+      yandexOrder.items =
+        arrayListOf(
+          YandexOrderItem(
+            costCurrency = "UZS",
+            costValue = order?.totalPrice.toString(),
+            droppofPoint = 2,
+            pickupPoint = 1,
+            quantity = 1,
+            size = Size(height = 0.20, length = 0.15, width = 0.2),
+            title = "Foods",
+            weight = 2.105,
+          )
         )
-        listOf(
-            YandexOrderRoutePoint(
-                address = Address(
-                    comment = order?.branch?.name?.uz,
-                    coordinates = listOf(
-                        order?.branch?.longitude!!,
-                        order.branch?.latitude!!
-                    ),
-                    description = order.address?.description,
-                    fullname = order.branch?.address
-
-                ),
-                contact = Contact(
-                    name = order.branch?.name?.uz,
-                    phone = merchant?.phone
-                ),
-                externalOrderCost = ExternalOrderCost(
-                    currency = "UZS",
-                    currencySign = "₽",
-                    value = "0"
-                ),
-                externalOrderId = "${order.id}",
-                type = "source",
-                pointId = 1,
-                visitOrder = 1
+    listOf(
+        YandexOrderRoutePoint(
+          address =
+            Address(
+              comment = order?.branch?.name?.uz,
+              coordinates = listOf(order?.branch?.longitude!!, order.branch?.latitude!!),
+              description = order.address?.description,
+              fullname = order.branch?.address
             ),
-            YandexOrderRoutePoint(
-                address = Address(
-                    comment = order.comment,
-                    coordinates = listOf(
-                        order.address?.longitude!!,
-                        order.address?.latitude!!
-                    ),
-                    description = order.address?.description,
-                    fullname = order.address?.description
-                ),
-                contact = Contact(
-                    name = order.user?.firstName,
-                    phone = order.user?.phone
-                ),
-                externalOrderCost = ExternalOrderCost(
-                    currency = "UZS",
-                    currencySign = "₽",
-                    value = "0"
-                ),
-                externalOrderId = "${order.id}",
-                type = "destination",
-                pointId = 2,
-                visitOrder = 2
-            )
-        ).also { yandexOrder.routePoints = it }
-        return yandexOrder
-    }
-
-    private fun createOrderObject(order: Order?, yandexOrder: YandexOrder, merchant: MerchantDto?): YandexOrder {
-        if (yandexOrder.callbackProperties == null) {
-            yandexOrder.callbackProperties = CallbackProperties(
-                callbackUrl = "https://api.lamenu.uz/v1/integration/yandex/callback"
-            )
-        } else {
-            yandexOrder.callbackProperties?.callbackUrl = "https://api.lamenu.uz/v1/integration/yandex/callback"
-        }
-        yandexOrder.autoAccept = false
-        yandexOrder.clientRequirements = Requirement(
-//            cargoOptions = arrayListOf("thermobag"),
-            proCourier = false,
-            taxiClass = "courier"
-        )
-        yandexOrder.comment = order?.comment
-        yandexOrder.emergencyContact = EmergencyContact(
-            name = order?.user?.firstName,
-            phone = order?.user?.phone
-        )
-        yandexOrder.items = arrayListOf(
-            YandexOrderItem(
-                costCurrency = "UZS",
-                costValue = order?.totalPrice.toString(),
-                droppofPoint = 2,
-                pickupPoint = 1,
-                quantity = 1,
-                size = Size(height = 0.20, length = 0.15, width = 0.2),
-                title = "Foods",
-                weight = 2.105,
-            )
-        )
-        listOf(
-            YandexOrderRoutePoint(
-                address = Address(
-                    comment = order?.branch?.name?.uz,
-                    coordinates = listOf(
-                        order?.branch?.longitude!!,
-                        order.branch?.latitude!!
-                    ),
-                    description = order.address?.description,
-                    fullname = order.branch?.address ?: ""
-
-                ),
-                contact = Contact(
-                    name = order.branch?.name?.uz,
-                    phone = merchant?.phone
-                ),
-                externalOrderCost = ExternalOrderCost(
-                    currency = "UZS",
-                    currencySign = "₽",
-                    value = order.totalPrice.toString()
-                ),
-                externalOrderId = "${order.id}",
-                type = "source",
-                pointId = 1,
-                visitOrder = 1,
-                pickupCode = generateCode().toString()
+          contact = Contact(name = order.branch?.name?.uz, phone = merchant?.phone),
+          externalOrderCost = ExternalOrderCost(currency = "UZS", currencySign = "₽", value = "0"),
+          externalOrderId = "${order.id}",
+          type = "source",
+          pointId = 1,
+          visitOrder = 1
+        ),
+        YandexOrderRoutePoint(
+          address =
+            Address(
+              comment = order.comment,
+              coordinates = listOf(order.address?.longitude!!, order.address?.latitude!!),
+              description = order.address?.description,
+              fullname = order.address?.description
             ),
-            YandexOrderRoutePoint(
-                address = Address(
-                    comment = order.comment,
-                    coordinates = listOf(
-                        order.address?.longitude!!,
-                        order.address?.latitude!!
-                    ),
-                    description = order.address?.description,
-                    fullname = order.address?.description
-                ),
-                contact = Contact(
-                    name = order.user?.firstName,
-                    phone = order.user?.phone
-                ),
-                externalOrderCost = ExternalOrderCost(
-                    currency = "UZS",
-                    currencySign = "₽",
-                    value = order.totalPrice.toString()
-                ),
-                externalOrderId = "${order.id}",
-                type = "destination",
-                pointId = 2,
-                visitOrder = 2
-            )
-        ).also { yandexOrder.routePoints = it }
-        return yandexOrder
-    }
-
-    private fun generateCode(): Int? {
-        return Random().nextInt(900000) + 100000
-    }
-
-    suspend fun tariff(branchId: Long?, merchantId: Long?): ResponseModel {
-        val branch = BranchServiceImpl.get(id = branchId, merchantId = merchantId)
-            ?: return ResponseModel(body = "Branch id= $branchId not found", httpStatus = HttpStatusCode.NotFound)
-        val dto = YandexTraffic(start_point = listOf(branch.longitude, branch.latitude), fullname = branch.address)
-        val response = createPostRequest(
-            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/tariffs",
-            (dto),
-            MerchantIntegrateRepository.get(merchantId)?.yandexDeliveryKey.toString()
+          contact = Contact(name = order.user?.firstName, phone = order.user?.phone),
+          externalOrderCost = ExternalOrderCost(currency = "UZS", currencySign = "₽", value = "0"),
+          externalOrderId = "${order.id}",
+          type = "destination",
+          pointId = 2,
+          visitOrder = 2
         )
-        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+      )
+      .also { yandexOrder.routePoints = it }
+    return yandexOrder
+  }
+
+  private fun createOrderObject(
+    order: Order?,
+    yandexOrder: YandexOrder,
+    merchant: MerchantDto?
+  ): YandexOrder {
+    if (yandexOrder.callbackProperties == null) {
+      yandexOrder.callbackProperties =
+        CallbackProperties(callbackUrl = "https://api.lamenu.uz/v1/integration/yandex/callback")
+    } else {
+      yandexOrder.callbackProperties?.callbackUrl =
+        "https://api.lamenu.uz/v1/integration/yandex/callback"
     }
-
-    suspend fun checkPrice(dto: YandexCheckPrice, merchantId: Long?, orderId: Long?): Any {
-        val integrateKeys = MerchantIntegrateRepository.get(merchantId)
-        val order = OrderService.getById(orderId, "branch")
-        if (dto.items.isNullOrEmpty()) {
-            dto.items = listOf(Items(quantity = 1, Size(height = 0.05, length = 0.15, width = 0.1), weight = 2.105))
-        }
-        if (dto.requirements == null) {
-            CheckPriceRequirements(
-                cargoOptions = arrayListOf("thermobag"),
-                proCourier = true, taxiClass = "courier"
-            )
-        }
-        if (dto.routePoints == null) {
-            dto.routePoints =
-                listOf(
-                    RoutePoints(
-                        coordinates = arrayListOf(order?.branch?.longitude ?: 0.0, order?.branch?.latitude ?: 0.0)
-                    ),
-                    RoutePoints(
-                        coordinates = arrayListOf(order?.address?.longitude ?: 0.0, order?.address?.latitude ?: 0.0)
-                    )
-                )
-
-        }
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price"
-        val response = createPostRequest(url, dto, integrateKeys?.yandexDeliveryKey.toString())
-        return ResponseModel(httpStatus = response.status, body = response.body<String>())
-    }
-
-    suspend fun confirm(orderId: Long?, merchantId: Long): ResponseModel {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-
-        val body = YandexConfirm(version = yOrder.version)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yOrder.claimId}"
-        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
-        log.info("response $response")
-        log.info("body ${response.body<String>()}")
-        return when (response.status.value) {
-            200 -> {
-                val confirmDto = Gson().fromJson(response.body<String>(), AcceptResponse::class.java)
-                confirmDto.version?.let { YandexRepository.update(yOrder.orderId, it, confirmDto.status) }
-                ResponseModel(body = response.body<String>(), response.status)
-            }
-
-            else -> {
-                ResponseModel(body = "Something wrong", httpStatus = response.status)
-            }
-        }
-    }
-
-    suspend fun info(orderId: Long?, merchantId: Long?): ResponseModel {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${yOrder.claimId}"
-        val response = createPostRequest(url, yOrder.yandexKey.toString())
-        log.info("response $response")
-        log.info("body ${response.body<String>()}")
-        return ResponseModel(httpStatus = response.status, body = response.body<String>())
-    }
-
-    private suspend fun createPostRequest(url: String, body: Any, token: String): HttpResponse {
-        return client.post(url) {
-            bearerAuth(token)
-            contentType(ContentType.Application.Json)
-            header("Accept-Language", "en")
-            setBody(Gson().toJson(body))
-        }
-    }
-
-    private suspend fun createGetRequest(url: String, token: String): HttpResponse {
-        return client.get(url) {
-            bearerAuth(token)
-            contentType(ContentType.Application.Json)
-            header("Accept-Language", "en")
-        }
-    }
-
-    private suspend fun createPostRequest(url: String, token: String): HttpResponse {
-        return client.post(url) {
-            bearerAuth(token)
-            contentType(ContentType.Application.Json)
-            header("Accept-Language", "en")
-        }
-    }
-
-    suspend fun courierInfo(orderId: Long?, merchantId: Long?): Any {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/driver-voiceforwarding"
-        val body = YandexCourier(claimId = yOrder.claimId)
-        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun courierLocation(orderId: Long?, merchantId: Long?): ResponseModel {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-
-        val url =
-            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/performer-position?claim_id=${yOrder.claimId}"
-        val response = createGetRequest(url, yOrder.yandexKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun trackingLink(orderId: Long?, merchantId: Long?): Any {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-
-        val url =
-            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/tracking-links?claim_id=${yOrder.claimId}"
-        val response = createGetRequest(url, yOrder.yandexKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun cancelInfo(orderId: Long?, merchantId: Long?): Any {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id=${yOrder.claimId}"
-        val response = createPostRequest(url, yOrder.yandexKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun cancel(orderId: Long?, merchantId: Long?, state: String?): Any {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-        val body = YandexCancel(cancelState = state, version = yOrder.version)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel?claim_id=${yOrder.claimId}"
-        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
-        val cancelResponse = Gson().fromJson(response.body<String>(), YandexCancelResponse::class.java)
-        YandexRepository.update(
-            yOrder.orderId,
-            cancelResponse.version ?: (yOrder.version ?: 1 + 1),
-            cancelResponse.status
+    yandexOrder.autoAccept = false
+    yandexOrder.clientRequirements =
+      Requirement(
+        //            cargoOptions = arrayListOf("thermobag"),
+        proCourier = false,
+        taxiClass = "courier"
+      )
+    yandexOrder.comment = order?.comment
+    yandexOrder.emergencyContact =
+      EmergencyContact(name = order?.user?.firstName, phone = order?.user?.phone)
+    yandexOrder.items =
+      arrayListOf(
+        YandexOrderItem(
+          costCurrency = "UZS",
+          costValue = order?.totalPrice.toString(),
+          droppofPoint = 2,
+          pickupPoint = 1,
+          quantity = 1,
+          size = Size(height = 0.20, length = 0.15, width = 0.2),
+          title = "Foods",
+          weight = 2.105,
         )
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-
-    suspend fun confirmCode(orderId: Long?, merchantId: Long?): Any {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-        val body = YandexCode(claimId = yOrder.claimId)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/confirmation_code"
-        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun pointEta(orderId: Long?, merchantId: Long?): Any {
-        val yOrder = YandexRepository.getYandexOrderWithKey(orderId)
-            ?: return ResponseModel(body = "Order id= $orderId not found", httpStatus = HttpStatusCode.NotFound)
-        val body = YandexCode(claimId = yOrder.claimId)
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/points-eta?claim_id=${yOrder.claimId}"
-        val response = createPostRequest(url, body, yOrder.yandexKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun bulkInfo(branchId: Long?, merchantId: Long?, offset: Int, limit: Int): ResponseModel {
-        val yOrderList = YandexRepository.getYandexOrderList(branchId, limit, offset)
-        val body = YandexBulk()
-        val key = MerchantIntegrateRepository.get(1)
-        yOrderList.forEach { o -> body.claimIds?.add(o.claimId ?: "") }
-        val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/bulk_info"
-        val response = createPostRequest(url, body, key?.yandexDeliveryKey.toString())
-        return ResponseModel(body = response.body<String>(), httpStatus = response.status)
-    }
-
-    suspend fun edit(orderId: Long?, merchantId: Long?): ResponseModel {
-        val merchant = MerchantRepositoryImp.get(1) ?: return ResponseModel(
-            body = "merchant id = $merchantId not found",
-            httpStatus = HttpStatusCode.NotFound
+      )
+    listOf(
+        YandexOrderRoutePoint(
+          address =
+            Address(
+              comment = order?.branch?.name?.uz,
+              coordinates = listOf(order?.branch?.longitude!!, order.branch?.latitude!!),
+              description = order.address?.description,
+              fullname = order.branch?.address ?: ""
+            ),
+          contact = Contact(name = order.branch?.name?.uz, phone = merchant?.phone),
+          externalOrderCost =
+            ExternalOrderCost(
+              currency = "UZS",
+              currencySign = "₽",
+              value = order.totalPrice.toString()
+            ),
+          externalOrderId = "${order.id}",
+          type = "source",
+          pointId = 1,
+          visitOrder = 1,
+          pickupCode = generateCode().toString()
+        ),
+        YandexOrderRoutePoint(
+          address =
+            Address(
+              comment = order.comment,
+              coordinates = listOf(order.address?.longitude!!, order.address?.latitude!!),
+              description = order.address?.description,
+              fullname = order.address?.description
+            ),
+          contact = Contact(name = order.user?.firstName, phone = order.user?.phone),
+          externalOrderCost =
+            ExternalOrderCost(
+              currency = "UZS",
+              currencySign = "₽",
+              value = order.totalPrice.toString()
+            ),
+          externalOrderId = "${order.id}",
+          type = "destination",
+          pointId = 2,
+          visitOrder = 2
         )
-        val order =
-            OrderService.getById(orderId, "branch", "user") ?: return ResponseModel(
-                body = "Order id = $orderId not found",
-                httpStatus = HttpStatusCode.NotFound
-            )
-        val body = createOrderObject(order, YandexOrder(), merchant)
-        log.info("GSON $body")
-        val yandexOrder = YandexRepository.getYandexOrderWithKey(orderId)
-        val url =
-            "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/edit?claim_id=${yandexOrder?.claimId}&version=${yandexOrder?.version}"
-        val response = createPostRequest(url, body, yandexOrder?.yandexKey.toString())
-        log.info("response :${response.status.value}")
-        log.info("body :${response.body<String>()}")
-        return when (response.status.value) {
-            200 -> {
-                val responseDto = Gson().fromJson(response.body<String>(), YandexOrderResponse::class.java)
-                (responseDto.version ?: yandexOrder?.version?.plus(1))?.let {
-                    YandexRepository.update(
-                        yandexOrder?.orderId, it, responseDto.status?:"new"
-                    )
-                }
-                return ResponseModel(httpStatus = response.status, body = response.body<String>())
-            }
-            else -> {
-                ResponseModel(httpStatus = response.status, body = response.body<String>())
-            }
-        }
+      )
+      .also { yandexOrder.routePoints = it }
+    return yandexOrder
+  }
+
+  private fun generateCode(): Int? {
+    return Random().nextInt(900000) + 100000
+  }
+
+  suspend fun tariff(branchId: Long?, merchantId: Long?): ResponseModel {
+    val branch =
+      BranchServiceImpl.get(id = branchId, merchantId = merchantId)
+        ?: return ResponseModel(
+          body = "Branch id= $branchId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val dto =
+      YandexTraffic(
+        start_point = listOf(branch.longitude, branch.latitude),
+        fullname = branch.address
+      )
+    val response =
+      createPostRequest(
+        "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/tariffs",
+        (dto),
+        MerchantIntegrateRepository.get(merchantId)?.yandexDeliveryKey.toString()
+      )
+    return ResponseModel(httpStatus = response.status, body = response.body<String>())
+  }
+
+  suspend fun checkPrice(dto: YandexCheckPrice, merchantId: Long?, orderId: Long?): Any {
+    val integrateKeys = MerchantIntegrateRepository.get(merchantId)
+    val order = OrderService.getById(orderId, "branch")
+    if (dto.items.isNullOrEmpty()) {
+      dto.items =
+        listOf(Items(quantity = 1, Size(height = 0.05, length = 0.15, width = 0.1), weight = 2.105))
     }
+    if (dto.requirements == null) {
+      CheckPriceRequirements(
+        cargoOptions = arrayListOf("thermobag"),
+        proCourier = true,
+        taxiClass = "courier"
+      )
+    }
+    if (dto.routePoints == null) {
+      dto.routePoints =
+        listOf(
+          RoutePoints(
+            coordinates =
+              arrayListOf(order?.branch?.longitude ?: 0.0, order?.branch?.latitude ?: 0.0)
+          ),
+          RoutePoints(
+            coordinates =
+              arrayListOf(order?.address?.longitude ?: 0.0, order?.address?.latitude ?: 0.0)
+          )
+        )
+    }
+    val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price"
+    val response = createPostRequest(url, dto, integrateKeys?.yandexDeliveryKey.toString())
+    return ResponseModel(httpStatus = response.status, body = response.body<String>())
+  }
+
+  suspend fun confirm(orderId: Long?, merchantId: Long): ResponseModel {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+
+    val body = YandexConfirm(version = yOrder.version)
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/accept?claim_id=${yOrder.claimId}"
+    val response = createPostRequest(url, body, yOrder.yandexKey.toString())
+    log.info("response $response")
+    log.info("body ${response.body<String>()}")
+    return when (response.status.value) {
+      200 -> {
+        val confirmDto = Gson().fromJson(response.body<String>(), AcceptResponse::class.java)
+        confirmDto.version?.let { YandexRepository.update(yOrder.orderId, it, confirmDto.status) }
+        ResponseModel(body = response.body<String>(), response.status)
+      }
+      else -> {
+        ResponseModel(body = "Something wrong", httpStatus = response.status)
+      }
+    }
+  }
+
+  suspend fun info(orderId: Long?, merchantId: Long?): ResponseModel {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/info?claim_id=${yOrder.claimId}"
+    val response = createPostRequest(url, yOrder.yandexKey.toString())
+    log.info("response $response")
+    log.info("body ${response.body<String>()}")
+    return ResponseModel(httpStatus = response.status, body = response.body<String>())
+  }
+
+  private suspend fun createPostRequest(url: String, body: Any, token: String): HttpResponse {
+    return client.post(url) {
+      bearerAuth(token)
+      contentType(ContentType.Application.Json)
+      header("Accept-Language", "en")
+      setBody(Gson().toJson(body))
+    }
+  }
+
+  private suspend fun createGetRequest(url: String, token: String): HttpResponse {
+    return client.get(url) {
+      bearerAuth(token)
+      contentType(ContentType.Application.Json)
+      header("Accept-Language", "en")
+    }
+  }
+
+  private suspend fun createPostRequest(url: String, token: String): HttpResponse {
+    return client.post(url) {
+      bearerAuth(token)
+      contentType(ContentType.Application.Json)
+      header("Accept-Language", "en")
+    }
+  }
+
+  suspend fun courierInfo(orderId: Long?, merchantId: Long?): Any {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+
+    val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/driver-voiceforwarding"
+    val body = YandexCourier(claimId = yOrder.claimId)
+    val response = createPostRequest(url, body, yOrder.yandexKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun courierLocation(orderId: Long?, merchantId: Long?): ResponseModel {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/performer-position?claim_id=${yOrder.claimId}"
+    val response = createGetRequest(url, yOrder.yandexKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun trackingLink(orderId: Long?, merchantId: Long?): Any {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/tracking-links?claim_id=${yOrder.claimId}"
+    val response = createGetRequest(url, yOrder.yandexKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun cancelInfo(orderId: Long?, merchantId: Long?): Any {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel-info?claim_id=${yOrder.claimId}"
+    val response = createPostRequest(url, yOrder.yandexKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun cancel(orderId: Long?, merchantId: Long?, state: String?): Any {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val body = YandexCancel(cancelState = state, version = yOrder.version)
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/cancel?claim_id=${yOrder.claimId}"
+    val response = createPostRequest(url, body, yOrder.yandexKey.toString())
+    val cancelResponse = Gson().fromJson(response.body<String>(), YandexCancelResponse::class.java)
+    YandexRepository.update(
+      yOrder.orderId,
+      cancelResponse.version ?: (yOrder.version ?: 1 + 1),
+      cancelResponse.status
+    )
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun confirmCode(orderId: Long?, merchantId: Long?): Any {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val body = YandexCode(claimId = yOrder.claimId)
+    val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/confirmation_code"
+    val response = createPostRequest(url, body, yOrder.yandexKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun pointEta(orderId: Long?, merchantId: Long?): Any {
+    val yOrder =
+      YandexRepository.getYandexOrderWithKey(orderId)
+        ?: return ResponseModel(
+          body = "Order id= $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val body = YandexCode(claimId = yOrder.claimId)
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/points-eta?claim_id=${yOrder.claimId}"
+    val response = createPostRequest(url, body, yOrder.yandexKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun bulkInfo(branchId: Long?, merchantId: Long?, offset: Int, limit: Int): ResponseModel {
+    val yOrderList = YandexRepository.getYandexOrderList(branchId, limit, offset)
+    val body = YandexBulk()
+    val key = MerchantIntegrateRepository.get(1)
+    yOrderList.forEach { o -> body.claimIds?.add(o.claimId ?: "") }
+    val url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/bulk_info"
+    val response = createPostRequest(url, body, key?.yandexDeliveryKey.toString())
+    return ResponseModel(body = response.body<String>(), httpStatus = response.status)
+  }
+
+  suspend fun edit(orderId: Long?, merchantId: Long?): ResponseModel {
+    val merchant =
+      MerchantRepositoryImp.get(1)
+        ?: return ResponseModel(
+          body = "merchant id = $merchantId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val order =
+      OrderService.getById(orderId, "branch", "user")
+        ?: return ResponseModel(
+          body = "Order id = $orderId not found",
+          httpStatus = HttpStatusCode.NotFound
+        )
+    val body = createOrderObject(order, YandexOrder(), merchant)
+    log.info("GSON $body")
+    val yandexOrder = YandexRepository.getYandexOrderWithKey(orderId)
+    val url =
+      "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/edit?claim_id=${yandexOrder?.claimId}&version=${yandexOrder?.version}"
+    val response = createPostRequest(url, body, yandexOrder?.yandexKey.toString())
+    log.info("response :${response.status.value}")
+    log.info("body :${response.body<String>()}")
+    return when (response.status.value) {
+      200 -> {
+        val responseDto = Gson().fromJson(response.body<String>(), YandexOrderResponse::class.java)
+        (responseDto.version ?: yandexOrder?.version?.plus(1))?.let {
+          YandexRepository.update(yandexOrder?.orderId, it, responseDto.status ?: "new")
+        }
+        return ResponseModel(httpStatus = response.status, body = response.body<String>())
+      }
+      else -> {
+        ResponseModel(httpStatus = response.status, body = response.body<String>())
+      }
+    }
+  }
 }

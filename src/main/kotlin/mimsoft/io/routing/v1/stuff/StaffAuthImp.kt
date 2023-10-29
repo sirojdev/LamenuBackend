@@ -9,47 +9,41 @@ import mimsoft.io.session.SessionTable
 import mimsoft.io.utils.JwtConfig
 
 object StaffAuthImp : StaffAuthService {
-    private val sessionService = SessionRepository
-    override suspend fun auth(staffDto: StaffDto?): StaffDto? {
-        val staff = getByPhonePassword(staffDto?.phone, staffDto?.password) ?: return null
-        val uuid = SessionRepository.generateUuid()
-        sessionService.auth(
-            SessionTable(
-                merchantId = staff.id,
-                uuid = uuid
-            )
-        )
-        return staff.copy(
-            token = JwtConfig.generateStaffToken(
-                merchantId = staff.id,
-                uuid = uuid
-            )
-        )
-    }
+  private val sessionService = SessionRepository
 
-    override suspend fun logout(uuid: String?): Boolean {
-        sessionService.expire(uuid)
-        return true
-    }
+  override suspend fun auth(staffDto: StaffDto?): StaffDto? {
+    val staff = getByPhonePassword(staffDto?.phone, staffDto?.password) ?: return null
+    val uuid = SessionRepository.generateUuid()
+    sessionService.auth(SessionTable(merchantId = staff.id, uuid = uuid))
+    return staff.copy(token = JwtConfig.generateStaffToken(merchantId = staff.id, uuid = uuid))
+  }
 
-    suspend fun getByPhonePassword(phone: String?, password: String?): StaffDto? {
+  override suspend fun logout(uuid: String?): Boolean {
+    sessionService.expire(uuid)
+    return true
+  }
 
-        val query = "select id, phone  from staff " +
-                "where phone = ? and password = ? and not deleted"
-        return withContext(Dispatchers.IO) {
-            DBManager.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    this.setString(1, phone)
-                    this.setString(2, password)
-                    this.closeOnCompletion()
-                }.executeQuery()
-                return@withContext if (rs.next()) {
-                    StaffDto(
-                        id = rs.getLong("id"),
-                        phone = rs.getString("phone"),
-                    )
-                } else null
+  suspend fun getByPhonePassword(phone: String?, password: String?): StaffDto? {
+
+    val query = "select id, phone  from staff " + "where phone = ? and password = ? and not deleted"
+    return withContext(Dispatchers.IO) {
+      DBManager.connection().use {
+        val rs =
+          it
+            .prepareStatement(query)
+            .apply {
+              this.setString(1, phone)
+              this.setString(2, password)
+              this.closeOnCompletion()
             }
-        }
+            .executeQuery()
+        return@withContext if (rs.next()) {
+          StaffDto(
+            id = rs.getLong("id"),
+            phone = rs.getString("phone"),
+          )
+        } else null
+      }
     }
+  }
 }

@@ -5,16 +5,12 @@ import kotlin.test.Test
 
 class DeviceControllerTest {
 
-    @Test
-    fun testDeviceGetBuUUID() = testApplication {
+  @Test
+  fun testDeviceGetBuUUID() = testApplication {
+    val uuid = "uuid"
 
-        val uuid = "uuid"
-
-        val r = DeviceController.getWithUUid(uuid)
-        println(r)
-        assert(true)
-    }
-
-
-
+    val r = DeviceController.getWithUUid(uuid)
+    println(r)
+    assert(true)
+  }
 }

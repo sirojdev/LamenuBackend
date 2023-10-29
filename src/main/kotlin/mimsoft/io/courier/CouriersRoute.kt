@@ -18,33 +18,32 @@ import mimsoft.io.services.socket.SocketData
 import mimsoft.io.services.socket.SocketType
 
 fun Route.routeToCouriers() {
-    post("test") {
-        val params = call.parameters["orderId"]?.toLong()
-        val order = OrderService.getById(params, "user", "branch", "address")
-        val orderCourierDto =
-            OrderCourierDto(
-                id = order?.id,
-                address = order?.address?.description,
-                branchName = order?.branch?.name,
-                clientFirst = order?.user?.firstName,
-                clientLastName = order?.user?.lastName,
-                price = order?.totalPrice
-            )
-        val socketDto = SocketData(data = Gson().toJson(orderCourierDto), type = SocketType.ORDER)
-        println("size ${CourierSocketService.courierConnections.size}")
-        CourierSocketService.courierConnections.forEach { x ->
-            x.session?.send(Gson().toJson(socketDto))
-        }
-        call.respond(HttpStatusCode.OK)
+  post("test") {
+    val params = call.parameters["orderId"]?.toLong()
+    val order = OrderService.getById(params, "user", "branch", "address")
+    val orderCourierDto =
+      OrderCourierDto(
+        id = order?.id,
+        address = order?.address?.description,
+        branchName = order?.branch?.name,
+        clientFirst = order?.user?.firstName,
+        clientLastName = order?.user?.lastName,
+        price = order?.totalPrice
+      )
+    val socketDto = SocketData(data = Gson().toJson(orderCourierDto), type = SocketType.ORDER)
+    println("size ${CourierSocketService.courierConnections.size}")
+    CourierSocketService.courierConnections.forEach { x ->
+      x.session?.send(Gson().toJson(socketDto))
     }
-    routeToCourierAuth()
-    authenticate("courier") {
-        route("courier") {
-            routeToCouriersInfo()
-            routeToCourierTransaction()
-            routeToCourierOrders()
-            merchantChatRoute()
-        }
-
+    call.respond(HttpStatusCode.OK)
+  }
+  routeToCourierAuth()
+  authenticate("courier") {
+    route("courier") {
+      routeToCouriersInfo()
+      routeToCourierTransaction()
+      routeToCourierOrders()
+      merchantChatRoute()
     }
+  }
 }

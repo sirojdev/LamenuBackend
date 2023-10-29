@@ -1,5 +1,3 @@
 package mimsoft.io.waiter.book
 
-object WaiterBookRepository {
-
-}
+object WaiterBookRepository {}

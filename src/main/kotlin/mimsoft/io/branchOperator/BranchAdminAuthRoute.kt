@@ -22,90 +22,94 @@ import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToBranchAdminAuth() {
-    val branchAdminService = BranchAdminService
-    val sessionRepo = SessionRepository
-    route("device") {
-        post {
-            val device: DeviceModel = call.receive()
-            val appKey = call.parameters["appKey"]?.toLongOrNull()
+  val branchAdminService = BranchAdminService
+  val sessionRepo = SessionRepository
+  route("device") {
+    post {
+      val device: DeviceModel = call.receive()
+      val appKey = call.parameters["appKey"]?.toLongOrNull()
 
-            if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-                || device.uuid.isNullOrBlank()
-            ) {
-                call.respond(HttpStatusCode.BadRequest, "error input")
-            } else {
-                val ip = call.request.host()
-                val appDto = MerchantAppKeyRepository.getByAppId(appKey)
-                val result = DeviceController.auth(
-                    device.copy(
-                        ip = ip,
-                        merchantId = appDto?.merchantId,
-                        appKey = appKey,
-                        deviceType = DeviceType.COURIER
-                    )
-                )
-                call.respond(result)
-            }
+      if (
+        device.brand == null ||
+          device.model == null ||
+          device.build == null ||
+          device.osVersion == null ||
+          device.uuid.isNullOrBlank()
+      ) {
+        call.respond(HttpStatusCode.BadRequest, "error input")
+      } else {
+        val ip = call.request.host()
+        val appDto = MerchantAppKeyRepository.getByAppId(appKey)
+        val result =
+          DeviceController.auth(
+            device.copy(
+              ip = ip,
+              merchantId = appDto?.merchantId,
+              appKey = appKey,
+              deviceType = DeviceType.COURIER
+            )
+          )
+        call.respond(result)
+      }
+    }
+  }
+
+  authenticate("device") {
+    post("auth") {
+      val device = call.principal<DevicePrincipal>()
+      val branchAdmin = call.receive<StaffDto>()
+      val status = branchAdminService.auth(branchAdmin.copy(merchantId = device?.merchantId))
+
+      if (status.httpStatus != ResponseModel.OK) call.respond(status.httpStatus, status)
+      else {
+        val authStaff = status.body as StaffDto?
+        if (authStaff?.position != StaffPosition.BRANCH) {
+          call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
         }
+        val uuid = CourierService.generateUuid(authStaff?.id)
+        sessionRepo.auth(
+          SessionTable(
+            deviceId = device?.id,
+            uuid = uuid,
+            stuffId = authStaff?.id,
+            merchantId = authStaff?.merchantId,
+            role = DeviceType.BRANCH.name
+          )
+        )
+
+        call.respond(
+          authStaff?.copy(
+            token =
+              JwtConfig.generateBranchToken(
+                branchAdmin = authStaff.id,
+                branchId = authStaff.branchId,
+                merchantId = authStaff.merchantId,
+                uuid = uuid
+              )
+          ) ?: HttpStatusCode.NoContent
+        )
+      }
+    }
+  }
+
+  authenticate("branch") {
+    post("logout") {
+      val merchant = call.principal<BasePrincipal>()
+      CourierService.logout(merchant?.uuid)
+      call.respond(HttpStatusCode.OK)
     }
 
-    authenticate("device") {
-        post("auth") {
-            val device = call.principal<DevicePrincipal>()
-            val branchAdmin = call.receive<StaffDto>()
-            val status = branchAdminService.auth(branchAdmin.copy(merchantId = device?.merchantId))
-
-            if (status.httpStatus != ResponseModel.OK)
-                call.respond(status.httpStatus, status)
-            else {
-                val authStaff = status.body as StaffDto?
-                if (authStaff?.position != StaffPosition.BRANCH) {
-                    call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
-                }
-                val uuid = CourierService.generateUuid(authStaff?.id)
-                sessionRepo.auth(
-                    SessionTable(
-                        deviceId = device?.id,
-                        uuid = uuid,
-                        stuffId = authStaff?.id,
-                        merchantId = authStaff?.merchantId,
-                        role = DeviceType.BRANCH.name
-                    )
-                )
-
-                call.respond(
-                    authStaff?.copy(
-                        token = JwtConfig.generateBranchToken(
-                            branchAdmin = authStaff.id,
-                            branchId = authStaff.branchId,
-                            merchantId = authStaff.merchantId,
-                            uuid = uuid
-                        )
-                    ) ?: HttpStatusCode.NoContent
-                )
-            }
-        }
+    get("profile") {
+      val pr = call.principal<BasePrincipal>()
+      val merchantId = pr?.merchantId
+      val branchId = pr?.branchId
+      val staffId = pr?.staffId
+      val profile = StaffService.get(id = staffId, merchantId = merchantId, branchId = branchId)
+      if (profile != null) {
+        call.respond(HttpStatusCode.OK, profile)
+      } else {
+        call.respond(HttpStatusCode.NotFound)
+      }
     }
-
-    authenticate("branch") {
-        post("logout") {
-            val merchant = call.principal<BasePrincipal>()
-            CourierService.logout(merchant?.uuid)
-            call.respond(HttpStatusCode.OK)
-        }
-
-
-        get("profile") {
-            val pr = call.principal<BasePrincipal>()
-            val merchantId = pr?.merchantId
-            val branchId = pr?.branchId
-            val staffId = pr?.staffId
-            val profile = StaffService.get(id = staffId, merchantId = merchantId, branchId = branchId)
-            if (profile != null) {
-                call.respond(HttpStatusCode.OK, profile)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
-    }
+  }
 }

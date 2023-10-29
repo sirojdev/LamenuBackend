@@ -10,26 +10,26 @@ import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToMerchantOrder() {
 
-    val orderService = OrderService
+  val orderService = OrderService
 
-    authenticate("merchant") {
-        get("orders") {
-            val principal = call.principal<BasePrincipal>()
-            val search = call.parameters["search"]
-            val orders = orderService.getAll(mapOf("merchantId" to principal?.merchantId as Any))
-            call.respond(orders.httpStatus, orders.body)
-        }
-
-        get("orders/{id}") {
-            val principal = call.principal<BasePrincipal>()
-            val merchantId = principal?.merchantId
-            val id = call.parameters["id"]?.toLongOrNull()
-            if (id==null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
-            }
-            val order = orderService.get(id = id, merchantId = merchantId)
-            call.respond(order)
-        }
+  authenticate("merchant") {
+    get("orders") {
+      val principal = call.principal<BasePrincipal>()
+      val search = call.parameters["search"]
+      val orders = orderService.getAll(mapOf("merchantId" to principal?.merchantId as Any))
+      call.respond(orders.httpStatus, orders.body)
     }
+
+    get("orders/{id}") {
+      val principal = call.principal<BasePrincipal>()
+      val merchantId = principal?.merchantId
+      val id = call.parameters["id"]?.toLongOrNull()
+      if (id == null) {
+        call.respond(HttpStatusCode.BadRequest)
+        return@get
+      }
+      val order = orderService.get(id = id, merchantId = merchantId)
+      call.respond(order)
+    }
+  }
 }

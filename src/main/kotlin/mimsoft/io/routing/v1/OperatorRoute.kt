@@ -6,7 +6,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import mimsoft.io.features.courier.CourierService
 import mimsoft.io.features.courier.routeToCourier
 import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.notification.routeToNotification
@@ -26,50 +25,50 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 fun Route.routeToOperator() {
-    val log: Logger = LoggerFactory.getLogger("routeToOperator")
-    route("operator") {
-        post("auth") {
-            val staff = call.receive<StaffDto>()
+  val log: Logger = LoggerFactory.getLogger("routeToOperator")
+  route("operator") {
+    post("auth") {
+      val staff = call.receive<StaffDto>()
 
-            StaffService.auth(staff).let {
-                log.info("auth: $it")
-                call.respond(it.httpStatus, it.body)
-            }
-        }
-        authenticate("operator") {
-            route("profile") {
-                get {
-                    val principal = call.principal<BasePrincipal>()
-
-                    OperatorService.get(principal?.staffId).let {
-                        call.respond(it ?: HttpStatusCode.NoContent)
-                    }
-                }
-
-                put {
-                    val principal = call.principal<StaffPrincipal>()
-                    val operator = OperatorService.get(principal?.staffId)
-                    OperatorService.update(operator?.operator).let {
-                        if (it.body == null) call.respond(it.httpStatus)
-                        else call.respond(it.httpStatus, it.body)
-                    }
-                }
-
-                post("logout") {
-                    val pr = getPrincipal()
-                    val response = OperatorService.logout(pr?.uuid)
-                    call.respond(response)
-                }
-            }
-            routeToSms()
-            routeToMessage()
-            routeToPromo()
-            routeToUserUser()
-            routeToNotification()
-            routeToOperatorChat()
-            routeToOrder()
-            routeToCourier()
-            routeToCollector()
-        }
+      StaffService.auth(staff).let {
+        log.info("auth: $it")
+        call.respond(it.httpStatus, it.body)
+      }
     }
+    authenticate("operator") {
+      route("profile") {
+        get {
+          val principal = call.principal<BasePrincipal>()
+
+          OperatorService.get(principal?.staffId).let {
+            call.respond(it ?: HttpStatusCode.NoContent)
+          }
+        }
+
+        put {
+          val principal = call.principal<StaffPrincipal>()
+          val operator = OperatorService.get(principal?.staffId)
+          OperatorService.update(operator?.operator).let {
+            if (it.body == null) call.respond(it.httpStatus)
+            else call.respond(it.httpStatus, it.body)
+          }
+        }
+
+        post("logout") {
+          val pr = getPrincipal()
+          val response = OperatorService.logout(pr?.uuid)
+          call.respond(response)
+        }
+      }
+      routeToSms()
+      routeToMessage()
+      routeToPromo()
+      routeToUserUser()
+      routeToNotification()
+      routeToOperatorChat()
+      routeToOrder()
+      routeToCourier()
+      routeToCollector()
+    }
+  }
 }

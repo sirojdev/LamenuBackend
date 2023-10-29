@@ -8,25 +8,18 @@ import io.ktor.server.routing.*
 
 fun Route.routeToFiles() {
 
-    route("upload") {
-        post("image") {
-            val result = FilesService.uploadFile(
-                multipart = call.receiveMultipart()
-            )
-            if (result.isNotEmpty()) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.Gone)
-        }
-
+  route("upload") {
+    post("image") {
+      val result = FilesService.uploadFile(multipart = call.receiveMultipart())
+      if (result.isNotEmpty()) call.respond(HttpStatusCode.OK, result)
+      else call.respond(HttpStatusCode.Gone)
     }
-    route("delete"){
-        delete ("image") {
-            val url = call.parameters["image"] as String
-            val result = FilesService.deleteFile(
-                url
-            )
-            if (result) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.Gone)
-        }
+  }
+  route("delete") {
+    delete("image") {
+      val url = call.parameters["image"] as String
+      val result = FilesService.deleteFile(url)
+      if (result) call.respond(HttpStatusCode.OK, result) else call.respond(HttpStatusCode.Gone)
     }
+  }
 }
-

@@ -11,33 +11,32 @@ import mimsoft.io.features.visit.VisitService
 import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToClientVisit() {
-    post("visit") {
-        val pr = getPrincipal()
-        val userId = pr?.userId
-        val merchantId = pr?.merchantId
-        val visit = call.receive<VisitDto>()
-        val response = VisitService.add(visit.copy(user = UserDto(id = userId), merchantId = merchantId))
-        if (response == null) {
-            call.respond(HttpStatusCode.Conflict)
-            return@post
-        } else
-//            call.respond(HttpStatusCode.OK, VisitId(response!!))
-            return@post
-    }
+  post("visit") {
+    val pr = getPrincipal()
+    val userId = pr?.userId
+    val merchantId = pr?.merchantId
+    val visit = call.receive<VisitDto>()
+    val response =
+      VisitService.add(visit.copy(user = UserDto(id = userId), merchantId = merchantId))
+    if (response == null) {
+      call.respond(HttpStatusCode.Conflict)
+      return@post
+    } else
+    //            call.respond(HttpStatusCode.OK, VisitId(response!!))
+    return@post
+  }
 
-    get("visits") {
-        val pr = getPrincipal()
-        val merchantId = pr?.merchantId
-        val branchId = call.parameters["branchId"]?.toLongOrNull()
-        val userId = pr?.userId
-        val visits = VisitService.getAll(merchantId = merchantId, userId = userId, branchId = branchId)
-        if (visits.isEmpty()) {
-            call.respond(HttpStatusCode.NoContent)
-            return@get
-        } else call.respond(visits)
-    }
+  get("visits") {
+    val pr = getPrincipal()
+    val merchantId = pr?.merchantId
+    val branchId = call.parameters["branchId"]?.toLongOrNull()
+    val userId = pr?.userId
+    val visits = VisitService.getAll(merchantId = merchantId, userId = userId, branchId = branchId)
+    if (visits.isEmpty()) {
+      call.respond(HttpStatusCode.NoContent)
+      return@get
+    } else call.respond(visits)
+  }
 }
 
-data class VisitId(
-    val id: Long? = null
-)
+data class VisitId(val id: Long? = null)

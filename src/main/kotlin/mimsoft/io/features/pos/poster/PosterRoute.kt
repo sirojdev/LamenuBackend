@@ -9,18 +9,18 @@ import io.ktor.server.routing.*
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToPoster() {
-    get("poster") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val poster = PosterService.get(merchantId = merchantId) ?: PosterDto()
-        call.respond(poster)
-    }
+  get("poster") {
+    val pr = call.principal<BasePrincipal>()
+    val merchantId = pr?.merchantId
+    val poster = PosterService.get(merchantId = merchantId) ?: PosterDto()
+    call.respond(poster)
+  }
 
-    put("poster") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        val poster = call.receive<PosterDto>()
-        PosterService.add(poster.copy(merchantId = merchantId))
-        call.respond(HttpStatusCode.OK)
-    }
+  put("poster") {
+    val pr = call.principal<BasePrincipal>()
+    val merchantId = pr?.merchantId
+    val poster = call.receive<PosterDto>()
+    PosterService.add(poster.copy(merchantId = merchantId))
+    call.respond(HttpStatusCode.OK)
+  }
 }

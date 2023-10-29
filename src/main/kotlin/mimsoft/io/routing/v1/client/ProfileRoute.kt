@@ -16,42 +16,38 @@ import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToClientProfile() {
 
-    val userRepository: UserRepository = UserRepositoryImpl
-    route("profile") {
-
-        get {
-            val pr = call.principal<BasePrincipal>()
-            val user = userRepository.get(id = pr?.userId, merchantId = pr?.merchantId)
-            call.respond(user ?: HttpStatusCode.NoContent)
-        }
-
-        put {
-            val pr = call.principal<BasePrincipal>()
-            val user = call.receive<UserDto>()
-            userRepository.update(user.copy(id = pr?.userId, merchantId = pr?.merchantId))
-            call.respond(HttpStatusCode.OK)
-        }
-
-        put("firebase") {
-            val pr = call.principal<BasePrincipal>()
-            val device = call.receive<DeviceModel>()
-            DeviceController.editFirebase(
-                sessionUUID = pr?.uuid,
-                token = device.firebaseToken
-            )
-            call.respond(HttpStatusCode.OK)
-        }
-
-        post("logout") {
-            val pr = call.principal<BasePrincipal>()
-            SessionRepository.expire(pr?.uuid)
-            call.respond(HttpStatusCode.OK)
-        }
-
-        delete{
-            val pr = call.principal<BasePrincipal>()
-            userRepository.delete(id = pr?.userId, merchantId = pr?.merchantId)
-            call.respond(HttpStatusCode.OK)
-        }
+  val userRepository: UserRepository = UserRepositoryImpl
+  route("profile") {
+    get {
+      val pr = call.principal<BasePrincipal>()
+      val user = userRepository.get(id = pr?.userId, merchantId = pr?.merchantId)
+      call.respond(user ?: HttpStatusCode.NoContent)
     }
+
+    put {
+      val pr = call.principal<BasePrincipal>()
+      val user = call.receive<UserDto>()
+      userRepository.update(user.copy(id = pr?.userId, merchantId = pr?.merchantId))
+      call.respond(HttpStatusCode.OK)
+    }
+
+    put("firebase") {
+      val pr = call.principal<BasePrincipal>()
+      val device = call.receive<DeviceModel>()
+      DeviceController.editFirebase(sessionUUID = pr?.uuid, token = device.firebaseToken)
+      call.respond(HttpStatusCode.OK)
+    }
+
+    post("logout") {
+      val pr = call.principal<BasePrincipal>()
+      SessionRepository.expire(pr?.uuid)
+      call.respond(HttpStatusCode.OK)
+    }
+
+    delete {
+      val pr = call.principal<BasePrincipal>()
+      userRepository.delete(id = pr?.userId, merchantId = pr?.merchantId)
+      call.respond(HttpStatusCode.OK)
+    }
+  }
 }

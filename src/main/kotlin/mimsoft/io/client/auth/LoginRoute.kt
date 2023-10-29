@@ -169,17 +169,17 @@ fun Route.routeToLogin() {}
 //        }
 //    }
 //
-//}
+// }
 
 data class LoginResponse(
-    val loginToken: String? = null,
-    val accessToken: String? = null,
-    val refreshToken: String? = null,
-    val regToken: String? = null
+  val loginToken: String? = null,
+  val accessToken: String? = null,
+  val refreshToken: String? = null,
+  val regToken: String? = null
 )
 
 data class LoginRequest(
-    val deviceUuid: String? = null,
-    val phone: String? = null,
-    val code: Long? = null
+  val deviceUuid: String? = null,
+  val phone: String? = null,
+  val code: Long? = null
 )

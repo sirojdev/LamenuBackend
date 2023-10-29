@@ -8,13 +8,13 @@ import mimsoft.io.utils.principal.ResponseData
 import mimsoft.io.validation.bindJson
 
 fun Route.routeToBook() {
-    val bookService = WaiterBookService
-    route("book") {
-        post {
-            val principal = getPrincipal()
-            val book = call.bindJson<WaiterBookDto>()
-            val rs = bookService.add(book, principal)
-            call.respond(ResponseData(data = rs))
-        }
+  val bookService = WaiterBookService
+  route("book") {
+    post {
+      val principal = getPrincipal()
+      val book = call.bindJson<WaiterBookDto>()
+      val rs = bookService.add(book, principal)
+      call.respond(ResponseData(data = rs))
     }
+  }
 }

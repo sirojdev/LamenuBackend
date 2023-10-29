@@ -8,16 +8,15 @@ import mimsoft.io.routing.v1.branch.routeToBranchAdmin
 import mimsoft.io.routing.v1.device.routeToDevice
 import mimsoft.io.services.firebase.routeToFirebase
 
-
 fun Route.routeToV1() {
-    routeToDevice()
-    routeToSystem()
-    routeToStaffs()
-    routeToMerchantAdmin()
-    routeToBranchAdmin()
-    routeToBoard()
-    routeToClient()
-    routeToFiles()
-    routeToIntegration()
-    routeToFirebase()
+  routeToDevice()
+  routeToSystem()
+  routeToStaffs()
+  routeToMerchantAdmin()
+  routeToBranchAdmin()
+  routeToBoard()
+  routeToClient()
+  routeToFiles()
+  routeToIntegration()
+  routeToFirebase()
 }

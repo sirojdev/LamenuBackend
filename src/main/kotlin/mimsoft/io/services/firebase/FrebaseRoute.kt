@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory
 
 fun Route.routeToFirebase() {
 
-    val log:Logger = LoggerFactory.getLogger("FirebaseRoute")
-    post("/firebase/send") {
-        val receive: NotificationDto = call.receive()
-        log.info("FirebaseRoute: $receive")
-        FirebaseService.sendNotification(receive)
-        call.respond(HttpStatusCode.OK)
-    }
+  val log: Logger = LoggerFactory.getLogger("FirebaseRoute")
+  post("/firebase/send") {
+    val receive: NotificationDto = call.receive()
+    log.info("FirebaseRoute: $receive")
+    FirebaseService.sendNotification(receive)
+    call.respond(HttpStatusCode.OK)
+  }
 }

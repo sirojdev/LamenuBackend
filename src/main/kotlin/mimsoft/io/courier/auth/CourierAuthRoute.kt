@@ -21,72 +21,82 @@ import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToCourierAuth() {
-    val courierService = CourierService
-    val sessionRepo = SessionRepository
-    route("courier") {
-        route("device") {
-            post {
-                val device: DeviceModel = call.receive()
-                val appKey = call.parameters["appKey"]?.toLongOrNull()
+  val courierService = CourierService
+  val sessionRepo = SessionRepository
+  route("courier") {
+    route("device") {
+      post {
+        val device: DeviceModel = call.receive()
+        val appKey = call.parameters["appKey"]?.toLongOrNull()
 
-                if (device.brand == null || device.model == null || device.build == null || device.osVersion == null
-                    || device.uuid.isNullOrBlank()
-                ) {
-                    call.respond(HttpStatusCode.BadRequest, "error input")
-                } else {
-                    val ip = call.request.host()
-                    val appDto = MerchantAppKeyRepository.getByAppId(appKey)
-                    val result = DeviceController.auth(device.copy(ip = ip, merchantId = appDto?.merchantId, appKey = appKey, deviceType = DeviceType.COURIER))
-                    call.respond(result)
-                }
-            }
+        if (
+          device.brand == null ||
+            device.model == null ||
+            device.build == null ||
+            device.osVersion == null ||
+            device.uuid.isNullOrBlank()
+        ) {
+          call.respond(HttpStatusCode.BadRequest, "error input")
+        } else {
+          val ip = call.request.host()
+          val appDto = MerchantAppKeyRepository.getByAppId(appKey)
+          val result =
+            DeviceController.auth(
+              device.copy(
+                ip = ip,
+                merchantId = appDto?.merchantId,
+                appKey = appKey,
+                deviceType = DeviceType.COURIER
+              )
+            )
+          call.respond(result)
         }
-
-        authenticate("device") {
-            post("auth") {
-                val device = call.principal<DevicePrincipal>()
-                val courier = call.receive<StaffDto>()
-                val status = courierService.auth(courier.copy(merchantId = device?.merchantId))
-
-                if (status.httpStatus != ResponseModel.OK)
-                    call.respond(status.httpStatus, status)
-                else {
-                    val authStaff = status.body as StaffDto?
-                    if (authStaff?.position != StaffPosition.COURIER) {
-                        call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
-                    }
-                    val uuid = courierService.generateUuid(authStaff?.id)
-                    sessionRepo.auth(
-                        SessionTable(
-                            deviceId =device?.id,
-                            uuid = uuid,
-                            stuffId = authStaff?.id,
-                            merchantId = authStaff?.merchantId,
-                            role = DeviceType.COURIER.name,
-                        )
-                    )
-
-                    call.respond(
-                        authStaff?.copy(
-                            token = JwtConfig.generateCourierToken(
-                                staffId = authStaff.id,
-                                merchantId = authStaff.merchantId,
-                                uuid = uuid,
-                            )
-                        ) ?: HttpStatusCode.NoContent
-                    )
-                }
-            }
-
-        }
-
-        authenticate("courier") {
-            post("logout") {
-                val merchant = call.principal<BasePrincipal>()
-                CourierService.logout(merchant?.uuid)
-                call.respond(HttpStatusCode.OK)
-            }
-        }
+      }
     }
 
+    authenticate("device") {
+      post("auth") {
+        val device = call.principal<DevicePrincipal>()
+        val courier = call.receive<StaffDto>()
+        val status = courierService.auth(courier.copy(merchantId = device?.merchantId))
+
+        if (status.httpStatus != ResponseModel.OK) call.respond(status.httpStatus, status)
+        else {
+          val authStaff = status.body as StaffDto?
+          if (authStaff?.position != StaffPosition.COURIER) {
+            call.respond(ResponseModel(httpStatus = HttpStatusCode.NotFound))
+          }
+          val uuid = courierService.generateUuid(authStaff?.id)
+          sessionRepo.auth(
+            SessionTable(
+              deviceId = device?.id,
+              uuid = uuid,
+              stuffId = authStaff?.id,
+              merchantId = authStaff?.merchantId,
+              role = DeviceType.COURIER.name,
+            )
+          )
+
+          call.respond(
+            authStaff?.copy(
+              token =
+                JwtConfig.generateCourierToken(
+                  staffId = authStaff.id,
+                  merchantId = authStaff.merchantId,
+                  uuid = uuid,
+                )
+            ) ?: HttpStatusCode.NoContent
+          )
+        }
+      }
+    }
+
+    authenticate("courier") {
+      post("logout") {
+        val merchant = call.principal<BasePrincipal>()
+        CourierService.logout(merchant?.uuid)
+        call.respond(HttpStatusCode.OK)
+      }
+    }
+  }
 }

@@ -11,24 +11,21 @@ import mimsoft.io.features.merchant.repository.MerchantAuthService
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.merchantAuthRoute() {
-    val authService: MerchantAuthService = MerchantAuthImp
+  val authService: MerchantAuthService = MerchantAuthImp
 
-    post("auth") {
-        val merchant = call.receive<MerchantDto>()
-        val merchantAuth = authService.auth(merchantDto = merchant)
-        if (merchantAuth != null) {
-            call.respond(merchantAuth)
-        } else
-            call.respond(HttpStatusCode.BadRequest)
+  post("auth") {
+    val merchant = call.receive<MerchantDto>()
+    val merchantAuth = authService.auth(merchantDto = merchant)
+    if (merchantAuth != null) {
+      call.respond(merchantAuth)
+    } else call.respond(HttpStatusCode.BadRequest)
+  }
+
+  authenticate("merchant") {
+    post("logout") {
+      val merchant = call.principal<BasePrincipal>()
+      authService.logout(merchant?.uuid)
+      call.respond(HttpStatusCode.OK)
     }
-
-
-    authenticate("merchant") {
-        post("logout") {
-            val merchant = call.principal<BasePrincipal>()
-            authService.logout(merchant?.uuid)
-            call.respond(HttpStatusCode.OK)
-        }
-    }
+  }
 }
-

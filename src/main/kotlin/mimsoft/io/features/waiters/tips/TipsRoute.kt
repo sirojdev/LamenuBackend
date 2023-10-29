@@ -7,15 +7,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.routeToWaiterTips() {
-    route("tips") {
-        post {
-            val model = call.receive<TipsModel>()
-            val response = TipsService.add(model = model)
-            if (response) {
-                call.respond(HttpStatusCode.OK)
-                return@post
-            } else
-                call.respond(HttpStatusCode.NotFound)
-        }
+  route("tips") {
+    post {
+      val model = call.receive<TipsModel>()
+      val response = TipsService.add(model = model)
+      if (response) {
+        call.respond(HttpStatusCode.OK)
+        return@post
+      } else call.respond(HttpStatusCode.NotFound)
     }
+  }
 }

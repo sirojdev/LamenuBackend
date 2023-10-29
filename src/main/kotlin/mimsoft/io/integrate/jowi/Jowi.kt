@@ -7,22 +7,19 @@ import mimsoft.io.features.product.ProductDto
 
 class Jowi(private val merchantId: Long) : POSService {
 
-    override fun createOrder(order: Order) {
-        TODO("Not yet implemented")
-    }
+  override fun createOrder(order: Order) {
+    TODO("Not yet implemented")
+  }
 
-    override fun getProducts(): List<ProductDto> {
-        TODO("Not yet implemented")
-    }
+  override fun getProducts(): List<ProductDto> {
+    TODO("Not yet implemented")
+  }
 
-    override fun getBranches(): List<BranchDto> {
-        TODO("Not yet implemented")
-    }
+  override fun getBranches(): List<BranchDto> {
+    TODO("Not yet implemented")
+  }
 
-    override fun getOrders(): List<Order> {
-        TODO("Not yet implemented")
-    }
-
-
+  override fun getOrders(): List<Order> {
+    TODO("Not yet implemented")
+  }
 }
-

@@ -21,29 +21,31 @@ import mimsoft.io.utils.principal.Role
 }*/
 
 fun Route.authorize(vararg roles: Role, build: Route.() -> Unit): Route {
-    val authorizedRoute = createChild(AuthorizeRouteSelector())
-    authorizedRoute.intercept(ApplicationCallPipeline.Plugins) {
-        val principal = this.context.authentication.principal<LaPrincipal>()
+  val authorizedRoute = createChild(AuthorizeRouteSelector())
+  authorizedRoute.intercept(ApplicationCallPipeline.Plugins) {
+    val principal = this.context.authentication.principal<LaPrincipal>()
 
-
-        if (principal == null || checkOverlap(principal.roles, roles.toList()) == true) {
-            call.respond(HttpStatusCode.Forbidden, "you don't have access")
-            return@intercept finish()
-        }
+    if (principal == null || checkOverlap(principal.roles, roles.toList()) == true) {
+      call.respond(HttpStatusCode.Forbidden, "you don't have access")
+      return@intercept finish()
     }
+  }
 
-    authorizedRoute.build()
-    return authorizedRoute
+  authorizedRoute.build()
+  return authorizedRoute
 }
 
 class AuthorizeRouteSelector : RouteSelector() {
-    override fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
-        return RouteSelectorEvaluation.Constant
-    }
+  override fun evaluate(
+    context: RoutingResolveContext,
+    segmentIndex: Int
+  ): RouteSelectorEvaluation {
+    return RouteSelectorEvaluation.Constant
+  }
 }
 
 fun checkOverlap(list1: List<Role?>?, list2: List<Role>): Boolean? {
-    val set1 = list1?.toSet()
-    val set2 = list2.toSet()
-    return set1?.intersect(set2)?.isNotEmpty()
+  val set1 = list1?.toSet()
+  val set2 = list2.toSet()
+  return set1?.intersect(set2)?.isNotEmpty()
 }

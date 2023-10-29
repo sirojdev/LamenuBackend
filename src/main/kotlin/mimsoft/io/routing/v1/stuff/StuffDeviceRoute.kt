@@ -10,45 +10,39 @@ import mimsoft.io.session.SessionRepository
 
 fun Route.routeToStaffDevice() {
 
-    route("device") {
-        get {
-            val pr = call.principal<StaffPrincipal>()
-            val devices = SessionRepository.getStuffDevices(
-                merchantId = pr?.merchantId,
-                uuid = pr?.uuid,
-                stuffId = pr?.staffId
-            )
-            call.respond(devices)
-        }
-        /**
-         *  terminate single device
-         */
-        post("terminate") {
-            val id = call.parameters["id"]?.toLongOrNull()
-            val pr = call.principal<StaffPrincipal>()
-            SessionRepository.expireOtherStuff(
-                uuid = pr?.uuid,
-                merchantId = pr?.merchantId,
-                stuffId = pr?.staffId,
-                deviceId = id
-            )
-            call.respond(HttpStatusCode.OK)
-
-        }
-        /**
-         *  terminate other devices
-         */
-
-        post("terminate/others") {
-            val id = call.parameters["id"]?.toLongOrNull()
-            val pr = call.principal<StaffPrincipal>()
-            SessionRepository.expireOtherStaffs(
-                uuid = pr?.uuid,
-                merchantId = pr?.merchantId,
-                stuffId = pr?.staffId,
-            )
-            call.respond(HttpStatusCode.OK)
-        }
+  route("device") {
+    get {
+      val pr = call.principal<StaffPrincipal>()
+      val devices =
+        SessionRepository.getStuffDevices(
+          merchantId = pr?.merchantId,
+          uuid = pr?.uuid,
+          stuffId = pr?.staffId
+        )
+      call.respond(devices)
     }
-
+    /** terminate single device */
+    post("terminate") {
+      val id = call.parameters["id"]?.toLongOrNull()
+      val pr = call.principal<StaffPrincipal>()
+      SessionRepository.expireOtherStuff(
+        uuid = pr?.uuid,
+        merchantId = pr?.merchantId,
+        stuffId = pr?.staffId,
+        deviceId = id
+      )
+      call.respond(HttpStatusCode.OK)
+    }
+    /** terminate other devices */
+    post("terminate/others") {
+      val id = call.parameters["id"]?.toLongOrNull()
+      val pr = call.principal<StaffPrincipal>()
+      SessionRepository.expireOtherStaffs(
+        uuid = pr?.uuid,
+        merchantId = pr?.merchantId,
+        stuffId = pr?.staffId,
+      )
+      call.respond(HttpStatusCode.OK)
+    }
+  }
 }

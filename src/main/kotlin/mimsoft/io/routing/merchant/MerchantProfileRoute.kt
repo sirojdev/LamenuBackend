@@ -10,20 +10,20 @@ import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToMerchantProfile() {
-    val merchantRepository: MerchantInterface = MerchantRepositoryImp
+  val merchantRepository: MerchantInterface = MerchantRepositoryImp
 
-    get("profile") {
-        val pr = call.principal<BasePrincipal>()
-        val merchantId = pr?.merchantId
-        if (merchantId == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
-        }
-        val profile = merchantRepository.getMerchantById(merchantId)
-        if (profile != null) {
-            call.respond(HttpStatusCode.OK, profile)
-        } else {
-            call.respond(HttpStatusCode.NotFound)
-        }
+  get("profile") {
+    val pr = call.principal<BasePrincipal>()
+    val merchantId = pr?.merchantId
+    if (merchantId == null) {
+      call.respond(HttpStatusCode.BadRequest)
+      return@get
     }
+    val profile = merchantRepository.getMerchantById(merchantId)
+    if (profile != null) {
+      call.respond(HttpStatusCode.OK, profile)
+    } else {
+      call.respond(HttpStatusCode.NotFound)
+    }
+  }
 }

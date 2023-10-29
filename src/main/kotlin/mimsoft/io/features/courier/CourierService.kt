@@ -1,73 +1,78 @@
 package mimsoft.io.features.courier
 
 import io.ktor.http.*
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.courier.info.CourierInfoDto
-import mimsoft.io.features.courier.courier_location_history.CourierLocationHistoryService
-import mimsoft.io.features.operator.socket.OrderCourierDto
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.repository.ProductRepositoryImpl
 import mimsoft.io.features.staff.*
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
-import mimsoft.io.repository.DataPage
 import mimsoft.io.session.SessionRepository
 import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
 import mimsoft.io.utils.plugins.LOGGER
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 object CourierService {
-    val repository: BaseRepository = DBManager
-    val mapper = CourierMapper
-    suspend fun add(dto: CourierDto): Long? =
-        DBManager.postData(
-            dataClass = CourierTable::class,
-            dataObject = mapper.toTable(dto),
-            tableName = COURIER_TABLE_NAME
-        )
+  val repository: BaseRepository = DBManager
+  val mapper = CourierMapper
 
-    suspend fun auth(authDto: StaffDto?): ResponseModel {
-        LOGGER.info("auth: $authDto")
-        when {
-            authDto?.password == null -> {
-                return ResponseModel(
-                    httpStatus = ResponseModel.PASSWORD_NULL,
-                )
-            }
+  suspend fun add(dto: CourierDto): Long? =
+    DBManager.postData(
+      dataClass = CourierTable::class,
+      dataObject = mapper.toTable(dto),
+      tableName = COURIER_TABLE_NAME
+    )
 
-            authDto.phone == null -> {
-                return ResponseModel(
-                    httpStatus = ResponseModel.PHONE_NULL
-                )
-            }
-        }
-
+  suspend fun auth(authDto: StaffDto?): ResponseModel {
+    LOGGER.info("auth: $authDto")
+    when {
+      authDto?.password == null -> {
         return ResponseModel(
-            body = StaffService.mapper.toDto(
-                StaffService.repository.getPageData(
-                    dataClass = StaffTable::class,
-                    tableName = STAFF_TABLE_NAME,
-                    where = mapOf(
-                        "phone" to authDto?.phone as Any,
-                        "password" to authDto.password as Any,
-                        "merchant_id" to authDto.merchantId as Any
-                    )
-                )?.data?.firstOrNull()
-            ),
+          httpStatus = ResponseModel.PASSWORD_NULL,
         )
+      }
+      authDto.phone == null -> {
+        return ResponseModel(httpStatus = ResponseModel.PHONE_NULL)
+      }
     }
 
-    suspend fun findNearCourier(branchId: Long?, offset: Int, courierIdList: ArrayList<Long?>): CourierDto? {
-        val inQuery = courierIdList.joinToString(",")
-        val query = """
+    return ResponseModel(
+      body =
+        StaffService.mapper.toDto(
+          StaffService.repository
+            .getPageData(
+              dataClass = StaffTable::class,
+              tableName = STAFF_TABLE_NAME,
+              where =
+                mapOf(
+                  "phone" to authDto?.phone as Any,
+                  "password" to authDto.password as Any,
+                  "merchant_id" to authDto.merchantId as Any
+                )
+            )
+            ?.data
+            ?.firstOrNull()
+        ),
+    )
+  }
+
+  suspend fun findNearCourier(
+    branchId: Long?,
+    offset: Int,
+    courierIdList: ArrayList<Long?>
+  ): CourierDto? {
+    val inQuery = courierIdList.joinToString(",")
+    val query =
+      """
             SELECT
     c.staff_id c_staff_id,
     6371 * ACOS(
@@ -90,35 +95,36 @@ FROM
     distance
     limit 1
     offset $offset
-        """.trimIndent()
+        """
+        .trimIndent()
 
-        return withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    return@withContext CourierDto(
-                        staffId = rs.getLong("c_staff_id"),
-                    )
-                } else return@withContext null
-            }
-        }
-
+    return withContext(Dispatchers.IO) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        if (rs.next()) {
+          return@withContext CourierDto(
+            staffId = rs.getLong("c_staff_id"),
+          )
+        } else return@withContext null
+      }
     }
+  }
 
-    suspend fun updateIsActive(staffId: Long?, isActive: Boolean) {
-        val query = """ update $COURIER_TABLE_NAME set is_active = ? where staff_id = $staffId""".trimIndent()
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).apply {
-                    setBoolean(1, isActive)
-                }.executeUpdate()
-            }
-        }
+  suspend fun updateIsActive(staffId: Long?, isActive: Boolean) {
+    val query =
+      """ update $COURIER_TABLE_NAME set is_active = ? where staff_id = $staffId""".trimIndent()
+    withContext(Dispatchers.IO) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).apply { setBoolean(1, isActive) }.executeUpdate()
+      }
     }
+  }
 
-    fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
-    suspend fun updateCourierInfo(dto: StaffDto): Any {
-        var query = """
+  fun generateUuid(id: Long?): String = UUID.randomUUID().toString() + "-" + id
+
+  suspend fun updateCourierInfo(dto: StaffDto): Any {
+    var query =
+      """
              update $STAFF_TABLE_NAME  s
              set
              first_name = COALESCE(?,s.first_name),
@@ -128,69 +134,72 @@ FROM
              comment = COALESCE(?,s.comment),
              gender = COALESCE(?,s.gender)  """
 
-        if (dto.newPassword != null) {
-            query += " ,password = COALESCE(?,s.password) "
-        }
-        query += "   where s.id = ${dto.id} and s.deleted = false "
+    if (dto.newPassword != null) {
+      query += " ,password = COALESCE(?,s.password) "
+    }
+    query += "   where s.id = ${dto.id} and s.deleted = false "
 
-        if (dto.newPassword != null) {
-            query += " and password = ? "
-        }
-        if (dto.birthDay != null) {
-            val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
-            dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
-        }
+    if (dto.newPassword != null) {
+      query += " and password = ? "
+    }
+    if (dto.birthDay != null) {
+      val inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS")
+      dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
+    }
 
-        var rs: Int? = null
-        withContext(Dispatchers.IO) {
-            repository.connection().use {
-                rs = it.prepareStatement(query).apply {
-                    setString(1, dto.firstName)
-                    setString(2, dto.lastName)
-                    setTimestamp(3, dto.birthDay?.let { Timestamp.valueOf(it) })
-                    setString(4, dto.image)
-                    setString(5, dto.comment)
-                    setString(6, dto.gender)
-                    if (dto.newPassword != null) {
-                        setString(7, dto.newPassword)
-                        setString(8, dto.password)
-                    }
-                    this.closeOnCompletion()
-                }.executeUpdate()
+    var rs: Int? = null
+    withContext(Dispatchers.IO) {
+      repository.connection().use {
+        rs =
+          it
+            .prepareStatement(query)
+            .apply {
+              setString(1, dto.firstName)
+              setString(2, dto.lastName)
+              setTimestamp(3, dto.birthDay?.let { Timestamp.valueOf(it) })
+              setString(4, dto.image)
+              setString(5, dto.comment)
+              setString(6, dto.gender)
+              if (dto.newPassword != null) {
+                setString(7, dto.newPassword)
+                setString(8, dto.password)
+              }
+              this.closeOnCompletion()
             }
-        }
-        if (rs == 1) {
-            return ResponseModel(body = "Successfully", HttpStatusCode.OK)
-        } else {
-            return ResponseModel(body = "Courier not found or password incorrect", HttpStatusCode.NotFound)
-        }
-
+            .executeUpdate()
+      }
     }
-
-    suspend fun update(dto: CourierDto): Boolean =
-        repository.updateData(
-            dataClass = CourierTable::class,
-            dataObject = mapper.toTable(dto),
-            tableName = COURIER_TABLE_NAME
-        )
-
-
-    suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
-        val query =
-            "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and"
-        return withContext(DBManager.databaseDispatcher) {
-            ProductRepositoryImpl.repository.connection()
-                .use { return@withContext it.prepareStatement(query).execute() }
-        }
+    if (rs == 1) {
+      return ResponseModel(body = "Successfully", HttpStatusCode.OK)
+    } else {
+      return ResponseModel(
+        body = "Courier not found or password incorrect",
+        HttpStatusCode.NotFound
+      )
     }
+  }
 
-    suspend fun get(
-        id: Long? = null,
-        merchantId: Long? = null
-    ): MutableList<StaffDto> {
-        val query = StringBuilder()
-        query.append(
-            """
+  suspend fun update(dto: CourierDto): Boolean =
+    repository.updateData(
+      dataClass = CourierTable::class,
+      dataObject = mapper.toTable(dto),
+      tableName = COURIER_TABLE_NAME
+    )
+
+  suspend fun delete(id: Long?, merchantId: Long?, branchId: Long?): Boolean {
+    val query =
+      "update $COURIER_TABLE_NAME set deleted = true where merchant_id = $merchantId and id = $id and branch_id = $branchId and"
+    return withContext(DBManager.databaseDispatcher) {
+      ProductRepositoryImpl.repository.connection().use {
+        return@withContext it.prepareStatement(query).execute()
+      }
+    }
+  }
+
+  suspend fun get(id: Long? = null, merchantId: Long? = null): MutableList<StaffDto> {
+    val query = StringBuilder()
+    query.append(
+      """
             select s.id,
                    s.image,
                    s.first_name,
@@ -224,41 +233,42 @@ FROM
             where not s.deleted
               and s.id = $id
               and s.merchant_id = $merchantId
-        """.trimIndent()
+        """
+        .trimIndent()
+    )
+    val mutableList = mutableListOf<StaffDto>()
+    repository.selectList(query.toString()).forEach {
+      mutableList.add(
+        StaffDto(
+          id = it["id"] as? Long,
+          image = it["image"] as? String,
+          firstName = it["first_name"] as? String,
+          lastName = it["last_name"] as? String,
+          isActive = it["is_active"] as? Boolean,
+          allOrderCount = it["all_order_count"] as? Long,
+          todayOrderCount = it["today_order_count"] as? Long,
+          activeOrderCount = it["active_order_count"] as? Long,
+          phone = it["phone"] as? String,
+          gender = it["gender"] as? String,
+          birthDay = it["birth_day"] as? String,
+          comment = it["comment"] as? String
         )
-        val mutableList = mutableListOf<StaffDto>()
-        repository.selectList(query.toString()).forEach {
-            mutableList.add(
-                StaffDto(
-                    id = it["id"] as? Long,
-                    image = it["image"] as? String,
-                    firstName = it["first_name"] as? String,
-                    lastName = it["last_name"] as? String,
-                    isActive = it["is_active"] as? Boolean,
-                    allOrderCount = it["all_order_count"] as? Long,
-                    todayOrderCount = it["today_order_count"] as? Long,
-                    activeOrderCount = it["active_order_count"] as? Long,
-                    phone = it["phone"] as? String,
-                    gender = it["gender"] as? String,
-                    birthDay = it["birth_day"] as? String,
-                    comment = it["comment"] as? String
-                )
-            )
-        }
-        return mutableList
+      )
     }
+    return mutableList
+  }
 
-    suspend fun getCourierAllOrders(
-        merchantId: Long? = null,
-        courierId: Long? = null,
-        filters: String? = null,
-        limit: Int? = null,
-        offset: Int? = null
-    ): MutableList<Order> {
-        val f = filters?.uppercase()
-        val query = StringBuilder()
-        query.append(
-            """
+  suspend fun getCourierAllOrders(
+    merchantId: Long? = null,
+    courierId: Long? = null,
+    filters: String? = null,
+    limit: Int? = null,
+    offset: Int? = null
+  ): MutableList<Order> {
+    val f = filters?.uppercase()
+    val query = StringBuilder()
+    query.append(
+      """
             select o.id,
                    u.phone,
                    u.first_name,
@@ -282,113 +292,112 @@ FROM
             where not o.deleted
               and o.courier_id = $courierId
               and o.merchant_id = $merchantId
-        """.trimIndent()
-        )
-        if (f == null) query.append(" order by o.created_at desc")
-        if (f != null) {
-            when (f) {
-                CourierFilters.NAME.name -> {
-                    query.append(" order by concat(u.first_name, u.last_name)")
-                }
-
-                CourierFilters.TOTAL_PRICE.name -> {
-                    query.append(" order by o.total_price desc")
-                }
-
-                CourierFilters.PAYMENT_TYPE.name -> {
-                    query.append(" order by pt.name desc")
-                }
-
-                CourierFilters.PRODUCT_COUNT.name -> {
-                    query.append(" order by o.product_count desc")
-                }
-
-                CourierFilters.COURIER_GRADE.name -> {
-                    query.append(" order by o.grade desc")
-                }
-
-                CourierFilters.COURIER_STATUS.name -> {
-                    query.append(" order by o.status")
-                }
-            }
+        """
+        .trimIndent()
+    )
+    if (f == null) query.append(" order by o.created_at desc")
+    if (f != null) {
+      when (f) {
+        CourierFilters.NAME.name -> {
+          query.append(" order by concat(u.first_name, u.last_name)")
         }
-        if (limit != null) query.append(" limit $limit")
-        if (offset != null) query.append(" offset $offset")
-        val mutableList = mutableListOf<Order>()
-        repository.selectList(query.toString()).forEach {
-            mutableList.add(
-                Order(
-                    id = it["id"] as? Long,
-                    totalPrice = it["totalPrice"] as? Long,
-                    productCount = it["productCount"] as? Int,
-                    grade = it["grade"] as? Int,
-                    status = it["status"] as? OrderStatus,
-                    user = UserDto(
-                        phone = it["phone"] as? String,
-                        firstName = it["firstName"] as? String,
-                        lastName = it["lastName"] as? String
-                    ),
-                    paymentMethod = PaymentTypeDto(
-                        name = it["name"] as? String,
-                        icon = it["icon"] as? String,
-                        title = TextModel(
-                            uz = it["title_uz"] as? String,
-                            ru = it["title_ru"] as? String,
-                            eng = it["title_eng"] as? String
-                        )
-                    )
+        CourierFilters.TOTAL_PRICE.name -> {
+          query.append(" order by o.total_price desc")
+        }
+        CourierFilters.PAYMENT_TYPE.name -> {
+          query.append(" order by pt.name desc")
+        }
+        CourierFilters.PRODUCT_COUNT.name -> {
+          query.append(" order by o.product_count desc")
+        }
+        CourierFilters.COURIER_GRADE.name -> {
+          query.append(" order by o.grade desc")
+        }
+        CourierFilters.COURIER_STATUS.name -> {
+          query.append(" order by o.status")
+        }
+      }
+    }
+    if (limit != null) query.append(" limit $limit")
+    if (offset != null) query.append(" offset $offset")
+    val mutableList = mutableListOf<Order>()
+    repository.selectList(query.toString()).forEach {
+      mutableList.add(
+        Order(
+          id = it["id"] as? Long,
+          totalPrice = it["totalPrice"] as? Long,
+          productCount = it["productCount"] as? Int,
+          grade = it["grade"] as? Int,
+          status = it["status"] as? OrderStatus,
+          user =
+            UserDto(
+              phone = it["phone"] as? String,
+              firstName = it["firstName"] as? String,
+              lastName = it["lastName"] as? String
+            ),
+          paymentMethod =
+            PaymentTypeDto(
+              name = it["name"] as? String,
+              icon = it["icon"] as? String,
+              title =
+                TextModel(
+                  uz = it["title_uz"] as? String,
+                  ru = it["title_ru"] as? String,
+                  eng = it["title_eng"] as? String
                 )
             )
-        }
-
-        return mutableList
+        )
+      )
     }
 
-    suspend fun getByStaffId(staffId: Long?, merchantId: Long?): CourierDto? {
-        val query =
-            "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and staff_id = $staffId and deleted = false"
-        return withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    return@withContext CourierDto(
-                        id = rs.getLong("id"),
-                        merchantId = rs.getLong("merchant_id"),
-                        staffId = rs.getLong("staff_id"),
-                        type = rs.getString("type")
-                    )
-                } else return@withContext null
-            }
-        }
-    }
+    return mutableList
+  }
 
-    suspend fun getById(staffId: Long?): CourierInfoDto? {
-        val query = "select s.*,c.id c_id ,c.balance c_balance, c.type from staff s " +
-                " inner join courier c on c.staff_id = s.id " +
-                " where s.id = $staffId and s.deleted = false and c.deleted = false"
-        return withContext(Dispatchers.IO) {
-            repository.connection().use {
-                val rs = it.prepareStatement(query).executeQuery()
-                if (rs.next()) {
-                    return@withContext CourierInfoDto(
-                        id = rs.getLong("c_id"),
-                        firstName = rs.getString("first_name"),
-                        lastName = rs.getString("last_name"),
-                        birthDay = rs.getTimestamp("birth_day"),
-                        image = rs.getString("image"),
-                        gender = rs.getString("gender"),
-                        status = rs.getBoolean("status"),
-                        balance = rs.getDouble("c_balance"),
-                        type = rs.getString("type"),
-                        phone = rs.getString("phone")
-                    )
-                } else return@withContext null
-            }
-        }
+  suspend fun getByStaffId(staffId: Long?, merchantId: Long?): CourierDto? {
+    val query =
+      "select * from $COURIER_TABLE_NAME where merchant_id = $merchantId and staff_id = $staffId and deleted = false"
+    return withContext(Dispatchers.IO) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        if (rs.next()) {
+          return@withContext CourierDto(
+            id = rs.getLong("id"),
+            merchantId = rs.getLong("merchant_id"),
+            staffId = rs.getLong("staff_id"),
+            type = rs.getString("type")
+          )
+        } else return@withContext null
+      }
     }
+  }
 
-    suspend fun logout(uuid: String?): Boolean {
-        return SessionRepository.expire(uuid)
+  suspend fun getById(staffId: Long?): CourierInfoDto? {
+    val query =
+      "select s.*,c.id c_id ,c.balance c_balance, c.type from staff s " +
+        " inner join courier c on c.staff_id = s.id " +
+        " where s.id = $staffId and s.deleted = false and c.deleted = false"
+    return withContext(Dispatchers.IO) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        if (rs.next()) {
+          return@withContext CourierInfoDto(
+            id = rs.getLong("c_id"),
+            firstName = rs.getString("first_name"),
+            lastName = rs.getString("last_name"),
+            birthDay = rs.getTimestamp("birth_day"),
+            image = rs.getString("image"),
+            gender = rs.getString("gender"),
+            status = rs.getBoolean("status"),
+            balance = rs.getDouble("c_balance"),
+            type = rs.getString("type"),
+            phone = rs.getString("phone")
+          )
+        } else return@withContext null
+      }
     }
+  }
 
+  suspend fun logout(uuid: String?): Boolean {
+    return SessionRepository.expire(uuid)
+  }
 }

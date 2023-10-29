@@ -10,16 +10,16 @@ import mimsoft.io.waiter.info.routeToWaitersInfo
 import mimsoft.io.waiter.room.routeToWaiterRoom
 import mimsoft.io.waiter.table.routeToWaitersTables
 
-fun Route.routeToWaiter(){
-    routeToWaiterAuth()
-    authenticate("waiter") {
-        route("waiter") {
-            routeToWaitersInfo()
-            routeToWaitersTables()
-            routeToWaiterCategory()
-            routeToWaiterCategoryByGroup()
-            routeToWaiterRoom()
-            routeToBook()
-        }
+fun Route.routeToWaiter() {
+  routeToWaiterAuth()
+  authenticate("waiter") {
+    route("waiter") {
+      routeToWaitersInfo()
+      routeToWaitersTables()
+      routeToWaiterCategory()
+      routeToWaiterCategoryByGroup()
+      routeToWaiterRoom()
+      routeToBook()
     }
+  }
 }

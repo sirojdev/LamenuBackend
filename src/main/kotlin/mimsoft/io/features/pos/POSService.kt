@@ -4,15 +4,13 @@ import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.product.ProductDto
 
-interface POSService  {
+interface POSService {
 
-    fun createOrder(order : Order)
+  fun createOrder(order: Order)
 
-    fun getProducts() : List<ProductDto>
+  fun getProducts(): List<ProductDto>
 
-    fun getBranches(): List<BranchDto>
+  fun getBranches(): List<BranchDto>
 
-    fun getOrders() : List<Order>
-
+  fun getOrders(): List<Order>
 }
-

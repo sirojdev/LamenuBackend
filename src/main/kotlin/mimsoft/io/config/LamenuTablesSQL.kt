@@ -1,7 +1,7 @@
 package mimsoft.io.config
 
 const val USER =
-    """create table users
+  """create table users
 (
     id         bigserial primary key,
     phone      text not null,
@@ -15,7 +15,7 @@ const val USER =
 )"""
 
 const val BRANCH =
-    """create table branch
+  """create table branch
 (
     id        bigserial
         primary key,
@@ -31,7 +31,7 @@ const val BRANCH =
 )"""
 
 const val CATEGORY =
-    """CREATE TABLE category
+  """CREATE TABLE category
 (
     id       bigserial primary key ,
     name_uz  text not null,
@@ -44,7 +44,7 @@ const val CATEGORY =
 )"""
 
 const val EXTRA =
-    """CREATE TABLE extra
+  """CREATE TABLE extra
 (
     id              BIGSERIAL PRIMARY KEY,
     name_uz         TEXT not null,
@@ -60,7 +60,7 @@ const val EXTRA =
 )"""
 
 const val LABEL =
-    """CREATE TABLE label
+  """CREATE TABLE label
 (
     id         BIGSERIAL PRIMARY KEY,
     menu_id    BIGINT not null ,
@@ -76,7 +76,7 @@ const val LABEL =
 )"""
 
 const val MENU =
-    """CREATE TABLE menu
+  """CREATE TABLE menu
 (
     id       BIGSERIAL PRIMARY KEY,
     name_uz  TEXT not null ,
@@ -88,7 +88,7 @@ const val MENU =
 );"""
 
 const val OPTION =
-    """CREATE TABLE option (
+  """CREATE TABLE option (
     id        bigserial PRIMARY KEY,
     name_uz   text not null,
     name_ru   text not null,
@@ -104,7 +104,7 @@ const val OPTION =
 );"""
 
 const val PRODUCT =
-    """CREATE TABLE product (
+  """CREATE TABLE product (
     id        bigserial PRIMARY KEY,
     menu_id   bigint not null,
     name_uz   text not null,
@@ -121,7 +121,7 @@ const val PRODUCT =
 );"""
 
 const val RESTAURANT =
-    """CREATE TABLE restaurant
+  """CREATE TABLE restaurant
 (
     id       bigserial PRIMARY KEY,
     name_uz  text not null,
@@ -134,9 +134,8 @@ const val RESTAURANT =
     deleted  boolean DEFAULT false
 );"""
 
-
 const val TABLE =
-    """CREATE TABLE tables
+  """CREATE TABLE tables
 (
     id       bigserial PRIMARY KEY,
     name     text not null,
@@ -149,7 +148,7 @@ const val TABLE =
 );"""
 
 const val ROOM =
-    """CREATE TABLE room
+  """CREATE TABLE room
 (
     id       bigserial PRIMARY KEY,
     name     text not null,
@@ -160,10 +159,8 @@ const val ROOM =
     deleted  boolean DEFAULT false
 );"""
 
-
-
 const val FLAT =
-    """CREATE TABLE flat
+  """CREATE TABLE flat
 (
     id       bigserial PRIMARY KEY,
     name     text not null,
@@ -173,5 +170,3 @@ const val FLAT =
     updated  timestamp(6),
     deleted  boolean DEFAULT false
 );"""
-
-

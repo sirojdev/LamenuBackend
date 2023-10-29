@@ -5,12 +5,12 @@ import io.ktor.server.routing.*
 import mimsoft.io.features.staff.routeToStaffProfile
 
 fun Route.routeToStaffApis() {
-    route("staff") {
-        routeToStaffAuth()
-        authenticate ("staff"){
-            routeToStaffDevice()
-            routeToStaffProfile()
-            staffAuthRoute2()
-        }
+  route("staff") {
+    routeToStaffAuth()
+    authenticate("staff") {
+      routeToStaffDevice()
+      routeToStaffProfile()
+      staffAuthRoute2()
     }
+  }
 }

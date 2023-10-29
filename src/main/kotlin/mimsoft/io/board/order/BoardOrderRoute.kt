@@ -11,45 +11,42 @@ import mimsoft.io.utils.OrderStatus
 import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToBoardOrder() {
-    route("order") {
-        get {
-            val pr = getPrincipal()
-            val branchId = pr?.branchId
-            val merchantId = pr?.merchantId
-            val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
-            val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
-            val inProgress = OrderService.getAll(
-                mapOf(
-                    "merchantId" to merchantId,
-                    "branchId" to branchId,
-                    "statuses" to (
-                            listOf(
-                                OrderStatus.ACCEPTED.name,
-                                OrderStatus.COOKING.name,
-                                OrderStatus.ONWAVE.name
-                            )
-                            ),
-                    "limit" to limit,
-                    "offset" to offset,
-                ),
-                "user"
-            )
-            val ready = OrderService.getAll(
-                mapOf(
-                    "merchantId" to merchantId,
-                    "branchId" to branchId,
-                    "statuses" to (
-                            listOf(
-                                OrderStatus.DONE.name
-                            )
-                            ),
-                    "limit" to limit,
-                    "offset" to offset,
-                ),
-                "user"
-                )
+  route("order") {
+    get {
+      val pr = getPrincipal()
+      val branchId = pr?.branchId
+      val merchantId = pr?.merchantId
+      val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
+      val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+      val inProgress =
+        OrderService.getAll(
+          mapOf(
+            "merchantId" to merchantId,
+            "branchId" to branchId,
+            "statuses" to
+              (listOf(
+                OrderStatus.ACCEPTED.name,
+                OrderStatus.COOKING.name,
+                OrderStatus.ONWAVE.name
+              )),
+            "limit" to limit,
+            "offset" to offset,
+          ),
+          "user"
+        )
+      val ready =
+        OrderService.getAll(
+          mapOf(
+            "merchantId" to merchantId,
+            "branchId" to branchId,
+            "statuses" to (listOf(OrderStatus.DONE.name)),
+            "limit" to limit,
+            "offset" to offset,
+          ),
+          "user"
+        )
 
-            call.respond(Gson().toJson(BoardResponseModel(inProgress = inProgress, ready = ready)))
-        }
+      call.respond(Gson().toJson(BoardResponseModel(inProgress = inProgress, ready = ready)))
     }
+  }
 }

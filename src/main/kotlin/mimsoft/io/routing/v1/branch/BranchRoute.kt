@@ -29,43 +29,43 @@ import mimsoft.io.features.table.routeToTable
 import mimsoft.io.features.visit.routeToVisits
 import mimsoft.io.features.waiters.table.routeToWaiters
 
-fun Route.routeToBranchAdmin(){
-    route("branch"){
-        routeToBranchAdminAuth()
+fun Route.routeToBranchAdmin() {
+  route("branch") {
+    routeToBranchAdminAuth()
 
-        authenticate("branch") {
-            routeToVisits()
-            routeToPantry()
-            routeToKitchen()
-            routeToBranchBook()
-            routeToStory()
-            routeToStoryInfo()
-            routeToCourierTransaction()
-            routeToWaiters()
-            routeToTable()
-            routeToOrder()
-            routeToBook()
+    authenticate("branch") {
+      routeToVisits()
+      routeToPantry()
+      routeToKitchen()
+      routeToBranchBook()
+      routeToStory()
+      routeToStoryInfo()
+      routeToCourierTransaction()
+      routeToWaiters()
+      routeToTable()
+      routeToOrder()
+      routeToBook()
 
-            route("settings") {
-                routeToArea()
-                routeToRoom()
-                routeToFlat()
-                routeToStaff()
-                routeToExtra()
-                routeToLabel()
-                routeToTable()
-                routeToOption()
-                routeToCourier()
-                routeToCollector()
-                routeToProduct()
-                routeToCashback()
-                routeToCategory()
-            }
+      route("settings") {
+        routeToArea()
+        routeToRoom()
+        routeToFlat()
+        routeToStaff()
+        routeToExtra()
+        routeToLabel()
+        routeToTable()
+        routeToOption()
+        routeToCourier()
+        routeToCollector()
+        routeToProduct()
+        routeToCashback()
+        routeToCategory()
+      }
 
-            route("finance") {
-                routeToOutcome()
-                routeToIncome()
-            }
-        }
+      route("finance") {
+        routeToOutcome()
+        routeToIncome()
+      }
     }
+  }
 }
