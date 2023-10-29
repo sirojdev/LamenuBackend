@@ -128,53 +128,56 @@ object OrderService {
             """
         .trimIndent()
     log.info("insert query {}", query)
-    var responseModel: ResponseModel
-    repository
+    var responseModel: ResponseModel = ResponseModel(order)
+    val result = repository
       .insert(
         query = query,
         mapOf(
           1 to validOrder.products.toJson(),
-          2 to validOrder.status,
+          2 to validOrder.status?.name,
           3 to validOrder.address?.description,
           4 to Timestamp(System.currentTimeMillis()),
-          5 to validOrder.serviceType,
+          5 to validOrder.serviceType?.name,
           6 to validOrder.comment
         )
       )
-      .let {
+    println("insert result : $result")
+    result.let {
+
         if (it == null)
           return ResponseModel(
             httpStatus = HttpStatusCode.BadRequest,
             body = mapOf("message" to "something went wrong")
           )
 
-        JoinPosterService.sendOrder(validOrder).let { poster ->
-          responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
-        }
-        val fullOrder =
-          getById((responseModel.body as Order).id, "user", "branch", "products", "address")
-        fullOrder?.let { it1 ->
-          JowiService.createOrder(
-            it1.copy(
-              totalPrice = order.totalPrice,
-              totalDiscount = order.totalDiscount,
-              productPrice = order.productPrice,
-              productDiscount = order.totalDiscount
-            )
-          )
-        }
-        val orderId = it.get("id") as Long
-        val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
-        val checkoutLink =
-          if (order.paymentMethod?.id == PAYME && totalPrice != null) {
-            PaymeService.getCheckout(
-                orderId = orderId,
-                amount = totalPrice,
-                merchantId = validOrder.merchant?.id
-              )
-              .link
-          } else ""
-        (responseModel.body as Order).checkoutLink = checkoutLink
+//
+//        JoinPosterService.sendOrder(validOrder).let { poster ->
+//          responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
+//        }
+//        val fullOrder =
+//          getById((responseModel.body as Order).id, "user", "branch", "products", "address")
+//        fullOrder?.let { it1 ->
+//          JowiService.createOrder(
+//            it1.copy(
+//              totalPrice = order.totalPrice,
+//              totalDiscount = order.totalDiscount,
+//              productPrice = order.productPrice,
+//              productDiscount = order.totalDiscount
+//            )
+//          )
+//        }
+//        val orderId = it["id"] as Long
+//        val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
+//        val checkoutLink =
+//          if (order.paymentMethod?.id == PAYME && totalPrice != null) {
+//            PaymeService.getCheckout(
+//                orderId = orderId,
+//                amount = totalPrice,
+//                merchantId = validOrder.merchant?.id
+//              )
+//              .link
+//          } else ""
+//        (responseModel.body as Order).checkoutLink = checkoutLink
         return responseModel
       }
   }

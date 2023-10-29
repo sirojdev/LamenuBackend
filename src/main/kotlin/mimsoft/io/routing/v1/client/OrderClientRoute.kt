@@ -1,6 +1,7 @@
 package mimsoft.io.routing.v1.client
 
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -12,6 +13,7 @@ import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderRateModel
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.utils.plugins.getPrincipal
+import mimsoft.io.utils.principal.BasePrincipal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -21,11 +23,8 @@ fun Route.routeToClientOrder() {
   get("orders") {
     val pr = getPrincipal()
     val statuses = call.parameters["statuses"]
-    val s = statuses?.split(",")?.iterator()
     val list = ArrayList<String>()
-    if (s != null) {
-      s.forEach { list.add(it) }
-    }
+    statuses?.split(",")?.iterator()?.forEach { list.add(it) }
     val search = call.parameters["search"]
     val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
     val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
@@ -33,14 +32,14 @@ fun Route.routeToClientOrder() {
     val response =
       OrderService.getAll2(
         params =
-          mapOf(
-            "userId" to pr?.userId,
-            "merchantId" to pr?.merchantId,
-            "search" to search,
-            "statuses" to list,
-            "limit" to limit,
-            "offset" to offset
-          ),
+        mapOf(
+          "userId" to pr?.userId,
+          "merchantId" to pr?.merchantId,
+          "search" to search,
+          "statuses" to list,
+          "limit" to limit,
+          "offset" to offset
+        ),
         "user",
         "merchant",
         "branch",
@@ -60,8 +59,8 @@ fun Route.routeToClientOrder() {
     call.respond(order.httpStatus, order.body)
   }
 
-  post("order") {
-    val pr = getPrincipal()
+  post("order/create") {
+    val pr = call.principal<BasePrincipal>()
     val userId = pr?.userId
     val merchantId = pr?.merchantId
     val order = call.receive<Order>()
