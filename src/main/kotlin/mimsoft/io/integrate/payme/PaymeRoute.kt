@@ -104,7 +104,7 @@ fun Route.routeToPayme() {
   get("payment/payme/{merchantId}/{orderId}/{amount}") {
     val merchantId = call.parameters["merchantId"]?.toLongOrNull()
     val orderId = call.parameters["orderId"]?.toLongOrNull()
-    val amount = call.parameters["amount"]?.toIntOrNull()
+    val amount = call.parameters["amount"]?.toLongOrNull()
 
     if (merchantId == null || orderId == null || amount == null) {
       call.respond(HttpStatusCode.BadRequest, "merchantId, orderId, amount must be not null")

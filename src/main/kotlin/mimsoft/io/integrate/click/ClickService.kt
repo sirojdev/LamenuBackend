@@ -205,10 +205,10 @@ object ClickService {
     return null
   }
 
-  suspend fun getCheckout(orderId: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
+  suspend fun getCheckout(orderId: Long, amount: Long, merchantId: Long?): CheckoutLinkModel {
     val payment = PaymentService.get(merchantId)
     val params =
-      "service_id=${payment?.clickServiceId}&merchant_id=${payment?.clickMerchantId}&amount=${amount / 100}&transaction_param=$orderId"
+      "service_id=${payment?.clickServiceId}&merchant_id=${payment?.clickMerchantId}&amount=${amount}&transaction_param=$orderId"
     return CheckoutLinkModel(link = "https://my.click.uz/services/pay?$params")
   }
 }

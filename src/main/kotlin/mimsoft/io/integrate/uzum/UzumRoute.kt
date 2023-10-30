@@ -5,6 +5,9 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.order.Order
+import mimsoft.io.features.order.OrderService
+import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.integrate.uzum.module.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -71,16 +74,17 @@ fun Route.routeToUzum() {
             call.respond(HttpStatusCode.NoContent, "this transaction not found or status not equal")
           } else {
             UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.COMPLETE)
+            OrderService.editPaidOrder(Order(id = uzumOrder.orderId, isPaid = true))
             call.respond(HttpStatusCode.OK)
           }
         }
         UzumOperationType.REFUND -> {
           log.info("inside REFUND")
-
           if (uzumOrder?.operationType != UzumOperationType.COMPLETE) {
             call.respond(HttpStatusCode.NoContent, "this transaction not found or status not equal")
           } else {
             UzumRepository.updateOperationType(uzumOrder.uzumOrderId, UzumOperationType.REFUND)
+            OrderService.editPaidOrder(Order(id = uzumOrder.orderId, isPaid = false))
             call.respond(HttpStatusCode.OK)
           }
         }

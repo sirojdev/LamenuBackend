@@ -365,7 +365,7 @@ object PaymeService {
     }
   }
 
-  suspend fun getCheckout(orderId: Long, amount: Int, merchantId: Long?): CheckoutLinkModel {
+  suspend fun getCheckout(orderId: Long, amount: Long, merchantId: Long?): CheckoutLinkModel {
     val payment = PaymentService.get(merchantId)
     val params =
       Base64.getEncoder()
