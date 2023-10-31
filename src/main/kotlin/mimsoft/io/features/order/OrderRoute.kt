@@ -78,7 +78,7 @@ fun Route.routeToOrder() {
       }
     }
 
-    get("status") {
+    put("status") {
       val pr = getPrincipal()
       val orderId = call.parameters["orderId"]?.toLongOrNull()
       val status = call.parameters["status"]
@@ -87,8 +87,7 @@ fun Route.routeToOrder() {
           ResponseModel(body = "status required", httpStatus = HttpStatusCode.BadRequest)
         )
       }
-      val order =
-        orderService.updateStatus(
+      val order = orderService.updateStatus(
           orderId = orderId,
           merchantId = pr?.merchantId,
           status = OrderStatus.valueOf(status.toString())
