@@ -147,7 +147,7 @@ FROM
       dto.birthDay = Timestamp(inputFormat.parse(dto.birthDay).time).toString()
     }
 
-    var rs: Int? = null
+    var rs: Int?
     withContext(Dispatchers.IO) {
       repository.connection().use {
         rs =
@@ -390,6 +390,26 @@ FROM
             status = rs.getBoolean("status"),
             balance = rs.getDouble("c_balance"),
             type = rs.getString("type"),
+            phone = rs.getString("phone")
+          )
+        } else return@withContext null
+      }
+    }
+  }
+
+  suspend fun getByCourierId(courierId: Long?, merchantId: Long?): CourierInfoDto? {
+    val query =
+      "select s.first_name, s.last_name, s.image, s.phone from courier c " +
+        " inner join staff s on c.staff_id = s.id " +
+        " where c.id = $courierId and c.merchant_id = $merchantId and s.deleted = false and c.deleted = false"
+    return withContext(DBManager.databaseDispatcher) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        if (rs.next()) {
+          return@withContext CourierInfoDto(
+            firstName = rs.getString("first_name"),
+            lastName = rs.getString("last_name"),
+            image = rs.getString("image"),
             phone = rs.getString("phone")
           )
         } else return@withContext null

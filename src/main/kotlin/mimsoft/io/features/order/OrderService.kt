@@ -1,11 +1,13 @@
 package mimsoft.io.features.order
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.ktor.http.*
 import java.sql.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
@@ -15,6 +17,7 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
+import mimsoft.io.features.order_history.OrderHistoryService
 import mimsoft.io.features.payment.PAYME
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
@@ -118,7 +121,7 @@ object OrderService {
       """
             insert into orders (user_id, user_phone, products, status, 
             add_lat, add_long, add_desc, created_at, service_type,
-            comment, merchant_id, courier_id, collector_id, payment_type,   
+            comment, merchant_id, courier_id, collector_id, payment_type,
             product_count, total_price, branch_id)
             values (${validOrder.user?.id}, ${validOrder.user?.phone}, ?, ?, 
             ${validOrder.address?.latitude}, ${validOrder.address?.longitude},
@@ -490,8 +493,7 @@ object OrderService {
   }
 
   suspend fun updateStatus(orderId: Long?, merchantId: Long?, status: OrderStatus?): Order? {
-    val query =
-      "update orders  set status =?" + " where id = $orderId and merchant_id = $merchantId  "
+    val query = "update orders  set status = ? where id = $orderId and merchant_id = $merchantId "
     val order: Order?
     withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
@@ -502,7 +504,10 @@ object OrderService {
             this.closeOnCompletion()
           }
           .executeUpdate()
-        order = getById(orderId)
+        order = getById(id = orderId, "payment_type")
+        if (status == OrderStatus.CLOSED || status == OrderStatus.CANCELED) {
+          OrderHistoryService.addToHistory(order = order)
+        }
       }
     }
     return order
@@ -547,7 +552,7 @@ object OrderService {
     filter: String?,
     limit: Int?,
     offset: Int?,
-    statuses: String?
+    statuses: String? = null
   ): DataPage<Order> {
     val query = StringBuilder()
     query.append(
@@ -573,12 +578,13 @@ object OrderService {
                      left join staff s on c.staff_id = s.id
             where o.merchant_id = $merchantId
               and o.service_type != '${BaseEnums.DINE_IN}'
-              and o.status in ($statuses) 
               and not o.deleted
         """
         .trimIndent()
     )
-
+    if (statuses != null) {
+      query.append("  and o.status in ($statuses) ")
+    }
     if (branchId == null) query.append(" and o.branch_id = $branchId")
     if (filter == null) query.append(" order by o.created_at desc")
     if (filter != null && filter == BaseEnums.TOTAL_PRICE.name)
@@ -625,10 +631,12 @@ object OrderService {
     return DataPage(data = list, total = count)
   }
 
-  suspend fun getOrderCountStatus(merchant: Long?, branchId: Long? = null): Map<String, Int> {
-    var query =
-      "select count(id), status from orders where merchant_id = $merchant and not deleted group by status"
-    if (branchId != null) query += " and branch_id = $branchId"
+  suspend fun getOrderCountStatus(merchant: Long?, branchId: Long?): Map<String, Int> {
+    val query =
+      "select count(id), status from orders where merchant_id = $merchant and branch_id = $branchId and not deleted group by status"
+
+
+
     return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
@@ -639,5 +647,62 @@ object OrderService {
         return@withContext map
       }
     }
+  }
+
+  suspend fun orderHistory(
+    merchantId: Long?,
+    branchId: Long?,
+    search: String?,
+    filter: String?,
+    limit: Int?,
+    offset: Int?
+  ): DataPage<Order> {
+    val query = StringBuilder()
+    query.append("select count(*) over() as total, * from order_history where merchant_id = $merchantId and branch_id = $branchId ")
+    if (filter == null) query.append(" order by created desc")
+    if (search != null) {
+      val s = search.lowercase()
+      query.append(" and lower(concat(user_data)) like '%$s%'")
+    }
+    if (limit != null) query.append(" limit $limit")
+    if (offset != null) query.append(" offset $offset")
+    log.info("\n query: $query \n")
+
+    val gson = GsonBuilder().create()
+    val list = mutableListOf<Order>()
+    var total: Int? = 0
+    withContext(DBManager.databaseDispatcher) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query.toString()).executeQuery()
+        while (rs.next()) {
+          val id = rs.getLong("order_id")
+          val order = rs.getString("order_data")
+          val user = rs.getString("user_data")
+          val branch = rs.getString("branch_data")
+          val paymentType = rs.getString("payment_type_data")
+          val courier = rs.getString("courier_data")
+          val orders = gson.fromJson(order, Order::class.java)
+          val users = gson.fromJson(user, UserDto::class.java)
+          val branches = gson.fromJson(branch, BranchDto::class.java)
+          val paymentTypes = gson.fromJson(paymentType, PaymentTypeDto::class.java)
+          val couriers =
+            if (courier != null) {
+              gson.fromJson(courier, StaffDto::class.java)
+            } else null
+          total = rs.getInt("total")
+          list.add(
+            orders.copy(
+              id = id,
+              paymentMethod = paymentTypes,
+              courier = couriers,
+              branch = branches,
+              user = users
+            )
+          )
+        }
+      }
+    }
+
+    return DataPage(data = list, total = total)
   }
 }

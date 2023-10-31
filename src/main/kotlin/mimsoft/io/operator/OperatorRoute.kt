@@ -1,4 +1,4 @@
-package mimsoft.io.routing.v1
+package mimsoft.io.operator
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -66,7 +66,7 @@ fun Route.routeToOperator() {
       routeToUserUser()
       routeToNotification()
       routeToOperatorChat()
-      routeToOrder()
+      routeToOrderOperator()
       routeToCourier()
       routeToCollector()
     }
