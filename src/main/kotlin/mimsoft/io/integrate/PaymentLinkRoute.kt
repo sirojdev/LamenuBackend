@@ -4,7 +4,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.OrderService
-import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.integrate.click.ClickService
 import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.integrate.uzum.UzumService

@@ -33,7 +33,7 @@ fun Application.configureExceptions() {
         }
         is ItemNotFoundException -> {
           call.respond(
-            HttpStatusCode.NotFound,
+            HttpStatusCode.BadRequest,
             ResponseData(
               isSuccess = false,
               statusCode = HttpStatusCode.BadRequest,
@@ -43,7 +43,7 @@ fun Application.configureExceptions() {
         }
         is InternalServerException -> {
           call.respond(
-            HttpStatusCode.NotFound,
+            HttpStatusCode.InternalServerError,
             ResponseData(
               isSuccess = false,
               statusCode = HttpStatusCode.InternalServerError,

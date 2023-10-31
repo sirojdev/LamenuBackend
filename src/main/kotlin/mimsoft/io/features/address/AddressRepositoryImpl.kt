@@ -32,7 +32,7 @@ object AddressRepositoryImpl : AddressRepository {
             AddressDto(
               id = rs.getLong("id"),
               merchantId = rs.getLong("merchant_id"),
-              type = AddressType.valueOf(rs.getString("type")),
+              type = if (rs.getString("type") != null) AddressType.valueOf(rs.getString("type")) else null,
               name = rs.getString("name"),
               latitude = rs.getDouble("latitude"),
               longitude = rs.getDouble("longitude"),

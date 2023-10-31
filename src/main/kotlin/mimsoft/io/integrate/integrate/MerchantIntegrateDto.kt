@@ -5,5 +5,6 @@ data class MerchantIntegrateDto(
   val merchantId: Long? = null,
   val yandexDeliveryKey: String? = null,
   val iikoApiLogin: String? = null,
-  val iikoOrganizationId: String? = null
+  val iikoOrganizationId: String? = null,
+  val yandexMapKey: String? = null,
 )

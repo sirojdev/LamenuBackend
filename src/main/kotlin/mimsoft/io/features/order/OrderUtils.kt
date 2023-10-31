@@ -817,9 +817,9 @@ object OrderUtils {
             image = result.getOrDefault("s_image", null) as? String?,
             birthDay = result.getOrDefault("s_birth_day", null).toString(),
             position =
-              StaffPosition.valueOf(
-                (result.getOrDefault("s_position", null) as? String?).toString()
-              ),
+              if (result.containsKey("s_position") && result["s_position"] is String)
+                StaffPosition.valueOf(result["s_position"].toString())
+              else null,
             gender = result.getOrDefault("gender", null) as? String?,
             comment = result.getOrDefault("s_comment", null) as? String?
           )
@@ -834,9 +834,9 @@ object OrderUtils {
             image = result.getOrDefault("s2_image", null) as? String?,
             birthDay = result.getOrDefault("s2_birth_day", null).toString(),
             position =
-              StaffPosition.valueOf(
-                (result.getOrDefault("s2_position", null) as? String?).toString()
-              ),
+              if (result.containsKey("s2_position") && result["s2_position"] is String)
+                StaffPosition.valueOf(result["s2_position"].toString())
+              else null,
             gender = result.getOrDefault("s2_gender", null) as? String?,
             comment = result.getOrDefault("s2_comment", null) as? String?
           )
