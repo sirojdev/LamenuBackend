@@ -65,7 +65,7 @@ object OrderService {
       val order = parseGetAll2(result[0])
       return ResponseModel(
         body =
-          DataPage(data = result.map { parseGetAll(it, columns2) }, total = order.total?.toInt())
+          DataPage(data = result.map { parseGetAll2(it) }, total = order.total?.toInt())
       )
     } else {
       return ResponseModel(body = "Not found")

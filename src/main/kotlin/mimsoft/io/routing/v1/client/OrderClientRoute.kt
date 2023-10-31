@@ -32,14 +32,14 @@ fun Route.routeToClientOrder() {
     val response =
       OrderService.getAll2(
         params =
-        mapOf(
-          "userId" to pr?.userId,
-          "merchantId" to pr?.merchantId,
-          "search" to search,
-          "statuses" to list,
-          "limit" to limit,
-          "offset" to offset
-        ),
+          mapOf(
+            "userId" to pr?.userId,
+            "merchantId" to pr?.merchantId,
+            "search" to search,
+            "statuses" to list,
+            "limit" to limit,
+            "offset" to offset
+          ),
         "user",
         "merchant",
         "branch",
