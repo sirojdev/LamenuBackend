@@ -1,6 +1,7 @@
 package mimsoft.io.client.user.repository
 
 import java.sql.Timestamp
+import java.util.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.*
 import mimsoft.io.config.timestampValidator
@@ -199,49 +200,38 @@ object UserRepositoryImpl : UserRepository {
     )
   }
 
-  override suspend fun update(userDto: UserDto): ResponseModel {
-    when {
-      userDto.phone == null -> return ResponseModel(httpStatus = ResponseModel.PHONE_NULL)
-      userDto.firstName == null -> return ResponseModel(httpStatus = ResponseModel.FIRSTNAME_NULL)
-    }
-    var query =
+  override suspend fun update(userDto: UserDto): UserDto {
+    val query =
       """
-            update users
-            set first_name = ?,
-                last_name  = ?,
-                image      = ?,
-                birth_day  = ?,
-                phone      = ?,
-                badge_id   = ${userDto.badge?.id},
-                updated    = ?
+            update users u 
+            set first_name = coalesce(?,u.first_name),
+                last_name  = coalesce(?,u.last_name),
+                image      = coalesce(?,u.image),
+                birth_day  = coalesce(?,u.birth_day),
+                badge_id   = coalesce(${userDto.badge?.id},u.badge_id),
+                updated    = now()
             where not deleted
               and id = ${userDto.id}
         """
         .trimIndent()
     var rs: Int?
-    if (userDto.merchantId != null) {
-      query += " and merchant_id = ${userDto.merchantId}"
-    }
     log.info("query: $query")
     withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
-        var x = 0
         rs =
           it
             .prepareStatement(query)
             .apply {
-              this.setString(++x, userDto.firstName)
-              this.setString(++x, userDto.lastName)
-              this.setString(++x, userDto.image)
-              this.setTimestamp(++x, userDto.birthDay)
-              this.setString(++x, userDto.phone)
-              this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
+              this.setString(1, userDto.firstName)
+              this.setString(2, userDto.lastName)
+              this.setString(3, userDto.image)
+              this.setTimestamp(4, userDto.birthDay)
               this.closeOnCompletion()
             }
             .executeUpdate()
       }
     }
-    return ResponseModel(body = rs == 1)
+    return userDto
   }
 
   suspend fun addNewClientFromWaiter(phone: String, mId: Long): Long? {
@@ -332,5 +322,21 @@ object UserRepositoryImpl : UserRepository {
       ?.data
       ?.firstOrNull()
       ?.let { mapper.toUserDto(it) }
+  }
+
+  override suspend fun updatePhone(userId: Long?, phone: String?) {
+    val query =
+      """
+        update user set phone = ? where id = $userId
+        """
+        .trimIndent()
+    log.info("query: $query")
+     withContext(DBManager.databaseDispatcher) {
+      DBManager.connection().use { it ->
+        val rs = it.prepareStatement(query).apply {
+          setString(1,phone)
+        }
+      }
+    }
   }
 }

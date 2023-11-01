@@ -25,5 +25,6 @@ data class BasePrincipal(
   val userId: Long? = null,
   val branchId: Long? = null,
   val boardId: Long? = null,
-  val phone: String? = null
+  val phone: String? = null,
+  val hash:Long?=null
 ) : Principal

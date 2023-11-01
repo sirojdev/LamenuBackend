@@ -13,6 +13,7 @@ object JwtConfig {
   private const val secretRefresh = "lamenu_refrsh+64981lkmLK"
   private const val secretLogin = "lamenu_deice+hgch654LKl"
   private const val secretDevice = "dAviDg-agFgrGggSgtWbt"
+  private const val secretUpdatePhone = "dAviDg-agFgrGgg2342SgtWbt"
   private const val secretMerchant = "LaMenuMerchant-r42gweRt"
   private const val secretUser = "LaMenuMusernt-FsdAafF"
   private const val secretStuff = "laMenu+0stuff_mYinCh"
@@ -26,6 +27,7 @@ object JwtConfig {
   private const val validityAccessUser = 36_000_000 * 1000L // 10 hours
   private const val validityAccessBoard = 36_000_000 * 1000L // 10 hours
   private const val validityRefresh = 2_592_000_000 * 1000L // 1 month
+  private const val validityUpdatePhone = 180 * 1000L // 2 minute
   private const val validityLogin = 180_000L * 1000L // 1 month
 
   private val algorithmAccess = Algorithm.HMAC512(secretAccess)
@@ -35,6 +37,7 @@ object JwtConfig {
   private val algorithmMerchant = Algorithm.HMAC512(secretMerchant)
   private val algorithmBranch = Algorithm.HMAC512(secretBranch)
   private val algorithmDevice = Algorithm.HMAC512(secretDevice)
+  private val algorithmUpdatePhone = Algorithm.HMAC512(secretUpdatePhone)
   private val algorithmUser = Algorithm.HMAC512(secretUser)
   private val algorithmStaff = Algorithm.HMAC512(secretStuff)
   private val algorithmBoard = Algorithm.HMAC512(secretBoard)
@@ -45,6 +48,7 @@ object JwtConfig {
 
   val verifierAccess: JWTVerifier = JWT.require(algorithmAccess).withIssuer(issuer).build()
   val verifierRefresh: JWTVerifier = JWT.require(algorithmRefresh).withIssuer(issuer).build()
+  val verifierUpdatePhone: JWTVerifier = JWT.require(algorithmUpdatePhone).withIssuer(issuer).build()
   val verifierLogin: JWTVerifier = JWT.require(algorithmLogin).withIssuer(issuer).build()
   val verifierBoard: JWTVerifier = JWT.require(algorithmBoard).withIssuer(issuer).build()
 
@@ -73,6 +77,24 @@ object JwtConfig {
       .withClaim("phone", phone)
       .withExpiresAt(getExpiration(validityRefresh))
       .sign(algorithmDevice)
+  }
+  fun generateTokenForUpdatePhone(
+    merchantId: Long?,
+    userId:Long,
+    uuid: String?,
+    hash: Long? = 0L,
+    phone: String? = null,
+  ): String {
+    return JWT.create()
+      .withSubject("update-phone")
+      .withIssuer(issuer)
+      .withClaim("merchantId", merchantId)
+      .withClaim("uuid", uuid)
+      .withClaim("hash", hash)
+      .withClaim("userId", userId)
+      .withClaim("phone", phone)
+      .withExpiresAt(getExpiration(validityUpdatePhone))
+      .sign(algorithmUpdatePhone)
   }
 
   fun generateBoardDeviceToken(

@@ -10,17 +10,12 @@ import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.option.repository.OptionRepositoryImpl
 import mimsoft.io.features.order.OrderUtils.getQuery
 import mimsoft.io.features.order.OrderUtils.joinQuery
-import mimsoft.io.features.order.OrderUtils.parse
 import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
-import mimsoft.io.features.payment.PAYME
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
-import mimsoft.io.integrate.join_poster.JoinPosterService
-import mimsoft.io.integrate.jowi.JowiService
-import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.repository.BaseEnums
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
@@ -61,8 +56,7 @@ object OrderService {
     if (result.isNotEmpty()) {
       val order = parseGetAll2(result[0])
       return ResponseModel(
-        body =
-          DataPage(data = result.map { parseGetAll(it, columns2) }, total = order.total?.toInt())
+        body = DataPage(data = result.map { parseGetAll2(it) }, total = order.total?.toInt())
       )
     } else {
       return ResponseModel(body = "Not found")
@@ -128,55 +122,58 @@ object OrderService {
             """
         .trimIndent()
     log.info("insert query {}", query)
-    var responseModel: ResponseModel
-    repository
-      .insert(
+    val responseModel: ResponseModel = ResponseModel(order)
+    val result =
+      repository.insert(
         query = query,
         mapOf(
           1 to validOrder.products.toJson(),
-          2 to validOrder.status,
+          2 to validOrder.status?.name,
           3 to validOrder.address?.description,
           4 to Timestamp(System.currentTimeMillis()),
-          5 to validOrder.serviceType,
+          5 to validOrder.serviceType?.name,
           6 to validOrder.comment
         )
       )
-      .let {
-        if (it == null)
-          return ResponseModel(
-            httpStatus = HttpStatusCode.BadRequest,
-            body = mapOf("message" to "something went wrong")
-          )
+    println("insert result : $result")
+    result.let {
+      if (it == null)
+        return ResponseModel(
+          httpStatus = HttpStatusCode.BadRequest,
+          body = mapOf("message" to "something went wrong")
+        )
 
-        JoinPosterService.sendOrder(validOrder).let { poster ->
-          responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
-        }
-        val fullOrder =
-          getById((responseModel.body as Order).id, "user", "branch", "products", "address")
-        fullOrder?.let { it1 ->
-          JowiService.createOrder(
-            it1.copy(
-              totalPrice = order.totalPrice,
-              totalDiscount = order.totalDiscount,
-              productPrice = order.productPrice,
-              productDiscount = order.totalDiscount
-            )
-          )
-        }
-        val orderId = it.get("id") as Long
-        val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
-        val checkoutLink =
-          if (order.paymentMethod?.id == PAYME && totalPrice != null) {
-            PaymeService.getCheckout(
-                orderId = orderId,
-                amount = totalPrice,
-                merchantId = validOrder.merchant?.id
-              )
-              .link
-          } else ""
-        (responseModel.body as Order).checkoutLink = checkoutLink
-        return responseModel
-      }
+      //
+      //        JoinPosterService.sendOrder(validOrder).let { poster ->
+      //          responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
+      //        }
+      //        val fullOrder =
+      //          getById((responseModel.body as Order).id, "user", "branch", "products", "address")
+      //        fullOrder?.let { it1 ->
+      //          JowiService.createOrder(
+      //            it1.copy(
+      //              totalPrice = order.totalPrice,
+      //              totalDiscount = order.totalDiscount,
+      //              productPrice = order.productPrice,
+      //              productDiscount = order.totalDiscount
+      //            )
+      //          )
+      //        }
+      //        val orderId = it["id"] as Long
+      //        val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
+      //        val checkoutLink =
+      //          if (order.paymentMethod?.id == PAYME && totalPrice != null) {
+      //            PaymeService.getCheckout(
+      //                orderId = orderId,
+      //                amount = totalPrice,
+      //                merchantId = validOrder.merchant?.id
+      //              )
+      //              .link
+      //          } else ""
+      //        (responseModel.body as Order).checkoutLink = checkoutLink
+
+      return ResponseModel(body = order.copy(id = it["id"] as Long))
+    }
   }
 
   suspend fun delete(id: Long?): ResponseModel {
