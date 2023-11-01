@@ -17,7 +17,10 @@ object OrderHistoryService {
     val user = UserRepositoryImpl.get(id = order?.user?.id, merchantId = order?.merchant?.id)
     val paymentType = PaymentTypeRepositoryImpl.get(order?.paymentMethod?.id)
     val courier =
-      CourierService.getByCourierId(courierId = order?.courier?.id, merchantId = order?.merchant?.id)
+      CourierService.getByCourierId(
+        courierId = order?.courier?.id,
+        merchantId = order?.merchant?.id
+      )
     val branch = BranchServiceImpl.get(id = order?.branch?.id, merchantId = order?.merchant?.id)
     val query =
       """

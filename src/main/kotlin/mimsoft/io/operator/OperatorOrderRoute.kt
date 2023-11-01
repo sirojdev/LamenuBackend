@@ -6,7 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlin.math.min
-import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.category.repository.CategoryRepositoryImpl
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.order.Order
@@ -134,11 +133,7 @@ fun Route.routeToOrderOperator() {
       val pr = getPrincipal()
       val merchantId = pr?.merchantId
       val order = call.receive<Order>()
-      val response =
-        OrderService.post(
-          order =
-            order.copy(merchant = MerchantDto(id = merchantId))
-        )
+      val response = OrderService.post(order = order.copy(merchant = MerchantDto(id = merchantId)))
       call.respond(response)
     }
   }
