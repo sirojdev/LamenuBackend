@@ -20,7 +20,17 @@ fun Route.routeToClientOrderInfo() {
       return@get
     }
     val get = orderService.get(id = id)
-
     call.respond(get.httpStatus, get.body)
+  }
+  get("order/info/tg") {
+    val pr = call.principal<UserPrincipal>()
+    val merchantId = pr?.merchantId
+    val id = call.parameters["id"]?.toLongOrNull()
+    if (id == null) {
+      call.respond(HttpStatusCode.BadRequest)
+      return@get
+    }
+    val order = orderService.getById(id = id)
+    call.respond(order?:HttpStatusCode.NotFound)
   }
 }

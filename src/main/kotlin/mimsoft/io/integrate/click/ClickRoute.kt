@@ -60,7 +60,7 @@ fun Route.routeToClick() {
 
   get("payment/click/{merchantId}/{orderId}/{amount}") {
     val merchantId = call.parameters["merchantId"]?.toLongOrNull()
-    val amount = call.parameters["amount"]?.toIntOrNull()
+    val amount = call.parameters["amount"]?.toLong()
     val orderId = call.parameters["orderId"]?.toLongOrNull()
     if (merchantId == null || amount == null || orderId == null) {
       call.respondText("merchantId or amount or orderId is null")

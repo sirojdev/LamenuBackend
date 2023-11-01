@@ -10,8 +10,8 @@ import org.apache.http.ssl.SSLContextBuilder
 
 object SslSettings {
   fun getKeyStore(): KeyStore {
-    //        val keyStoreFile = FileInputStream("/root/pay/keystore_12.jks")
-    val keyStoreFile = FileInputStream("uzum.jks")
+    val keyStoreFile = FileInputStream("/root/pay/uzum.jks")
+    //    val keyStoreFile = FileInputStream("uzum.jks")
     val keyStorePassword = "m1msoftUzum".toCharArray()
     val keyStore: KeyStore = KeyStore.getInstance(KeyStore.getDefaultType())
     keyStore.load(keyStoreFile, keyStorePassword)
