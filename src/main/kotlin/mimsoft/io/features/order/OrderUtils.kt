@@ -866,7 +866,7 @@ object OrderUtils {
   suspend fun parseGetAll2(result: Map<String, *>): Order {
     val products = result["o_products"] as? String
     log.info("products {}", products)
-      val serviceType = result["o_service_type"] as? String
+    val serviceType = result["o_service_type"] as? String
     return Order(
       id = result["o_id"] as? Long?,
       posterId = result["o_post_id"] as? Long?,
