@@ -519,6 +519,7 @@ object ProductRepositoryImpl : ProductRepository {
     p.description_uz,
     p.image,
     p.cost_price,
+    p.discount,
     json_agg(
             json_build_object(
                     'id',o.id,
@@ -564,6 +565,7 @@ object ProductRepositoryImpl : ProductRepository {
                   eng = rs.getString("name_eng")
                 )),
               costPrice = rs.getLong("cost_price"),
+              discount = rs.getLong("discount"),
               description =
                 (TextModel(
                   uz = rs.getString("description_uz"),

@@ -4,8 +4,10 @@ import io.ktor.server.routing.*
 import mimsoft.io.integrate.click.routeToClick
 import mimsoft.io.integrate.iiko.routeToIIko
 import mimsoft.io.integrate.jowi.routeToJowi
+import mimsoft.io.integrate.merchantIntegrationRoute
 import mimsoft.io.integrate.onlinePbx.routeOnlinePbx
 import mimsoft.io.integrate.payme.routeToPayme
+import mimsoft.io.integrate.paymentLinkRoute
 import mimsoft.io.integrate.uzum.routeToUzum
 import mimsoft.io.integrate.yandex.routeToYandex
 
@@ -18,5 +20,7 @@ fun Route.routeToIntegration() {
     routeToIIko()
     routeToYandex()
     routeToUzum()
+    paymentLinkRoute()
+    merchantIntegrationRoute()
   }
 }

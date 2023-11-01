@@ -1,6 +1,5 @@
 package mimsoft.io
 
-// import mimsoft.io.ssl.sslConfiguration
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import io.ktor.server.request.*

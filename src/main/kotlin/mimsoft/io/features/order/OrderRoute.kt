@@ -225,9 +225,8 @@ fun Route.routeToOrder() {
     post("create") {
       val principal = getPrincipal()
       val order = call.receive<Order>()
-      orderService.post(order.copy(merchant = MerchantDto(id = principal?.merchantId))).let {
-        call.respond(it.httpStatus, it.body)
-      }
+      val result = orderService.post(order.copy(merchant = MerchantDto(id = principal?.merchantId)))
+      call.respond(result)
     }
 
     delete("{id}") {
