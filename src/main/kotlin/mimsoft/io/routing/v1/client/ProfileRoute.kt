@@ -28,7 +28,7 @@ fun Route.routeToClientProfile() {
     }
     post("send-sms") {
       val pr = call.principal<BasePrincipal>()
-      val phone = call.parameters["phone"]
+      val phone = call.receive<DeviceModel>().phone
       if (phone == null) {
         call.respond(HttpStatusCode.BadRequest, "phone required")
         return@post
