@@ -87,7 +87,8 @@ fun Route.routeToOrder() {
           ResponseModel(body = "status required", httpStatus = HttpStatusCode.BadRequest)
         )
       }
-      val order = orderService.updateStatus(
+      val order =
+        orderService.updateStatus(
           orderId = orderId,
           merchantId = pr?.merchantId,
           status = OrderStatus.valueOf(status.toString())

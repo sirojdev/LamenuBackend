@@ -11,7 +11,6 @@ import mimsoft.io.features.message.routeToMessage
 import mimsoft.io.features.notification.routeToNotification
 import mimsoft.io.features.operator.OperatorService
 import mimsoft.io.features.operator.chat.routeToOperatorChat
-import mimsoft.io.features.order.routeToOrder
 import mimsoft.io.features.promo.routeToPromo
 import mimsoft.io.features.sms.routeToSms
 import mimsoft.io.features.staff.StaffDto

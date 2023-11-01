@@ -635,8 +635,6 @@ object OrderService {
     val query =
       "select count(id), status from orders where merchant_id = $merchant and branch_id = $branchId and not deleted group by status"
 
-
-
     return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
@@ -658,7 +656,9 @@ object OrderService {
     offset: Int?
   ): DataPage<Order> {
     val query = StringBuilder()
-    query.append("select count(*) over() as total, * from order_history where merchant_id = $merchantId and branch_id = $branchId ")
+    query.append(
+      "select count(*) over() as total, * from order_history where merchant_id = $merchantId and branch_id = $branchId "
+    )
     if (filter == null) query.append(" order by created desc")
     if (search != null) {
       val s = search.lowercase()
