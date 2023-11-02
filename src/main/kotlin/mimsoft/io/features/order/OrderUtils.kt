@@ -6,17 +6,17 @@ import java.sql.Timestamp
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.address.AddressType
 import mimsoft.io.features.address.Details
 import mimsoft.io.features.badge.BadgeDto
 import mimsoft.io.features.branch.BranchDto
-import mimsoft.io.features.branch.repository.BranchServiceImpl
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.extra.ExtraDto
 import mimsoft.io.features.merchant.MerchantDto
 import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.features.option.OptionDto
+import mimsoft.io.features.order.OrderUtils.log
+import mimsoft.io.features.payment.PaymentService
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.product.ProductDto
 import mimsoft.io.features.staff.StaffDto
@@ -1111,13 +1111,13 @@ object OrderUtils {
         if (!it.isOk()) return it
         order.address = it.body as? AddressDto
       }
-//      validatePayment()
       if (order.paymentMethod?.id == null) {
         return ResponseModel(
           httpStatus = HttpStatusCode.BadRequest,
           body = mapOf("message" to "paymentType is required")
         )
       }
+//      validatePayment(order.paymentMethod, order.merchant).let { if (!it.isOk()) return it }
     }
 
     if (order.merchant?.id == null) {
@@ -1133,19 +1133,19 @@ object OrderUtils {
             body = mapOf("message" to "merchant not found")
           )
     }
-    if (order.branch?.id == null) {
-      return ResponseModel(
-        httpStatus = HttpStatusCode.BadRequest,
-        body = mapOf("message" to "branch is required")
-      )
-    } else {
-      order.branch =
-        BranchServiceImpl.get(order.branch?.id, order.merchant?.id)
-          ?: return ResponseModel(
-            httpStatus = HttpStatusCode.BadRequest,
-            body = mapOf("message" to "branch not found")
-          )
-    }
+    //    if (order.branch?.id == null) {
+    //      return ResponseModel(
+    //        httpStatus = HttpStatusCode.BadRequest,
+    //        body = mapOf("message" to "branch is required")
+    //      )
+    //    } else {
+    //      order.branch =
+    //        BranchServiceImpl.get(order.branch?.id, order.merchant?.id)
+    //          ?: return ResponseModel(
+    //            httpStatus = HttpStatusCode.BadRequest,
+    //            body = mapOf("message" to "branch not found")
+    //          )
+    //    }
 
     /*OrderService.getProductCalculate(dto = order).let {
         if (!it.isOk()) return it
@@ -1158,366 +1158,382 @@ object OrderUtils {
     }
   }
 
-  private suspend fun validateAddress(address: AddressDto?): ResponseModel {
-    if (address?.id == null)
-      return ResponseModel(
-        body = mapOf("message" to "address id is required"),
-        httpStatus = HttpStatusCode.BadRequest
-      )
-    AddressRepositoryImpl.get(address.id).let {
-      if (it == null)
-        return ResponseModel(
-          body = mapOf("message" to "address not found"),
-          httpStatus = HttpStatusCode.BadRequest
-        )
-      return ResponseModel(body = it)
-    }
-  }
-
-  suspend fun validateProduct(order: Order?): ResponseModel {
-    val products = order?.products
-
-    val orderProducts = getByCartItem(products)
-
-    val body = orderProducts.body as Map<*, *>
-    val getProducts = body["products"] as Set<*>
-    val getOptions = body["options"] as Set<*>
-    val getExtras = body["extras"] as Set<*>
-
-    products
-      ?.map { it.product }
-      ?.toSet()
-      ?.intersect(getProducts)
-      .let { intSet ->
-        if (intSet?.isNotEmpty() == true)
-          return ResponseModel(
-            httpStatus = HttpStatusCode.BadRequest,
-            body =
-              mapOf(
-                "message" to
-                  "products id = ${intSet.joinToString { (it as ProductDto).id.toString() }} not found"
-              )
-          )
-      }
-
-    products
-      ?.map { it.option }
-      ?.toSet()
-      ?.intersect(getOptions)
-      .let { intSet ->
-        if (intSet?.isNotEmpty() == true)
-          return ResponseModel(
-            httpStatus = HttpStatusCode.BadRequest,
-            body =
-              mapOf(
-                "message" to
-                  "options id = ${intSet.joinToString { (it as OptionDto).id.toString() }} not found"
-              )
-          )
-      }
-
-    products
-      ?.flatMap { it.extras.orEmpty() }
-      ?.toSet()
-      ?.intersect(getExtras)
-      .let { intSet ->
-        if (intSet?.isNotEmpty() == true)
-          return ResponseModel(
-            httpStatus = HttpStatusCode.BadRequest,
-            body =
-              mapOf(
-                "message" to
-                  "extras id = ${intSet.joinToString { (it as ExtraDto).id.toString() }} not found"
-              )
-          )
-      }
-
-    val productCountMap: Map<Long?, Int?>? =
-      products?.associateBy({ (it.product?.id) ?: 0L }, { ((it.count) ?: 0) })
-    println("Product count map")
-    println(Gson().toJson(productCountMap))
-
-    products?.map { cartItem ->
-      getProducts.map {
-        val model = it as ProductDto
-        if (model.id == cartItem.product?.id) {
-          it.costPrice = it.costPrice?.times(cartItem.count!!)
-        }
-      }
-    }
-    println("get products")
-    println(Gson().toJson(getProducts))
-
-    println("get options")
-
-    println(Gson().toJson(getOptions))
-    val totalProductPrice =
-      getProducts.map { (it as ProductDto).costPrice }.sumOf { it?.toInt() ?: 0 }
-    val totalProductDiscount =
-      getProducts
-        .map { ((it as ProductDto).costPrice?.times(it.discount ?: 0)?.div(100)) }
-        .sumOf { it?.toInt() ?: 0 }
-
-    val totalOptionsPrice =
-      getOptions.sumOf {
-        ((it as OptionDto).price ?: 0) * (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
-      }
-
-    val totalExtraPrice =
-      getExtras.sumOf {
-        ((it as ExtraDto).price ?: 0) * (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
-      }
-
-    val totalPrice = totalProductPrice + totalOptionsPrice + totalExtraPrice
-
-    log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
-    log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionsPrice, totalExtraPrice)
-
-    println("totalPrice: $totalPrice")
-    println("order?.totalPrice: ${order?.totalPrice}")
-    println("order?.totalDiscount: ${order?.totalDiscount}")
-    println("totalProductDiscount: $totalProductDiscount")
-    if (totalPrice != order?.productPrice || totalProductDiscount.toLong() != order.productDiscount)
-      return ResponseModel(
-        body = mapOf("message" to "total price or discount not equal"),
-        httpStatus = HttpStatusCode.BadRequest
-      )
-
-    order.products?.map { cart ->
-      cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto?
-    }
-    var productCount = 0
-    order.products?.map { productCount += it.count ?: 0 }
-    order.productCount = productCount
-    order.totalPrice = totalPrice - totalProductDiscount
-
-    return ResponseModel(body = order)
-  }
-
-  private suspend fun getByCartItem(
-    products: List<CartItem?>?,
-    merchantId: Long? = null
+  private suspend fun validatePayment(
+    payment: PaymentTypeDto,
+    merchant: MerchantDto?
   ): ResponseModel {
+    if (payment.id == null) {
+      return ResponseModel(
+        body = mapOf("error" to "payment id required"),
+        httpStatus = HttpStatusCode.BadRequest
+      )
+    }
+    val paymentDto = PaymentService.isExist(merchant?.id, paymentId = payment.id)
+    return if (paymentDto) ResponseModel(httpStatus = HttpStatusCode.OK)
+    else
+      ResponseModel(
+        httpStatus = HttpStatusCode.BadRequest,
+        body = mapOf("error" to "payment not found in merchant")
+      )
+  }
 
-    val productIds = products?.mapNotNull { it?.product?.id }?.joinToString()
-    val optionIds = products?.mapNotNull { it?.option?.id }?.joinToString()
-    val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
+  private suspend fun validateAddress(address: AddressDto?): ResponseModel {
+    if (address?.longitude == null || address.latitude == null || address.description == null)
+      return ResponseModel(
+        body = mapOf("message" to "address longitude latitude description is required"),
+        httpStatus = HttpStatusCode.BadRequest
+      )
+    //    AddressRepositoryImpl.get(address.id).let {
+    //      if (it == null)
+    //        return ResponseModel(
+    //          body = mapOf("message" to "address not found"),
+    //          httpStatus = HttpStatusCode.BadRequest
+    //        )
+    return ResponseModel(body = address)
+  }
+}
 
-    val queryProducts =
-      "select * from product where id in ($productIds) and not deleted order by id"
-    println("queryProducts -> $queryProducts")
-    val queryOptions =
-      "select * from options where id in ($optionIds) and not deleted order by product_id"
-    println("queryOptions -> $queryOptions")
-    val queryExtras =
-      "select * from extra where id in ($extraIds) and not deleted order by product_id"
-    println("queryExtras -> $queryExtras")
+suspend fun validateProduct(order: Order?): ResponseModel {
+  val products = order?.products
 
-    val productsSet: MutableSet<ProductDto> = mutableSetOf()
-    val optionsSet: MutableSet<OptionDto> = mutableSetOf()
-    val extrasSet: MutableSet<ExtraDto> = mutableSetOf()
+  val orderProducts = getByCartItem(products)
 
-    withContext(DBManager.databaseDispatcher) {
-      DBManager.connection().use { connection ->
-        val productRs = connection.prepareStatement(queryProducts).executeQuery()
-        while (productRs.next()) {
-          productsSet.add(
-            ProductDto(
-              id = productRs.getLong("id"),
-              merchantId = productRs.getLong("merchant_id"),
-              name =
-                TextModel(
-                  uz = productRs.getString("name_uz"),
-                  ru = productRs.getString("name_ru"),
-                  eng = productRs.getString("name_eng")
-                ),
-              description =
-                TextModel(
-                  uz = productRs.getString("description_uz"),
-                  ru = productRs.getString("description_ru"),
-                  eng = productRs.getString("description_eng")
-                ),
-              image = productRs.getString("image"),
-              costPrice = productRs.getLong("cost_price"),
-              active = productRs.getBoolean("active"),
-              discount = productRs.getLong("discount"),
-              joinPosterId = productRs.getLong("join_poster_id")
+  val body = orderProducts.body as Map<*, *>
+  val getProducts = body["products"] as Set<*>
+  val getOptions = body["options"] as Set<*>
+  val getExtras = body["extras"] as Set<*>
+
+  products
+    ?.map { it.product }
+    ?.toSet()
+    ?.intersect(getProducts)
+    .let { intSet ->
+      if (intSet?.isNotEmpty() == true)
+        return ResponseModel(
+          httpStatus = HttpStatusCode.BadRequest,
+          body =
+            mapOf(
+              "message" to
+                "products id = ${intSet.joinToString { (it as ProductDto).id.toString() }} not found"
             )
-          )
-        }
-        if (!optionIds.isNullOrEmpty()) {
-          val optionRs = connection.prepareStatement(queryOptions).executeQuery()
-          while (optionRs.next()) {
-            optionsSet.add(
-              OptionDto(
-                id = optionRs.getLong("id"),
-                merchantId = optionRs.getLong("merchant_id"),
-                parentId = optionRs.getLong("parent_id"),
-                productId = optionRs.getLong("product_id"),
-                name =
-                  TextModel(
-                    uz = optionRs.getString("name_uz"),
-                    ru = optionRs.getString("name_ru"),
-                    eng = optionRs.getString("name_eng")
-                  ),
-                image = optionRs.getString("image"),
-                price = optionRs.getLong("price")
-              )
+        )
+    }
+
+  products
+    ?.map { it.option }
+    ?.toSet()
+    ?.intersect(getOptions)
+    .let { intSet ->
+      if (intSet?.isNotEmpty() == true)
+        return ResponseModel(
+          httpStatus = HttpStatusCode.BadRequest,
+          body =
+            mapOf(
+              "message" to
+                "options id = ${intSet.joinToString { (it as OptionDto).id.toString() }} not found"
             )
-          }
-        }
-        if (!extraIds.isNullOrEmpty()) {
-          val extraRs = connection.prepareStatement(queryExtras).executeQuery()
-          while (extraRs.next()) {
-            extrasSet.add(
-              ExtraDto(
-                id = extraRs.getLong("id"),
-                image = extraRs.getString("image"),
-                price = extraRs.getLong("price"),
-                merchantId = extraRs.getLong("merchant_id"),
-                name =
-                  TextModel(
-                    uz = extraRs.getString("name_uz"),
-                    ru = extraRs.getString("name_ru"),
-                    eng = extraRs.getString("name_eng")
-                  ),
-                productId = extraRs.getLong("product_id")
-              )
+        )
+    }
+
+  products
+    ?.flatMap { it.extras.orEmpty() }
+    ?.toSet()
+    ?.intersect(getExtras)
+    .let { intSet ->
+      if (intSet?.isNotEmpty() == true)
+        return ResponseModel(
+          httpStatus = HttpStatusCode.BadRequest,
+          body =
+            mapOf(
+              "message" to
+                "extras id = ${intSet.joinToString { (it as ExtraDto).id.toString() }} not found"
             )
-          }
-        }
+        )
+    }
+
+  val productCountMap: Map<Long?, Int?>? =
+    products?.associateBy({ (it.product?.id) ?: 0L }, { ((it.count) ?: 0) })
+  println("Product count map")
+  println(Gson().toJson(productCountMap))
+
+  products?.map { cartItem ->
+    getProducts.map {
+      val model = it as ProductDto
+      if (model.id == cartItem.product?.id) {
+        it.costPrice = it.costPrice?.times(cartItem.count!!)
       }
     }
+  }
+  println("get products")
+  println(Gson().toJson(getProducts))
+
+  println("get options")
+
+  println(Gson().toJson(getOptions))
+  val totalProductPrice =
+    getProducts.map { (it as ProductDto).costPrice }.sumOf { it?.toInt() ?: 0 }
+  val totalProductDiscount =
+    getProducts
+      .map { ((it as ProductDto).costPrice?.times(it.discount ?: 0)?.div(100)) }
+      .sumOf { it?.toInt() ?: 0 }
+
+  val totalOptionsPrice =
+    getOptions.sumOf {
+      ((it as OptionDto).price ?: 0) * (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
+    }
+
+  val totalExtraPrice =
+    getExtras.sumOf {
+      ((it as ExtraDto).price ?: 0) * (productCountMap?.getOrDefault(it.productId, 0) ?: 0)
+    }
+
+  val totalPrice = totalProductPrice + totalOptionsPrice + totalExtraPrice
+
+  log.info("totalPrice {}, totalDiscount {}", totalPrice, totalProductDiscount)
+  log.info("totalOptionPrice {}, totalExtraPrice {}", totalOptionsPrice, totalExtraPrice)
+
+  println("totalPrice: $totalPrice")
+  println("order?.totalPrice: ${order?.totalPrice}")
+  println("order?.totalDiscount: ${order?.totalDiscount}")
+  println("totalProductDiscount: $totalProductDiscount")
+  if (totalPrice != order?.productPrice || totalProductDiscount.toLong() != order.productDiscount)
     return ResponseModel(
-      body = mapOf("products" to productsSet, "options" to optionsSet, "extras" to extrasSet)
+      body = mapOf("message" to "total price or discount not equal"),
+      httpStatus = HttpStatusCode.BadRequest
     )
+
+  order.products?.map { cart ->
+    cart.product = getProducts.find { (it as ProductDto).id == cart.product?.id } as? ProductDto?
   }
+  var productCount = 0
+  order.products?.map { productCount += it.count ?: 0 }
+  order.productCount = productCount
+  order.totalPrice = totalPrice - totalProductDiscount
 
-  private suspend fun getByCartItem2(
-    products: List<CartItem?>?,
-    merchantId: Long? = null
-  ): List<CartItem?>? {
+  return ResponseModel(body = order)
+}
 
-    val productIds = products?.mapNotNull { it?.product?.id }?.joinToString()
-    val optionIds = products?.mapNotNull { it?.option?.id }?.joinToString()
-    val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
+private suspend fun getByCartItem(
+  products: List<CartItem?>?,
+  merchantId: Long? = null
+): ResponseModel {
 
-    val queryProducts =
-      "select * from product where id in ($productIds) and not deleted order by id"
-    println("queryProducts -> $queryProducts")
-    val queryOptions =
-      "select * from options where id in ($optionIds) and not deleted order by product_id"
-    println("queryOptions -> $queryOptions")
-    val queryExtras =
-      "select * from extra where id in ($extraIds) and not deleted order by product_id"
-    println("queryExtras -> $queryExtras")
+  val productIds = products?.mapNotNull { it?.product?.id }?.joinToString()
+  val optionIds = products?.mapNotNull { it?.option?.id }?.joinToString()
+  val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
 
-    val productsSet: MutableMap<Long, ProductDto> = mutableMapOf()
-    val optionsSet: MutableMap<Long, OptionDto> = mutableMapOf()
-    val extrasSet: MutableMap<Long, ExtraDto> = mutableMapOf()
+  val queryProducts = "select * from product where id in ($productIds) and not deleted order by id"
+  println("queryProducts -> $queryProducts")
+  val queryOptions =
+    "select * from options where id in ($optionIds) and not deleted order by product_id"
+  println("queryOptions -> $queryOptions")
+  val queryExtras =
+    "select * from extra where id in ($extraIds) and not deleted order by product_id"
+  println("queryExtras -> $queryExtras")
 
-    withContext(DBManager.databaseDispatcher) {
-      DBManager.connection().use { connection ->
-        val productRs = connection.prepareStatement(queryProducts).executeQuery()
-        while (productRs.next()) {
-          productsSet.put(
-            productRs.getLong("id"),
-            ProductDto(
-              id = productRs.getLong("id"),
-              merchantId = productRs.getLong("merchant_id"),
+  val productsSet: MutableSet<ProductDto> = mutableSetOf()
+  val optionsSet: MutableSet<OptionDto> = mutableSetOf()
+  val extrasSet: MutableSet<ExtraDto> = mutableSetOf()
+
+  withContext(DBManager.databaseDispatcher) {
+    DBManager.connection().use { connection ->
+      val productRs = connection.prepareStatement(queryProducts).executeQuery()
+      while (productRs.next()) {
+        productsSet.add(
+          ProductDto(
+            id = productRs.getLong("id"),
+            merchantId = productRs.getLong("merchant_id"),
+            name =
+              TextModel(
+                uz = productRs.getString("name_uz"),
+                ru = productRs.getString("name_ru"),
+                eng = productRs.getString("name_eng")
+              ),
+            description =
+              TextModel(
+                uz = productRs.getString("description_uz"),
+                ru = productRs.getString("description_ru"),
+                eng = productRs.getString("description_eng")
+              ),
+            image = productRs.getString("image"),
+            costPrice = productRs.getLong("cost_price"),
+            active = productRs.getBoolean("active"),
+            discount = productRs.getLong("discount"),
+            joinPosterId = productRs.getLong("join_poster_id")
+          )
+        )
+      }
+      if (!optionIds.isNullOrEmpty()) {
+        val optionRs = connection.prepareStatement(queryOptions).executeQuery()
+        while (optionRs.next()) {
+          optionsSet.add(
+            OptionDto(
+              id = optionRs.getLong("id"),
+              merchantId = optionRs.getLong("merchant_id"),
+              parentId = optionRs.getLong("parent_id"),
+              productId = optionRs.getLong("product_id"),
               name =
                 TextModel(
-                  uz = productRs.getString("name_uz"),
-                  ru = productRs.getString("name_ru"),
-                  eng = productRs.getString("name_eng")
+                  uz = optionRs.getString("name_uz"),
+                  ru = optionRs.getString("name_ru"),
+                  eng = optionRs.getString("name_eng")
                 ),
-              description =
-                TextModel(
-                  uz = productRs.getString("description_uz"),
-                  ru = productRs.getString("description_ru"),
-                  eng = productRs.getString("description_eng")
-                ),
-              image = productRs.getString("image"),
-              costPrice = productRs.getLong("cost_price"),
-              active = productRs.getBoolean("active"),
-              discount = productRs.getLong("discount")
+              image = optionRs.getString("image"),
+              price = optionRs.getLong("price")
             )
           )
         }
-        if (!optionIds.isNullOrEmpty()) {
-          val optionRs = connection.prepareStatement(queryOptions).executeQuery()
-          while (optionRs.next()) {
-            optionsSet.put(
-              optionRs.getLong("id"),
-              OptionDto(
-                id = optionRs.getLong("id"),
-                merchantId = optionRs.getLong("merchant_id"),
-                parentId = optionRs.getLong("parent_id"),
-                productId = optionRs.getLong("product_id"),
-                name =
-                  TextModel(
-                    uz = optionRs.getString("name_uz"),
-                    ru = optionRs.getString("name_ru"),
-                    eng = optionRs.getString("name_eng")
-                  ),
-                image = optionRs.getString("image"),
-                price = optionRs.getLong("price"),
-                jowiId = optionRs.getString("jowi_id"),
-                iikoId = optionRs.getString("iiko_id")
-              )
+      }
+      if (!extraIds.isNullOrEmpty()) {
+        val extraRs = connection.prepareStatement(queryExtras).executeQuery()
+        while (extraRs.next()) {
+          extrasSet.add(
+            ExtraDto(
+              id = extraRs.getLong("id"),
+              image = extraRs.getString("image"),
+              price = extraRs.getLong("price"),
+              merchantId = extraRs.getLong("merchant_id"),
+              name =
+                TextModel(
+                  uz = extraRs.getString("name_uz"),
+                  ru = extraRs.getString("name_ru"),
+                  eng = extraRs.getString("name_eng")
+                ),
+              productId = extraRs.getLong("product_id")
             )
-          }
-        }
-        if (!extraIds.isNullOrEmpty()) {
-          val extraRs = connection.prepareStatement(queryExtras).executeQuery()
-          while (extraRs.next()) {
-            extrasSet.put(
-              extraRs.getLong("id"),
-              ExtraDto(
-                id = extraRs.getLong("id"),
-                image = extraRs.getString("image"),
-                price = extraRs.getLong("price"),
-                merchantId = extraRs.getLong("merchant_id"),
-                name =
-                  TextModel(
-                    uz = extraRs.getString("name_uz"),
-                    ru = extraRs.getString("name_ru"),
-                    eng = extraRs.getString("name_eng")
-                  ),
-                productId = extraRs.getLong("product_id"),
-                jowiId = extraRs.getString("jowi_id"),
-                iikoModifierId = extraRs.getString("iiko_modifier_id")
-              )
-            )
-          }
+          )
         }
       }
     }
+  }
+  return ResponseModel(
+    body = mapOf("products" to productsSet, "options" to optionsSet, "extras" to extrasSet)
+  )
+}
 
-    if (products != null) {
-      for (product in products) {
-        product?.product = productsSet[product?.product?.id]
-        product?.option = optionsSet[product?.option?.id]
-        getExtras(extrasSet, product!!)
+private suspend fun getByCartItem2(
+  products: List<CartItem?>?,
+  merchantId: Long? = null
+): List<CartItem?>? {
+
+  val productIds = products?.mapNotNull { it?.product?.id }?.joinToString()
+  val optionIds = products?.mapNotNull { it?.option?.id }?.joinToString()
+  val extraIds = products?.flatMap { it?.extras.orEmpty() }?.mapNotNull { it.id }?.joinToString()
+
+  val queryProducts = "select * from product where id in ($productIds) and not deleted order by id"
+  println("queryProducts -> $queryProducts")
+  val queryOptions =
+    "select * from options where id in ($optionIds) and not deleted order by product_id"
+  println("queryOptions -> $queryOptions")
+  val queryExtras =
+    "select * from extra where id in ($extraIds) and not deleted order by product_id"
+  println("queryExtras -> $queryExtras")
+
+  val productsSet: MutableMap<Long, ProductDto> = mutableMapOf()
+  val optionsSet: MutableMap<Long, OptionDto> = mutableMapOf()
+  val extrasSet: MutableMap<Long, ExtraDto> = mutableMapOf()
+
+  withContext(DBManager.databaseDispatcher) {
+    DBManager.connection().use { connection ->
+      val productRs = connection.prepareStatement(queryProducts).executeQuery()
+      while (productRs.next()) {
+        productsSet.put(
+          productRs.getLong("id"),
+          ProductDto(
+            id = productRs.getLong("id"),
+            merchantId = productRs.getLong("merchant_id"),
+            name =
+              TextModel(
+                uz = productRs.getString("name_uz"),
+                ru = productRs.getString("name_ru"),
+                eng = productRs.getString("name_eng")
+              ),
+            description =
+              TextModel(
+                uz = productRs.getString("description_uz"),
+                ru = productRs.getString("description_ru"),
+                eng = productRs.getString("description_eng")
+              ),
+            image = productRs.getString("image"),
+            costPrice = productRs.getLong("cost_price"),
+            active = productRs.getBoolean("active"),
+            discount = productRs.getLong("discount")
+          )
+        )
+      }
+      if (!optionIds.isNullOrEmpty()) {
+        val optionRs = connection.prepareStatement(queryOptions).executeQuery()
+        while (optionRs.next()) {
+          optionsSet.put(
+            optionRs.getLong("id"),
+            OptionDto(
+              id = optionRs.getLong("id"),
+              merchantId = optionRs.getLong("merchant_id"),
+              parentId = optionRs.getLong("parent_id"),
+              productId = optionRs.getLong("product_id"),
+              name =
+                TextModel(
+                  uz = optionRs.getString("name_uz"),
+                  ru = optionRs.getString("name_ru"),
+                  eng = optionRs.getString("name_eng")
+                ),
+              image = optionRs.getString("image"),
+              price = optionRs.getLong("price"),
+              jowiId = optionRs.getString("jowi_id"),
+              iikoId = optionRs.getString("iiko_id")
+            )
+          )
+        }
+      }
+      if (!extraIds.isNullOrEmpty()) {
+        val extraRs = connection.prepareStatement(queryExtras).executeQuery()
+        while (extraRs.next()) {
+          extrasSet.put(
+            extraRs.getLong("id"),
+            ExtraDto(
+              id = extraRs.getLong("id"),
+              image = extraRs.getString("image"),
+              price = extraRs.getLong("price"),
+              merchantId = extraRs.getLong("merchant_id"),
+              name =
+                TextModel(
+                  uz = extraRs.getString("name_uz"),
+                  ru = extraRs.getString("name_ru"),
+                  eng = extraRs.getString("name_eng")
+                ),
+              productId = extraRs.getLong("product_id"),
+              jowiId = extraRs.getString("jowi_id"),
+              iikoModifierId = extraRs.getString("iiko_modifier_id")
+            )
+          )
+        }
       }
     }
-
-    return products
   }
 
-  private fun getExtras(extrasSet: MutableMap<Long, ExtraDto>, product: CartItem) {
-    val extras = product.extras // Make a local copy of product.extras
-
-    if (extras != null) {
-      val list = arrayListOf<ExtraDto>()
-      for (x in 0 until extras.size) {
-        val extraId = extras[x].id
-        val extraDto = extrasSet[extraId]
-        if (extraDto != null) {
-          list.add(extraDto)
-        }
-      }
-      product.extras = list
+  if (products != null) {
+    for (product in products) {
+      product?.product = productsSet[product?.product?.id]
+      product?.option = optionsSet[product?.option?.id]
+      getExtras(extrasSet, product!!)
     }
+  }
+
+  return products
+}
+
+private fun getExtras(extrasSet: MutableMap<Long, ExtraDto>, product: CartItem) {
+  val extras = product.extras // Make a local copy of product.extras
+
+  if (extras != null) {
+    val list = arrayListOf<ExtraDto>()
+    for (x in 0 until extras.size) {
+      val extraId = extras[x].id
+      val extraDto = extrasSet[extraId]
+      if (extraDto != null) {
+        list.add(extraDto)
+      }
+    }
+    product.extras = list
   }
 }

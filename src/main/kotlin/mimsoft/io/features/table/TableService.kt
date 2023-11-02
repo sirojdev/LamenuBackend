@@ -204,7 +204,7 @@ object TableService : TableRepository {
               return@withContext TableBookDto(book = book, waiter = waiter)
             }
           } else if (rs.getString("status") == TableStatus.VISIT.name) {
-            val response = CategoryGroupService.getClient(merchantId = merchantId)
+            val response = CategoryGroupService.getCategoryByGroupForClient(merchantId = merchantId)
             return@withContext response
           } else return@withContext null
         } else null
