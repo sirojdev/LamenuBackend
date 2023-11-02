@@ -83,14 +83,6 @@ fun Route.routeToClientProfile() {
       userRepository.delete(id = pr?.userId, merchantId = pr?.merchantId)
       call.respond(HttpStatusCode.OK)
     }
-    delete("image") {
-      val principal = call.principal<BasePrincipal>()
-      val user = userRepository.get(principal?.userId, principal?.merchantId)
-      userRepository.updateImage(null,principal?.userId)
-      if (user?.image != null) FilesService.deleteFile(user.image)
-      call.respond(HttpStatusCode.OK)
-    }
-
     post("image") {
       val user = call.receive<UserDto>()
       val principal = call.principal<BasePrincipal>()
@@ -104,6 +96,17 @@ fun Route.routeToClientProfile() {
       } else {
         call.respond(rs.httpStatus)
       }
+    }
+    delete("image") {
+      val principal = call.principal<BasePrincipal>()
+      val user = userRepository.get(principal?.userId, principal?.merchantId)
+      if (user == null) {
+        call.respond(HttpStatusCode.NotFound, "user not found")
+        return@delete
+      }
+      userRepository.updateImage(null, principal?.userId)
+      if (user.image != null) FilesService.deleteFile(user.image)
+      call.respond(user.copy(image = null))
     }
   }
 }
