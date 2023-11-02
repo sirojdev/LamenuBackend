@@ -324,19 +324,34 @@ object UserRepositoryImpl : UserRepository {
       ?.let { mapper.toUserDto(it) }
   }
 
-  override suspend fun updatePhone(userId: Long?, phone: String?) {
+  override suspend fun updatePhone(userId: Long?, phone: String?): Boolean {
     val query =
       """
-        update user set phone = ? where id = $userId
+        update users set phone = ? where id = $userId
         """
         .trimIndent()
     log.info("query: $query")
-     withContext(DBManager.databaseDispatcher) {
+    var res = false
+    withContext(DBManager.databaseDispatcher) {
       DBManager.connection().use { it ->
-        val rs = it.prepareStatement(query).apply {
-          setString(1,phone)
-        }
+        res = it.prepareStatement(query).apply { setString(1, phone) }.executeUpdate() == 1
       }
     }
+    return res
+  }
+
+  override suspend fun updateImage(imageName: String, userId: Long?): Boolean {
+    val query =
+      """
+        update users set image = ? where id = $userId
+        """
+        .trimIndent()
+    var res: Boolean
+    withContext(DBManager.databaseDispatcher) {
+      DBManager.connection().use {
+        res = it.prepareStatement(query).apply { setString(1, imageName) }.executeUpdate() == 1
+      }
+    }
+    return res
   }
 }

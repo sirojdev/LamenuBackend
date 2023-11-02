@@ -6,8 +6,10 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.util.*
 import mimsoft.io.client.device.DeviceController
 import mimsoft.io.client.device.DeviceModel
+import mimsoft.io.client.profile.ClientProfileService
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
@@ -33,7 +35,6 @@ fun Route.routeToClientProfile() {
         call.respond(HttpStatusCode.BadRequest, "phone required")
         return@post
       }
-      //      val user = userRepository.updatePhone(pr?.userId, phone)
       val merchantId = pr?.merchantId
       val result = SmsService.checkSmsTime2(phone = phone)
       if (result == null || result == "already_sent") {
@@ -43,17 +44,19 @@ fun Route.routeToClientProfile() {
         val gn = Generator.generate(true)
         SmsSenderService.send(merchantId = pr?.merchantId, phone, "code ${gn.code}")
         call.respond(
-          JwtConfig.generateTokenForUpdatePhone(
-            merchantId = merchantId,
-            uuid = pr?.uuid,
-            hash = gn.hash,
-            phone = phone,
-            userId = pr?.userId!!
+          DeviceModel(
+            token =
+              JwtConfig.generateTokenForUpdatePhone(
+                merchantId = merchantId,
+                uuid = pr?.uuid,
+                hash = gn.hash,
+                phone = phone,
+                userId = pr?.userId!!
+              )
           )
         )
       }
     }
-
 
     patch {
       val pr = call.principal<BasePrincipal>()
@@ -78,6 +81,16 @@ fun Route.routeToClientProfile() {
       val pr = call.principal<BasePrincipal>()
       userRepository.delete(id = pr?.userId, merchantId = pr?.merchantId)
       call.respond(HttpStatusCode.OK)
+    }
+    post("image") {
+      val base64 = call.receiveText()
+      val principal = call.principal<BasePrincipal>()
+      val rs = ClientProfileService.updateImage(base64, principal)
+      if (rs.httpStatus == HttpStatusCode.OK) {
+        call.respond(rs.body)
+      } else {
+        call.respond(rs.httpStatus)
+      }
     }
   }
 }
