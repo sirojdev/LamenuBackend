@@ -102,7 +102,7 @@ object StaffService {
     repository
       .selectOne(
         query =
-          "select * from $STAFF_TABLE_NAME where phone = '${staff?.phone}' and password = ? and deleted = false",
+          "select * from $STAFF_TABLE_NAME where phone = '${staff?.phone}' and password = ? and merchant_id = ${staff?.merchantId} and deleted = false",
         args = mapOf(1 to staff?.password)
       )
       .let {
