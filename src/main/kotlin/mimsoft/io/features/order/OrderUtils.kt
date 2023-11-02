@@ -5,15 +5,16 @@ import io.ktor.http.*
 import java.sql.Timestamp
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
 import mimsoft.io.features.address.AddressType
 import mimsoft.io.features.address.Details
 import mimsoft.io.features.badge.BadgeDto
 import mimsoft.io.features.branch.BranchDto
+import mimsoft.io.features.branch.repository.BranchServiceImpl
 import mimsoft.io.features.cart.CartItem
 import mimsoft.io.features.extra.ExtraDto
 import mimsoft.io.features.merchant.MerchantDto
-import mimsoft.io.features.merchant.repository.MerchantRepositoryImp
 import mimsoft.io.features.option.OptionDto
 import mimsoft.io.features.order.OrderUtils.log
 import mimsoft.io.features.payment.PaymentService
@@ -1088,16 +1089,17 @@ object OrderUtils {
 
   suspend fun validate(order: Order): ResponseModel {
 
-    /*
-            if (order.user?.id == null) {
-                return ResponseModel(body = mapOf("message" to "user id or user required"))
-            } else {
-                order.user = UserRepositoryImpl.get(order.user!!.id) ?: return ResponseModel(
-                    httpStatus = HttpStatusCode.BadRequest, body = mapOf("message" to "user not found")
-                )
-                log.info("user: {}", order.user.toJson())
-            }
-    */
+    if (order.user?.id == null) {
+      return ResponseModel(body = mapOf("message" to "user id or user required"))
+    } else {
+      order.user =
+        UserRepositoryImpl.getUserShortInfo(order.user!!.id)
+          ?: return ResponseModel(
+            httpStatus = HttpStatusCode.BadRequest,
+            body = mapOf("message" to "user not found")
+          )
+      log.info("user: {}", order.user.toJson())
+    }
 
     if (order.serviceType == null) {
       return ResponseModel(
@@ -1117,7 +1119,10 @@ object OrderUtils {
           body = mapOf("message" to "paymentType is required")
         )
       }
-      validatePayment(order.paymentMethod, order.merchant).let { if (!it.isOk()) return it }
+      validatePayment(order.paymentMethod!!, order.merchant).let {
+        if (!it.isOk()) return it
+        order.paymentMethod = it.body as? PaymentTypeDto
+      }
     }
 
     if (order.merchant?.id == null) {
@@ -1125,27 +1130,20 @@ object OrderUtils {
         body = mapOf("message" to "merchant is required"),
         httpStatus = HttpStatusCode.BadRequest
       )
+    }
+    if (order.branch?.id == null) {
+      return ResponseModel(
+        httpStatus = HttpStatusCode.BadRequest,
+        body = mapOf("message" to "branch is required")
+      )
     } else {
-      order.merchant =
-        MerchantRepositoryImp.getMerchantById(order.merchant?.id)
+      order.branch =
+        BranchServiceImpl.get(order.branch?.id, order.merchant?.id)
           ?: return ResponseModel(
             httpStatus = HttpStatusCode.BadRequest,
-            body = mapOf("message" to "merchant not found")
+            body = mapOf("message" to "branch not found")
           )
     }
-    //    if (order.branch?.id == null) {
-    //      return ResponseModel(
-    //        httpStatus = HttpStatusCode.BadRequest,
-    //        body = mapOf("message" to "branch is required")
-    //      )
-    //    } else {
-    //      order.branch =
-    //        BranchServiceImpl.get(order.branch?.id, order.merchant?.id)
-    //          ?: return ResponseModel(
-    //            httpStatus = HttpStatusCode.BadRequest,
-    //            body = mapOf("message" to "branch not found")
-    //          )
-    //    }
 
     /*OrderService.getProductCalculate(dto = order).let {
         if (!it.isOk()) return it
@@ -1162,14 +1160,9 @@ object OrderUtils {
     payment: PaymentTypeDto,
     merchant: MerchantDto?
   ): ResponseModel {
-    if (payment.id == null) {
-      return ResponseModel(
-        body = mapOf("error" to "payment id required"),
-        httpStatus = HttpStatusCode.BadRequest
-      )
-    }
-    val paymentDto = PaymentService.isExist(merchant?.id, paymentId = payment.id)
-    return if (paymentDto) ResponseModel(httpStatus = HttpStatusCode.OK)
+    val paymentDto =
+      PaymentService.getPaymentTypeMerchantById(merchant?.id, paymentId = payment.id!!)
+    return if (paymentDto != null) ResponseModel(httpStatus = HttpStatusCode.OK, body = paymentDto)
     else
       ResponseModel(
         httpStatus = HttpStatusCode.BadRequest,

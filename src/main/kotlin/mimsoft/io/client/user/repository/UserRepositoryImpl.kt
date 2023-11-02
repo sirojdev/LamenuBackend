@@ -311,6 +311,32 @@ object UserRepositoryImpl : UserRepository {
       }
     }
   }
+   suspend fun getUserShortInfo(id: Long?): UserDto? {
+    val query =
+      """
+            select u.*
+            from users u
+            where u.id = $id
+              and not u.deleted
+        """
+        .trimIndent()
+    log.info("query: $query")
+    return withContext(DBManager.databaseDispatcher) {
+      DBManager.connection().use { it ->
+        val rs = it.prepareStatement(query).executeQuery()
+        if (rs.next()) {
+          UserDto(
+            id = rs.getLong("id"),
+            firstName = rs.getString("first_name"),
+            phone = rs.getString("phone"),
+            lastName = rs.getString("last_name"),
+            image = rs.getString("image"),
+            merchantId = rs.getLong("merchant_id")
+          )
+        } else null
+      }
+    }
+  }
 
   override suspend fun get(phone: String?, merchantId: Long?): UserDto? {
     return DBManager.getPageData(
