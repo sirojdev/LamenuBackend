@@ -13,29 +13,9 @@ import mimsoft.io.utils.principal.BasePrincipal
 object ClientProfileService {
   suspend fun updateImage(base64: String, principal: BasePrincipal?): ResponseModel {
     val client = UserRepositoryImpl.get(principal?.userId, principal?.merchantId)
-    var extension = ""
-    val startImage: String =
-      when (true) {
-        base64.startsWith("data:image/png;base64,") -> {
-          extension = "png"
-          "data:image/png;base64,"
-        }
-        base64.startsWith("data:image/jpeg;base64,") -> {
-          extension = "jpeg"
-          "data:image/jpeg;base64,"
-        }
-        base64.startsWith("data:image/jpg;base64,") -> {
-          extension = "jpg"
-          "data:image/jpg;base64,"
-        }
-        else -> {
-          return ResponseModel(httpStatus = HttpStatusCode.BadRequest)
-        }
-      }
-    val base64EncodedImage = base64.removePrefix(startImage)
-    val decodedImage = Base64.getDecoder().decode(base64EncodedImage)
     return try {
-      val imageName = FilesService.uploadFile(decodedImage, "images", extension)
+      val decodedImage = Base64.getDecoder().decode(base64)
+      val imageName = FilesService.uploadFile(decodedImage, "images", "png")
       if (imageName == null) ResponseModel(httpStatus = HttpStatusCode.UnsupportedMediaType)
       else {
         if (client?.image != null) {
