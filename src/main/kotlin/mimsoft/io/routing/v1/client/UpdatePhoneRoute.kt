@@ -32,8 +32,10 @@ fun Route.updatePhoneRoute() {
         else -> call.respond(HttpStatusCode.BadRequest)
       }
     } else {
-      userRepository.updatePhone(principal?.userId, principal?.phone)
-      call.respond(HttpStatusCode.OK)
+      val rs = userRepository.updatePhone(principal?.userId, principal?.phone)
+      if (rs)call.respond(HttpStatusCode.OK)
+      else call.respond(HttpStatusCode.NotFound)
+
     }
   }
 }

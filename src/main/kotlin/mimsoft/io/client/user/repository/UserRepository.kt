@@ -23,5 +23,8 @@ interface UserRepository {
   suspend fun get(id: Long?, merchantId: Long? = null): UserDto?
 
   suspend fun get(phone: String?, merchantId: Long?): UserDto?
-  suspend fun updatePhone(userId: Long?, phone: String?)
+
+  suspend fun updatePhone(userId: Long?, phone: String?): Boolean
+
+  suspend fun updateImage(imageName: String, userId: Long?): Boolean
 }
