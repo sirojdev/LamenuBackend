@@ -14,6 +14,7 @@ import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepository
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.sms.SmsService
+import mimsoft.io.files.FilesService
 import mimsoft.io.rsa.Generator
 import mimsoft.io.services.sms.SmsSenderService
 import mimsoft.io.session.SessionRepository
@@ -82,10 +83,22 @@ fun Route.routeToClientProfile() {
       userRepository.delete(id = pr?.userId, merchantId = pr?.merchantId)
       call.respond(HttpStatusCode.OK)
     }
-    post("image") {
-      val base64 = call.receiveText()
+    delete("image") {
       val principal = call.principal<BasePrincipal>()
-      val rs = ClientProfileService.updateImage(base64, principal)
+      val user = userRepository.get(principal?.userId, principal?.merchantId)
+      userRepository.updateImage(null,principal?.userId)
+      if (user?.image != null) FilesService.deleteFile(user.image)
+      call.respond(HttpStatusCode.OK)
+    }
+
+    post("image") {
+      val user = call.receive<UserDto>()
+      val principal = call.principal<BasePrincipal>()
+      if (user.image == null) {
+        call.respond(HttpStatusCode.BadRequest)
+        return@post
+      }
+      val rs = ClientProfileService.updateImage(user.image, principal)
       if (rs.httpStatus == HttpStatusCode.OK) {
         call.respond(rs.body)
       } else {

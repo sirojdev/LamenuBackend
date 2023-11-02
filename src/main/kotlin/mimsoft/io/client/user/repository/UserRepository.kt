@@ -26,5 +26,5 @@ interface UserRepository {
 
   suspend fun updatePhone(userId: Long?, phone: String?): Boolean
 
-  suspend fun updateImage(imageName: String, userId: Long?): Boolean
+  suspend fun updateImage(imageName: String?, userId: Long?): Boolean
 }

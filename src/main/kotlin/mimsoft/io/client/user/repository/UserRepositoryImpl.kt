@@ -340,7 +340,7 @@ object UserRepositoryImpl : UserRepository {
     return res
   }
 
-  override suspend fun updateImage(imageName: String, userId: Long?): Boolean {
+  override suspend fun updateImage(imageName: String?, userId: Long?): Boolean {
     val query =
       """
         update users set image = ? where id = $userId
