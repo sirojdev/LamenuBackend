@@ -16,6 +16,8 @@ build:
     stage: build
     before_script:
         - git clean -ffdx
+        - chmod +x gradlew
+        - export JAVA_HOME="/usr/lib/jvm/java-18-openjdk-amd64/bin"
         - ./gradlew -v
     only:
         - branches
