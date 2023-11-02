@@ -21,7 +21,7 @@ fun Route.routeToUserUser() {
     val merchantId = principal?.merchantId
     val search = call.parameters["search"]
     val filters = call.parameters["filters"]
-    val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 20, 50)
+    val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
     val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
     val users =
       userRepository.getAll(
@@ -29,7 +29,7 @@ fun Route.routeToUserUser() {
         search = search,
         filters = filters,
         limit = limit,
-        offset = offset
+        offset = offset,
       )
     if (users.data?.isNotEmpty() == true) {
       call.respond(users)
@@ -58,7 +58,7 @@ fun Route.routeToUserUser() {
     val merchantId = principal?.merchantId
     val user = call.receive<UserDto>()
     val status = userRepository.update(user.copy(merchantId = merchantId))
-    if (status) call.respond(status)
+    if (status is UserDto) call.respond(status)
     call.respond(HttpStatusCode.NoContent)
   }
 

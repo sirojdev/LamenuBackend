@@ -40,7 +40,7 @@ fun Route.routeToUser() {
       val status = userRepository.add(user)
       println("status: $status")
 
-      call.respond(status.httpStatus, status.body)
+      call.respond(status.httpStatus, status.body ?: status.httpStatus.description)
     } catch (e: Exception) {
       e.printStackTrace()
       call.respond(HttpStatusCode.BadRequest)
@@ -49,8 +49,7 @@ fun Route.routeToUser() {
 
   put("user") {
     val user = call.receive<UserDto>()
-    val status = userRepository.update(user)
-    call.respond(status)
+    call.respond(userRepository.update(user))
   }
 
   delete("user/{id}") {

@@ -1111,7 +1111,7 @@ object OrderUtils {
         if (!it.isOk()) return it
         order.address = it.body as? AddressDto
       }
-
+//      validatePayment()
       if (order.paymentMethod?.id == null) {
         return ResponseModel(
           httpStatus = HttpStatusCode.BadRequest,
@@ -1159,7 +1159,6 @@ object OrderUtils {
   }
 
   private suspend fun validateAddress(address: AddressDto?): ResponseModel {
-
     if (address?.id == null)
       return ResponseModel(
         body = mapOf("message" to "address id is required"),
