@@ -17,5 +17,4 @@ fun Application.module() = runBlocking {
   configureRouting()
   configureSocket()
   configureFirebase()
-  //    sslConfiguration()
 }
