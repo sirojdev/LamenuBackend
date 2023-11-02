@@ -1,0 +1,125 @@
+openapi: "3.0.3"
+info:
+  title: "Lamenu documentation for Users"
+  description: "Lamenu documentation allows to you view the schema of Lamenu project"
+  version: "1.0.0"
+servers:
+  - url: 'http://0.0.0.0:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+
+
+tags:
+  - name: Merchants
+    description: Endpoints related to merchants
+paths:
+
+  /admin/merchants:
+    get:
+      tags:
+        - Merchants
+      description: "Returns a list of all Merchants"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/MerchantDto"
+        "204":
+          description: "No Content"
+  /admin/merchant:
+    post:
+      tags:
+        - Merchants
+      description: "Adds a new merchant"
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MerchantDto"
+      responses:
+        "200":
+          description: "OK"
+    put:
+      tags:
+        - Merchants
+      description: "Update the merchant"
+      requestBody:
+        description: "A JSON object containing updated product information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MerchantDto"
+      responses:
+        "200":
+          description: "OK"
+  /admin/merchant/{id}:
+    get:
+      tags:
+        - Merchants
+      description: "Returns a merchant by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MerchantDto"
+        "204":
+          description: "No Content"
+        "400":
+          description: "Bad Request"
+    delete:
+      tags:
+        - Merchants
+      description: "Deletes a merchant by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
+
+
+components:
+   schemas:
+    MerchantDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        name:
+          $ref: "../merchant/merchant.yaml#/components/schemas/TextModel"
+        logo:
+          type: "string"
+        domain:
+          type: "string"
+        subdomain:
+          type: "string"
+        phone:
+          type: "string"
+        password:
+          type: "string"

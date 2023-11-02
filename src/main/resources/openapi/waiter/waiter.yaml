@@ -1,0 +1,442 @@
+openapi: 3.0.3
+info:
+  title: Waiter documentation
+  description: Waiter documentation
+  version: 1.0.0
+servers:
+  - url: 'http://127.0.0.1:9000/v1/'
+    description: 'Local server'
+  - url: 'http://188.166.167.80:9000/v1/'
+    description: "Host server"
+  - url: 'https://api.lamenu.uz/v1/'
+    description: "Domain server"
+  - url: 'https:// api-beta.lamenu.uz/v1/'
+    description: "Beta  server"
+  - url: 'https://api-dev.lamenu.uz/v1/'
+    description: "Developer server"
+  - url: 'https://api-back.lamenu.uz/v1/'
+    description: "Backend server"
+tags:
+  - name: Auth
+    description: information about profile
+  - name: Profile
+    description: information about profile
+  - name: Table
+    description: get tables courier's
+
+
+paths:
+
+
+  /waiter/device:
+    post:
+      tags:
+        - Auth
+      description: "Get device token"
+      parameters:
+        - name: "appKey"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      requestBody:
+        description: "appKey,brand,model,build,osVersion,uuid required"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                uuid:
+                  type: string
+                brand:
+                  type: string
+                build:
+                  type: string
+                model:
+                  type: string
+                phone:
+                  type: string
+                osVersion:
+                  type: string
+                firebaseToken:
+                  type: string
+
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/DeviceModel"
+        "204":
+          description: "No Content"
+  /waiter/auth:
+    post:
+      tags:
+        - Auth
+      description: "Auth waiter sign in"
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: "A JSON object receive with sign up"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: "string"
+                password:
+                  type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "string"
+        "204":
+          description: "No Content"
+
+  /waiter/profile:
+    get:
+      tags:
+        - Profile
+      security:
+        - bearerAuth: [ ]
+      description: "Get profile info"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WaiterInfoDto"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+  /waiter/firebase:
+    post:
+      tags:
+        - Profile
+      security:
+        - bearerAuth: [ ]
+      description: "Get profile device model"
+      parameters:
+        - name: "firebaseToken"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceModel"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+
+  /waiter/update:
+    patch:
+      tags:
+        - Profile
+      requestBody:
+        description: "receive staff dto"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffDto"
+      security:
+        - bearerAuth: [ ]
+      description: "update profile info"
+      responses:
+        "200":
+          description: "OK"
+        "404":
+          description: "Not found"
+        "401":
+          description: "Unauthorized"
+
+  /waiter/table/join:
+    put:
+      tags:
+        - Table
+      description: if table join other waiter ,tableId not found ,waiter deleted all ==>405
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "tableId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WaiterTableDto"
+        "405":
+          description: "Method not allowed"
+
+  /waiter/table/finish:
+    put:
+      tags:
+        - Table
+      description: if table join other waiter ,tableId not found ,waiter deleted all ==>405
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "tableId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "long"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "404":
+          description: "Not found"
+
+  /waiter/table/active:
+    get:
+      tags:
+        - Table
+      description: Get active tables waiter's
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataPage"
+        "204":
+          description: "No content"
+
+  /waiter/table/finished:
+    get:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Table
+      description: get all finished tables
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataPage"
+        "204":
+          description: "No content"
+
+
+
+#//==================================================================================================SCHEMAS
+components:
+  schemas:
+
+
+    TextModel:
+      type: "object"
+      properties:
+        uz:
+          type: "string"
+        ru:
+          type: "string"
+        eng:
+          type: "string"
+
+    DeviceModel:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        uuid:
+          type: "string"
+        osVersion:
+          type: "string"
+        model:
+          type: "string"
+        brand:
+          type: "string"
+        build:
+          type: "string"
+        firebaseToken:
+          type: "string"
+        ip:
+          type: "string"
+        token:
+          type: "string"
+        blockedUntil:
+          type: "string"
+          format: "date-time"
+        code:
+          type: "string"
+        action:
+          type: "string"
+        expAction:
+          type: "boolean"
+        phone:
+          type: "string"
+
+    BranchDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          $ref: "#/components/schemas/TextModel"
+
+    StaffDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        token:
+          type: "string"
+        image:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        phone:
+          type: "string"
+        position:
+          type: string
+        gender:
+          type: string
+
+    WaiterInfoDto:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "long"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        gender:
+          type: "string"
+        image:
+          type: "string"
+        birthDay:
+          type: "string"
+          format: "yyyy-MM-dd"
+        type:
+          type: string
+        phone:
+          type: string
+        balance:
+          type: integer
+          format: "double"
+
+    DataPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WaiterTableDto"
+        total:
+          type: integer
+          format: "long"
+
+
+
+
+
+
+
+
+
+    WaiterTableDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        waiterId:
+          type: integer
+          format: "long"
+        tableId:
+          type: integer
+          format: "long"
+        joinTime:
+          type: string
+          format: date-time
+        finishTime:
+          type: string
+          format: date-time
+          description: The timestamp when the waiter finished serving the table
+        table:
+          $ref: "#/components/schemas/TableDto"
+
+    RoomDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: "long"
+        name:
+          type: string
+        branchId:
+          type: integer
+        merchantId:
+          type: integer
+
+    TableDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        qr:
+          type: string
+        name:
+          type: string
+        room:
+          $ref: "#/components/schemas/RoomDto"
+        branch:
+          $ref: "#/components/schemas/BranchDto"
+        merchantId:
+          type: integer
+          description: The ID of the merchant associated with the table
+
+
+
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

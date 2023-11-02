@@ -1,0 +1,49 @@
+stages:
+    - build
+    - deploy
+
+variables:
+    DOCKER_DRIVER: overlay2 # not sure if this is needed
+    DOCKER_TLS_CERTDIR: "/certs"
+
+before_script:
+    - GRADLE_USER_HOME="$(pwd)/.gradle"
+    - export GRADLE_USER_HOME
+    - export JAVA_HOME="/usr/lib/jvm/java-18-openjdk-amd64"
+    - echo JAVA_HOME
+
+build:
+    stage: build
+    before_script:
+        - git clean -ffdx
+        - chmod +x gradlew
+        - export JAVA_HOME="/usr/lib/jvm/java-18-openjdk-amd64"
+        - ./gradlew -v
+    only:
+        - branches
+    except:
+        - master
+    tags:
+        - stage
+    script:
+        - ./gradlew -v
+        - ./gradlew clean build -x test
+
+deploy:
+    stage: deploy
+    image: docker:latest
+    rules:
+        - if: '$CI_COMMIT_REF_NAME == "main"'
+          changes:
+              - makefile
+              - docker-compose-stage.yml
+          when: never
+        - if: '$CI_COMMIT_REF_NAME == "main"'
+          when: on_success
+    tags:
+        - stage
+    script:
+        - /opt/gradle/gradle-7.5.1/bin/gradle clean buildFatJar -x test
+        - docker-compose down
+        - sleep 30
+        - docker-compose up -d
