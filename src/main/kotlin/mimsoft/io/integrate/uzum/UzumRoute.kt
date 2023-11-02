@@ -7,7 +7,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
-import mimsoft.io.integrate.payme.PaymeService
 import mimsoft.io.integrate.uzum.module.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

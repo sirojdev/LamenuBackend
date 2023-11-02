@@ -31,6 +31,6 @@ fun Route.routeToClientOrderInfo() {
       return@get
     }
     val order = orderService.getById(id = id)
-    call.respond(order?:HttpStatusCode.NotFound)
+    call.respond(order ?: HttpStatusCode.NotFound)
   }
 }

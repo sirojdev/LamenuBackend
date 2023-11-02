@@ -1,19 +1,45 @@
 stages:
     - build
-    - test
     - deploy
 
-build job:
-    stage: build 
-    script:
-        - echo "This is a first Demo build job"
+variables:
+    DOCKER_DRIVER: overlay2 # not sure if this is needed
+    DOCKER_TLS_CERTDIR: "/certs"
 
-test job:
-    stage: test
-    script:
-        - echo "This is a first Demo test job"
+before_script:
+    - GRADLE_USER_HOME="$(pwd)/.gradle"
+    - export GRADLE_USER_HOME
 
-deploy job:
+build:
+    stage: build
+    before_script:
+        - git clean -ffdx
+        - gradle -v
+    only:
+        - branches
+    except:
+        - master
+    tags:
+        - stage
+    script:
+        - gradle -v
+        - gradle clean build
+
+deploy:
     stage: deploy
+    image: docker:latest
+    rules:
+        - if: '$CI_COMMIT_REF_NAME == "main"'
+          changes:
+              - makefile
+              - docker-compose-stage.yml
+          when: never
+        - if: '$CI_COMMIT_REF_NAME == "main"'
+          when: on_success
+    tags:
+        - stage
     script:
-        - echo "This is a first Demo deploy job"
+        - gradle clean buildFatJar -x test
+        - docker-compose down
+        - sleep 30
+        - docker-compose up -d
