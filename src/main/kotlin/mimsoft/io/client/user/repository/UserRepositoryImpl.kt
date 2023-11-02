@@ -223,8 +223,7 @@ object UserRepositoryImpl : UserRepository {
             .apply {
               this.setString(1, userDto.firstName)
               this.setString(2, userDto.lastName)
-              this.setString(3, userDto.image)
-              this.setTimestamp(4, userDto.birthDay)
+              this.setTimestamp(3, userDto.birthDay)
               this.closeOnCompletion()
             }
             .executeUpdate()

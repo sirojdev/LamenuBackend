@@ -86,14 +86,16 @@ object VisitService {
               status = CheckStatus.valueOf(rs.getString("status")),
               price = rs.getDouble("price"),
               clientCount = rs.getInt("client_count"),
-              branch = BranchDto(
-                id = rs.getLong("branch_id"),
-                name = TextModel(
-                  uz = rs.getString("name_uz"),
-                  ru = rs.getString("name_ru"),
-                  eng = rs.getString("name_eng")
+              branch =
+                BranchDto(
+                  id = rs.getLong("branch_id"),
+                  name =
+                    TextModel(
+                      uz = rs.getString("name_uz"),
+                      ru = rs.getString("name_ru"),
+                      eng = rs.getString("name_eng")
+                    )
                 )
-              )
             )
           if (rs.getString("orders") != null) {
             val sizes = rs.getString("orders")

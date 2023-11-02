@@ -180,15 +180,15 @@ object PaymentService {
     }
   }
 
-  suspend fun isExist(merchantId: Long?,paymentId:Long): Boolean {
+  suspend fun isExist(merchantId: Long?, paymentId: Long): Boolean {
     val query =
       "select " +
-        "pt.id pt_id "  +
+        "pt.id pt_id " +
         "from payment_integration pi \n" +
         "inner join payment_type pt on pi.payment_type_id = pt.id \n" +
         "where merchant_id = $merchantId \n" +
         "  and pi.deleted = false and payment_type_id = $paymentId order by payment_type_id "
-    var result =false
+    var result = false
     withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
