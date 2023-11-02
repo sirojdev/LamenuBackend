@@ -101,7 +101,7 @@ object CategoryGroupService {
     }
   }
 
-  suspend fun getClient(merchantId: Long?): List<CategoryGroupDto> {
+  suspend fun getCategoryByGroupForClient(merchantId: Long?): List<CategoryGroupDto> {
     val query =
       """
             SELECT cg.id,

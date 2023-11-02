@@ -66,7 +66,7 @@ class CategoryGroupServiceTest {
   @Test
   fun getClient() = testApplication {
     val merchantId: Long = 1
-    val response = categoryGroupService.getClient(merchantId)
+    val response = categoryGroupService.getCategoryByGroupForClient(merchantId)
     if (response.isEmpty()) assertNotNull(response)
   }
 

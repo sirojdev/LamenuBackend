@@ -171,6 +171,20 @@ fun Application.configureSecurity() {
         } else null
       }
     }
+    jwt("update-phone") {
+      realm = JwtConfig.issuer
+      verifier(JwtConfig.verifierUpdatePhone)
+      validate { cr ->
+        val merchantId = cr.payload.getClaim("merchantId").asLong()
+        val phone = cr.payload.getClaim("phone").asString()
+        val userId = cr.payload.getClaim("userId").asLong()
+        val uuid = cr.payload.getClaim("uuid").asString()
+        val hash = cr.payload.getClaim("hash").asLong()
+        if (merchantId != null && uuid != null && hash != null) {
+          BasePrincipal(merchantId = merchantId, uuid = uuid, userId = userId, phone = phone, hash = hash)
+        } else null
+      }
+    }
 
     jwt("admin") {
       realm = JwtConfig.issuer
