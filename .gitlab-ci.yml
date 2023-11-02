@@ -22,7 +22,7 @@ build:
     only:
         - branches
     except:
-        - master
+        - main
     tags:
         - stage
     script:
@@ -32,6 +32,9 @@ build:
 deploy:
     stage: deploy
     image: docker:latest
+    before_script:
+        - export JAVA_HOME="/usr/lib/jvm/java-18-openjdk-amd64"
+        - chmod +x gradlew
     rules:
         - if: '$CI_COMMIT_REF_NAME == "main"'
           changes:
@@ -43,7 +46,7 @@ deploy:
     tags:
         - stage
     script:
-        - /opt/gradle/gradle-7.5.1/bin/gradle clean buildFatJar -x test
+        - ./gradlew clean buildFatJar -x test
         - docker-compose down
         - sleep 30
         - docker-compose up -d
