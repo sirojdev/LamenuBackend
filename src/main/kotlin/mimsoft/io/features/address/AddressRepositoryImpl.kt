@@ -17,11 +17,7 @@ object AddressRepositoryImpl : AddressRepository {
 
     val data =
       repository
-        .getPageData(
-          dataClass = AddressTable::class,
-          where = where,
-          tableName = ADDRESS_TABLE_NAME
-        )
+        .getPageData(dataClass = AddressTable::class, where = where, tableName = ADDRESS_TABLE_NAME)
         ?.data
     return data?.map { mapper.toAddressDto(it) } ?: emptyList()
   }

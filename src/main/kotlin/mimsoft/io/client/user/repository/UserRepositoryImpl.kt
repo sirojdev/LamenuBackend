@@ -311,7 +311,8 @@ object UserRepositoryImpl : UserRepository {
       }
     }
   }
-   suspend fun getUserShortInfo(id: Long?): UserDto? {
+
+  suspend fun getUserShortInfo(id: Long?): UserDto? {
     val query =
       """
             select u.*

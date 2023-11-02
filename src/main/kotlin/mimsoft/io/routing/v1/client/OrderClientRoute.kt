@@ -71,7 +71,8 @@ fun Route.routeToClientOrder() {
       orderService.post(
         order.copy(user = UserDto(id = userId), merchant = MerchantDto(id = merchantId))
       )
-    if (status.httpStatus== HttpStatusCode.OK)OperatorSocketService.sendOrdersToOperators(status.body as Order)
+    if (status.httpStatus == HttpStatusCode.OK)
+      OperatorSocketService.sendOrdersToOperators(status.body as Order)
     call.respond(status.httpStatus, status.body)
   }
 

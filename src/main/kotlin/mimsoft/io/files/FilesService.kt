@@ -7,7 +7,6 @@ import java.util.*
 
 object FilesService {
 
-
   private const val PATH = "/var/www/html/files"
   private const val template = "yyyy-MM-dd-HH-mm-ss-SSSSSSSSS"
 
@@ -43,7 +42,8 @@ object FilesService {
     }
     return true
   }
-  suspend fun uploadFile(fileData: ByteArray, type: String = "images",extension:String): String? {
+
+  suspend fun uploadFile(fileData: ByteArray, type: String = "images", extension: String): String? {
     if (fileData.isEmpty()) {
       return null
     }
@@ -62,5 +62,4 @@ object FilesService {
       null
     }
   }
-
 }
