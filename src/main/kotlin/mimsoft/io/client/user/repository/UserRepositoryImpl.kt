@@ -206,7 +206,6 @@ object UserRepositoryImpl : UserRepository {
             update users u 
             set first_name = coalesce(?,u.first_name),
                 last_name  = coalesce(?,u.last_name),
-                image      = coalesce(?,u.image),
                 birth_day  = coalesce(?,u.birth_day),
                 badge_id   = coalesce(${userDto.badge?.id},u.badge_id),
                 updated    = now()
@@ -214,7 +213,7 @@ object UserRepositoryImpl : UserRepository {
               and id = ${userDto.id}
         """
         .trimIndent()
-    var rs: Int?
+    var rs: Int
     log.info("query: $query")
     withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
