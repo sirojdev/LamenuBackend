@@ -1116,7 +1116,7 @@ object OrderUtils {
           body = mapOf("message" to "paymentType is required")
         )
       }
-//      validatePayment(order.paymentMethod, order.merchant).let { if (!it.isOk()) return it }
+      validatePayment(order.paymentMethod, order.merchant).let { if (!it.isOk()) return it }
     }
 
     if (order.merchant?.id == null) {
