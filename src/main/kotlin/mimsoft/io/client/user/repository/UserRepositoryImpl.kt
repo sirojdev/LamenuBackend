@@ -26,25 +26,32 @@ object UserRepositoryImpl : UserRepository {
     limit: Int?,
     offset: Int?
   ): DataPage<UserDto> {
-    var totalCount: Int? = null
-    val tName = USER_TABLE_NAME
+    var totalCount = 0L
     val query = StringBuilder()
     val filter = filters?.uppercase()
     query.append(
       """
-                select u.*,
+                select count(*) over() as total, 
+                       u.*,
                        b.name_uz    b_name_uz,
                        b.name_ru    b_name_ru,
                        b.name_eng   b_name_eng,
                        b.icon       b_icon,
                        b.bg_color   bg_color,
                        b.text_color bt_color,
-                       count(v.id)  visit_count
+                       o.all_orders  orders,
+                       v.all_visits  visits
                 from users u
-                         left join visit v on v.user_id = u.id
+                         left join (select user_id, count(id) all_orders
+                                    from orders
+                                    where not deleted
+                                    group by user_id) as o on o.user_id = u.id
+                         left join (select user_id, count(id) all_visits
+                                    from visit
+                                    where not deleted
+                                    group by user_id) as v on v.user_id = u.id
                          left join badge b on b.id = u.badge_id
-                where u.merchant_id = $merchantId
-                  and not u.deleted
+                where u.merchant_id = $merchantId and not u.deleted
             """
         .trimIndent()
     )
@@ -52,16 +59,6 @@ object UserRepositoryImpl : UserRepository {
       val s = search.lowercase()
       query.append(" and lower(concat(u.first_name, u.last_name, u.phone)) like '%$s%'")
     }
-    query.append(
-      """
-            group by v.user_id, u.id, phone, first_name, u.last_name, u.image,
-         u.birth_day, u.created, u.updated, u.deleted, u.badge_id,
-         u.merchant_id, balance, b.name_uz, b.name_ru, b.name_eng,
-         b.icon, b.bg_color,
-         b.text_color
-        """
-        .trimIndent()
-    )
     if (filter != null) {
       when (filter) {
         UserFilters.NAME.name -> {
@@ -81,6 +78,7 @@ object UserRepositoryImpl : UserRepository {
     log.info("query: $query")
     val mutableList = mutableListOf<UserDto>()
     repository.selectList(query.toString()).forEach {
+      totalCount = it["total"] as Long
       mutableList.add(
         UserDto(
           id = it["id"] as? Long,
@@ -89,8 +87,9 @@ object UserRepositoryImpl : UserRepository {
           lastName = it["last_name"] as? String,
           image = it["image"] as? String,
           birthDay = it["birth_day"] as? Timestamp,
-          cashbackBalance = it["cash_balance"] as? Double,
-          visitCount = it["visit_count"] as? Int,
+          cashbackBalance = it["balance"] as? Double,
+          visitCount = it["visits"] as? Long,
+          orderCount = it["orders"] as? Long,
           badge =
             BadgeDto(
               name =
@@ -106,7 +105,7 @@ object UserRepositoryImpl : UserRepository {
         )
       )
     }
-    return DataPage(data = mutableList, total = mutableList.size)
+    return DataPage(data = mutableList, total = totalCount.toInt())
   }
 
   suspend fun getUserWithBadge(phone: String?, merchantId: Long?): UserDto? {
@@ -199,19 +198,19 @@ object UserRepositoryImpl : UserRepository {
     )
   }
 
-  override suspend fun update(userDto: UserDto): ResponseModel {
-    when {
+  override suspend fun update(userDto: UserDto): Boolean {
+    /*when {
       userDto.phone == null -> return ResponseModel(httpStatus = ResponseModel.PHONE_NULL)
       userDto.firstName == null -> return ResponseModel(httpStatus = ResponseModel.FIRSTNAME_NULL)
-    }
+    }*/
     var query =
       """
-            update users
-            set first_name = ?,
-                last_name  = ?,
-                image      = ?,
-                birth_day  = ?,
-                phone      = ?,
+            update users u
+            set first_name = coalesce(?, u.first_name),
+                last_name  = coalesce(?, u.last_name),
+                image      = coalesce(?, u.image),
+                birth_day  = coalesce(?, u.birth_day),
+                phone      = coalesce(?, u.phone),
                 badge_id   = ${userDto.badge?.id},
                 updated    = ?
             where not deleted
@@ -223,7 +222,7 @@ object UserRepositoryImpl : UserRepository {
       query += " and merchant_id = ${userDto.merchantId}"
     }
     log.info("query: $query")
-    withContext(DBManager.databaseDispatcher) {
+    return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         var x = 0
         rs =
@@ -239,9 +238,9 @@ object UserRepositoryImpl : UserRepository {
               this.closeOnCompletion()
             }
             .executeUpdate()
+        return@withContext rs != 0
       }
     }
-    return ResponseModel(body = rs == 1)
   }
 
   suspend fun addNewClientFromWaiter(phone: String, mId: Long): Long? {
@@ -283,9 +282,14 @@ object UserRepositoryImpl : UserRepository {
                    b.name_eng   b_name_eng,
                    b.text_color bt_color,
                    b.bg_color   bg_color,
-                   b.icon       b_icon
+                   b.icon       b_icon,
+                   o.all_orders  orders
             from users u
                      left join badge b on b.id = u.badge_id
+                     left join (select user_id, count(id) all_orders
+                                    from orders
+                                    where not deleted
+                                    group by user_id) as o on o.user_id = u.id
             where u.id = $id
               and not u.deleted
         """
@@ -316,7 +320,8 @@ object UserRepositoryImpl : UserRepository {
             lastName = rs.getString("last_name"),
             image = rs.getString("image"),
             birthDay = rs.getTimestamp("birth_day"),
-            merchantId = rs.getLong("merchant_id")
+            merchantId = rs.getLong("merchant_id"),
+            orderCount = rs.getLong("orders"),
           )
         } else null
       }

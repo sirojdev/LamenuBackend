@@ -121,6 +121,82 @@ object OrderService {
       """
             insert into orders (user_id, user_phone, products, status, 
             add_lat, add_long, add_desc, created_at, service_type,
+            comment, merchant_id, courier_id, collector_id, payment_type,   
+            product_count, total_price, branch_id)
+            values (${validOrder.user?.id}, ${validOrder.user?.phone}, ?, ?, 
+            ${validOrder.address?.latitude}, ${validOrder.address?.longitude},
+            ?, ?, ?, ?, ${validOrder.merchant?.id}, ${validOrder.courier?.id}, 
+            ${validOrder.collector?.id}, ${validOrder.paymentMethod?.id},
+            ${validOrder.productCount}, ${validOrder.totalPrice}, ${validOrder.branch?.id})
+            """
+        .trimIndent()
+    log.info("insert query {}", query)
+    val responseModel: ResponseModel = ResponseModel(order)
+    val result =
+      repository.insert(
+        query = query,
+        mapOf(
+          1 to validOrder.products.toJson(),
+          2 to validOrder.status?.name,
+          3 to validOrder.address?.description,
+          4 to Timestamp(System.currentTimeMillis()),
+          5 to validOrder.serviceType?.name,
+          6 to validOrder.comment
+        )
+      )
+    println("insert result : $result")
+    result.let {
+      if (it == null)
+        return ResponseModel(
+          httpStatus = HttpStatusCode.BadRequest,
+          body = mapOf("message" to "something went wrong")
+        )
+
+      //
+      //        JoinPosterService.sendOrder(validOrder).let { poster ->
+      //          responseModel = if (!poster.isOk()) poster else ResponseModel(body = parse(it))
+      //        }
+      //        val fullOrder =
+      //          getById((responseModel.body as Order).id, "user", "branch", "products", "address")
+      //        fullOrder?.let { it1 ->
+      //          JowiService.createOrder(
+      //            it1.copy(
+      //              totalPrice = order.totalPrice,
+      //              totalDiscount = order.totalDiscount,
+      //              productPrice = order.productPrice,
+      //              productDiscount = order.totalDiscount
+      //            )
+      //          )
+      //        }
+      //        val orderId = it["id"] as Long
+      //        val totalPrice = validOrder.totalPrice?.times(100)?.toInt()
+      //        val checkoutLink =
+      //          if (order.paymentMethod?.id == PAYME && totalPrice != null) {
+      //            PaymeService.getCheckout(
+      //                orderId = orderId,
+      //                amount = totalPrice,
+      //                merchantId = validOrder.merchant?.id
+      //              )
+      //              .link
+      //          } else ""
+      //        (responseModel.body as Order).checkoutLink = checkoutLink
+
+      return ResponseModel(body = order.copy(id = it["id"] as Long))
+    }
+  }
+
+  /*suspend fun post(order: Order): ResponseModel {
+    val response = validate(order)
+
+    if (!response.isOk()) return response
+    val validOrder = response.body as Order
+
+    log.info("validate order {}", validOrder.toJson())
+
+    val query =
+      """
+            insert into orders (user_id, user_phone, products, status, 
+            add_lat, add_long, add_desc, created_at, service_type,
             comment, merchant_id, courier_id, collector_id, payment_type,
             product_count, total_price, branch_id)
             values (${validOrder.user?.id}, ${validOrder.user?.phone}, ?, ?, 
@@ -183,7 +259,7 @@ object OrderService {
 //        (responseModel.body as Order).checkoutLink = checkoutLink
         return responseModel
       }
-  }
+  }*/
 
   suspend fun delete(id: Long?): ResponseModel {
     val order = get(id).body as Order

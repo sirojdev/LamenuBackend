@@ -88,6 +88,60 @@ object StaffService {
       }
   }
 
+  suspend fun authOperator(staff: StaffDto?): String? {
+    LOGGER.info("auth: $staff")
+    when {
+      staff?.password == null -> {
+        return null
+      }
+      staff.phone == null -> {
+        return null
+      }
+    }
+
+    repository
+      .selectOne(
+        query =
+          "select * from $STAFF_TABLE_NAME where phone = '${staff?.phone}' and password = ? and deleted = false",
+        args = mapOf(1 to staff?.password)
+      )
+      .let {
+        if (it == null) {
+          return null
+        } else {
+          val uuid = SessionRepository.generateUuid()
+          val staffDto =
+            StaffDto(
+              id = it["id"] as? Long,
+              merchantId = it["merchant_id"] as? Long,
+              position = StaffPosition.valueOf((it["position"] as? String).toString()),
+              phone = it["phone"] as String,
+              password = it["password"] as? String,
+              firstName = it["first_name"] as? String,
+              lastName = it["last_name"] as? String,
+              birthDay = it["birth_day"].toString(),
+              image = it["image"] as? String,
+              comment = it["comment"] as? String,
+              status = it["status"] as? Boolean
+            )
+
+          log.info("staffDto: $staffDto")
+
+          SessionRepository.add(
+            SessionTable(
+              uuid = uuid,
+              merchantId = staffDto.merchantId,
+              phone = staffDto.phone,
+              stuffId = staffDto.id,
+              role = "OPERATOR",
+              isExpired = false
+            )
+          )
+          return JwtConfig.generateOperatorToken(staffDto.merchantId, uuid, staffDto.id)
+        }
+      }
+  }
+
   suspend fun getAll(merchantId: Long?, branchId: Long?): List<StaffDto?> {
     val query =
       "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and branch_id = $branchId and deleted = false"

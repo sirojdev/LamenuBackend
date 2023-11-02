@@ -17,6 +17,7 @@ import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.staff.StaffPrincipal
 import mimsoft.io.features.staff.StaffService
 import mimsoft.io.features.staff.routeToCollector
+import mimsoft.io.operator.client.routeToOperatorClientRoute
 import mimsoft.io.routing.merchant.routeToUserUser
 import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
@@ -29,11 +30,14 @@ fun Route.routeToOperator() {
     post("auth") {
       val staff = call.receive<StaffDto>()
 
-      StaffService.auth(staff).let {
-        log.info("auth: $it")
-        call.respond(it.httpStatus, it.body)
+      val response = StaffService.authOperator(staff)
+      if (response == null) {
+        call.respond(HttpStatusCode.BadRequest)
+        return@post
       }
+      call.respond(response)
     }
+
     authenticate("operator") {
       route("profile") {
         get {
@@ -68,6 +72,7 @@ fun Route.routeToOperator() {
       routeToOrderOperator()
       routeToCourier()
       routeToCollector()
+      routeToOperatorClientRoute()
     }
   }
 }

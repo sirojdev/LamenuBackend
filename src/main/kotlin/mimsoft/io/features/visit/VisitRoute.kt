@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.utils.plugins.getPrincipal
 
 fun Route.routeToVisits() {
@@ -26,7 +27,7 @@ fun Route.routeToVisits() {
       val merchantId = pr?.merchantId
       val branchId = pr?.branchId
       val visit = call.receive<VisitDto>()
-      val id = visitService.add(visit.copy(merchantId = merchantId, branchId = branchId))
+      val id = visitService.add(visit.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
       if (id == null) {
         call.respond(HttpStatusCode.Conflict)
         return@post
@@ -54,7 +55,7 @@ fun Route.routeToVisits() {
       val merchantId = pr?.merchantId
       val branchId = pr?.branchId
       val visit = call.receive<VisitDto>()
-      val response = visitService.update(visit.copy(merchantId = merchantId, branchId = branchId))
+      val response = visitService.update(visit.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
       call.respond(response)
     }
 

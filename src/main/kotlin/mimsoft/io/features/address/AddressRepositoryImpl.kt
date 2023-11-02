@@ -9,12 +9,17 @@ object AddressRepositoryImpl : AddressRepository {
   private val repository: BaseRepository = DBManager
   private val mapper = AddressMapper
 
-  override suspend fun getAll(clientId: Long?): List<AddressDto?> {
+  override suspend fun getAll(clientId: Long?, merchantId: Long?): List<AddressDto?> {
+    var where = mapOf<String, Any>()
+    if (merchantId == null) {
+      where = mapOf("client_id" to clientId as Any)
+    } else where = mapOf("merchant_id" to merchantId as Any, "client_id" to clientId as Any)
+
     val data =
       repository
         .getPageData(
           dataClass = AddressTable::class,
-          where = mapOf("client_id" to clientId as Any),
+          where = where,
           tableName = ADDRESS_TABLE_NAME
         )
         ?.data
@@ -32,7 +37,9 @@ object AddressRepositoryImpl : AddressRepository {
             AddressDto(
               id = rs.getLong("id"),
               merchantId = rs.getLong("merchant_id"),
-              type = if (rs.getString("type") != null) AddressType.valueOf(rs.getString("type")) else null,
+              type =
+                if (rs.getString("type") != null) AddressType.valueOf(rs.getString("type"))
+                else null,
               name = rs.getString("name"),
               latitude = rs.getDouble("latitude"),
               longitude = rs.getDouble("longitude"),

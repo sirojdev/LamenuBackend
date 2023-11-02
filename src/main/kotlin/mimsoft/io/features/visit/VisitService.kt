@@ -6,12 +6,14 @@ import java.sql.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
+import mimsoft.io.features.branch.BranchDto
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.features.table.TableDto
 import mimsoft.io.features.visit.enums.CheckStatus
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.TextModel
 import mimsoft.io.utils.gsonToList
 
 object VisitService {
@@ -57,6 +59,54 @@ object VisitService {
     }
   }
 
+  suspend fun getByUserId(merchantId: Long?, userId: Long? = null): List<VisitDto> {
+    val query =
+      """
+            select v.*, b.name_uz, b.name_ru, b.name_eng
+            from visit v
+            left join branch b on v.branch_id = b.id
+            where v.merchant_id = $merchantId and user_id = $userId and v.deleted = false
+        """
+        .trimIndent()
+    val gson = Gson()
+    return withContext(DBManager.databaseDispatcher) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        val visitList = arrayListOf<VisitDto>()
+        while (rs.next()) {
+          val visit =
+            VisitDto(
+              id = rs.getLong("id"),
+              user = gson.fromJson(rs.getString("user_data"), UserDto::class.java),
+              waiter = gson.fromJson(rs.getString("waiter_data"), StaffDto::class.java),
+              table = gson.fromJson(rs.getString("table_data"), TableDto::class.java),
+              payment =
+                gson.fromJson(rs.getString("payment_type_data"), PaymentTypeDto::class.java),
+              time = rs.getTimestamp("time"),
+              status = CheckStatus.valueOf(rs.getString("status")),
+              price = rs.getDouble("price"),
+              clientCount = rs.getInt("client_count"),
+              branch = BranchDto(
+                id = rs.getLong("branch_id"),
+                name = TextModel(
+                  uz = rs.getString("name_uz"),
+                  ru = rs.getString("name_ru"),
+                  eng = rs.getString("name_eng")
+                )
+              )
+            )
+          if (rs.getString("orders") != null) {
+            val sizes = rs.getString("orders")
+
+            visit.copy(orders = gsonToList(sizes, CartVisitDto::class.java))
+          }
+          visitList.add(visit)
+        }
+        return@withContext visitList
+      }
+    }
+  }
+
   suspend fun add(dto: VisitDto): Long? {
     var orderId: Long? = null
     if (dto.id == null) {
@@ -66,7 +116,7 @@ object VisitService {
             (merchant_id, user_id, waiter_id, table_id, payment_type_id, time, status, price, 
             created, user_data, waiter_data, table_data, payment_type_data, branch_id) 
             values 
-            (${dto.merchantId}, ${dto.user?.id}, ${dto.waiter?.id}, ${dto.table?.id}, ${dto.payment?.id}, ?, ?, ${dto.price}, ?, ?, ?, ?, ?, ${dto.branchId}) returning id """
+            (${dto.merchantId}, ${dto.user?.id}, ${dto.waiter?.id}, ${dto.table?.id}, ${dto.payment?.id}, ?, ?, ${dto.price}, ?, ?, ?, ?, ?, ${dto.branch?.id}) returning id """
           .trimIndent()
       withContext(DBManager.databaseDispatcher) {
         repository.connection().use {
@@ -185,7 +235,7 @@ object VisitService {
                 payment_type_data = coalesce(?, v.payment_type_data)
             where id = ${dto.id}
               and merchant_id = ${dto.merchantId}
-              and branch_id = ${dto.branchId}
+              and branch_id = ${dto.branch?.id}
               and not deleted
         """
         .trimIndent()

@@ -24,7 +24,8 @@ object SmsService {
     val query = StringBuilder()
     query.append(
       """
-                select s.id           s_id,
+                      select count(*) over() as total,
+                       s.id           s_id,
                        s.time         s_time,
                        s.status       s_status,
                        s.client_count s_client_count,
@@ -41,7 +42,7 @@ object SmsService {
                         not u.deleted
                         and s.client_id = u.id
                 where not s.deleted
-                  and s.merchant_id = :merchantId
+                  and s.merchant_id = $merchantId
             """
         .trimIndent()
     )
@@ -49,8 +50,10 @@ object SmsService {
     if (filter != null && SmsFilters.TIME.name == filter) query.append(" order by s.time desc")
     if (limit != null) query.append(" limit $limit")
     if (offset != null) query.append(" offset $offset")
+    var total: Long? = null
     val mutableList = mutableListOf<SmsDto>()
     repository.selectList(query.toString()).forEach {
+      total = it["total"] as? Long
       mutableList.add(
         SmsDto(
           id = it["s_id"] as? Long,
@@ -70,8 +73,54 @@ object SmsService {
         )
       )
     }
-    return DataPage(data = mutableList, total = mutableList.size)
+    return DataPage(data = mutableList, total = total?.toInt())
   }
+
+
+  suspend fun getByClientId(
+    merchantId: Long?,
+    limit: Int? = null,
+    offset: Int? = null,
+    clientId: Long? = null
+  ): DataPage<SmsDto> {
+    val query = StringBuilder()
+    query.append(
+      """
+                      select count(*) over() as total,
+                       s.time         s_time,
+                       m.id           m_id,
+                       m.content      m_content
+                from sms s
+                         left join message m on
+                        not m.deleted
+                        and s.merchant_id = m.merchant_id
+                        and s.message_id = m.id
+                where not s.deleted
+                  and s.merchant_id = $merchantId
+                  and s.client_id = $clientId
+            """
+        .trimIndent()
+    )
+    if (limit != null) query.append(" limit $limit")
+    if (offset != null) query.append(" offset $offset")
+    var total: Long? = null
+    val mutableList = mutableListOf<SmsDto>()
+    repository.selectList(query.toString()).forEach {
+      total = it["total"] as? Long
+      mutableList.add(
+        SmsDto(
+          time = it["s_time"] as? Timestamp,
+          message =
+          MessageDto(
+            id = it["m_id"] as? Long,
+            content = it["m_content"] as? String,
+          )
+        )
+      )
+    }
+    return DataPage(data = mutableList, total = total?.toInt())
+  }
+
 
   suspend fun post(smsDto: SmsDto?): Long? {
     return repository.postData(

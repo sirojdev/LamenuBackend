@@ -50,8 +50,7 @@ fun Route.routeToUser() {
   put("user") {
     val user = call.receive<UserDto>()
     val status = userRepository.update(user)
-
-    call.respond(status.httpStatus, status)
+    call.respond(status)
   }
 
   delete("user/{id}") {
