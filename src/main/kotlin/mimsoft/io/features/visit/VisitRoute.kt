@@ -27,7 +27,8 @@ fun Route.routeToVisits() {
       val merchantId = pr?.merchantId
       val branchId = pr?.branchId
       val visit = call.receive<VisitDto>()
-      val id = visitService.add(visit.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
+      val id =
+        visitService.add(visit.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
       if (id == null) {
         call.respond(HttpStatusCode.Conflict)
         return@post
@@ -55,7 +56,8 @@ fun Route.routeToVisits() {
       val merchantId = pr?.merchantId
       val branchId = pr?.branchId
       val visit = call.receive<VisitDto>()
-      val response = visitService.update(visit.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
+      val response =
+        visitService.update(visit.copy(merchantId = merchantId, branch = BranchDto(id = branchId)))
       call.respond(response)
     }
 

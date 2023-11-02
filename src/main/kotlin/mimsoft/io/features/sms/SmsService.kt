@@ -76,7 +76,6 @@ object SmsService {
     return DataPage(data = mutableList, total = total?.toInt())
   }
 
-
   suspend fun getByClientId(
     merchantId: Long?,
     limit: Int? = null,
@@ -111,16 +110,15 @@ object SmsService {
         SmsDto(
           time = it["s_time"] as? Timestamp,
           message =
-          MessageDto(
-            id = it["m_id"] as? Long,
-            content = it["m_content"] as? String,
-          )
+            MessageDto(
+              id = it["m_id"] as? Long,
+              content = it["m_content"] as? String,
+            )
         )
       )
     }
     return DataPage(data = mutableList, total = total?.toInt())
   }
-
 
   suspend fun post(smsDto: SmsDto?): Long? {
     return repository.postData(
