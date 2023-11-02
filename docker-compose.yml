@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  lamenu:
+    container_name: lamenu
+    image: lamenu:latest
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        version: ${VERSION}
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./build/libs/lamenu-all.jar:/lamenu-all.jar

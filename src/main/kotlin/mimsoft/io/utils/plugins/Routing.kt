@@ -11,7 +11,7 @@ fun Application.configureRouting() {
     get("/") { call.respondText("Hello World!") }
 
     route("v1") {
-//      logApplicationCalls()
+      //      logApplicationCalls()
 
       routeToV1()
 
