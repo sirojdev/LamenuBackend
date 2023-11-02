@@ -102,7 +102,6 @@ object OrderService {
 
   suspend fun post(order: Order): ResponseModel {
     val response = validate(order)
-
     if (!response.isOk()) return response
     val validOrder = response.body as Order
 
@@ -122,7 +121,7 @@ object OrderService {
             """
         .trimIndent()
     log.info("insert query {}", query)
-    val responseModel: ResponseModel = ResponseModel(order)
+    val responseModel = ResponseModel(order)
     val result =
       repository.insert(
         query = query,

@@ -17,6 +17,7 @@ import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderService
 import mimsoft.io.services.socket.SocketData
 import mimsoft.io.services.socket.SocketType
+import mimsoft.io.utils.plugins.GSON
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -134,16 +135,16 @@ object OperatorSocketService {
           response.orderId == it.orderId &&
           it.time > (Timestamp(System.currentTimeMillis() - WAIT_TIME))
       }
-    if (dto != null) {
+    return if (dto != null) {
       sendOrderList.removeIf { it.courierId == staffId && response.orderId == it.orderId }
       val order =
         CourierOrderService.joinOrderToCourier(
           courierId = dto.courierId,
           orderId = dto.orderId,
         )
-      return order != null
+      order != null
     } else {
-      return false
+      false
     }
   }
 
@@ -155,6 +156,12 @@ object OperatorSocketService {
         OrderService.get(response.orderId).body as Order,
         dto.offset!! + 1
       )
+    }
+  }
+
+  suspend fun sendOrdersToOperators(order: Order) {
+    operatorConnections.forEach{
+      conn->conn.session?.send(GSON.toJson(SocketData(type = SocketType.ORDER, data = GSON.toJson(order))))
     }
   }
 }

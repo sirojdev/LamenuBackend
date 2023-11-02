@@ -10,7 +10,7 @@ fun Route.routeToCategoryByGroup() {
   route("categoryByGroup") {
     get {
       val merchantId = call.parameters["appKey"]?.toLongOrNull()
-      val response = CategoryGroupService.getClient(merchantId = merchantId)
+      val response = CategoryGroupService.getCategoryByGroupForClient(merchantId = merchantId)
       if (response.isEmpty()) {
         call.respond(HttpStatusCode.NoContent)
         return@get

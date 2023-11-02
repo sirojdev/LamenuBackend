@@ -1,5 +1,6 @@
 package mimsoft.io.routing.v1.client
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -8,6 +9,7 @@ import java.util.ArrayList
 import kotlin.math.min
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.merchant.MerchantDto
+import mimsoft.io.features.operator.socket.OperatorSocketService
 import mimsoft.io.features.order.Order
 import mimsoft.io.features.order.OrderRateModel
 import mimsoft.io.features.order.OrderService
@@ -60,7 +62,7 @@ fun Route.routeToClientOrder() {
     call.respond(order.httpStatus, order.body)
   }
 
-  post("order") {
+  post("order/create") {
     val pr = getPrincipal()
     val userId = pr?.userId
     val merchantId = pr?.merchantId
@@ -69,6 +71,7 @@ fun Route.routeToClientOrder() {
       orderService.post(
         order.copy(user = UserDto(id = userId), merchant = MerchantDto(id = merchantId))
       )
+    if (status.httpStatus== HttpStatusCode.OK)OperatorSocketService.sendOrdersToOperators(status.body as Order)
     call.respond(status.httpStatus, status.body)
   }
 
