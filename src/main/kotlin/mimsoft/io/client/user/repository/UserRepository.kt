@@ -16,7 +16,7 @@ interface UserRepository {
 
   suspend fun add(userDto: UserDto?): ResponseModel
 
-  suspend fun update(userDto: UserDto): UserDto
+  suspend fun update(userDto: UserDto): Boolean
 
   suspend fun delete(id: Long?, merchantId: Long? = null): Boolean
 
