@@ -9,12 +9,16 @@ variables:
 before_script:
     - GRADLE_USER_HOME="$(pwd)/.gradle"
     - export GRADLE_USER_HOME
+    - export JAVA_HOME="/usr/lib/jvm/java-18-openjdk-amd64"
+    - echo JAVA_HOME
 
 build:
     stage: build
     before_script:
         - git clean -ffdx
-        - gradle -v
+        - chmod +x gradlew
+        - export JAVA_HOME="/usr/lib/jvm/java-18-openjdk-amd64"
+        - ./gradlew -v
     only:
         - branches
     except:
@@ -22,8 +26,8 @@ build:
     tags:
         - stage
     script:
-        - gradle -v
-        - gradle clean build
+        - ./gradlew -v
+        - ./gradlew clean build -x test
 
 deploy:
     stage: deploy
@@ -39,7 +43,7 @@ deploy:
     tags:
         - stage
     script:
-        - gradle clean buildFatJar -x test
+        - /opt/gradle/gradle-7.5.1/bin/gradle clean buildFatJar -x test
         - docker-compose down
         - sleep 30
         - docker-compose up -d
