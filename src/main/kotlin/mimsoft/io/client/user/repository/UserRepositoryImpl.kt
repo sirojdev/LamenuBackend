@@ -229,7 +229,8 @@ object UserRepositoryImpl : UserRepository {
               this.setTimestamp(++x, userDto.birthDay)
               this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
               this.closeOnCompletion()
-            }.executeUpdate()
+            }
+            .executeUpdate()
       }
       return@withContext rs != 0
     }

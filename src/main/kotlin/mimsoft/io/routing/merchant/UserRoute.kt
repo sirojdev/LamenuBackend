@@ -58,7 +58,7 @@ fun Route.routeToUserUser() {
     val merchantId = principal?.merchantId
     val user = call.receive<UserDto>()
     val status = userRepository.update(user.copy(merchantId = merchantId))
-    if (status){
+    if (status) {
       call.respond(status)
       return@put
     }

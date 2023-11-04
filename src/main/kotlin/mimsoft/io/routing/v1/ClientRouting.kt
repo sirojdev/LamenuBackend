@@ -26,9 +26,7 @@ fun Route.routeToClient() {
     routeToPaymentTypes()
     routeToClientNews()
     routeToClientDineIn()
-    authenticate("update-phone") {
-      updatePhoneRoute()
-    }
+    authenticate("update-phone") { updatePhoneRoute() }
     authenticate("user") {
       routeToClientPromo()
       routeToClientProfile()
