@@ -1,7 +1,5 @@
 package mimsoft.io.client.user.repository
 
-import java.sql.Timestamp
-import java.util.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.*
 import mimsoft.io.config.timestampValidator
@@ -13,6 +11,7 @@ import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.sql.Timestamp
 
 object UserRepositoryImpl : UserRepository {
 
@@ -91,17 +90,17 @@ object UserRepositoryImpl : UserRepository {
           cashbackBalance = it["cash_balance"] as? Double,
           visitCount = it["visit_count"] as? Long,
           badge =
-            BadgeDto(
-              name =
-                TextModel(
-                  uz = it["b_name_uz"] as? String,
-                  ru = it["b_name_ru"] as? String,
-                  eng = it["b_name_eng"] as? String
-                ),
-              textColor = it["text_color"] as? String,
-              bgColor = it["bg_color"] as? String,
-              icon = it["b_icon"] as? String
-            )
+          BadgeDto(
+            name =
+            TextModel(
+              uz = it["b_name_uz"] as? String,
+              ru = it["b_name_ru"] as? String,
+              eng = it["b_name_eng"] as? String
+            ),
+            textColor = it["text_color"] as? String,
+            bgColor = it["bg_color"] as? String,
+            icon = it["b_icon"] as? String
+          )
         )
       )
     }
@@ -121,17 +120,17 @@ object UserRepositoryImpl : UserRepository {
             phone = rs.getString("phone"),
             image = rs.getString("image"),
             badge =
-              BadgeDto(
-                name =
-                  TextModel(
-                    uz = rs.getString("name_uz"),
-                    ru = rs.getString("name_ru"),
-                    eng = rs.getString("name_eng"),
-                  ),
-                textColor = rs.getString("text_color"),
-                icon = rs.getString("icon"),
-                bgColor = rs.getString("bg_color")
-              )
+            BadgeDto(
+              name =
+              TextModel(
+                uz = rs.getString("name_uz"),
+                ru = rs.getString("name_ru"),
+                eng = rs.getString("name_eng"),
+              ),
+              textColor = rs.getString("text_color"),
+              icon = rs.getString("icon"),
+              bgColor = rs.getString("bg_color")
+            )
           )
       }
     }
@@ -189,11 +188,11 @@ object UserRepositoryImpl : UserRepository {
 
     return ResponseModel(
       body =
-        DBManager.postData(
-          dataClass = UserTable::class,
-          dataObject = mapper.toUserTable(userDto),
-          tableName = USER_TABLE_NAME
-        ) ?: 0,
+      DBManager.postData(
+        dataClass = UserTable::class,
+        dataObject = mapper.toUserTable(userDto),
+        tableName = USER_TABLE_NAME
+      ) ?: 0,
       httpStatus = ResponseModel.OK
     )
   }
@@ -229,8 +228,7 @@ object UserRepositoryImpl : UserRepository {
               this.setTimestamp(++x, userDto.birthDay)
               this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
               this.closeOnCompletion()
-            }
-            .executeUpdate()
+            }.executeUpdate()
       }
       return@withContext rs != 0
     }
@@ -290,18 +288,18 @@ object UserRepositoryImpl : UserRepository {
           UserDto(
             id = rs.getLong("id"),
             badge =
-              BadgeDto(
-                id = rs.getLong("badge_id"),
-                name =
-                  TextModel(
-                    uz = rs.getString("b_name_uz"),
-                    ru = rs.getString("b_name_ru"),
-                    eng = rs.getString("b_name_eng"),
-                  ),
-                textColor = rs.getString("bt_color"),
-                bgColor = rs.getString("bg_color"),
-                icon = rs.getString("b_icon"),
+            BadgeDto(
+              id = rs.getLong("badge_id"),
+              name =
+              TextModel(
+                uz = rs.getString("b_name_uz"),
+                ru = rs.getString("b_name_ru"),
+                eng = rs.getString("b_name_eng"),
               ),
+              textColor = rs.getString("bt_color"),
+              bgColor = rs.getString("bg_color"),
+              icon = rs.getString("b_icon"),
+            ),
             cashbackBalance = rs.getDouble("balance"),
             firstName = rs.getString("first_name"),
             phone = rs.getString("phone"),
@@ -317,10 +315,10 @@ object UserRepositoryImpl : UserRepository {
 
   override suspend fun get(phone: String?, merchantId: Long?): UserDto? {
     return DBManager.getPageData(
-        dataClass = UserTable::class,
-        tableName = USER_TABLE_NAME,
-        where = mapOf("phone" to phone as Any, "merchant_id" to merchantId as Any)
-      )
+      dataClass = UserTable::class,
+      tableName = USER_TABLE_NAME,
+      where = mapOf("phone" to phone as Any, "merchant_id" to merchantId as Any)
+    )
       ?.data
       ?.firstOrNull()
       ?.let { mapper.toUserDto(it) }

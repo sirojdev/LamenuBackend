@@ -42,7 +42,6 @@ fun Route.routeToOperator() {
       route("profile") {
         get {
           val principal = call.principal<BasePrincipal>()
-
           OperatorService.get(principal?.staffId).let {
             call.respond(it ?: HttpStatusCode.NoContent)
           }
@@ -51,10 +50,12 @@ fun Route.routeToOperator() {
         put {
           val principal = call.principal<StaffPrincipal>()
           val operator = OperatorService.get(principal?.staffId)
+/*
           OperatorService.update(operator?.operator).let {
             if (it.body == null) call.respond(it.httpStatus)
             else call.respond(it.httpStatus, it.body)
-          }
+*/
+         // }
         }
 
         post("logout") {

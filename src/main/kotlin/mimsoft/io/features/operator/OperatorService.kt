@@ -76,11 +76,10 @@ object OperatorService {
     return operators
   }
 
-  suspend fun get(id: Long?): OperatorDto? {
+  suspend fun get(id: Long?): StaffDto? {
     val query =
       """
             select 
-            o.*,
             s.phone as staff_phone,
             s.first_name as staff_first_name,
             s.last_name as staff_last_name,
@@ -94,41 +93,25 @@ object OperatorService {
             where o.id = $id or o.staff_id = $id
             and o.deleted = false
             and s.deleted = false
-        """
-        .trimIndent()
-
+        """.trimIndent()
     return withContext(DBManager.databaseDispatcher) {
-      DBManager.connection().use { connection ->
-        connection.prepareStatement(query).executeQuery().use {
-          if (it.next()) {
-            OperatorDto(
-              operator =
-                Operator(
-                  id = it.getLong("id"),
-                  merchantId = it.getLong("merchant_id"),
-                  staffId = it.getLong("staff_id"),
-                  pbxCode = it.getInt("pbx_code"),
-                  created = it.getTimestamp("created"),
-                  updated = it.getTimestamp("updated"),
-                  deleted = it.getBoolean("deleted"),
-                ),
-              staff =
-                StaffDto(
-                  firstName = it.getString("staff_first_name"),
-                  lastName = it.getString("staff_last_name"),
-                  image = it.getString("staff_image"),
-                  phone = it.getString("staff_phone"),
-                  birthDay = it.getString("staff_birth_day"),
-                  comment = it.getString("staff_comment"),
-                  gender = it.getString("staff_gender"),
-                  status = it.getBoolean("staff_status")
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+          if (rs.next()) {
+                return@withContext StaffDto(
+                  firstName = rs.getString("staff_first_name"),
+                  lastName = rs.getString("staff_last_name"),
+                  image = rs.getString("staff_image"),
+                  phone = rs.getString("staff_phone"),
+                  birthDay = rs.getString("staff_birth_day"),
+                  comment = rs.getString("staff_comment"),
+                  gender = rs.getString("staff_gender"),
+                  status = rs.getBoolean("staff_status")
                 )
-            )
           } else null
         }
       }
     }
-  }
 
   suspend fun getByPbxCode(merchantId: Long?, pbxCode: Int?): OperatorDto? {
     val query =
