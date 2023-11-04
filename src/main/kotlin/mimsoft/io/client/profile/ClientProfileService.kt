@@ -32,6 +32,4 @@ object ClientProfileService {
   suspend fun deleteImage(userId: Long?, merchantId: Long?) {
     TODO("Not yet implemented")
   }
-
-
 }

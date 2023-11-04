@@ -181,7 +181,13 @@ fun Application.configureSecurity() {
         val uuid = cr.payload.getClaim("uuid").asString()
         val hash = cr.payload.getClaim("hash").asLong()
         if (merchantId != null && uuid != null && hash != null) {
-          BasePrincipal(merchantId = merchantId, uuid = uuid, userId = userId, phone = phone, hash = hash)
+          BasePrincipal(
+            merchantId = merchantId,
+            uuid = uuid,
+            userId = userId,
+            phone = phone,
+            hash = hash
+          )
         } else null
       }
     }

@@ -160,8 +160,10 @@ object OperatorSocketService {
   }
 
   suspend fun sendOrdersToOperators(order: Order) {
-    operatorConnections.forEach{
-      conn->conn.session?.send(GSON.toJson(SocketData(type = SocketType.ORDER, data = GSON.toJson(order))))
+    operatorConnections.forEach { conn ->
+      conn.session?.send(
+        GSON.toJson(SocketData(type = SocketType.ORDER, data = GSON.toJson(order)))
+      )
     }
   }
 }
