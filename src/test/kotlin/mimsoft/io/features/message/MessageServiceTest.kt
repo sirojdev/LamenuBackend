@@ -11,14 +11,14 @@ class MessageServiceTest {
 
   @Test
   fun getAll() = testApplication {
-    val response = messageService.getAll()
+    val response = messageService.getAll(1)
     if (response.isEmpty()) assertNotNull(response)
   }
 
   @Test
   fun get() = testApplication {
     val id: Long = 5
-    val response = messageService.get(id)
+    val response = messageService.get(id, 1)
     if (response != null) assertNotNull(response)
   }
 

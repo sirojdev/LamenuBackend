@@ -29,10 +29,12 @@ object SmsService {
                        s.time         s_time,
                        s.status       s_status,
                        s.client_count s_client_count,
+                       s.context s_context,
                        m.id           m_id,
                        m.content      m_content,
                        u.first_name   u_first_name,
-                       u.last_name    u_last_name
+                       u.last_name    u_last_name,
+                       u.phone u_phone
                 from sms s
                          left join message m on
                         not m.deleted
@@ -60,6 +62,7 @@ object SmsService {
           time = it["s_time"] as? Timestamp,
           status = it["s_status"] as? Status,
           clientCount = it["s_client_count"] as? Long,
+          context = it["s_context"] as String?,
           message =
             MessageDto(
               id = it["m_id"] as? Long,
@@ -69,6 +72,7 @@ object SmsService {
             UserDto(
               firstName = it["u_first_name"] as? String,
               lastName = it["u_last_name"] as? String,
+              phone = it["u_phone"] as? String
             )
         )
       )

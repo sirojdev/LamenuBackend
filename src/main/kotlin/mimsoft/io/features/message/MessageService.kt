@@ -18,20 +18,20 @@ object MessageService {
   private val smsSender: SmsSenderService = SmsSenderService
   private val userRepository: UserRepository = UserRepositoryImpl
 
-  suspend fun getAll(): List<MessageDto?> {
+  suspend fun getAll(merchantId: Long?): List<MessageDto?> {
     val messages =
-      repository.getData(MessageTable::class, tableName = "message").map {
+      repository.getData(MessageTable::class, tableName = "message", merchantId = merchantId).map {
         MessageMapper.toDto(it as MessageTable)
       }
-    for (message in messages) {
+    /* for (message in messages) {
       message?.smss = smsService.getByMessageId(message?.id ?: 0)
-    }
+    }*/
     return messages
   }
 
-  suspend fun get(id: Long): MessageDto? {
+  suspend fun get(id: Long, merchantId: Long?): MessageDto? {
     return repository
-      .getData(MessageTable::class, id, tableName = "message")
+      .getData(MessageTable::class, id, tableName = "message", merchantId = merchantId)
       .map { MessageMapper.toDto(it as MessageTable) }
       .firstOrNull()
       ?.copy(smss = smsService.getByMessageId(id))

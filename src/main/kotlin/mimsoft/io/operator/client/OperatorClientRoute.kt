@@ -8,7 +8,6 @@ import io.ktor.server.routing.*
 import kotlin.math.min
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
-import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.sms.SmsService
 import mimsoft.io.features.visit.VisitService
 import mimsoft.io.utils.plugins.getPrincipal
@@ -69,7 +68,24 @@ fun Route.routeToOperatorClientRoute() {
     get("address") {
       val pr = getPrincipal()
       val clientId = call.parameters["clientId"]?.toLongOrNull()
-      val response = AddressRepositoryImpl.getAll(clientId = clientId, merchantId = pr?.merchantId)
+      val response =
+        OperatorClientService.getAddressClientList(clientId = clientId, merchantId = pr?.merchantId)
+      if (response.isEmpty()) {
+        call.respond(HttpStatusCode.NoContent)
+        return@get
+      }
+      call.respond(response)
+    }
+
+    get("address/all") {
+      val pr = getPrincipal()
+      val clientId = call.parameters["clientId"]?.toLongOrNull()
+      val response =
+        OperatorClientService.getAddressClientList(
+          clientId = clientId,
+          merchantId = pr?.merchantId,
+          limit = 4
+        )
       if (response.isEmpty()) {
         call.respond(HttpStatusCode.NoContent)
         return@get

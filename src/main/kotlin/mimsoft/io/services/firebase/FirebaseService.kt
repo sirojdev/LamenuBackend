@@ -20,7 +20,7 @@ object FirebaseService {
   private val log: Logger = LoggerFactory.getLogger("FirebaseService")
 
   suspend fun sendNotification(model: NotificationDto) {
-    val user = UserRepositoryImpl.get(model.clientId, model.merchantId)
+    val user = UserRepositoryImpl.get(model.client?.id, model.merchantId)
     log.info("user: $user")
     val devices = DeviceController.get(user?.phone)
     log.info("devices: $devices")

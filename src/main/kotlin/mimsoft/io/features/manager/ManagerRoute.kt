@@ -11,7 +11,7 @@ fun Route.routeToManager() {
   val service = ManagerService
 
   get("/managers") {
-    val managers = ManagerService.getAll()
+    val managers = service.getAll()
     call.respond(managers.ifEmpty { HttpStatusCode.NotFound })
   }
 
@@ -21,7 +21,7 @@ fun Route.routeToManager() {
       call.respond(HttpStatusCode.BadRequest)
       return@get
     }
-    val manager = ManagerService.get(id)
+    val manager = service.get(id)
     if (manager == null) {
       call.respond(HttpStatusCode.NotFound)
       return@get
@@ -32,14 +32,14 @@ fun Route.routeToManager() {
 
   post("/manager") {
     val managerDto = call.receive<ManagerDto>()
-    val status = ManagerService.add(managerDto)
+    val status = service.add(managerDto)
     val manager = status.body as ManagerDto?
     call.respond(status.httpStatus, manager?.id ?: 0)
   }
 
   put("/manager") {
     val managerDto = call.receive<ManagerDto>()
-    val result = ManagerService.update(managerDto)
+    val result = service.update(managerDto)
     call.respond(result.httpStatus)
   }
 
@@ -49,7 +49,7 @@ fun Route.routeToManager() {
       call.respond(HttpStatusCode.BadRequest)
       return@delete
     }
-    val result = ManagerService.delete(id)
+    val result = service.delete(id)
     if (!result) {
       call.respond(HttpStatusCode.BadRequest)
       return@delete

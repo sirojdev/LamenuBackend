@@ -16,6 +16,7 @@ import mimsoft.io.features.order.OrderUtils.parseGetAll
 import mimsoft.io.features.order.OrderUtils.parseGetAll2
 import mimsoft.io.features.order.OrderUtils.searchQuery
 import mimsoft.io.features.order.OrderUtils.validate
+import mimsoft.io.features.order_history.OrderHistoryService
 import mimsoft.io.features.payment_type.PaymentTypeDto
 import mimsoft.io.features.staff.StaffDto
 import mimsoft.io.repository.BaseEnums
@@ -500,7 +501,10 @@ object OrderService {
             this.closeOnCompletion()
           }
           .executeUpdate()
-        order = getById(orderId)
+        order = getById(id = orderId, "payment_type")
+        if (status == OrderStatus.CLOSED || status == OrderStatus.CANCELED) {
+          OrderHistoryService.addToHistory(order = order)
+        }
       }
     }
     return order
@@ -545,7 +549,7 @@ object OrderService {
     filter: String?,
     limit: Int?,
     offset: Int?,
-    statuses: String?
+    statuses: String? = null
   ): DataPage<Order> {
     val query = StringBuilder()
     query.append(
@@ -571,11 +575,13 @@ object OrderService {
                      left join staff s on c.staff_id = s.id
             where o.merchant_id = $merchantId
               and o.service_type != '${BaseEnums.DINE_IN}'
-              and o.status in ($statuses) 
               and not o.deleted
         """
         .trimIndent()
     )
+    if (statuses != null) {
+      query.append("  and o.status in ($statuses) ")
+    }
 
     if (branchId == null) query.append(" and o.branch_id = $branchId")
     if (filter == null) query.append(" order by o.created_at desc")

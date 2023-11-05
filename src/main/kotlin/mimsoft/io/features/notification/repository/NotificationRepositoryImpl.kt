@@ -4,6 +4,7 @@ package mimsoft.io.features.notification.repository
 
 import java.sql.Timestamp
 import kotlinx.coroutines.withContext
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.notification.*
 import mimsoft.io.repository.BaseEnums
 import mimsoft.io.repository.BaseRepository
@@ -31,27 +32,32 @@ object NotificationRepositoryImpl : NotificationRepository {
     val query = StringBuilder()
     query.append(
       """
-                select id,
-                       merchant_id,
-                       title_uz,
-                       title_ru,
-                       title_eng,
-                       body_uz,
-                       body_ru,
-                       body_eng,
-                       image,
-                       date,
-                       is_send_android,
-                       is_send_ios,
-                       is_send_bot
-                from notification
-                where not deleted
-                  and merchant_id = $merchantId
+                select n.id,
+                 n.merchant_id,
+                 title_uz,
+                 title_ru,
+                 title_eng,
+                 body_uz,
+                 body_ru,
+                 body_eng,
+                 n.image,
+                 date,
+                 is_send_android,
+                 is_send_ios,
+                 is_send_bot,
+                 u.first_name,
+                 u.last_name,
+                 u.phone,
+                 u.image
+          from notification n
+          left join users u on n.client_id = u.id
+          where not n.deleted
+            and n.merchant_id = $merchantId
         """
         .trimIndent()
     )
-    if (filters == null) query.append(" order by created desc")
-    if (filters != null && BaseEnums.TIME.name == filters) query.append(" order by date desc")
+    if (filters == null) query.append(" order by n.created desc")
+    if (filters != null && BaseEnums.TIME.name == filters) query.append(" order by n.date desc")
     if (limit != null) query.append(" limit $limit")
     if (offset != null) query.append(" offset $offset")
     log.info("query: $query")
@@ -75,7 +81,14 @@ object NotificationRepositoryImpl : NotificationRepository {
             ),
           image = it["image"] as? String,
           date = it["date"] as? Timestamp,
-          clientId = it["client_id"] as? Long,
+          client =
+            UserDto(
+              id = it["client_id"] as? Long,
+              firstName = it["first_name"] as? String,
+              lastName = it["last_name"] as? String,
+              phone = it["phone"] as? String,
+              image = it["image"] as? String
+            ),
           isSendAndroid = it["is_send_android"] as? Boolean,
           isSendIos = it["is_send_ios"] as? Boolean,
           isSendBot = it["is_send_bot"] as? Boolean
@@ -105,7 +118,7 @@ object NotificationRepositoryImpl : NotificationRepository {
                     title_ru        = coalesce(?, n.title_ru),
                     title_eng       = coalesce(?, n.title_eng),
                     image           = coalesce(?, n.image),
-                    client_id       = coalesce(${dto?.clientId}, n.client_id),
+                    client_id       = coalesce(${dto?.client?.id}, n.client_id),
                     is_send_ios     = coalesce(${dto?.isSendIos}, n.is_send_ios),
                     is_send_android = coalesce(${dto?.isSendAndroid}, n.is_send_android),
                     is_send_bot     = coalesce(${dto?.isSendBot}, n.is_send_bot),

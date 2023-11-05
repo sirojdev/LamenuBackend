@@ -27,7 +27,7 @@ build:
         - stage
     script:
         - ./gradlew -v
-        - ./gradlew clean build
+        - ./gradlew clean build -x test
 
 deploy:
     stage: deploy

@@ -1,5 +1,6 @@
 package mimsoft.io.features.notification
 
+import mimsoft.io.client.user.UserDto
 import mimsoft.io.utils.TextModel
 
 object NotificationMapper {
@@ -9,7 +10,7 @@ object NotificationMapper {
       NotificationDto(
         id = table.id,
         merchantId = table.merchantId,
-        clientId = table.clientId,
+        client = UserDto(id = table.clientId),
         title = TextModel(uz = table.titleUz, ru = table.titleRu, eng = table.titleEng),
         body = TextModel(uz = table.titleUz, ru = table.titleRu, eng = table.titleEng),
         image = table.image,
@@ -30,7 +31,7 @@ object NotificationMapper {
       bodyUz = dto?.body?.uz,
       bodyRu = dto?.body?.ru,
       bodyEng = dto?.body?.eng,
-      clientId = dto?.clientId,
+      clientId = dto?.client?.id,
       image = dto?.image,
       date = dto?.date,
       isSendAndroid = dto?.isSendAndroid,

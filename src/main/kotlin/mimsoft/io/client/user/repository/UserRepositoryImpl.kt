@@ -1,7 +1,6 @@
 package mimsoft.io.client.user.repository
 
 import java.sql.Timestamp
-import java.util.*
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.*
 import mimsoft.io.config.timestampValidator
@@ -27,42 +26,39 @@ object UserRepositoryImpl : UserRepository {
     limit: Int?,
     offset: Int?
   ): DataPage<UserDto> {
-    var totalCount: Int? = null
-    val tName = USER_TABLE_NAME
+    var totalCount = 0L
     val query = StringBuilder()
     val filter = filters?.uppercase()
     query.append(
       """
-                select u.*,
+                select count(*) over() as total, 
+                       u.*,
                        b.name_uz    b_name_uz,
                        b.name_ru    b_name_ru,
                        b.name_eng   b_name_eng,
                        b.icon       b_icon,
                        b.bg_color   bg_color,
                        b.text_color bt_color,
-                       count(v.id)  visit_count
+                       o.all_orders  orders,
+                       v.all_visits  visits
                 from users u
-                         left join visit v on v.user_id = u.id
+                         left join (select user_id, count(id) all_orders
+                                    from orders
+                                    where not deleted
+                                    group by user_id) as o on o.user_id = u.id
+                         left join (select user_id, count(id) all_visits
+                                    from visit
+                                    where not deleted
+                                    group by user_id) as v on v.user_id = u.id
                          left join badge b on b.id = u.badge_id
-                where u.merchant_id = $merchantId
-                  and not u.deleted
-            """
+                         where u.merchant_id = $merchantId and not u.deleted
+                         """
         .trimIndent()
     )
     if (search != null) {
       val s = search.lowercase()
       query.append(" and lower(concat(u.first_name, u.last_name, u.phone)) like '%$s%'")
     }
-    query.append(
-      """
-            group by v.user_id, u.id, phone, first_name, u.last_name, u.image,
-         u.birth_day, u.created, u.updated, u.deleted, u.badge_id,
-         u.merchant_id, balance, b.name_uz, b.name_ru, b.name_eng,
-         b.icon, b.bg_color,
-         b.text_color
-        """
-        .trimIndent()
-    )
     if (filter != null) {
       when (filter) {
         UserFilters.NAME.name -> {
@@ -82,6 +78,7 @@ object UserRepositoryImpl : UserRepository {
     log.info("query: $query")
     val mutableList = mutableListOf<UserDto>()
     repository.selectList(query.toString()).forEach {
+      totalCount = it["total"] as Long
       mutableList.add(
         UserDto(
           id = it["id"] as? Long,
@@ -91,7 +88,8 @@ object UserRepositoryImpl : UserRepository {
           image = it["image"] as? String,
           birthDay = it["birth_day"] as? Timestamp,
           cashbackBalance = it["cash_balance"] as? Double,
-          visitCount = it["visit_count"] as? Long,
+          visitCount = it["visits"] as? Long,
+          orderCount = it["orders"] as? Long,
           badge =
             BadgeDto(
               name =
@@ -107,7 +105,7 @@ object UserRepositoryImpl : UserRepository {
         )
       )
     }
-    return DataPage(data = mutableList, total = mutableList.size)
+    return DataPage(data = mutableList, total = totalCount.toInt())
   }
 
   suspend fun getUserWithBadge(phone: String?, merchantId: Long?): UserDto? {
@@ -200,37 +198,42 @@ object UserRepositoryImpl : UserRepository {
     )
   }
 
-  override suspend fun update(userDto: UserDto): UserDto {
-    val query =
+  override suspend fun update(userDto: UserDto): Boolean {
+    var query =
       """
-            update users u 
-            set first_name = coalesce(?,u.first_name),
-                last_name  = coalesce(?,u.last_name),
-                birth_day  = coalesce(?,u.birth_day),
-                badge_id   = coalesce(${userDto.badge?.id},u.badge_id),
-                updated    = now()
+            update users u
+            set first_name = coalesce(?, u.first_name),
+                last_name  = coalesce(?, u.last_name),
+                birth_day  = coalesce(?, u.birth_day),
+                badge_id   = ${userDto.badge?.id},
+                updated    = ?
             where not deleted
               and id = ${userDto.id}
         """
         .trimIndent()
     var rs: Int
+    if (userDto.merchantId != null) {
+      query += " and merchant_id = ${userDto.merchantId}"
+    }
+
     log.info("query: $query")
-    withContext(DBManager.databaseDispatcher) {
+    return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
+        var x = 0
         rs =
           it
             .prepareStatement(query)
             .apply {
-              this.setString(1, userDto.firstName)
-              this.setString(2, userDto.lastName)
-              this.setString(3, userDto.image)
-              this.setTimestamp(4, userDto.birthDay)
+              this.setString(++x, userDto.firstName)
+              this.setString(++x, userDto.lastName)
+              this.setTimestamp(++x, userDto.birthDay)
+              this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
               this.closeOnCompletion()
             }
             .executeUpdate()
       }
+      return@withContext rs != 0
     }
-    return userDto
   }
 
   suspend fun addNewClientFromWaiter(phone: String, mId: Long): Long? {
@@ -266,22 +269,34 @@ object UserRepositoryImpl : UserRepository {
   override suspend fun get(id: Long?, merchantId: Long?): UserDto? {
     val query =
       """
-            select u.*,
+            select 
+            u.*,
+                    
                    b.name_uz    b_name_uz,
                    b.name_ru    b_name_ru,
                    b.name_eng   b_name_eng,
                    b.text_color bt_color,
                    b.bg_color   bg_color,
-                   b.icon       b_icon
-            from users u
-                     left join badge b on b.id = u.badge_id
+                   b.icon       b_icon,
+                   o.all_orders  orders,
+                   v.all_visits  visits
+            from users u 
+            left join (select user_id, count(id) all_orders
+                                    from orders
+                                    where not deleted
+                                    group by user_id) as o on o.user_id = u.id
+            left join (select user_id, count(id) all_visits
+                                    from visit
+                                    where not deleted
+                                    group by user_id) as v on v.user_id = u.id
+            left join badge b on b.id = u.badge_id
             where u.id = $id
               and not u.deleted
         """
         .trimIndent()
     log.info("query: $query")
     return withContext(DBManager.databaseDispatcher) {
-      DBManager.connection().use { it ->
+      DBManager.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
         if (rs.next()) {
           UserDto(
@@ -299,6 +314,8 @@ object UserRepositoryImpl : UserRepository {
                 bgColor = rs.getString("bg_color"),
                 icon = rs.getString("b_icon"),
               ),
+            orderCount = rs.getLong("orders"),
+            visitCount = rs.getLong("visits"),
             cashbackBalance = rs.getDouble("balance"),
             firstName = rs.getString("first_name"),
             phone = rs.getString("phone"),
@@ -357,7 +374,7 @@ object UserRepositoryImpl : UserRepository {
         """
         .trimIndent()
     log.info("query: $query")
-    var res = false
+    var res: Boolean
     withContext(DBManager.databaseDispatcher) {
       DBManager.connection().use { it ->
         res = it.prepareStatement(query).apply { setString(1, phone) }.executeUpdate() == 1
@@ -379,5 +396,31 @@ object UserRepositoryImpl : UserRepository {
       }
     }
     return res
+  }
+
+  override suspend fun search(phone: String?, merchantId: Long?): DataPage<UserDto> {
+    val query =
+      "SELECT count(*) over() as total, * FROM users WHERE phone like '%$phone%' AND merchant_id = $merchantId"
+    val list = mutableListOf<UserDto>()
+    var total = 0L
+    return withContext(DBManager.databaseDispatcher) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        while (rs.next()) {
+          total = rs.getLong("total")
+          list.add(
+            UserDto(
+              id = rs.getLong("id"),
+              phone = rs.getString("phone"),
+              firstName = rs.getString("first_name"),
+              lastName = rs.getString("last_name"),
+              image = rs.getString("image"),
+              cashbackBalance = rs.getDouble("balance")
+            )
+          )
+        }
+        return@withContext DataPage(data = list, total = total.toInt())
+      }
+    }
   }
 }

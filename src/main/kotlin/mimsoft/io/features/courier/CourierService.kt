@@ -115,7 +115,7 @@ FROM
       """ update $COURIER_TABLE_NAME set is_active = ? where staff_id = $staffId""".trimIndent()
     withContext(Dispatchers.IO) {
       repository.connection().use {
-        val rs = it.prepareStatement(query).apply { setBoolean(1, isActive) }.executeUpdate()
+        it.prepareStatement(query).apply { setBoolean(1, isActive) }.executeUpdate()
       }
     }
   }
