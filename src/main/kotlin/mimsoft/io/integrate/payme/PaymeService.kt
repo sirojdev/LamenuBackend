@@ -31,7 +31,7 @@ object PaymeService {
     merchantId: Long? = null
   ): Any {
     return withContext(Dispatchers.IO) {
-      val responseModel = orderService.get(id = account?.orderId)
+      val responseModel = orderService.get(id = account?.orderId,merchantId)
       if (!responseModel.isOk())
         return@withContext ErrorResult(
           error = Error(code = -31050, message = Message.ORDER_NOT_FOUND),
