@@ -6,7 +6,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlin.math.min
+import mimsoft.io.features.client_promo.ClientPromoDto
+import mimsoft.io.features.client_promo.ClientPromoService
 import mimsoft.io.utils.plugins.GSON
+import mimsoft.io.utils.plugins.getPrincipal
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToPromo() {
@@ -26,6 +30,32 @@ fun Route.routeToPromo() {
         return@get
       }
       call.respond(promoList)
+    }
+
+    post("connect") {
+      val pr = getPrincipal()
+      val merchantId = pr?.merchantId
+      val dto = call.receive<ClientPromoDto>()
+      val response = ClientPromoService.add(dto = dto.copy(merchantId = merchantId))
+      if (response == null) {
+        call.respond(HttpStatusCode.MethodNotAllowed)
+        return@post
+      }
+      call.respond(response)
+    }
+
+    get("list") {
+      val pr = getPrincipal()
+      val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 20, 50)
+      val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+      val merchantId = pr?.merchantId
+      val response =
+        ClientPromoService.getAll(merchantId = merchantId, limit = limit, offset = offset)
+      if (response.data?.isEmpty() == true) {
+        call.respond(HttpStatusCode.NoContent)
+        return@get
+      }
+      call.respond(response)
     }
 
     post {

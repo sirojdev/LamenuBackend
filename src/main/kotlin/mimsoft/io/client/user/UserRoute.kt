@@ -40,7 +40,7 @@ fun Route.routeToUser() {
       val status = userRepository.add(user)
       println("status: $status")
 
-      call.respond(status.httpStatus, status.body ?: status.httpStatus.description)
+      call.respond(status.httpStatus, status.body)
     } catch (e: Exception) {
       e.printStackTrace()
       call.respond(HttpStatusCode.BadRequest)

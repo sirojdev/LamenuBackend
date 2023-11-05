@@ -16,13 +16,15 @@ interface UserRepository {
 
   suspend fun add(userDto: UserDto?): ResponseModel
 
-  suspend fun update(userDto: UserDto): UserDto
+  suspend fun update(userDto: UserDto): Boolean
 
   suspend fun delete(id: Long?, merchantId: Long? = null): Boolean
 
   suspend fun get(id: Long?, merchantId: Long? = null): UserDto?
 
   suspend fun get(phone: String?, merchantId: Long?): UserDto?
+
+  suspend fun search(phone: String?, merchantId: Long?): DataPage<UserDto>
 
   suspend fun updatePhone(userId: Long?, phone: String?): Boolean
 

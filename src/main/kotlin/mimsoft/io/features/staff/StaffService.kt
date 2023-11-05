@@ -197,10 +197,16 @@ object StaffService {
     }
   }
 
-  suspend fun get(id: Long?, merchantId: Long?, branchId: Long? = null): StaffDto? {
+  suspend fun get(
+    id: Long?,
+    merchantId: Long?,
+    branchId: Long? = null,
+    password: String? = null
+  ): StaffDto? {
     var query =
       "select * from $STAFF_TABLE_NAME where merchant_id = $merchantId and id = $id and not deleted "
     if (branchId != null) query += " and branch_id = $branchId"
+    if (password != null) query += " and password = '$password' "
     var staffDto: StaffDto? = null
     return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
@@ -290,9 +296,9 @@ object StaffService {
     )
   }
 
-  suspend fun update(staff: StaffDto): Boolean {
-    val merchantId = staff.merchantId
-    val birthDay = toTimeStamp(staff.birthDay, TIMESTAMP_FORMAT)
+  suspend fun update(staff: StaffDto?): Boolean {
+    val merchantId = staff?.merchantId
+    val birthDay = toTimeStamp(staff?.birthDay, TIMESTAMP_FORMAT)
 
     val query =
       """
@@ -305,11 +311,11 @@ object StaffService {
                 position = coalesce(?, s.position),
                 phone = coalesce(?, s.phone),
                 comment = coalesce(?, s.comment),
-                password  =coalesce(?, s.password),
+                password = coalesce(?, s.password),
                 gender = coalesce(?, s.gender),
                 updated = ?
             WHERE id = ? and merchant_id = $merchantId 
-            and branch_id = ${staff.branchId} 
+            and branch_id = ${staff?.branchId} 
             and not deleted 
         """
         .trimIndent()
@@ -318,17 +324,17 @@ object StaffService {
       repository.connection().use {
         val rs =
           it.prepareStatement(query).use { ti ->
-            ti.setString(1, staff.firstName)
-            ti.setString(2, staff.lastName)
+            ti.setString(1, staff?.firstName)
+            ti.setString(2, staff?.lastName)
             ti.setTimestamp(3, birthDay)
-            ti.setString(4, staff.image)
-            ti.setString(5, staff.position?.name)
-            ti.setString(6, staff.phone)
-            ti.setString(7, staff.comment)
-            ti.setString(8, staff.password)
-            ti.setString(9, staff.gender)
+            ti.setString(4, staff?.image)
+            ti.setString(5, staff?.position?.name)
+            ti.setString(6, staff?.phone)
+            ti.setString(7, staff?.comment)
+            ti.setString(8, staff?.password)
+            ti.setString(9, staff?.gender)
             ti.setTimestamp(10, Timestamp(System.currentTimeMillis()))
-            staff.id?.let { it1 -> ti.setLong(11, it1) }
+            staff?.id?.let { it1 -> ti.setLong(11, it1) }
             ti.executeUpdate()
           }
         return@withContext rs > 0
