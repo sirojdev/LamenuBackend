@@ -37,7 +37,7 @@ suspend fun main() {
 
 object OrderService {
 
-  private val repository: BaseRepository = DBManager
+  val repository: BaseRepository = DBManager
   private val log: Logger = LoggerFactory.getLogger(OrderService::class.java)
   //    suspend fun getUniversal(
   //        conditions: Map<String, *>?, tableNames: List<Map<String, List<String>>>

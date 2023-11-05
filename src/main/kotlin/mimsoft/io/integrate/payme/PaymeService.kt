@@ -294,9 +294,9 @@ object PaymeService {
             )
         )
       } else {
-        transaction?.state = STATE_CANCELED
-        transaction?.reason = reason?.toInt()
-        transaction?.cancelTime = System.currentTimeMillis()
+        transaction.state = STATE_CANCELED
+        transaction.reason = reason?.toInt()
+        transaction.cancelTime = System.currentTimeMillis()
         paymeRepository.updateTransaction(transaction!!)
         return@withContext ResultResponse(
           result =

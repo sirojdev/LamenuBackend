@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
+import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.address.AddressType
 import mimsoft.io.features.address.Details
 import mimsoft.io.features.badge.BadgeDto
@@ -1109,10 +1110,13 @@ object OrderUtils {
     }
 
     if (order.serviceType == BaseEnums.DELIVERY) {
-      validateAddress(order.address).let {
-        if (!it.isOk()) return it
-        order.address = it.body as? AddressDto
-      }
+      validateAddress(
+          order.address?.copy(merchantId = order.merchant?.id, clientId = order.user!!.id)
+        )
+        .let {
+          if (!it.isOk()) return it
+          order.address = it.body as? AddressDto
+        }
       if (order.paymentMethod?.id == null) {
         return ResponseModel(
           httpStatus = HttpStatusCode.BadRequest,
@@ -1176,12 +1180,9 @@ object OrderUtils {
         body = mapOf("message" to "address longitude latitude description is required"),
         httpStatus = HttpStatusCode.BadRequest
       )
-    //    AddressRepositoryImpl.get(address.id).let {
-    //      if (it == null)
-    //        return ResponseModel(
-    //          body = mapOf("message" to "address not found"),
-    //          httpStatus = HttpStatusCode.BadRequest
-    //        )
+//    if (address.details != null) {
+//      val addressId = AddressRepositoryImpl.add(address)
+//    }
     return ResponseModel(body = address)
   }
 }
