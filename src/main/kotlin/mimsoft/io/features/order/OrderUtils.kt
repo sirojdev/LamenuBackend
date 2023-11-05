@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
 import mimsoft.io.features.address.AddressDto
-import mimsoft.io.features.address.AddressRepositoryImpl
 import mimsoft.io.features.address.AddressType
 import mimsoft.io.features.address.Details
 import mimsoft.io.features.badge.BadgeDto
@@ -1180,9 +1179,9 @@ object OrderUtils {
         body = mapOf("message" to "address longitude latitude description is required"),
         httpStatus = HttpStatusCode.BadRequest
       )
-//    if (address.details != null) {
-//      val addressId = AddressRepositoryImpl.add(address)
-//    }
+    //    if (address.details != null) {
+    //      val addressId = AddressRepositoryImpl.add(address)
+    //    }
     return ResponseModel(body = address)
   }
 }

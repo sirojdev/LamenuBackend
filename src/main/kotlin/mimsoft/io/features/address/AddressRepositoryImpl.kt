@@ -84,7 +84,6 @@ object AddressRepositoryImpl : AddressRepository {
     return generatedId
   }
 
-
   override suspend fun add(addressDto: AddressDto?): Long? =
     repository.postData(
       dataClass = AddressTable::class,
