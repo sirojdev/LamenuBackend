@@ -12,6 +12,7 @@ data class SmsTable(
   val messageId: Long? = null,
   val time: Timestamp? = null,
   val status: String? = null,
+  val context: String? = null,
   val updated: Timestamp? = null,
   val created: Timestamp? = null,
   val deleted: Boolean? = null

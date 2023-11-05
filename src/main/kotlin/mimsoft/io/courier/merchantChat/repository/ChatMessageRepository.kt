@@ -100,14 +100,13 @@ object ChatMessageRepository {
     val query = "update chat_message set is_send = true " + " where to_id = $toId and sender = ?"
     withContext(Dispatchers.IO) {
       repository.connection().use {
-        val rs =
-          it
-            .prepareStatement(query)
-            .apply {
-              setString(1, type?.name)
-              this.closeOnCompletion()
-            }
-            .executeUpdate()
+        it
+          .prepareStatement(query)
+          .apply {
+            setString(1, type?.name)
+            this.closeOnCompletion()
+          }
+          .executeUpdate()
       }
     }
   }

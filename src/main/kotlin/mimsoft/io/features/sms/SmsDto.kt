@@ -11,7 +11,8 @@ data class SmsDto(
   val message: MessageDto? = null,
   val time: Timestamp? = null,
   val status: Status? = null,
-  val merchantId: Long? = null
+  val merchantId: Long? = null,
+  val context: String? = null
 )
 
 enum class Status {

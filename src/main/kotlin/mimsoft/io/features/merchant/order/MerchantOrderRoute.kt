@@ -15,7 +15,6 @@ fun Route.routeToMerchantOrder() {
   authenticate("merchant") {
     get("orders") {
       val principal = call.principal<BasePrincipal>()
-      val search = call.parameters["search"]
       val orders = orderService.getAll(mapOf("merchantId" to principal?.merchantId as Any))
       call.respond(orders.httpStatus, orders.body)
     }

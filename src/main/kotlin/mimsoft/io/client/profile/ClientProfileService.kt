@@ -1,8 +1,6 @@
 package mimsoft.io.client.profile
 
 import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
 import java.util.*
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.client.user.repository.UserRepositoryImpl
@@ -29,7 +27,7 @@ object ClientProfileService {
     }
   }
 
-  suspend fun deleteImage(userId: Long?, merchantId: Long?) {
+  /*suspend fun deleteImage(userId: Long?, merchantId: Long?) {
     TODO("Not yet implemented")
-  }
+  }*/
 }

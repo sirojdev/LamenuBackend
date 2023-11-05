@@ -73,11 +73,10 @@ object AddressRepositoryImpl : AddressRepository {
         "id = $id and " +
         "merchant_id = $merchantId and " +
         "client_id = $clientId"
-    withContext(Dispatchers.IO) {
+    return withContext(Dispatchers.IO) {
       repository.connection().use {
-        val rs = it.prepareStatement(query).execute()
+        return@withContext it.prepareStatement(query).execute()
       }
     }
-    return true
   }
 }

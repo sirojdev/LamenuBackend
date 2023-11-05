@@ -88,11 +88,7 @@ object ExtraRepositoryImpl : ExtraRepository {
       tableName = EXTRA_TABLE_NAME
     )
 
-  suspend fun getExtrasByProductId(
-    merchantId: Long?,
-    productId: Long?,
-    branchId: Long? = null
-  ): List<ExtraDto>? {
+  suspend fun getExtrasByProductId(merchantId: Long?, productId: Long?): List<ExtraDto>? {
     val data =
       repository
         .getPageData(

@@ -7,6 +7,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlin.math.min
+import mimsoft.io.features.message.MessageService
+import mimsoft.io.services.sms.SmsSenderService
 import mimsoft.io.utils.principal.BasePrincipal
 
 fun Route.routeToSms() {
@@ -38,7 +40,22 @@ fun Route.routeToSms() {
     val pr = call.principal<BasePrincipal>()
     val merchantId = pr?.merchantId
     val smsDto = call.receive<SmsDto>()
+    val context: String
+    if (smsDto.message?.id == null && smsDto.context != null) {
+      call.respond(status = HttpStatusCode.BadRequest, message = "Context empty")
+    }
+    if (smsDto.message?.id != null) {
+      context =
+        MessageService.get(id = smsDto.message.id, merchantId = pr?.merchantId)?.content ?: ""
+    } else {
+      context = smsDto.context!!
+    }
+    if (smsDto.client?.phone == null) {
+      call.respond(status = HttpStatusCode.BadRequest, message = "Phone number empty")
+      return@post
+    }
     val id = smsService.post(smsDto.copy(merchantId = merchantId))
+    SmsSenderService.send(merchantId = merchantId, phone = smsDto.client.phone, context)
     call.respond(id ?: HttpStatusCode.BadRequest)
   }
 

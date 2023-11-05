@@ -28,7 +28,7 @@ interface CategoryRepository {
 
   suspend fun getCategoryByCategoryGroupName(
     merchantId: Long?,
-    name: String?,
+    categoryGroupName: String?,
     lang: Language
   ): List<CategoryDto>?
 }
