@@ -38,9 +38,9 @@ object FilesService {
   fun deleteFile(url: String): Boolean {
     val fd = File("$PATH/$url")
     if (fd.exists()) {
-      fd.delete()
+      return fd.delete()
     }
-    return true
+    return false
   }
 
   suspend fun uploadFile(fileData: ByteArray, type: String = "images", extension: String): String? {

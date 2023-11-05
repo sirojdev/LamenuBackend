@@ -74,6 +74,31 @@ object BotService : BotRepository {
     return rs == 1
   }
 
+  suspend fun getAll(): MutableList<BotDto> {
+    val query =
+      """
+            select * from  $TELEGRAM_BOT_TABLE_NAME 
+            where not deleted 
+        """
+        .trimIndent()
+    val list = mutableListOf<BotDto>()
+    withContext(Dispatchers.IO) {
+      StaffService.repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        while (rs.next()) {
+          list.add(
+            BotDto(
+              tgToken = rs.getString("tg_token"),
+              tgUsername = rs.getString("tg_username"),
+              merchantId = rs.getLong("merchant_id")
+            )
+          )
+        }
+      }
+    }
+    return list
+  }
+
   override suspend fun delete(id: Long?, merchantId: Long?): Boolean {
     var rs = 0
     val query =

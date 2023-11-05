@@ -33,7 +33,12 @@ fun Route.updatePhoneRoute() {
       }
     } else {
       val rs = userRepository.updatePhone(principal?.userId, principal?.phone)
-      if (rs) call.respond(HttpStatusCode.OK) else call.respond(HttpStatusCode.NotFound)
+      if (rs)
+        call.respond(
+          UserRepositoryImpl.get(principal?.userId, principal?.merchantId)
+            ?: HttpStatusCode.NotFound
+        )
+      else call.respond(HttpStatusCode.NotFound)
     }
   }
 }

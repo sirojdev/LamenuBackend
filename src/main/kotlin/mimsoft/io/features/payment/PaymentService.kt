@@ -180,23 +180,40 @@ object PaymentService {
     }
   }
 
-  suspend fun isExist(merchantId: Long?, paymentId: Long): Boolean {
+  suspend fun getPaymentTypeMerchantById(merchantId: Long?, paymentId: Long): PaymentTypeDto? {
     val query =
       "select " +
-        "pt.id pt_id " +
+        "       pt.id pt_id, \n" +
+        "       pt.name, \n" +
+        "       pt.icon, \n" +
+        "       pt.title_uz, \n" +
+        "       pt.title_ru, \n" +
+        "       pt.title_eng \n" +
         "from payment_integration pi \n" +
-        "inner join payment_type pt on pi.payment_type_id = pt.id \n" +
-        "where merchant_id = $merchantId \n" +
-        "  and pi.deleted = false and payment_type_id = $paymentId order by payment_type_id "
-    var result = false
+        "left join payment_type pt on pi.payment_type_id = pt.id \n" +
+        "where merchant_id = $merchantId " +
+        "  and pt.id = $paymentId \n" +
+        "  and pi.deleted = false order by payment_type_id"
+    var dto: PaymentTypeDto? = null
     withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
         if (rs.next()) {
-          result = true
+          dto =
+            PaymentTypeDto(
+              id = rs.getLong("pt_id"),
+              name = rs.getString("name"),
+              icon = rs.getString("icon"),
+              title =
+                TextModel(
+                  uz = rs.getString("title_uz"),
+                  ru = rs.getString("title_ru"),
+                  eng = rs.getString("title_eng")
+                )
+            )
         }
       }
     }
-    return result
+    return dto
   }
 }
