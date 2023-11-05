@@ -22,12 +22,13 @@ object OrderHistoryService {
         merchantId = order?.merchant?.id
       )
     val branch = BranchServiceImpl.get(id = order?.branch?.id, merchantId = order?.merchant?.id)
+    val address = order?.address
     val query =
       """
       insert into order_history (order_id, merchant_id, user_id, user_data, payment_type_id, payment_type_data, branch_id,
-                                 branch_data, created, service_type, courier_id, courier_data, order_data)
+                                 branch_data, created, service_type, courier_id, courier_data, order_data, address_data)
       values ($id, ${order?.merchant?.id}, ${order?.user?.id}, ?, ${order?.paymentMethod?.id}, ?,
-        ${order?.branch?.id}, ?, ?, ?, ${order?.courier?.id}, ?, ?)
+        ${order?.branch?.id}, ?, ?, ?, ${order?.courier?.id}, ?, ?, ?)
     """
         .trimIndent()
     return withContext(DBManager.databaseDispatcher) {
@@ -42,6 +43,7 @@ object OrderHistoryService {
             this.setString(5, order?.serviceType?.name)
             this.setString(6, courier.toJson())
             this.setString(7, order.toJson())
+            this.setString(8, address.toJson())
             this.closeOnCompletion()
           }
           .execute()

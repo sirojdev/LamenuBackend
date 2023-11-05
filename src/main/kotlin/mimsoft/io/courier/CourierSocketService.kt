@@ -34,8 +34,8 @@ object CourierSocketService {
       OperatorSocketService.operatorConnections.filter { it.merchantId == dto.merchantId }
     for (channel in operator) {
       if (channel.session != null) {
-        val dto = SocketData(type = SocketType.LOCATION, data = Gson().toJson(dto))
-        channel.session?.send(Gson().toJson(dto))
+        val model = SocketData(type = SocketType.LOCATION, data = Gson().toJson(dto))
+        channel.session?.send(Gson().toJson(model))
       }
     }
   }

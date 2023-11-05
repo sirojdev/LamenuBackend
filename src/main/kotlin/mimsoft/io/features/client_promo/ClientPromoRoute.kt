@@ -44,7 +44,7 @@ fun Route.routeToClientPromo() {
       val pr = call.principal<BasePrincipal>()
       val merchantId = pr?.merchantId
       val response = service.getAll(merchantId = merchantId)
-      if (response.isEmpty()) {
+      if (response.data?.isEmpty() == true) {
         call.respond(HttpStatusCode.NoContent)
         return@get
       }

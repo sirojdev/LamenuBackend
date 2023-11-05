@@ -37,6 +37,7 @@ fun Route.routeToOnlinePbx() {
       call.respond(it.httpStatus, it.body)
     }
   }
+
   put("online_pbx_entity") {
     val onlinePbx = call.receive<OnlinePbxEntity>()
 

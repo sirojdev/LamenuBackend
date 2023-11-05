@@ -24,6 +24,8 @@ interface UserRepository {
 
   suspend fun get(phone: String?, merchantId: Long?): UserDto?
 
+  suspend fun search(phone: String?, merchantId: Long?): DataPage<UserDto>
+
   suspend fun updatePhone(userId: Long?, phone: String?): Boolean
 
   suspend fun updateImage(imageName: String?, userId: Long?): Boolean

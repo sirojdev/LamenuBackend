@@ -1,22 +1,38 @@
 package mimsoft.io.features.client_promo
 
+import java.sql.Timestamp
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.UserDto
 import mimsoft.io.features.promo.PromoDto
 import mimsoft.io.features.promo.PromoService
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.repository.DataPage
 
 object ClientPromoService {
-  val mapper = ClientPromoMapper
   val repository: BaseRepository = DBManager
 
   suspend fun add(dto: ClientPromoDto?): Long? {
-    return DBManager.postData(
-      dataClass = ClientPromoTable::class,
-      dataObject = mapper.toTable(dto),
-      "client_promo"
-    )
+    val endDate = dto?.endDate ?: Timestamp(System.currentTimeMillis() + 16000)
+    val query =
+      "insert into client_promo (client_id, promo_id, created_date, end_date) values (${dto?.client?.id}, ${dto?.promo?.id}, now(), ?) returning id"
+    return withContext(DBManager.databaseDispatcher) {
+      repository.connection().use {
+        val rs =
+          it
+            .prepareStatement(query)
+            .apply {
+              this.setTimestamp(1, endDate)
+              this.closeOnCompletion()
+            }
+            .executeQuery()
+        if (rs.next()) {
+          return@withContext rs.getLong("id")
+        } else {
+          return@withContext null
+        }
+      }
+    }
   }
 
   suspend fun getByClientId(clientId: Long?): List<PromoDto> {
@@ -52,10 +68,15 @@ object ClientPromoService {
     }
   }
 
-  suspend fun getAll(merchantId: Long?): List<ClientPromoDto> {
-    val query =
+  suspend fun getAll(
+    merchantId: Long?,
+    limit: Int? = null,
+    offset: Int? = null
+  ): DataPage<ClientPromoDto> {
+    var query =
       """
             select
+            count(*) over() as total,
                 cp.id   cp_id,
                 u.id    u_id,
                 u.phone u_phone,
@@ -72,11 +93,15 @@ object ClientPromoService {
                 and p.merchant_id = $merchantId
         """
         .trimIndent()
+    if (limit != null) query += "limit $limit"
+    if (offset != null) query += "offset $offset"
+    var total = 0L
     return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
         val list = mutableListOf<ClientPromoDto>()
         while (rs.next()) {
+          total = rs.getLong("total")
           list.add(
             ClientPromoDto(
               id = rs.getLong("cp_id"),
@@ -96,7 +121,7 @@ object ClientPromoService {
             )
           )
         }
-        return@withContext list
+        return@withContext DataPage(list, total.toInt())
       }
     }
   }

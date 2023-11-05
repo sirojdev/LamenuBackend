@@ -93,25 +93,26 @@ object OperatorService {
             where o.id = $id or o.staff_id = $id
             and o.deleted = false
             and s.deleted = false
-        """.trimIndent()
+        """
+        .trimIndent()
     return withContext(DBManager.databaseDispatcher) {
       repository.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
-          if (rs.next()) {
-                return@withContext StaffDto(
-                  firstName = rs.getString("staff_first_name"),
-                  lastName = rs.getString("staff_last_name"),
-                  image = rs.getString("staff_image"),
-                  phone = rs.getString("staff_phone"),
-                  birthDay = rs.getString("staff_birth_day"),
-                  comment = rs.getString("staff_comment"),
-                  gender = rs.getString("staff_gender"),
-                  status = rs.getBoolean("staff_status")
-                )
-          } else null
-        }
+        if (rs.next()) {
+          return@withContext StaffDto(
+            firstName = rs.getString("staff_first_name"),
+            lastName = rs.getString("staff_last_name"),
+            image = rs.getString("staff_image"),
+            phone = rs.getString("staff_phone"),
+            birthDay = rs.getString("staff_birth_day"),
+            comment = rs.getString("staff_comment"),
+            gender = rs.getString("staff_gender"),
+            status = rs.getBoolean("staff_status")
+          )
+        } else null
       }
     }
+  }
 
   suspend fun getByPbxCode(merchantId: Long?, pbxCode: Int?): OperatorDto? {
     val query =

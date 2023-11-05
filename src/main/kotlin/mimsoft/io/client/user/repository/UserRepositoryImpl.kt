@@ -1,5 +1,6 @@
 package mimsoft.io.client.user.repository
 
+import java.sql.Timestamp
 import kotlinx.coroutines.withContext
 import mimsoft.io.client.user.*
 import mimsoft.io.config.timestampValidator
@@ -11,7 +12,6 @@ import mimsoft.io.utils.ResponseModel
 import mimsoft.io.utils.TextModel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.sql.Timestamp
 
 object UserRepositoryImpl : UserRepository {
 
@@ -88,19 +88,20 @@ object UserRepositoryImpl : UserRepository {
           image = it["image"] as? String,
           birthDay = it["birth_day"] as? Timestamp,
           cashbackBalance = it["cash_balance"] as? Double,
-          visitCount = it["visit_count"] as? Long,
+          visitCount = it["visits"] as? Long,
+          orderCount = it["orders"] as? Long,
           badge =
-          BadgeDto(
-            name =
-            TextModel(
-              uz = it["b_name_uz"] as? String,
-              ru = it["b_name_ru"] as? String,
-              eng = it["b_name_eng"] as? String
-            ),
-            textColor = it["text_color"] as? String,
-            bgColor = it["bg_color"] as? String,
-            icon = it["b_icon"] as? String
-          )
+            BadgeDto(
+              name =
+                TextModel(
+                  uz = it["b_name_uz"] as? String,
+                  ru = it["b_name_ru"] as? String,
+                  eng = it["b_name_eng"] as? String
+                ),
+              textColor = it["text_color"] as? String,
+              bgColor = it["bg_color"] as? String,
+              icon = it["b_icon"] as? String
+            )
         )
       )
     }
@@ -120,17 +121,17 @@ object UserRepositoryImpl : UserRepository {
             phone = rs.getString("phone"),
             image = rs.getString("image"),
             badge =
-            BadgeDto(
-              name =
-              TextModel(
-                uz = rs.getString("name_uz"),
-                ru = rs.getString("name_ru"),
-                eng = rs.getString("name_eng"),
-              ),
-              textColor = rs.getString("text_color"),
-              icon = rs.getString("icon"),
-              bgColor = rs.getString("bg_color")
-            )
+              BadgeDto(
+                name =
+                  TextModel(
+                    uz = rs.getString("name_uz"),
+                    ru = rs.getString("name_ru"),
+                    eng = rs.getString("name_eng"),
+                  ),
+                textColor = rs.getString("text_color"),
+                icon = rs.getString("icon"),
+                bgColor = rs.getString("bg_color")
+              )
           )
       }
     }
@@ -188,11 +189,11 @@ object UserRepositoryImpl : UserRepository {
 
     return ResponseModel(
       body =
-      DBManager.postData(
-        dataClass = UserTable::class,
-        dataObject = mapper.toUserTable(userDto),
-        tableName = USER_TABLE_NAME
-      ) ?: 0,
+        DBManager.postData(
+          dataClass = UserTable::class,
+          dataObject = mapper.toUserTable(userDto),
+          tableName = USER_TABLE_NAME
+        ) ?: 0,
       httpStatus = ResponseModel.OK
     )
   }
@@ -228,7 +229,8 @@ object UserRepositoryImpl : UserRepository {
               this.setTimestamp(++x, userDto.birthDay)
               this.setTimestamp(++x, Timestamp(System.currentTimeMillis()))
               this.closeOnCompletion()
-            }.executeUpdate()
+            }
+            .executeUpdate()
       }
       return@withContext rs != 0
     }
@@ -267,39 +269,53 @@ object UserRepositoryImpl : UserRepository {
   override suspend fun get(id: Long?, merchantId: Long?): UserDto? {
     val query =
       """
-            select u.*,
+            select 
+            u.*,
+                    
                    b.name_uz    b_name_uz,
                    b.name_ru    b_name_ru,
                    b.name_eng   b_name_eng,
                    b.text_color bt_color,
                    b.bg_color   bg_color,
-                   b.icon       b_icon
-            from users u
-                     left join badge b on b.id = u.badge_id
+                   b.icon       b_icon,
+                   o.all_orders  orders,
+                   v.all_visits  visits
+            from users u 
+            left join (select user_id, count(id) all_orders
+                                    from orders
+                                    where not deleted
+                                    group by user_id) as o on o.user_id = u.id
+            left join (select user_id, count(id) all_visits
+                                    from visit
+                                    where not deleted
+                                    group by user_id) as v on v.user_id = u.id
+            left join badge b on b.id = u.badge_id
             where u.id = $id
               and not u.deleted
         """
         .trimIndent()
     log.info("query: $query")
     return withContext(DBManager.databaseDispatcher) {
-      DBManager.connection().use { it ->
+      DBManager.connection().use {
         val rs = it.prepareStatement(query).executeQuery()
         if (rs.next()) {
           UserDto(
             id = rs.getLong("id"),
             badge =
-            BadgeDto(
-              id = rs.getLong("badge_id"),
-              name =
-              TextModel(
-                uz = rs.getString("b_name_uz"),
-                ru = rs.getString("b_name_ru"),
-                eng = rs.getString("b_name_eng"),
+              BadgeDto(
+                id = rs.getLong("badge_id"),
+                name =
+                  TextModel(
+                    uz = rs.getString("b_name_uz"),
+                    ru = rs.getString("b_name_ru"),
+                    eng = rs.getString("b_name_eng"),
+                  ),
+                textColor = rs.getString("bt_color"),
+                bgColor = rs.getString("bg_color"),
+                icon = rs.getString("b_icon"),
               ),
-              textColor = rs.getString("bt_color"),
-              bgColor = rs.getString("bg_color"),
-              icon = rs.getString("b_icon"),
-            ),
+            orderCount = rs.getLong("orders"),
+            visitCount = rs.getLong("visits"),
             cashbackBalance = rs.getDouble("balance"),
             firstName = rs.getString("first_name"),
             phone = rs.getString("phone"),
@@ -315,10 +331,10 @@ object UserRepositoryImpl : UserRepository {
 
   override suspend fun get(phone: String?, merchantId: Long?): UserDto? {
     return DBManager.getPageData(
-      dataClass = UserTable::class,
-      tableName = USER_TABLE_NAME,
-      where = mapOf("phone" to phone as Any, "merchant_id" to merchantId as Any)
-    )
+        dataClass = UserTable::class,
+        tableName = USER_TABLE_NAME,
+        where = mapOf("phone" to phone as Any, "merchant_id" to merchantId as Any)
+      )
       ?.data
       ?.firstOrNull()
       ?.let { mapper.toUserDto(it) }
@@ -331,7 +347,7 @@ object UserRepositoryImpl : UserRepository {
         """
         .trimIndent()
     log.info("query: $query")
-    var res = false
+    var res: Boolean
     withContext(DBManager.databaseDispatcher) {
       DBManager.connection().use { it ->
         res = it.prepareStatement(query).apply { setString(1, phone) }.executeUpdate() == 1
@@ -353,5 +369,31 @@ object UserRepositoryImpl : UserRepository {
       }
     }
     return res
+  }
+
+  override suspend fun search(phone: String?, merchantId: Long?): DataPage<UserDto> {
+    val query =
+      "SELECT count(*) over() as total, * FROM users WHERE phone like '%$phone%' AND merchant_id = $merchantId"
+    val list = mutableListOf<UserDto>()
+    var total = 0L
+    return withContext(DBManager.databaseDispatcher) {
+      repository.connection().use {
+        val rs = it.prepareStatement(query).executeQuery()
+        while (rs.next()) {
+          total = rs.getLong("total")
+          list.add(
+            UserDto(
+              id = rs.getLong("id"),
+              phone = rs.getString("phone"),
+              firstName = rs.getString("first_name"),
+              lastName = rs.getString("last_name"),
+              image = rs.getString("image"),
+              cashbackBalance = rs.getDouble("balance")
+            )
+          )
+        }
+        return@withContext DataPage(data = list, total = total.toInt())
+      }
+    }
   }
 }

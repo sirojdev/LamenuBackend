@@ -67,7 +67,6 @@ fun Route.routeToCourier() {
       val principal = call.principal<BasePrincipal>()
       val courierId = call.parameters["courierId"]?.toLongOrNull()
       val merchantId = principal?.merchantId
-      val search = call.parameters["search"]
       val filters = call.parameters["filters"]
       val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
       val offset = call.parameters["offset"]?.toIntOrNull() ?: 0

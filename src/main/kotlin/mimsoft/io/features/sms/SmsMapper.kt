@@ -14,7 +14,8 @@ object SmsMapper {
         message = MessageDto(id = smsTable.messageId),
         time = smsTable.time,
         client = UserDto(id = smsTable.clientId),
-        status = Status.valueOf(smsTable.status ?: "NOT_SENT")
+        status = Status.valueOf(smsTable.status ?: "NOT_SENT"),
+        context = smsTable.context
       )
   }
 
