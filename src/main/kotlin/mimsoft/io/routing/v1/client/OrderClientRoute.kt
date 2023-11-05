@@ -23,11 +23,8 @@ fun Route.routeToClientOrder() {
   get("orders") {
     val pr = getPrincipal()
     val statuses = call.parameters["statuses"]
-    val s = statuses?.split(",")?.iterator()
     val list = ArrayList<String>()
-    if (s != null) {
-      s.forEach { list.add(it) }
-    }
+    statuses?.split(",")?.iterator()?.forEach { list.add(it) }
     val search = call.parameters["search"]
     val limit = min(call.parameters["limit"]?.toIntOrNull() ?: 10, 50)
     val offset = call.parameters["offset"]?.toIntOrNull() ?: 0

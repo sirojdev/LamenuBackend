@@ -22,7 +22,7 @@ data class Order(
   var merchant: MerchantDto? = null,
   var branch: BranchDto? = null,
   val products: List<CartItem>? = null,
-  val paymentMethod: PaymentTypeDto? = null,
+  var paymentMethod: PaymentTypeDto? = null,
   val isPaid: Boolean? = null,
   val comment: String? = null,
   var productCount: Int? = null,

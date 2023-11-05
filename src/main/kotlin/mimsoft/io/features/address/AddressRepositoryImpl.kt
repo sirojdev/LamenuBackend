@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mimsoft.io.repository.BaseRepository
 import mimsoft.io.repository.DBManager
+import mimsoft.io.utils.plugins.GSON
 
 object AddressRepositoryImpl : AddressRepository {
   private val repository: BaseRepository = DBManager
@@ -50,6 +51,37 @@ object AddressRepositoryImpl : AddressRepository {
     //            tableName = ADDRESS_TABLE_NAME
     //        )
     //        return mapper.toAddressDto(data.firstOrNull() as AddressTable?)
+  }
+
+  suspend fun addForOrder(address: AddressDto?): Long? {
+    val query =
+      """insert into address (type, name, details, description, latitude, longitude, created, updated, client_id, merchant_id)
+           values(?, ?, ?, ?, ${address?.latitude}, ${address?.longitude}, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', ${address?.clientId}, ${address?.merchantId})
+           returning id
+        """
+        .trimMargin()
+
+    var generatedId: Long? = null
+
+    withContext(Dispatchers.IO) {
+      repository.connection().use { connection ->
+        val preparedStatement = connection.prepareStatement(query)
+        preparedStatement.setString(1, address?.type?.name)
+        preparedStatement.setString(2, address?.name)
+        preparedStatement.setString(3, GSON.toJson(address?.details))
+        preparedStatement.setString(4, address?.description)
+
+        val resultSet = preparedStatement.executeQuery()
+
+        if (resultSet.next()) {
+          generatedId = resultSet.getLong("id")
+        }
+
+        resultSet.close()
+      }
+    }
+
+    return generatedId
   }
 
   override suspend fun add(addressDto: AddressDto?): Long? =
